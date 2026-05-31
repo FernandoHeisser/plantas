@@ -10,6 +10,9 @@
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+    <!-- Feature flag: default seguro (só V1). config.js é gerado no build a partir da env SHOW_ALL_VERSIONS. -->
+    <script>window.FEATURE_SHOW_ALL_VERSIONS = false;</script>
+    <script src="config.js"></script>
     <style>
         :root {
             --m: 13px;
@@ -582,9 +585,17 @@
     let ver = 'v1', sec = '2d';
 
     function setVersion(v) {
+        // V2/V3 só quando o flag está ligado (env SHOW_ALL_VERSIONS=true)
+        if (window.FEATURE_SHOW_ALL_VERSIONS !== true && v !== 'v1') return;
         document.querySelectorAll('.vtab').forEach(t => t.classList.toggle('active', t.dataset.v === v));
         ver = v;
         render();
+    }
+
+    // Remove as abas V2/V3 do header quando o flag está desligado
+    function applyVersionGate() {
+        if (window.FEATURE_SHOW_ALL_VERSIONS === true) return;
+        document.querySelectorAll('.vtab[data-v="v2"], .vtab[data-v="v3"]').forEach(b => b.remove());
     }
 
     function setSection(s) {
@@ -2043,6 +2054,7 @@
 
     // Inicializa o mapa do painel inicial
     window.addEventListener('load', () => {
+        applyVersionGate();
         setViewHeight();
         setTimeout(() => initMap('v1'), 150);
     });
