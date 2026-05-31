@@ -1,0 +1,4 @@
+# Arquivos que não precisam ir para o deploy (mantêm o build limpo)
+CLAUDE.md
+docs/
+.claude/

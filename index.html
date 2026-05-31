@@ -1,0 +1,2052 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Casa</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+    <style>
+        :root {
+            --m: 13px;
+            --bg: #0f1117;
+            --sticky-h: 114px;
+            --card-bg: #1a1f2e;
+            --construido: #0f172a;
+            --header-secondary: #1a2540;
+            --grama: #f0fdf4;
+            --norte: #fef08a;
+            --recuo: #e2e8f0;
+            --grid-line: rgba(0,0,0,0.04);
+            --text: #8b97a8;
+            --text-dark: #e2e8f0;
+            --blue: #3b82f6;
+            --green: #16a34a;
+            --amber: #f59e0b;
+            --purple: #8b5cf6;
+            --border: #2d3748;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--text); line-height: 1.5; }
+
+        /* ── STICKY BLOCK ── */
+        .sticky-top {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.22);
+        }
+
+        /* ── HEADER ── */
+        .app-header {
+            background: var(--construido);
+            color: white;
+            padding: 14px 24px 12px;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.2px; }
+        .header-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+        /* Version tabs — pill style */
+        .version-tabs { display: flex; gap: 6px; }
+        .vtab {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.05);
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .vtab:hover { background: rgba(255,255,255,0.1); color: #94a3b8; }
+        .vtab[data-v="v1"].active { background: rgba(59,130,246,0.2);  border-color: rgba(59,130,246,0.45); color: #93c5fd; }
+        .vtab[data-v="v2"].active { background: rgba(245,158,11,0.2);  border-color: rgba(245,158,11,0.45); color: #fbbf24; }
+        .vtab[data-v="v3"].active { background: rgba(139,92,246,0.2);  border-color: rgba(139,92,246,0.45); color: #c4b5fd; }
+
+        /* ── SECTION NAV — dark secondary, pills ── */
+        .section-nav {
+            background: var(--header-secondary);
+            padding: 7px 20px;
+            display: flex;
+            gap: 4px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .stab {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .stab:hover { background: rgba(255,255,255,0.07); color: #94a3b8; }
+        .stab.active { background: rgba(255,255,255,0.12); color: #e2e8f0; font-weight: 600; }
+
+        /* ── PANELS ── */
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        .content { padding: 0; margin: 0; }
+
+        /* Painéis 2D e 3D real (V1): full-bleed, sem padding */
+        [id$="-2d"] .card,
+        #p-v1-3d .card,
+        #p-v2-3d .card {
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            margin: 0;
+            box-shadow: none;
+            height: calc(100dvh - var(--sticky-h));
+            overflow: hidden;
+        }
+        /* Placeholders 3D (V2/V3): altura padronizada, mantém padding */
+        #p-v2-3d .card,
+        #p-v3-3d .card {
+            height: calc(100dvh - var(--sticky-h));
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── CARDS ── */
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+        .card h2 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .two-col { display: grid; grid-template-columns: auto 1fr; gap: 36px; align-items: start; }
+        @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+
+        /* ── STATS ── */
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 22px; }
+        .stat { background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+        .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #4b5563; font-family: 'JetBrains Mono', monospace; margin-bottom: 3px; }
+        .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--text-dark); font-family: 'JetBrains Mono', monospace; line-height: 1; }
+        .stat-unit { font-size: 0.65rem; color: #6b7280; }
+
+        /* ── DIAGRAM ── */
+        .diagrama-area { display: flex; gap: 28px; flex-wrap: wrap; }
+        .col-planta { display: flex; flex-direction: column; align-items: center; }
+        .planta-label {
+            font-size: 9px; font-weight: 600; text-transform: uppercase;
+            background: #e2e8f0; padding: 3px 10px; border-radius: 10px;
+            margin-bottom: 10px; color: #475569;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .diagrama-wrap { position: relative; }
+        .terreno {
+            position: relative;
+            width: calc(10 * var(--m));
+            height: calc(40 * var(--m));
+            background: white;
+            border: 2px solid var(--construido);
+            overflow: hidden;
+        }
+        .terreno::before {
+            content: "";
+            position: absolute; inset: 0; z-index: 2; pointer-events: none;
+            background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: var(--m) var(--m);
+        }
+        .bloco {
+            position: absolute;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; font-family: 'JetBrains Mono', monospace; padding: 3px; z-index: 3;
+        }
+        .ln { font-size: 7.5px; font-weight: 700; text-transform: uppercase; }
+        .ld { font-size: 6.5px; opacity: 0.75; margin-top: 1px; }
+
+        .b-mvp    { background: var(--construido); color: white; }
+        .b-garage { background: #1e3a5f; color: white; }
+        .b-future { background: transparent; color: #94a3b8; border: 1.5px dashed #cbd5e1; }
+        .b-floor2 { background: rgba(124,58,237,0.12); color: #5b21b6; border: 2px solid #8b5cf6; }
+        .b-grama  { background: var(--grama); color: #166534; }
+        .b-norte  { background: var(--norte); color: #713f12; }
+        .b-recuo  { background: var(--recuo); color: #475569; }
+        .b-blank  { background: #f8fafc; }
+
+        .regua {
+            position: absolute; left: -32px; top: 0; height: 100%;
+            display: flex; flex-direction: column; justify-content: space-between;
+            font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #94a3b8;
+            border-right: 1px solid #e2e8f0; padding-right: 4px; text-align: right;
+        }
+        .rua {
+            width: calc(10 * var(--m)); height: 26px; background: #cbd5e1;
+            margin-top: 3px; display: flex; justify-content: center; align-items: center;
+            font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #475569;
+            letter-spacing: 1.5px; border: 1px solid #94a3b8; border-top: none;
+        }
+
+        /* Legenda e bússola */
+        .legenda { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 14px; font-size: 10px; }
+        .leg-item { display: flex; align-items: center; gap: 5px; }
+        .leg-cor { width: 10px; height: 10px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+        .bussola-wrap { display: flex; flex-direction: column; align-items: center; margin-top: 14px; }
+        .bussola-sub { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #94a3b8; margin-top: 3px; }
+
+
+        /* ── MAPA SATÉLITE ── */
+        .mapa-sat { width: 100%; height: 100%; border-radius: 0; z-index: 1; }
+
+        /* Labels permanentes sobre os polígonos */
+        .lot-label {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            color: inherit;
+            padding: 0 !important;
+        }
+        .lot-label::before { display: none !important; }
+        .lbl {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; pointer-events: none; line-height: 1.25;
+        }
+        .lbl-nome {
+            font-family: 'JetBrains Mono', monospace; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+        .lbl-dim {
+            font-family: 'JetBrains Mono', monospace; font-weight: 400;
+            opacity: 0.85; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        /* ── Cotas de afastamento ── */
+        .dim-ann { background: transparent !important; border: none !important;
+                   box-shadow: none !important; padding: 0 !important; }
+        .dim-ann::before { display: none !important; }
+        .dim-txt {
+            display: inline-block; transform: translate(-50%, -50%);
+            font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+            color: #fff; background: rgba(0,0,0,0.6);
+            padding: 2px 6px; border-radius: 3px; white-space: nowrap; line-height: 1.4;
+        }
+        /* ── Labels de cômodos ── */
+        .room-lbl { background: transparent !important; border: none !important;
+                    box-shadow: none !important; padding: 0 !important; }
+        .room-lbl::before { display: none !important; }
+        .rlbl {
+            display: inline-block; transform: translate(-50%, -50%);
+            text-align: center; line-height: 1.35; pointer-events: none;
+        }
+        .rlbl-nome { font-family: 'JetBrains Mono', monospace; font-size: 9.5px;
+                     font-weight: 700; color: #1e293b; white-space: nowrap; }
+        .rlbl-dim  { font-family: 'JetBrains Mono', monospace; font-size: 8.5px;
+                     color: #64748b; white-space: nowrap; }
+        .rlbl-area { font-family: 'JetBrains Mono', monospace; font-size: 9px;
+                     font-weight: 600; color: #334155; white-space: nowrap; }
+        /* ── Indicador de zoom ── */
+        .zoom-indicator {
+            background: rgba(0,0,0,0.65);
+            color: #e2e8f0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            padding: 4px 9px;
+            border-radius: 5px;
+            pointer-events: none;
+            line-height: 1.4;
+        }
+        .zoom-indicator strong { color: #fbbf24; }
+
+        /* ── Visibilidade por zoom ── */
+        /* ── Labels de portas ── */
+        .door-lbl { background: transparent !important; border: none !important;
+                    box-shadow: none !important; padding: 0 !important; }
+        .door-lbl::before { display: none !important; }
+        .dlbl {
+            display: inline-block; transform: translate(-50%,-50%);
+            font-family: 'JetBrains Mono', monospace; font-size: 8.5px; font-weight: 700;
+            color: #fff; background: rgba(185,28,28,0.88);
+            padding: 2px 6px; border-radius: 3px; white-space: nowrap;
+            pointer-events: none; text-shadow: 0 1px 2px rgba(0,0,0,0.6); line-height: 1.4;
+        }
+
+        /* zoom < 22: tudo escondido */
+        .zlvl-far .dim-ann,
+        .zlvl-far .room-lbl,
+        .zlvl-far .furn-lbl,
+        .zlvl-far .door-lbl,
+        .zlvl-far .lot-label { display: none !important; }
+        /* zoom >= 22: tudo visível */
+
+        /* ── Móveis ── */
+        .furn-lbl { background: transparent !important; border: none !important;
+                    box-shadow: none !important; padding: 0 !important; }
+        .furn-lbl::before { display: none !important; }
+        .flbl {
+            display: inline-block; transform: translate(-50%,-50%);
+            font-family: 'JetBrains Mono', monospace; font-size: 6px; font-weight: 700;
+            color: #fff; white-space: nowrap; pointer-events: none; text-align: center;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.95); line-height: 1.2;
+        }
+        /* ── Mapa com overlays internos (bússola + legenda) ── */
+        .map-wrap { display: flex; height: 100%; min-height: 0; position: relative; }
+        .mapa-sat { flex: 1; min-width: 0; min-height: 0; }
+        /* Bússola 2D: mesmo canto do 3D (top-left) */
+        .map-wrap .scene3d-compass { z-index: 800; }
+        /* Legenda 2D: acima do indicador de zoom do Leaflet (bottomleft, ~26px) */
+        .map-legend-ov {
+            position: absolute; bottom: 40px; left: 10px; z-index: 800;
+            background: rgba(15,23,42,0.78); border: 1px solid rgba(148,163,184,0.4);
+            border-radius: 8px; padding: 8px 12px;
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .map-legend-ov .map-legend { display: flex; flex-direction: column; gap: 6px; }
+        .map-legend-ov .leg-item {
+            font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #9ca3af;
+            display: flex; align-items: center; gap: 7px; white-space: nowrap;
+        }
+        .map-legend { display: flex; flex-direction: column; gap: 7px; width: 100%; }
+        .leg-item {
+            display: flex; align-items: center; gap: 7px;
+            font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #9ca3af;
+            white-space: nowrap;
+        }
+        .leg-sq {
+            width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .leg-sq-dashed {
+            width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0;
+            border: 1.5px dashed #3b82f6; background: #dbeafe;
+        }
+        .leg-sq-outline {
+            width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0;
+            border: 2px solid #f59e0b; background: transparent;
+        }
+        .leg-divider { display: none; }
+
+        /* ── RESPONSIVIDADE MOBILE ── */
+        @media (max-width: 640px) {
+            :root { --sticky-h: 100px; }
+
+            .app-header { padding: 9px 14px 8px; }
+            .header-title { font-size: 0.88rem; }
+            .header-meta { font-size: 9.5px; }
+            .vtab { padding: 4px 9px; font-size: 10px; }
+            .version-tabs { gap: 4px; }
+
+            .section-nav { padding: 5px 10px; }
+            .stab { padding: 5px 11px; font-size: 12px; }
+
+            /* Overlays do mapa menores no mobile */
+            .map-legend-ov { padding: 6px 10px; gap: 4px; }
+            .map-legend-ov .leg-item { font-size: 9.5px; }
+
+            /* HUD 3D compacto */
+            .scene3d-hud {
+                font-size: 10px; padding: 5px 8px; gap: 6px; flex-wrap: wrap;
+            }
+            .scene3d-hud input[type=range] { width: 90px; }
+            .scene3d-toolbar button { font-size: 10px; padding: 4px 8px; }
+        }
+
+        @media (max-width: 400px) {
+            :root { --sticky-h: 96px; }
+            .header-meta { display: none; }
+            .vtab { padding: 4px 7px; font-size: 9.5px; }
+        }
+        .map-btn {
+            padding: 5px 12px; background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.4);
+            color: #93c5fd; border-radius: 6px; font-size: 11px; cursor: pointer;
+            font-family: 'JetBrains Mono', monospace; transition: all 0.15s;
+        }
+        .map-btn:hover { background: rgba(59,130,246,0.35); }
+        .map-btn.ativo { background: rgba(245,158,11,0.25); border-color: rgba(245,158,11,0.5); color: #fbbf24; }
+
+        /* ── 3D PLACEHOLDER ── */
+        .ph3d {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 380px; border: 2px dashed var(--border); border-radius: 12px;
+            background: rgba(0,0,0,0.2); gap: 14px; padding: 40px; text-align: center;
+        }
+        .ph3d-title { font-size: 1rem; font-weight: 600; color: #4b5563; }
+        .ph3d-sub { font-size: 11px; color: #374151; font-family: 'JetBrains Mono', monospace; max-width: 280px; }
+        .ph3d-badge { background: rgba(0,0,0,0.3); color: #6b7280; font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); }
+
+        /* ── 3D (Three.js gerado a partir do 2D) ── */
+        .scene3d {
+            position: relative; width: 100%; height: 100%;
+            overflow: hidden;
+            background: linear-gradient(#aab9c9, #d7dee5);
+        }
+        .scene3d canvas { display: block; }
+        .scene3d-toolbar { position: absolute; top: 10px; right: 10px; z-index: 5; display: flex; gap: 6px; }
+        .scene3d-toolbar button {
+            background: rgba(15,23,42,0.78); color: #e2e8f0; border: 1px solid rgba(148,163,184,0.4);
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 5px 10px;
+            border-radius: 6px; cursor: pointer;
+        }
+        .scene3d-toolbar button:hover { background: rgba(15,23,42,0.95); }
+
+        /* HUD de horário/mês */
+        .scene3d-hud {
+            position: absolute; left: 10px; bottom: 10px; z-index: 5;
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            background: rgba(15,23,42,0.78); border: 1px solid rgba(148,163,184,0.4);
+            border-radius: 8px; padding: 8px 12px;
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #e2e8f0;
+        }
+        .scene3d-hud input[type=range] { width: 150px; accent-color: #fbbf24; cursor: pointer; }
+        .scene3d-hud select {
+            background: rgba(15,23,42,0.9); color: #e2e8f0; border: 1px solid rgba(148,163,184,0.4);
+            border-radius: 5px; padding: 3px 6px; font-family: inherit; font-size: 11px;
+        }
+        .scene3d-hud .hud-clock { font-weight: 600; color: #fbbf24; min-width: 86px; }
+        /* Bússola */
+        .scene3d-compass {
+            position: absolute; top: 10px; left: 10px; z-index: 5;
+            width: 58px; height: 58px; border-radius: 50%;
+            background: rgba(15,23,42,0.78); border: 1px solid rgba(148,163,184,0.4);
+        }
+        .scene3d-compass .rose { position: absolute; inset: 0; }
+        .scene3d-compass .pt {
+            position: absolute; left: 50%; top: 50%; font: 700 10px 'JetBrains Mono', monospace;
+            color: #cbd5e1; transform: translate(-50%,-50%);
+        }
+        .scene3d-compass .pt.n { color: #f87171; }
+    </style>
+</head>
+<body>
+
+<div class="sticky-top">
+<header class="app-header">
+    <div class="header-top">
+        <div>
+            <div class="header-title">Projeto Casa</div>
+            <div class="header-meta">12,50m × 40,00m · Charqueadas, RS · Lote 500m²</div>
+        </div>
+        <div class="version-tabs">
+            <button class="vtab active" data-v="v1" onclick="setVersion('v1')">V1 · MVP</button>
+            <button class="vtab" data-v="v2" onclick="setVersion('v2')">V2 · Garagem</button>
+            <button class="vtab" data-v="v3" onclick="setVersion('v3')">V3 · Sobrado</button>
+        </div>
+    </div>
+</header>
+<nav class="section-nav">
+    <button class="stab active" data-s="2d"       onclick="setSection('2d')">Planta 2D</button>
+    <button class="stab"        data-s="3d"       onclick="setSection('3d')">Planta 3D</button>
+</nav>
+</div>
+
+<main class="content">
+
+    <!-- ══════════ V1 ══════════ -->
+
+    <div class="panel active" id="p-v1-2d">
+        <div class="card">
+            <div class="map-wrap">
+                <div id="map-v1" class="mapa-sat"></div>
+                <!-- Bússola: top-left, idêntica ao 3D -->
+                <div class="scene3d-compass">
+                    <div class="rose">
+                        <div class="pt n" style="left:29px;top:9px">N</div>
+                        <div class="pt"   style="left:47px;top:29px;color:#4ade80">L</div>
+                        <div class="pt"   style="left:29px;top:47px;color:#64748b">S</div>
+                        <div class="pt"   style="left:11px;top:29px;color:#f59e0b">O</div>
+                    </div>
+                </div>
+                <!-- Legenda: bottom-left, estilo HUD -->
+                <div class="map-legend-ov">
+                    <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
+                    <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v1-3d">
+        <div class="card">
+            <div id="scene3d-v1" class="scene3d">
+                <div class="scene3d-toolbar">
+                    <button type="button" onclick="set3DRoof('v1', this)">Laje: oculta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ══════════ V2 ══════════ -->
+
+    <div class="panel" id="p-v2-2d">
+        <div class="card">
+            <div class="map-wrap">
+                <div id="map-v2" class="mapa-sat"></div>
+                <!-- Bússola: top-left, idêntica ao 3D -->
+                <div class="scene3d-compass">
+                    <div class="rose">
+                        <div class="pt n" style="left:29px;top:9px">N</div>
+                        <div class="pt"   style="left:47px;top:29px;color:#4ade80">L</div>
+                        <div class="pt"   style="left:29px;top:47px;color:#64748b">S</div>
+                        <div class="pt"   style="left:11px;top:29px;color:#f59e0b">O</div>
+                    </div>
+                </div>
+                <!-- Legenda: bottom-left, estilo HUD -->
+                <div class="map-legend-ov">
+                    <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
+                    <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v2-3d">
+        <div class="card">
+            <div id="scene3d-v2" class="scene3d">
+                <div class="scene3d-toolbar">
+                    <button type="button" onclick="set3DRoof('v2', this)">Laje: oculta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ══════════ V3 ══════════ -->
+
+    <div class="panel" id="p-v3-2d">
+        <div class="card">
+            <div class="map-wrap">
+                <div id="map-v3" class="mapa-sat"></div>
+                <!-- Bússola: top-left, idêntica ao 3D -->
+                <div class="scene3d-compass">
+                    <div class="rose">
+                        <div class="pt n" style="left:29px;top:9px">N</div>
+                        <div class="pt"   style="left:47px;top:29px;color:#4ade80">L</div>
+                        <div class="pt"   style="left:29px;top:47px;color:#64748b">S</div>
+                        <div class="pt"   style="left:11px;top:29px;color:#f59e0b">O</div>
+                    </div>
+                </div>
+                <!-- Legenda: bottom-left, estilo HUD -->
+                <div class="map-legend-ov">
+                    <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
+                    <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v3-3d">
+        <div class="card">
+            <h2>Planta 3D — V3: Projeto Ultimate</h2>
+            <div class="ph3d">
+                <svg width="130" height="95" viewBox="0 0 130 95" fill="none" opacity="0.3">
+                    <rect x="5"  y="58" width="120" height="32" stroke="#0f172a" stroke-width="2"/>
+                    <rect x="5"  y="30" width="120" height="28" stroke="#7c3aed" stroke-width="2"/>
+                    <polygon points="5,30 65,8 125,30" stroke="#0f172a" stroke-width="2" fill="none"/>
+                </svg>
+                <div class="ph3d-title">Modelo 3D em desenvolvimento</div>
+                <div class="ph3d-sub">Modelo completo com térreo e 2º pavimento após o projeto executivo final</div>
+                <span class="ph3d-badge">Aguardando projeto executivo V3</span>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    let ver = 'v1', sec = '2d';
+
+    function setVersion(v) {
+        document.querySelectorAll('.vtab').forEach(t => t.classList.toggle('active', t.dataset.v === v));
+        ver = v;
+        render();
+    }
+
+    function setSection(s) {
+        document.querySelectorAll('.stab').forEach(t => t.classList.toggle('active', t.dataset.s === s));
+        sec = s;
+        render();
+    }
+
+    function render() {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        const el = document.getElementById(`p-${ver}-${sec}`);
+        if (el) el.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (sec === '2d') setTimeout(() => initMap(ver), 60);
+        if (sec === '3d') setTimeout(() => init3D(ver), 60);
+    }
+
+    // ── Leaflet satellite map — posição alinhada definitivamente ─────────────
+    const LAT_M  = 1 / 111320;
+    const LNG_M  = 1 / 96373;
+    const ESRI_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
+    // Cor única do terreno — usada tanto no 2D (Leaflet) quanto no 3D (Three.js)
+    const LOT_FILL   = '#5f7a3f';   // verde grama (string para Leaflet)
+    const LOT_FILL_N = 0x5f7a3f;   // numérico para Three.js
+
+    // Coordenadas alinhadas ao satélite (meio da testada) e rotação do lote
+    const LOT_LAT   = -29.96296858;
+    const LOT_LNG   = -51.63740784;
+    const LOT_ANGLE = -3;           // graus — lote levemente girado anti-horário
+
+    // Constantes pré-calculadas para a rotação
+    const _θ    = LOT_ANGLE * Math.PI / 180;
+    const _cosT = Math.cos(_θ);
+    const _sinT = Math.sin(_θ);
+    const _swLat = LOT_LAT - 6.25 * LAT_M;
+    const _swLng = LOT_LNG;
+
+    // Retorna [lat, lng] para um ponto do lote em metros (mN=norte, mE=leste),
+    // aplicando a rotação em torno do centro geométrico (6.25, 20)
+    function rot(mN, mE) {
+        const dN = mN - 6.25, dE = mE - 20;
+        return [_swLat + (6.25 + dN * _cosT - dE * _sinT) * LAT_M,
+                _swLng + (20   + dN * _sinT + dE * _cosT) * LNG_M];
+    }
+
+    const maps = {};
+
+    // ── Captura do modelo geométrico (fonte única p/ 2D e 3D) ───────────────
+    // Quando GEO !== null, os helpers métricos registram aqui o que desenham,
+    // em metros do lote (mN, mE). O renderizador 3D (build3D) consome isso.
+    let GEO = null;
+
+
+
+    // Helper: marcador de dimensão posicionado em coordenadas do lote (mN, mE)
+    function dimLabel(mN, mE, nome, dims, area, corNome, corDim) {
+        const p = rot(mN, mE);
+        return L.marker(p, {
+            icon: L.divIcon({
+                className: 'lot-label',
+                html: `<div class="lbl">
+                    <div class="lbl-nome" style="font-size:11px;color:${corNome}">${nome}</div>
+                    <div class="lbl-dim"  style="font-size:10px;color:${corDim}">${dims}</div>
+                    <div class="lbl-dim"  style="font-size:12px;font-weight:700;color:${corNome}">${area}</div>
+                </div>`,
+                iconSize: [130, 52],
+                iconAnchor: [65, 26]
+            }),
+            interactive: false
+        });
+    }
+
+    // ── Label de cômodo centrado no ponto (mN, mE) ───────────────────────
+    function roomLabel(mN, mE, nome, dims, area) {
+        return L.marker(rot(mN, mE), {
+            icon: L.divIcon({
+                className: 'room-lbl',
+                html: `<div class="rlbl">
+                    <div class="rlbl-nome">${nome}</div>
+                    <div class="rlbl-dim">${dims}</div>
+                    <div class="rlbl-area">${area}</div>
+                </div>`,
+                iconSize: [0, 0], iconAnchor: [0, 0]
+            }),
+            interactive: false
+        });
+    }
+
+    // ── Móvel: retângulo colorido + label centrado ────────────────────────
+    // mN, mE = centro; dn = tamanho N-S; de = tamanho E-O; cor = fill; nome = label
+    function furn(mN, mE, dn, de, cor, nome) {
+        const h = dn/2, w = de/2;
+        const layers = [];
+        layers.push(L.polygon(
+            [rot(mN-h,mE-w), rot(mN+h,mE-w), rot(mN+h,mE+w), rot(mN-h,mE+w)],
+            { color: 'rgba(0,0,0,0.3)', weight: 0.8,
+              fillColor: cor, fillOpacity: 0.88, interactive: false }
+        ));
+        if (nome) layers.push(L.marker(rot(mN, mE), {
+            icon: L.divIcon({
+                className: 'furn-lbl',
+                html: `<span class="flbl">${nome}</span>`,
+                iconSize: [0,0], iconAnchor: [0,0]
+            }),
+            interactive: false
+        }));
+        return layers;
+    }
+
+    // ── Porta: retângulo vermelho na parede + label externo ──────────────
+    // mN,mE: centro da porta; dn,de: espessura×largura; lblN,lblE: pos. do label
+    function door(mN, mE, dn, de, nome, lblN, lblE) {
+        const h = dn/2, w = de/2;
+        const layers = [];
+        layers.push(L.polygon(
+            [rot(mN-h,mE-w), rot(mN+h,mE-w), rot(mN+h,mE+w), rot(mN-h,mE+w)],
+            { color: '#991b1b', weight: 1.5, fillColor: '#ef4444', fillOpacity: 0.95, interactive: false }
+        ));
+        if (nome) layers.push(L.marker(rot(lblN ?? mN, lblE ?? mE), {
+            icon: L.divIcon({
+                className: 'door-lbl',
+                html: `<span class="dlbl">${nome}</span>`,
+                iconSize: [0,0], iconAnchor: [0,0]
+            }),
+            interactive: false
+        }));
+        return layers;
+    }
+
+    // ── Linha de cota com ticks e label central ───────────────────────────
+    // n1,e1 → n2,e2: pontos em metros no sistema do lote
+    // txtLabel: texto a mostrar no centro
+    function dimLine(n1, e1, n2, e2, txtLabel, cor) {
+        const c = cor || 'rgba(255,255,255,0.85)';
+        const DL = { color: c, weight: 1.5, dashArray: '5 3', interactive: false };
+        const TK = { color: c, weight: 2,   interactive: false };
+        const tk = 0.5; // comprimento do semi-tick em metros
+        const lys = [];
+
+        lys.push(L.polyline([rot(n1,e1), rot(n2,e2)], DL));
+
+        // Ticks perpendiculares a cada extremidade
+        const goE = Math.abs(e2-e1) >= Math.abs(n2-n1); // linha vai principalmente em E?
+        if (goE) {
+            lys.push(L.polyline([rot(n1-tk,e1), rot(n1+tk,e1)], TK));
+            lys.push(L.polyline([rot(n2-tk,e2), rot(n2+tk,e2)], TK));
+        } else {
+            lys.push(L.polyline([rot(n1,e1-tk), rot(n1,e1+tk)], TK));
+            lys.push(L.polyline([rot(n2,e2-tk), rot(n2,e2+tk)], TK));
+        }
+
+        // Label no centro
+        lys.push(L.marker(rot((n1+n2)/2, (e1+e2)/2), {
+            icon: L.divIcon({
+                className: 'dim-ann',
+                html: `<span class="dim-txt">${txtLabel}</span>`,
+                iconSize: [0, 0], iconAnchor: [0, 0]
+            }),
+            interactive: false
+        }));
+
+        return lys;
+    }
+
+    // ── Retângulo eixo-NE em metros do lote ──────────────────────────────
+    // opts.h3d = altura 3D (m); opts.z3d = base 3D (m); opts.no3d = ignorar no 3D
+    function rect(n, e, dn, de, fill, opts) {
+        if (GEO && !(opts && opts.no3d))
+            GEO.push({ k: 'solid', shape: 'rect', n, e, dn, de,
+                       h: (opts && opts.h3d != null) ? opts.h3d : 0.45,
+                       z: (opts && opts.z3d) || 0, color: fill,
+                       m3d: opts && opts.m3d, ext3d: !!(opts && opts.ext3d),
+                       extZ3d: (opts && opts.extZ3d != null) ? opts.extZ3d : undefined });
+        return L.polygon([rot(n,e), rot(n+dn,e), rot(n+dn,e+de), rot(n,e+de)],
+            Object.assign({
+                color: 'rgba(0,0,0,0.35)', weight: 0.5,
+                fillColor: fill, fillOpacity: 1, interactive: false
+            }, opts || {}));
+    }
+
+    // ── Círculo em metros (aprox. por polígono de 32 lados) ──────────────
+    function circ(n, e, r, fill, opts) {
+        if (GEO && !(opts && opts.no3d))
+            GEO.push({ k: 'solid', shape: 'circ', n, e, r,
+                       h: (opts && opts.h3d != null) ? opts.h3d : 0.45,
+                       z: (opts && opts.z3d) || 0, color: fill,
+                       m3d: opts && opts.m3d, ext3d: !!(opts && opts.ext3d),
+                       extZ3d: (opts && opts.extZ3d != null) ? opts.extZ3d : undefined });
+        const pts = [];
+        for (let i = 0; i < 32; i++) {
+            const a = i / 32 * Math.PI * 2;
+            pts.push(rot(n + Math.sin(a)*r, e + Math.cos(a)*r));
+        }
+        return L.polygon(pts, Object.assign({
+            color: 'rgba(0,0,0,0.35)', weight: 0.5,
+            fillColor: fill, fillOpacity: 1, interactive: false
+        }, opts || {}));
+    }
+
+    // ── Parede grossa centrada na linha (n1,e1)→(n2,e2), espessura t ─────
+    function wall(n1, e1, n2, e2, t, opts) {
+        if (GEO) GEO.push({ k: 'wall', n1, e1, n2, e2, t });
+        const dn = n2 - n1, de = e2 - e1;
+        const len = Math.hypot(dn, de);
+        const on = -de / len * (t/2), oe = dn / len * (t/2);
+        return L.polygon([
+            rot(n1+on, e1+oe), rot(n2+on, e2+oe),
+            rot(n2-on, e2-oe), rot(n1-on, e1-oe)
+        ], Object.assign({
+            color: '#0f172a', weight: 0.7,
+            fillColor: '#334155', fillOpacity: 1, interactive: false
+        }, opts || {}));
+    }
+
+    // ── Arco de abertura de porta + folha + pivô ─────────────────────────
+    // hinge=(hn,he); (dn,de) = ponta da folha fechada relativa ao hinge;
+    // swing: +1 anti-horário / -1 horário (rotação em torno do hinge)
+    function doorArc(hn, he, dn, de, swing, opts) {
+        if (GEO && !(opts && opts.no3d)) GEO.push({ k: 'doorleaf', hn, he, dn, de, swing, glass: !!(opts && opts.glass) });
+        const r = Math.hypot(dn, de);
+        const t0 = Math.atan2(dn, de);
+        const t1 = t0 + (Math.PI/2) * swing;
+        const pts = [];
+        for (let i = 0; i <= 18; i++) {
+            const t = t0 + (t1 - t0) * (i/18);
+            pts.push(rot(hn + Math.sin(t)*r, he + Math.cos(t)*r));
+        }
+        const layers = [];
+        layers.push(L.polyline(pts, { color: '#64748b', weight: 1, dashArray: '2 2', interactive: false }));
+        layers.push(L.polyline([rot(hn,he), rot(hn+dn, he+de)],
+            { color: '#1e293b', weight: 2.6, interactive: false }));
+        layers.push(circ(hn, he, 0.06, '#1e293b', { color: '#1e293b', weight: 0.5 }));
+        return layers;
+    }
+
+    // ── Janela: abertura branca + 3 linhas (caixilho / vidro / caixilho) ─────
+    // n,e = canto SW da abertura; dn,de = dimensões; axis='N' parede horiz, 'E' parede vert
+    function win(n, e, dn, de, axis) {
+        if (GEO) GEO.push({ k: 'opening', type: 'window', n, e, dn, de, axis,
+                            sill: 1.0, head: 2.1 });
+        const layers = [];
+        layers.push(rect(n, e, dn, de, '#fafafa', { color: 'transparent', weight: 0, no3d: true }));
+        const WC = { color: '#334155', weight: 1.5, interactive: false };
+        const WG = { color: '#bfdbfe', weight: 1.0, interactive: false };
+        if (axis === 'N') {
+            // Parede horizontal (mN=const): 3 linhas correm E-O
+            const n1 = n + dn*0.15, n2 = n + dn*0.5, n3 = n + dn*0.85;
+            layers.push(L.polyline([rot(n1, e), rot(n1, e+de)], WC));
+            layers.push(L.polyline([rot(n2, e), rot(n2, e+de)], WG));
+            layers.push(L.polyline([rot(n3, e), rot(n3, e+de)], WC));
+        } else {
+            // Parede vertical (mE=const): 3 linhas correm N-S
+            const e1 = e + de*0.15, e2 = e + de*0.5, e3 = e + de*0.85;
+            layers.push(L.polyline([rot(n, e1), rot(n+dn, e1)], WC));
+            layers.push(L.polyline([rot(n, e2), rot(n+dn, e2)], WG));
+            layers.push(L.polyline([rot(n, e3), rot(n+dn, e3)], WC));
+        }
+        return layers;
+    }
+
+    function buildLayers(v) {
+        const lys = [];
+
+        // Véu branco leve — satélite ainda visível ao redor
+        lys.push(L.rectangle([[-90,-180],[90,180]],
+            { color: 'white', weight: 0, fillColor: 'white', fillOpacity: 0.35, interactive: false }
+        ));
+
+        // ── Base comum V1/V2/V3: terreno + casa + interior ───────────────────
+        {
+
+            // Terreno
+            lys.push(L.polygon(
+                [rot(0,0), rot(12.5,0), rot(12.5,40), rot(0,40)],
+                { color: '#f59e0b', weight: 2.5, fillColor: LOT_FILL, fillOpacity: 0.82, interactive: false }
+            ));
+
+            // Casa MVP — chão papel: mN 2.0→7.0 × mE 22→30 (corredor sul = 2m, norte = 5,5m)
+            lys.push(L.polygon(
+                [rot(2.0,22), rot(7.0,22), rot(7.0,30), rot(2.0,30)],
+                { color: 'transparent', weight: 0, fillColor: '#fafafa', fillOpacity: 1, interactive: false }
+            ));
+
+            // Contorno âmbar do lote
+            lys.push(L.polygon(
+                [rot(0,0), rot(12.5,0), rot(12.5,40), rot(0,40)],
+                { color: '#f59e0b', weight: 3, fillOpacity: 0, interactive: false }
+            ));
+
+            // ── Cotas de afastamento ─────────────────────────────────────────
+            // Frente/fundo correm ao longo de mN=4 (centro N-S da casa: 1.5+6.5/2=4).
+            // Assim as linhas ficam alinhadas horizontalmente com a casa,
+            // terminando exatamente nas paredes frontal (mE=22) e traseira (mE=30).
+            // Laterais correm ao longo de mE=26 (centro E-O da casa, mE=22–30).
+            // → nenhuma linha se cruza (frente termina em mE=22 < 26, fundo começa em mE=30 > 26).
+
+            // Frente: V1 → casa (22 m); V2/V3 → frente da garagem (15 m)
+            if (v === 'v1') {
+                dimLine(4.5, 0, 4.5, 22, '22 m — frente').forEach(l => lys.push(l));
+            } else {
+                dimLine(4.5, 0, 4.5, 13, '13 m — frente').forEach(l => lys.push(l));
+            }
+
+            // Fundo: parede traseira → limite do fundo  (10 m)
+            dimLine(4.5, 30, 4.5, 40, '10 m — fundo').forEach(l => lys.push(l));
+
+            // Lat. direita (sul): limite sul → parede sul  (1,5 m)
+            dimLine(0, 26, 2.0, 26, '2 m — sul').forEach(l => lys.push(l));
+
+            // Lat. esquerda (norte): parede norte → limite norte
+            dimLine(7.0, 26, 12.5, 26, '5,5 m — norte').forEach(l => lys.push(l));
+
+            // ── Cotas totais do lote (beiradas externas) ─────────────────────
+            // Âmbar para diferenciar das cotas de afastamento (brancas).
+            // Topo: mN=14 (1,5m acima do lote), de mE=0 a mE=40  → 40 m
+            dimLine(14, 0, 14, 40, '40 m', '#f59e0b').forEach(l => lys.push(l));
+            // Lateral direita (leste): mE=42 (2m além do fundo), de mN=0 a mN=12,5 → 12,5 m
+            dimLine(0, 42, 12.5, 42, '12,5 m', '#f59e0b').forEach(l => lys.push(l));
+
+            // ─── PAREDES — externas 20cm, internas 10cm ──────────────────────
+            const EW = 0.20, IW = 0.10, FL = '#fafafa';
+
+            // Paredes externas (centradas em mN=1.5/6.5, mE=22/30)
+            lys.push(wall(2.0, 22,  2.0, 30, EW)); // sul
+            lys.push(wall(7.0, 22,  7.0, 30, EW)); // norte
+            lys.push(wall(2.0, 22,  7.0, 22, EW)); // oeste (frente)
+            lys.push(wall(2.0, 30,  7.0, 30, EW)); // leste (fundos)
+
+            // Paredes internas — banheiro + quarto
+            lys.push(wall(2.0, 25,  4.0, 25, IW)); // oeste do banheiro
+            lys.push(wall(4.0, 25,  4.0, 27, IW)); // norte do banheiro
+            lys.push(wall(2.0, 27,  4.5, 27, IW)); // leste banheiro / oeste quarto
+            lys.push(wall(4.5, 27,  4.5, 30, IW)); // norte do quarto
+
+            // Aberturas — cortam as paredes nas posições das portas
+            const cut = (n, e, dn, de, type) => {
+                if (GEO) GEO.push({ k: 'opening', type: type || 'door', n, e, dn, de, sill: 0, head: 2.1 });
+                lys.push(rect(n, e, dn, de, FL, { color: 'transparent', weight: 0, no3d: true }));
+            };
+            cut(3.05, 21.85, 0.9, 0.30); // Principal (parede oeste)
+            // Degraus externos — só V1 (no V2/V3 a garagem cobre essa área)
+            if (v === 'v1') {
+                lys.push(rect(2.90, 21.40, 1.20, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));
+                lys.push(rect(2.90, 21.70, 1.20, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
+            }
+            cut(2.90, 24.90, 0.8, 0.20); // Banheiro (interna)
+            cut(6.85, 25.40, 0.30, 1.80, 'glassdoor'); // Lateral dupla (parede norte) — porta de vidro
+            cut(4.70, 29.85, 0.9, 0.30); // Fundos (parede leste)
+            cut(4.40, 28.90, 0.20, 0.9); // Quarto (interna)
+
+            // Janelas
+            win(1.90, 25.70, 0.20, 0.80, 'N').forEach(l => lys.push(l)); // Banheiro — parede sul
+            win(2.80, 29.90, 1.00, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — parede leste
+            win(1.90, 22.80, 0.20, 1.00, 'N').forEach(l => lys.push(l)); // Sala — parede sul
+            win(6.90, 22.70, 0.20, 2.00, 'N').forEach(l => lys.push(l)); // Sala — parede norte (janela solar 2m, centralizada)
+            win(6.90, 27.70, 0.20, 1.60, 'N').forEach(l => lys.push(l)); // Cozinha — parede norte (1,6m)
+
+            // Portas — folha + arco de abertura + pivô
+            doorArc(3.05, 22.00,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
+            doorArc(2.90, 25.00,  0.8,  0.0, -1).forEach(l => lys.push(l)); // Banheiro → leste
+            doorArc(7.00, 25.40,  0.0,  0.9, +1, { glass: true }).forEach(l => lys.push(l)); // Lateral esq — folha de vidro aberta
+            doorArc(7.00, 27.20,  0.0, -0.9, -1, { glass: true }).forEach(l => lys.push(l)); // Lateral dir — folha de vidro aberta
+            // Degraus porta lateral (parede norte) — 2 × 20 cm, largura 2,0 m, pisada 30 cm
+            lys.push(rect(7.10, 25.30, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
+            lys.push(rect(7.40, 25.30, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
+            doorArc(4.70, 30.00,  0.9,  0.0, +1).forEach(l => lys.push(l)); // Fundos → abre para dentro (oeste, cozinha)
+            doorArc(4.50, 29.80,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → abre para sul (dentro), hinge leste
+
+            // ─── BANHEIRO 2×2 (mN 1.5→3.5, mE 25→27) ───────────────────────────
+            // Vaso — parede leste (mE=27), virado para a porta (oeste)
+            lys.push(rect(3.05, 26.75, 0.50, 0.20, '#e5e7eb', { color: '#475569', weight: 0.6, h3d: 0.85, no3d: true })); // caixa
+            lys.push(rect(3.10, 26.30, 0.40, 0.45, '#ffffff', { color: '#475569', weight: 0.8, h3d: 0.40, m3d: 'toilet' })); // bacia
+            lys.push(circ(3.30, 26.525, 0.12, '#f8fafc', { color: '#475569', weight: 0.5, no3d: true })); // tampa
+            // Lavatório — parede sul, entre parede oeste e box
+            lys.push(rect(2.10, 25.20, 0.32, 0.50, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.85, m3d: 'lavatory' }));
+            lys.push(rect(2.17, 25.28, 0.18, 0.33, '#dbeafe', { color: '#475569', weight: 0.4, no3d: true }));
+            lys.push(circ(2.21, 25.445, 0.025, '#94a3b8', { color: '#475569', weight: 0.3, no3d: true }));
+            // Box — canto SE (mN 2.10→2.90, mE 26.10→26.90)
+            lys.push(rect(2.10, 26.10, 0.80, 0.80, '#eff6ff',
+                { color: '#3b82f6', weight: 1, dashArray: '3 2', h3d: 1.90, m3d: 'shower' }));
+            lys.push(circ(2.50, 26.50, 0.07, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            lys.push(circ(2.50, 26.50, 0.025, '#475569', { color: '#1e293b', weight: 0.3, no3d: true }));
+
+            // ─── QUARTO ──────────────────────────────────────────────────────
+            // Cama de casal 1.4×1.9 — cabeceira ao sul (mN=1.6)
+            // Cama 180° — cabeceira na parede NORTE (mN=4.0), pé para o sul
+            lys.push(rect(2.60, 27.40, 1.90, 1.40, '#fef3c7', { color: '#92400e', weight: 0.9, z3d: 0.20, h3d: 0.30, m3d: 'bed' })); // colchão
+            lys.push(rect(4.40, 27.40, 0.10, 1.40, '#78350f', { color: '#451a03', weight: 0.5, h3d: 0.90, no3d: true })); // cabeceira (norte)
+            lys.push(rect(4.14, 27.50, 0.26, 0.55, '#ffffff', { color: '#94a3b8', weight: 0.5, no3d: true })); // travesseiro 1
+            lys.push(rect(4.14, 28.15, 0.26, 0.55, '#ffffff', { color: '#94a3b8', weight: 0.5, no3d: true })); // travesseiro 2
+            // Linha do edredom (vinco ~0,65m abaixo da cabeceira)
+            lys.push(L.polyline([rot(3.75, 27.45), rot(3.75, 28.75)],
+                { color: '#92400e', weight: 0.6, dashArray: '3 2', interactive: false }));
+            // Guarda-roupa — canto SUDESTE
+            lys.push(rect(2.10, 29.25, 0.55, 0.55, '#a16207', { color: '#451a03', weight: 0.8, h3d: 2.00, m3d: 'wardrobe' }));
+            lys.push(L.polyline([rot(2.10, 29.525), rot(2.65, 29.525)],
+                { color: '#451a03', weight: 0.5, interactive: false }));
+            lys.push(L.polyline([rot(2.375, 29.25), rot(2.375, 29.80)],
+                { color: '#451a03', weight: 0.5, interactive: false }));
+
+            // ─── COZINHA (zona NE) ───────────────────────────────────────────
+            // Bancada norte (encostada na parede norte) — tampo claro
+            lys.push(rect(6.35, 27.25, 0.55, 2.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            // Bancada leste (braço do L) — acima da porta dos fundos (mE=30), canto NE
+            // bancada leste removida — espaço livre para circulação junto da porta dos fundos
+            // Geladeira — parede leste (mE=30), afastada do canto NE para porta abrir
+            lys.push(rect(5.70, 29.45, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
+            lys.push(L.polyline([rot(6.02, 29.52), rot(6.02, 29.85)],
+                { color: '#334155', weight: 0.6, interactive: false }));
+            // Fogão — 4 bocas
+            lys.push(rect(6.35, 28.00, 0.55, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 0.90, m3d: 'stove' }));
+            lys.push(circ(6.55, 28.15, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(6.55, 28.40, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(6.72, 28.15, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(6.72, 28.40, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            // Pia da cozinha — 2 cubas
+            lys.push(rect(6.35, 28.75, 0.55, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'sink' }));
+            lys.push(rect(6.68, 28.82, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            lys.push(rect(6.68, 29.07, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            // ─── ÁREA DE SERVIÇO COBERTA ─────────────────────────────────────
+            lys.push(rect(3.50, 30.10, 2.20, 1.40, '#d6d3d1',
+                { color: '#78716c', weight: 1, dashArray: '4 3', fillOpacity: 0.9, h3d: 0.06, m3d: 'rug', extZ3d: CPA / 2 }));
+            // Tanque ao sul (abaixo da porta dos fundos)
+            lys.push(rect(3.70, 30.20, 0.70, 0.55, '#bae6fd', { color: '#0369a1', weight: 0.8, z3d: 0.06, h3d: 0.85, m3d: 'tank', extZ3d: CPA / 2 }));
+            lys.push(rect(3.77, 30.27, 0.55, 0.40, '#7dd3fc', { color: '#0369a1', weight: 0.5, no3d: true }));
+            // Capacho na saída da porta dos fundos
+            lys.push(rect(4.70, 30.20, 0.55, 0.55, '#9ca3af',
+                { color: '#6b7280', weight: 0.7, dashArray: '3 2', z3d: 0.06, m3d: 'rug', extZ3d: CPA / 2 }));
+            lys.push(roomLabel(5.00, 31.10, 'Á. Serviço', 'coberta', '~3 m²'));
+
+            // ─── SALA ─────────────────────────────────────────────────────────
+            // Sofá 3 lugares — próximo da TV (sem mexer, como antes)
+            lys.push(rect(4.625, 24.45, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // base + encosto (faixa E)
+            lys.push(rect(4.725, 24.45, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento (frente oeste)
+            // Divisões das 3 almofadas
+            lys.push(L.polyline([rot(5.242, 24.45), rot(5.242, 25.10)],
+                { color: '#451a03', weight: 0.6, interactive: false }));
+            lys.push(L.polyline([rot(5.758, 24.45), rot(5.758, 25.10)],
+                { color: '#451a03', weight: 0.6, interactive: false }));
+            // Mesa de centro
+            lys.push(rect(5.00, 23.65, 1.00, 0.55, '#92400e', { color: '#451a03', weight: 0.7, m3d: 'coffee' }));
+
+            // TV e rack — parede oeste
+            lys.push(rect(4.80, 22.15, 1.40, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
+            lys.push(rect(4.95, 22.10, 1.10, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
+
+            // Mesa de jantar — cozinha
+            lys.push(rect(5.30, 27.90, 0.55, 0.75, '#92400e', { color: '#451a03', weight: 0.8, m3d: 'table' }));
+            lys.push(circ(5.07, 28.275, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' })); // sul
+            lys.push(circ(6.07, 28.275, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' })); // norte
+            lys.push(circ(5.575, 27.65, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' })); // oeste
+            lys.push(circ(5.575, 28.90, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' })); // leste
+
+            // Tapete no hall de entrada
+            lys.push(rect(2.80, 22.95, 1.40, 0.95, '#fde68a',
+                { color: '#a16207', weight: 0.6, fillOpacity: 0.55, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
+
+            // ─── LABELS DOS CÔMODOS ──────────────────────────────────────────
+            lys.push(roomLabel(3.00, 26.00, 'Banheiro', '2 × 2 m', '4 m²'));
+            lys.push(roomLabel(3.25, 28.50, 'Quarto',   '2,5 × 3 m', '7,5 m²'));
+            lys.push(roomLabel(4.35, 24.50, 'Sala',      '',         ''));
+            lys.push(roomLabel(6.30, 28.20, 'Cozinha',   '',         ''));
+
+            // ── Labels das áreas ─────────────────────────────────────────────
+            // Terreno — no quintal (abaixo da casa, fora das cotas)
+            lys.push(dimLabel(3, 35, 'Terreno', '12,5 × 40 m', '500 m²', '#fbbf24', '#d97706'));
+        }
+
+        // ── V2: garagem (laje aberta — fundação + colunas + laje, sem paredes) ──
+        if (v === 'v2' || v === 'v3') {
+            const GN0 = 2.0,  GN1 = 10.5;  // 8,5 m de largura (2 m de cada muro lateral)
+            const GE0 = 13,   GE1 = 22;   // 9 m de profundidade
+            const COL = 0.20;             // seção das colunas (20 × 20 cm)
+
+            // Contorno da laje — tracejado (estrutura aberta, sem vedação)
+            lys.push(L.polygon(
+                [rot(GN0, GE0), rot(GN1, GE0), rot(GN1, GE1), rot(GN0, GE1)],
+                { color: '#64748b', weight: 1.5, dashArray: '6 4',
+                  fillColor: '#f1f5f9', fillOpacity: 0.75, interactive: false }));
+
+            // Colunas 3×3 — vãos ~4,25 m (N-S) × ~4,5 m (E-O)
+            const GNM = (GN0 + GN1) / 2 - COL / 2;          // meio N-S
+            const GEM = (GE0 + GE1) / 2 - COL / 2;          // meio E-O (≈ mE 17,4)
+            [GN0, GNM, GN1 - COL].forEach(n => {
+                [GE0, GEM, GE1 - COL].forEach(e =>
+                    lys.push(rect(n, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
+            });
+
+            lys.push(roomLabel(6.25, 17.5, 'Garagem', '8,5 × 9 m', '76,5 m²'));
+
+            // Escada 2º pavimento — canto SE (mN 2,0→2,9), 17 degraus × 27 cm
+            const STRD = 0.27, NST = 17;
+            const SE_E0 = GE1 - NST * STRD;  // ≈ mE 17,41
+            lys.push(rect(2.0, SE_E0, 0.9, GE1 - SE_E0, '#ebebf0',
+                { color: '#475569', weight: 1.2, no3d: true }));
+            for (let i = 2; i < NST; i += 2)
+                lys.push(L.polyline(
+                    [rot(2.0, GE1 - i*STRD), rot(2.9, GE1 - i*STRD)],
+                    { color: '#64748b', weight: 0.7, interactive: false }));
+            lys.push(L.polyline(
+                [rot(2.45, GE1 - 0.4), rot(2.45, SE_E0 + 0.3)],
+                { color: '#475569', weight: 1.2, interactive: false }));
+            lys.push(roomLabel(2.45, (SE_E0 + GE1) / 2, 'Escada', '↑ 2º pav', ''));
+
+            // Cotas laterais: recuo sul e recuo norte da garagem
+            dimLine(0,   16, GN0, 16, '2,0 m — sul').forEach(l => lys.push(l));
+            dimLine(GN1, 16, 12.5, 16, '2,0 m — norte').forEach(l => lys.push(l));
+        }
+
+        // ── V3: 2º pavimento + elementos adicionais ──────────────────────────
+        if (v === 'v3') {
+            // a definir
+        }
+
+        return lys;
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  3D — extrusão automática do modelo capturado no 2D
+    //  Eixos da cena: X = mE (leste), Z = −mN (norte → −Z), Y = altura (cima).
+    //  O Z é negado para manter a orientação correta (sem espelhar a planta):
+    //  com Leste em +X e Cima em +Y, o Norte tem de ir para −Z (regra ENU).
+    //  Nada de coordenadas é redigitado: tudo vem de buildLayers → GEO.
+    // ═══════════════════════════════════════════════════════════════════════
+    const CEIL3D = 2.70;          // pé-direito (m)
+    const CPA    = 0.40;          // Cota do Piso Acabado — 40 cm acima do pátio
+    const scenes3d = {};
+
+    // Coleta o modelo geométrico rodando o MESMO buildLayers do 2D
+    function captureModel(v) {
+        GEO = [];
+        buildLayers(v);           // helpers registram em GEO como efeito colateral
+        const model = GEO;
+        GEO = null;
+        return model;
+    }
+
+    function col3d(c) {
+        try { return new THREE.Color(c); } catch (e) { return new THREE.Color(0xcccccc); }
+    }
+
+    // ── Texturas procedurais (canvas) — sem arquivos externos ───────────────
+    const TEX3D = {};
+    function canvasTex(draw, size) {
+        const cv = document.createElement('canvas');
+        cv.width = cv.height = size || 256;
+        draw(cv.getContext('2d'), cv.width);
+        const t = new THREE.CanvasTexture(cv);
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.anisotropy = 8;
+        t.encoding = THREE.sRGBEncoding;   // mapa de cor → senão sai lavado/claro demais
+        return t;
+    }
+    function noise2d(ctx, w, r, g, b, amp, density) {
+        const img = ctx.getImageData(0, 0, w, w), d = img.data;
+        for (let i = 0; i < d.length; i += 4) {
+            if (Math.random() > (density ?? 1)) continue;
+            const n = (Math.random() - 0.5) * amp;
+            d[i]   = Math.max(0, Math.min(255, d[i]   + n));
+            d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
+            d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
+        }
+        ctx.putImageData(img, 0, 0);
+    }
+    function texGrass() {
+        return TEX3D.grass || (TEX3D.grass = canvasTex((ctx, w) => {
+            ctx.fillStyle = LOT_FILL; ctx.fillRect(0, 0, w, w);
+            noise2d(ctx, w, 0, 0, 0, 55);
+            for (let i = 0; i < 1400; i++) {           // pinceladas de grama
+                ctx.strokeStyle = `rgba(${60+Math.random()*60|0},${90+Math.random()*70|0},${40+Math.random()*40|0},0.5)`;
+                ctx.lineWidth = 1; ctx.beginPath();
+                const x = Math.random()*w, y = Math.random()*w;
+                ctx.moveTo(x, y); ctx.lineTo(x + (Math.random()-0.5)*3, y - 2 - Math.random()*3); ctx.stroke();
+            }
+        }, 512));
+    }
+    function texFloor() {
+        return TEX3D.floor || (TEX3D.floor = canvasTex((ctx, w) => {
+            ctx.fillStyle = '#e8e2d6'; ctx.fillRect(0, 0, w, w);   // porcelanato claro (1 placa = 1 m)
+            noise2d(ctx, w, 0, 0, 0, 14);
+            ctx.strokeStyle = 'rgba(120,110,95,0.55)'; ctx.lineWidth = 3;   // rejunte na borda
+            ctx.strokeRect(0, 0, w, w);
+        }, 256));
+    }
+    function texWall() {
+        return TEX3D.wall || (TEX3D.wall = canvasTex((ctx, w) => {
+            ctx.fillStyle = '#efe9e0'; ctx.fillRect(0, 0, w, w);   // reboco pintado
+            noise2d(ctx, w, 0, 0, 0, 10, 0.5);
+        }, 256));
+    }
+
+    // ── Chão de satélite (tiles ESRI, mesma fonte do mapa 2D) ───────────────
+    // Parâmetros geográficos do plano centrado no lote, em Web Mercator z=19.
+    function satGroundSpec() {
+        const z = 18, half = 70;                       // z18 = zoom nativo máx. da ESRI aqui (z19 vem vazio)
+        const c = rot(6.25, 20);                        // centro do lote → [lat, lng]
+        const latRad = c[0] * Math.PI / 180, n = Math.pow(2, z);
+        const res = Math.cos(latRad) * 2 * Math.PI * 6378137 / (256 * n);   // m/pixel
+        const size = Math.round(half / res * 2);
+        return { z, lat: c[0], lng: c[1], latRad, n, res, size, meters: size * res };
+    }
+    let satGroundMat = null;
+    function loadSatelliteTexture(cb) {
+        const s = satGroundSpec();
+        const gpx = (s.lng + 180) / 360 * 256 * s.n;
+        const gpy = (1 - Math.log(Math.tan(s.latRad) + 1 / Math.cos(s.latRad)) / Math.PI) / 2 * 256 * s.n;
+        const x0 = gpx - s.size / 2, y0 = gpy - s.size / 2;
+        const minTx = Math.floor(x0 / 256), maxTx = Math.floor((gpx + s.size / 2) / 256);
+        const minTy = Math.floor(y0 / 256), maxTy = Math.floor((gpy + s.size / 2) / 256);
+        const cv = document.createElement('canvas'); cv.width = cv.height = s.size;
+        const ctx = cv.getContext('2d');
+        const tex = new THREE.CanvasTexture(cv);
+        tex.encoding = THREE.sRGBEncoding; tex.anisotropy = 8;
+        let pending = 0, ok = 0;
+        for (let tx = minTx; tx <= maxTx; tx++) for (let ty = minTy; ty <= maxTy; ty++) {
+            pending++;
+            const img = new Image(); img.crossOrigin = 'anonymous';
+            img.onload  = () => { ctx.drawImage(img, Math.round(tx*256 - x0), Math.round(ty*256 - y0)); ok++; tex.needsUpdate = true; if (--pending === 0) cb(tex, ok); };
+            img.onerror = () => { if (--pending === 0) cb(tex, ok); };
+            img.src = ESRI_URL.replace('{z}', s.z).replace('{y}', ty).replace('{x}', tx);
+        }
+    }
+    function getSatGroundMat() {
+        if (satGroundMat) return satGroundMat;
+        satGroundMat = new THREE.MeshStandardMaterial({ color: LOT_FILL_N, roughness: 1, metalness: 0, envMapIntensity: 0.15 });
+        loadSatelliteTexture((tex, ok) => {   // CORS pode falhar → mantém verde (fallback)
+            if (ok > 0) { satGroundMat.map = tex; satGroundMat.color.set(0xffffff); satGroundMat.needsUpdate = true; }
+        });
+        return satGroundMat;
+    }
+
+    // Box a partir de footprint do lote (n,e = canto SW; dn,de = tamanhos) e faixa vertical [z0,z1]
+    function box3d(n, e, dn, de, z0, z1, mat) {
+        const g = new THREE.BoxGeometry(de, Math.max(z1 - z0, 0.001), dn);
+        const m = new THREE.Mesh(g, mat);
+        m.position.set(e + de/2, (z0 + z1)/2, -(n + dn/2));   // Z = −mN
+        m.castShadow = true; m.receiveShadow = true;
+        return m;
+    }
+
+    // ── Móveis realistas por tipo (m3d) ─────────────────────────────────────
+    function fmat(color, extra) {
+        return new THREE.MeshStandardMaterial(Object.assign(
+            { color: col3d(color), roughness: 0.6, metalness: 0.05, envMapIntensity: 0.4 }, extra || {}));
+    }
+    function fbox(g, n, e, dn, de, z0, z1, color, extra) {
+        const m = box3d(n, e, dn, de, z0, z1, (color && color.isMaterial) ? color : fmat(color, extra));
+        g.add(m); return m;
+    }
+    function fcyl(g, n, e, r, z0, z1, color, extra) {
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, Math.max(z1 - z0, 0.01), 20),
+                                 (color && color.isMaterial) ? color : fmat(color, extra));
+        m.position.set(e, (z0 + z1) / 2, -n);
+        m.castShadow = true; m.receiveShadow = true;
+        g.add(m); return m;
+    }
+    const FURN3D = {
+        // Tapete — plano fino e fosco (respeita a base z3d, p/ capacho sobre a laje)
+        rug(g, s) {
+            const b = s.z || 0;
+            fbox(g, s.n, s.e, s.dn, s.de, b + 0.004, b + 0.02, s.color, { roughness: 0.97, metalness: 0 });
+        },
+        // TV — painel fino na parede oeste (de=profundidade leste, dn=largura N-S)
+        tv(g, s) {
+            fbox(g, s.n, s.e + 0.02, s.dn, 0.05, 0.80, 1.45, '#0b0b0d', { roughness: 0.4, metalness: 0.3 });
+            fbox(g, s.n + 0.06, s.e + 0.075, s.dn - 0.12, 0.01, 0.85, 1.40, '#10182b',
+                 { emissive: col3d('#1d2f54'), emissiveIntensity: 0.5, roughness: 0.2 });
+        },
+        // Geladeira — corpo inox, fenda do freezer + 2 puxadores (porta a oeste)
+        fridge(g, s) {
+            fbox(g, s.n, s.e, s.dn, s.de, 0, s.h, '#cdd2d7', { metalness: 0.55, roughness: 0.3 });
+            const fz = s.h * 0.62;
+            fbox(g, s.n, s.e - 0.006, s.dn, 0.02, fz - 0.012, fz + 0.012, '#6b7178');
+            fbox(g, s.n + 0.06, s.e - 0.03, 0.05, 0.035, 0.18, fz - 0.06, '#9aa0a7', { metalness: 0.7, roughness: 0.3 });
+            fbox(g, s.n + 0.06, s.e - 0.03, 0.05, 0.035, fz + 0.06, s.h - 0.12, '#9aa0a7', { metalness: 0.7, roughness: 0.3 });
+        },
+        // Cama — estrado + colchão + cabeceira (norte) + travesseiros + edredom
+        // GAP: mantém 7cm de folga da parede norte p/ evitar z-fighting
+        bed(g, s) {
+            const GAP = 0.07;
+            const dn = s.dn - GAP;                                                    // profundidade livre
+            fbox(g, s.n, s.e, dn, s.de, 0, 0.28, '#6b4f3a');
+            fbox(g, s.n + 0.05, s.e + 0.05, dn - 0.10, s.de - 0.10, 0.28, 0.50, '#f5efe2', { roughness: 0.85 });
+            fbox(g, s.n + dn - 0.12, s.e + 0.01, 0.12, s.de - 0.02, 0, 0.95, '#5a4030'); // cabeceira
+            const pn = s.n + dn - 0.52, pw = s.de / 2 - 0.14;
+            fbox(g, pn, s.e + 0.10, 0.34, pw, 0.50, 0.63, '#ffffff', { roughness: 0.9 });
+            fbox(g, pn, s.e + s.de / 2 + 0.04, 0.34, pw, 0.50, 0.63, '#ffffff', { roughness: 0.9 });
+            fbox(g, s.n, s.e + 0.03, dn - 0.56, s.de - 0.06, 0.50, 0.57, '#c8b99a', { roughness: 0.9 }); // edredom
+        },
+        // Sofá — base + encosto (leste) + braços + 3 almofadas (frente oeste)
+        sofa(g, s) {
+            fbox(g, s.n, s.e, s.dn, s.de, 0, 0.18, '#5a2310');
+            fbox(g, s.n, s.e + s.de - 0.20, s.dn, 0.20, 0.18, 0.78, s.color);       // encosto (leste)
+            fbox(g, s.n, s.e, 0.16, s.de, 0.18, 0.56, '#6e2a12');                   // braço sul
+            fbox(g, s.n + s.dn - 0.16, s.e, 0.16, s.de, 0.18, 0.56, '#6e2a12');     // braço norte
+            const sw = (s.dn - 0.32) / 3;
+            for (let i = 0; i < 3; i++)
+                fbox(g, s.n + 0.16 + i * sw + 0.02, s.e + 0.05, sw - 0.04, s.de - 0.28, 0.18, 0.36, '#a8451f', { roughness: 0.85 });
+        },
+        // Vaso sanitário — bacia + assento + caixa acoplada (atrás, leste)
+        toilet(g, s) {
+            fbox(g, s.n + 0.03, s.e, s.dn - 0.06, s.de - 0.08, 0, 0.40, '#fafafa', { roughness: 0.3 });
+            fbox(g, s.n + 0.01, s.e + 0.01, s.dn - 0.02, s.de - 0.12, 0.40, 0.44, '#ffffff', { roughness: 0.3 });
+            fbox(g, s.n + 0.04, s.e + s.de - 0.04, s.dn - 0.08, 0.16, 0.40, 0.92, '#f2f2f2', { roughness: 0.3 });
+        },
+        // Fogão — corpo + porta do forno + puxador + cooktop (bocas já vêm do 2D)
+        stove(g, s) {
+            fbox(g, s.n, s.e, s.dn, s.de, 0, s.h, '#2b2f36', { metalness: 0.4, roughness: 0.4 });
+            fbox(g, s.n - 0.006, s.e + 0.06, 0.02, s.de - 0.12, 0.16, s.h - 0.10, '#3b4250', { metalness: 0.5, roughness: 0.3 });
+            fbox(g, s.n - 0.03, s.e + 0.10, 0.03, s.de - 0.20, s.h - 0.18, s.h - 0.13, '#9aa0a7', { metalness: 0.7, roughness: 0.3 });
+            fbox(g, s.n, s.e, s.dn, s.de, s.h, s.h + 0.012, '#15171c', { roughness: 0.35 }); // cooktop
+        },
+        // Pia da cozinha — gabinete + tampo + 2 cubas + torneira
+        sink(g, s) {
+            fbox(g, s.n + 0.02, s.e, s.dn - 0.02, s.de, 0, s.h - 0.04, '#e6e2d8');
+            fbox(g, s.n - 0.02, s.e, s.dn + 0.02, s.de, s.h - 0.04, s.h, '#cfcabd', { roughness: 0.3 });
+            const bw = (s.de - 0.18) / 2;
+            fbox(g, s.n + 0.05, s.e + 0.06, s.dn - 0.12, bw, s.h - 0.13, s.h - 0.035, '#aeb8bf', { metalness: 0.5, roughness: 0.3 });
+            fbox(g, s.n + 0.05, s.e + 0.12 + bw, s.dn - 0.12, bw, s.h - 0.13, s.h - 0.035, '#aeb8bf', { metalness: 0.5, roughness: 0.3 });
+            fcyl(g, s.n + s.dn - 0.07, s.e + s.de - 0.12, 0.02, s.h, s.h + 0.22, '#c7ccd1', { metalness: 0.7, roughness: 0.25 });
+        },
+        // Bancada — gabinete + tampo, segmentada deixando vãos p/ fogão e pia
+        counter(g, s, model) {
+            const cuts = ['stove', 'sink'].map(t => model.find(o => o.m3d === t)).filter(Boolean)
+                .map(a => [a.e, a.e + a.de]).sort((p, q) => p[0] - q[0]);
+            let cur = s.e; const end = s.e + s.de; const segs = [];
+            cuts.forEach(c => { if (c[0] > cur + 0.001) segs.push([cur, c[0]]); cur = Math.max(cur, c[1]); });
+            if (cur < end - 0.001) segs.push([cur, end]);
+            segs.forEach(([a, b]) => {
+                const de = b - a;
+                fbox(g, s.n + 0.04, a, s.dn - 0.04, de, 0.08, s.h - 0.04, '#d9d3c7');               // gabinete
+                fbox(g, s.n - 0.03, a, s.dn + 0.03, de, s.h - 0.04, s.h, '#b3ad9f', { roughness: 0.3 }); // tampo (saliência frontal)
+                fbox(g, s.n + 0.04, a + 0.02, 0.04, de - 0.04, 0, 0.08, '#33332f');                 // rodapé
+            });
+        },
+        // Guarda-roupa — corpo + fenda central + 2 puxadores (porta a oeste)
+        wardrobe(g, s) {
+            fbox(g, s.n, s.e, s.dn, s.de, 0, s.h, '#9a7b46');
+            fbox(g, s.n + s.dn / 2 - 0.01, s.e - 0.004, 0.02, 0.02, 0.10, s.h - 0.10, '#5a4422');
+            fbox(g, s.n + s.dn / 2 - 0.16, s.e - 0.03, 0.04, 0.03, 0.95, 1.25, '#3a2c14');
+            fbox(g, s.n + s.dn / 2 + 0.12, s.e - 0.03, 0.04, 0.03, 0.95, 1.25, '#3a2c14');
+        },
+        // Mesa de jantar — tampo + 4 pernas
+        table(g, s) {
+            fbox(g, s.n, s.e, s.dn, s.de, 0.72, 0.76, s.color);
+            const L = 0.05;
+            [[s.n + 0.02, s.e + 0.02], [s.n + s.dn - 0.07, s.e + 0.02],
+             [s.n + 0.02, s.e + s.de - 0.07], [s.n + s.dn - 0.07, s.e + s.de - 0.07]]
+              .forEach(p => fbox(g, p[0], p[1], L, L, 0, 0.72, '#6b3410'));
+        },
+        // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
+        chair(g, s, model) {
+            fcyl(g, s.n, s.e, s.r * 0.95, 0.43, 0.47, '#7c4a16');
+            const t = model.find(o => o.m3d === 'table');
+            const tc = t ? { n: t.n + t.dn / 2, e: t.e + t.de / 2 } : { n: s.n, e: s.e };
+            const dN = s.n - tc.n, dE = s.e - tc.e;
+            const r = s.r;
+            if (Math.abs(dN) >= Math.abs(dE)) {
+                const ne = s.n + Math.sign(dN) * (r - 0.03);
+                fbox(g, ne - 0.02, s.e - r * 0.8, 0.04, r * 1.6, 0.47, 0.86, '#7c4a16');
+            } else {
+                const ee = s.e + Math.sign(dE) * (r - 0.03);
+                fbox(g, s.n - r * 0.8, ee - 0.02, r * 1.6, 0.04, 0.47, 0.86, '#7c4a16');
+            }
+            [[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]]
+              .forEach(o => fcyl(g, s.n + o[0] * r, s.e + o[1] * r, 0.02, 0, 0.43, '#5a3410'));
+        },
+        // Lavatório — gabinete + cuba + torneira
+        lavatory(g, s) {
+            fbox(g, s.n, s.e, s.dn, s.de, 0, s.h - 0.06, '#e8e4da');
+            fbox(g, s.n - 0.02, s.e - 0.02, s.dn + 0.04, s.de + 0.04, s.h - 0.06, s.h, '#ffffff', { roughness: 0.3 });
+            fbox(g, s.n + 0.05, s.e + 0.06, s.dn - 0.10, s.de - 0.14, s.h - 0.05, s.h, '#dfe7ee', { roughness: 0.2 });
+            fcyl(g, s.n + s.dn - 0.06, s.e + s.de / 2, 0.02, s.h, s.h + 0.18, '#c7ccd1', { metalness: 0.7, roughness: 0.25 });
+        },
+        // Box/chuveiro — base + 2 vidros + chuveiro
+        shower(g, s) {
+            const glass = fmat('#cfe3ee', { transparent: true, opacity: 0.22, roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
+            fbox(g, s.n, s.e, s.dn, s.de, 0, 0.05, '#cfd6da', { roughness: 0.4 });   // base
+            fbox(g, s.n + s.dn - 0.02, s.e, 0.02, s.de, 0.05, s.h, glass).castShadow = false;  // vidro norte
+            fbox(g, s.n, s.e, s.dn, 0.02, 0.05, s.h, glass).castShadow = false;                // vidro oeste
+            fbox(g, s.n + s.dn - 0.18, s.e + 0.10, 0.16, 0.16, s.h - 0.05, s.h - 0.02, '#cccfd3', { metalness: 0.6 }); // ducha
+        },
+        // Tanque de lavar roupa — pé + cuba
+        tank(g, s) {
+            const z = s.z || 0;
+            fbox(g, s.n + 0.12, s.e + 0.12, s.dn - 0.24, s.de - 0.24, z, z + s.h - 0.22, '#cfd3d6');
+            fbox(g, s.n, s.e, s.dn, s.de, z + s.h - 0.22, z + s.h, '#e9edf0', { roughness: 0.4 });
+            fbox(g, s.n + 0.05, s.e + 0.05, s.dn - 0.10, s.de - 0.10, z + s.h - 0.20, z + s.h - 0.02, '#c2cdd4', { roughness: 0.4 });
+        },
+        // Máquina de lavar — corpo + porta + painel
+        washer(g, s) {
+            const z = s.z || 0;
+            fbox(g, s.n, s.e, s.dn, s.de, z, z + s.h, '#eef0f2', { metalness: 0.2, roughness: 0.4 });
+            fbox(g, s.n + 0.10, s.e - 0.006, s.dn - 0.20, 0.02, z + 0.22, z + s.h - 0.18, '#2b3a45', { roughness: 0.3 });
+            fbox(g, s.n + 0.05, s.e + 0.05, s.dn - 0.10, s.de - 0.10, z + s.h - 0.06, z + s.h, '#cfd6db'); // painel
+        },
+        // Mesa de centro — tampo + 4 pernas baixas
+        coffee(g, s) {
+            fbox(g, s.n, s.e, s.dn, s.de, 0.34, 0.40, s.color);
+            [[s.n + 0.02, s.e + 0.02], [s.n + s.dn - 0.07, s.e + 0.02],
+             [s.n + 0.02, s.e + s.de - 0.07], [s.n + s.dn - 0.07, s.e + s.de - 0.07]]
+              .forEach(p => fbox(g, p[0], p[1], 0.05, 0.05, 0, 0.34, '#6b3410'));
+        },
+        // Rack da TV — gabinete baixo + ranhura de gaveta + pés
+        rack(g, s) {
+            fbox(g, s.n, s.e, s.dn, s.de, 0.05, s.h, s.color);
+            fbox(g, s.n, s.e + s.de - 0.004, s.dn, 0.01, s.h * 0.55, s.h * 0.55 + 0.012, '#0a0a0a');
+            [[0.03, 0.03], [s.dn - 0.06, 0.03], [0.03, s.de - 0.06], [s.dn - 0.06, s.de - 0.06]]
+              .forEach(o => fbox(g, s.n + o[0], s.e + o[1], 0.03, 0.03, 0, 0.05, '#222'));
+        }
+    };
+
+    // Constrói o grupo 3D do prédio a partir do modelo (paredes c/ vãos + móveis + lajes)
+    function buildBuilding3D(v) {
+        const model = captureModel(v);
+        const g = new THREE.Group();
+
+        const floor = texFloor(); floor.repeat.set(8, 5);
+        const matWall   = new THREE.MeshStandardMaterial({ map: texWall(), color: 0xffffff, roughness: 0.95, metalness: 0, envMapIntensity: 0.25 });
+        const matFloor  = new THREE.MeshStandardMaterial({ map: floor, roughness: 0.55, metalness: 0, envMapIntensity: 0.35 });
+        const matGlass  = new THREE.MeshStandardMaterial({ color: 0xaecadf, transparent: true, opacity: 0.3,
+                                                           roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
+        const matEmbase = new THREE.MeshStandardMaterial({ color: 0xb8b0a0, roughness: 0.92, metalness: 0,   envMapIntensity: 0.12 });
+        const matWP     = new THREE.MeshStandardMaterial({ color: 0x1e1e2a, roughness: 0.60, metalness: 0.28, envMapIntensity: 0.35 });
+
+        // ── Chão = imagem de satélite cobrindo o entorno, alinhada ao lote ───
+        const spec = satGroundSpec();
+        const satGroup = new THREE.Group();
+        satGroup.position.set(20, -0.03, -6.25);                       // centro do lote (mE 20, mN 6,25)
+        satGroup.rotation.y = THREE.MathUtils.degToRad(LOT_ANGLE);     // alinha satélite (norte) ao lote (−3°)
+        const satPlane = new THREE.Mesh(new THREE.PlaneGeometry(spec.meters, spec.meters), getSatGroundMat());
+        satPlane.rotation.x = -Math.PI / 2;
+        satPlane.receiveShadow = true;
+        satGroup.add(satPlane);
+
+        // Véu branco — mesmo efeito do L.rectangle fillOpacity 0.35 do mapa 2D:
+        // aclara o satélite para a planta 3D se destacar, sem ocultar grama/piso (que ficam acima)
+        const veilMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff, transparent: true, opacity: 0.35,
+            depthWrite: false, side: THREE.DoubleSide
+        });
+        const veilPlane = new THREE.Mesh(new THREE.PlaneGeometry(spec.meters, spec.meters), veilMat);
+        veilPlane.rotation.x = -Math.PI / 2;
+        veilPlane.position.y = 0.002;   // logo acima do satPlane (y=-0.03 → world y=-0.028)
+        satGroup.add(veilPlane);
+
+        g.add(satGroup);
+
+        // Grama nítida só no lote (axis-aligned), por cima do satélite dos vizinhos
+        const grass = texGrass(); grass.repeat.set(20, 6);
+        const matGrass = new THREE.MeshStandardMaterial({ map: grass, roughness: 1, metalness: 0, envMapIntensity: 0.15 });
+        const lawn = box3d(0, 0, 12.5, 40, -0.06, -0.025, matGrass);
+        lawn.castShadow = false;     // só recebe sombra
+        g.add(lawn);
+
+        // ── Embasamento: base de concreto (CPA=40cm) com projeção de 3cm além das paredes ──
+        const EM_P = 0.03;
+        const EN0 = 2 - 0.20 - EM_P, EN1 = 7 + 0.20 + EM_P;
+        const EE0 = 22 - 0.20 - EM_P, EE1 = 30 + 0.20 + EM_P;
+        const emSides = [
+            [EN0,            EE0, 0.20 + EM_P, EE1 - EE0],   // sul
+            [EN1 - 0.20 - EM_P, EE0, 0.20 + EM_P, EE1 - EE0],   // norte
+            [EN0, EE0,           EN1 - EN0, 0.20 + EM_P],    // oeste
+            [EN0, EE1 - 0.20 - EM_P, EN1 - EN0, 0.20 + EM_P],   // leste
+        ];
+        emSides.forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, -0.05, CPA, matEmbase)));
+
+        // Manta asfáltica de impermeabilização no topo do baldrame (4 cm, escura)
+        const WP_H = 0.04;
+        emSides.forEach(([n, e, dn, de]) => {
+            const m = box3d(n - 0.005, e - 0.005, dn + 0.01, de + 0.01, CPA - WP_H, CPA + 0.004, matWP);
+            m.castShadow = false;
+            g.add(m);
+        });
+
+        // Piso da casa elevado à CPA (1cm aquém das faces interiores das paredes)
+        g.add(box3d(2.11, 22.11, 4.78, 7.78, CPA - 0.025, CPA, matFloor));
+        // Piso da área de serviço — nível CPA/2 (mesma altura da garagem)
+        const AS_H = CPA / 2;
+        g.add(box3d(3.50, 30.10, 2.20, 1.40, AS_H - 0.025, AS_H, matFloor));
+        // Degraus porta principal — só V1 (V2/V3 a garagem cobre essa área)
+        if (v === 'v1') {
+            g.add(box3d(2.90, 21.40, 1.20, 0.30, -0.05, 0.20, matEmbase)); // degrau 1
+            g.add(box3d(2.90, 21.70, 1.20, 0.30, -0.05, 0.40, matEmbase)); // degrau 2 / patim
+        }
+
+        // Porta lateral dupla (norte, mN=7) — 2 × 20 cm, 2,0 m de largura
+        g.add(box3d(7.40, 25.30, 0.30, 2.00, -0.05, 0.20, matEmbase)); // degrau 1 (externo)
+        g.add(box3d(7.10, 25.30, 0.30, 2.00, -0.05, 0.40, matEmbase)); // degrau 2 / patim
+
+
+        // Embasamento sob a área de serviço
+        g.add(box3d(3.50 - EM_P, 30.10 - EM_P, 2.20 + 2*EM_P, 1.40 + 2*EM_P, -0.05, AS_H, matEmbase));
+        // Manta asfáltica no topo
+        g.add(box3d(3.50 - EM_P - 0.005, 30.10 - EM_P - 0.005, 2.20 + 2*EM_P + 0.01, 1.40 + 2*EM_P + 0.01, AS_H - WP_H, AS_H + 0.004, matWP));
+
+        // Contorno do lote (âmbar) sobre o satélite — destaca a propriedade
+        g.add(new THREE.LineLoop(
+            new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0.02, 0), new THREE.Vector3(40, 0.02, 0),
+                new THREE.Vector3(40, 0.02, -12.5), new THREE.Vector3(0, 0.02, -12.5)]),
+            new THREE.LineBasicMaterial({ color: 0xf59e0b })));
+
+        const walls    = model.filter(o => o.k === 'wall');
+        const openings = model.filter(o => o.k === 'opening');
+        const solids   = model.filter(o => o.k === 'solid');
+
+        // ── Paredes: extrudadas até o teto, recortando portas e janelas ──────
+        walls.forEach(w => {
+            const horiz = Math.abs(w.n2 - w.n1) < 1e-6;   // corre no eixo E (mN const)
+            const t = w.t;
+            // posição fixa transversal e extensão ao longo do eixo da parede
+            const fixed = horiz ? w.n1 : w.e1;
+            const a0 = horiz ? Math.min(w.e1, w.e2) : Math.min(w.n1, w.n2);
+            const a1 = horiz ? Math.max(w.e1, w.e2) : Math.max(w.n1, w.n2);
+
+            // vãos que pertencem a esta parede (centro sobre a linha + sobreposição na extensão)
+            const ops = openings.map(o => {
+                const cFix  = horiz ? (o.n + o.dn/2) : (o.e + o.de/2);   // centro transversal
+                const s0    = horiz ? o.e : o.n;
+                const s1    = horiz ? (o.e + o.de) : (o.n + o.dn);
+                return { cFix, s: Math.max(s0, a0), e: Math.min(s1, a1), sill: o.sill, head: o.head, type: o.type };
+            }).filter(o => Math.abs(o.cFix - fixed) <= t/2 + 0.06 && o.e > o.s + 1e-3)
+              .sort((p, q) => p.s - q.s);
+
+            // emite um pedaço de parede [along0,along1] na faixa vertical [z0,z1]
+            const seg = (along0, along1, z0, z1, mat) => {
+                if (along1 - along0 < 1e-3 || z1 - z0 < 1e-3) return;
+                // afunda a base 1cm no chão p/ não ficar coplanar com o piso (z-fight)
+                const z0adj = (z0 <= 0) ? -0.01 : z0;
+                const m = horiz
+                    ? box3d(fixed - t/2, along0, t, along1 - along0, z0adj, z1, mat)
+                    : box3d(along0, fixed - t/2, along1 - along0, t, z0adj, z1, mat);
+                if (mat === matGlass) m.castShadow = false;   // vidro deixa a luz passar
+                g.add(m);
+            };
+
+            let cur = a0;
+            ops.forEach(o => {
+                const oSill = o.sill + CPA, oHead = o.head + CPA;
+                seg(cur, o.s, 0, CEIL3D + CPA, matWall);    // trecho cheio antes do vão
+                seg(o.s, o.e, 0, oSill, matWall);            // base sólida (embasamento + peitoril)
+                if (o.type === 'window') seg(o.s, o.e, oSill, oHead, matGlass); // vidro fixo
+                // glassdoor: abertura vazia — o vidro vem da folha que abre
+                seg(o.s, o.e, oHead, CEIL3D + CPA, matWall); // verga (acima do vão)
+                cur = Math.max(cur, o.e);
+            });
+            seg(cur, a1, 0, CEIL3D + CPA, matWall);         // trecho final
+        });
+
+        // ── Móveis / louças / bancadas: volumes de massa ─────────────────────
+        // Cada móvel sobe à cota do piso (CPA) via Group; os builders FURN3D
+        // são construídos relativos ao piso 0 e o grupo aplica a elevação base.
+        solids.forEach(s => {
+            const base = (s.extZ3d != null ? s.extZ3d : (s.ext3d ? 0 : CPA));
+            if (s.m3d && FURN3D[s.m3d]) {                 // móvel realista por tipo
+                const fg = new THREE.Group();
+                FURN3D[s.m3d](fg, s, model);
+                fg.position.y = base;
+                g.add(fg);
+                return;
+            }
+            const mat = new THREE.MeshStandardMaterial({ color: col3d(s.color), roughness: 0.7, metalness: 0.05, envMapIntensity: 0.4 });
+            const z = (s.z || 0) + base;
+            let mesh;
+            if (s.shape === 'circ') {
+                mesh = new THREE.Mesh(new THREE.CylinderGeometry(s.r, s.r, Math.max(s.h, 0.01), 20), mat);
+                mesh.position.set(s.e, z + s.h/2, -s.n);
+                mesh.castShadow = true; mesh.receiveShadow = true;
+            } else {
+                mesh = box3d(s.n, s.e, s.dn, s.de, z, z + s.h, mat);
+            }
+            g.add(mesh);
+        });
+
+        // ── Esquadrias: batentes, montantes, peitoris e folhas de porta ──────
+        const matFrame = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.55, metalness: 0, envMapIntensity: 0.4 });
+        const matSill  = new THREE.MeshStandardMaterial({ color: 0xd8d2c6, roughness: 0.6, metalness: 0, envMapIntensity: 0.4 });
+        const matLeaf  = new THREE.MeshStandardMaterial({ color: 0xb98a5a, roughness: 0.6, metalness: 0.05, envMapIntensity: 0.4 });
+        const matKnob  = new THREE.MeshStandardMaterial({ color: 0xb8b8bd, roughness: 0.3, metalness: 0.85 });
+        const FR = 0.05;   // seção do caixilho
+
+        openings.forEach(o => {
+            const z0 = (o.type === 'window' ? o.sill : 0) + CPA, z1 = o.head + CPA;
+            const horiz = o.de >= o.dn;                  // parede corre no eixo E?
+            const D = (horiz ? o.dn : o.de) + 0.05;      // profundidade do caixilho (atravessa a parede)
+            const a0 = horiz ? o.e : o.n;
+            const a1 = horiz ? (o.e + o.de) : (o.n + o.dn);
+            const fix = horiz ? (o.n + o.dn/2) : (o.e + o.de/2);
+            // bar(along0, along1, zz0, zz1, mat) no referencial da parede
+            const bar = (b0, b1, zz0, zz1, mat) => {
+                if (horiz) g.add(box3d(fix - D/2, b0, D, b1 - b0, zz0, zz1, mat));
+                else       g.add(box3d(b0, fix - D/2, b1 - b0, D, zz0, zz1, mat));
+            };
+            bar(a0, a0 + FR, z0, z1, matFrame);          // ombreira 1
+            bar(a1 - FR, a1, z0, z1, matFrame);          // ombreira 2
+            bar(a0, a1, z1 - FR, z1, matFrame);          // verga
+            if (o.type === 'door') {
+                bar(a0, a1, z0, z0 + 0.02, matFrame);    // soleira fina
+            } else if (o.type === 'glassdoor') {
+                bar(a0, a1, z0, z0 + 0.04, matFrame);   // só a soleira — o vão fica vazio (folhas de vidro abrem)
+            } else {
+                bar(a0 - 0.02, a1 + 0.02, z0 - 0.05, z0 + 0.02, matSill);   // peitoril saliente
+                bar((a0+a1)/2 - 0.02, (a0+a1)/2 + 0.02, z0, z1, matFrame);  // montante vertical
+            }
+        });
+        // travessa horizontal das janelas (a porta de vidro já tem sua própria grade)
+        openings.filter(o => o.type === 'window').forEach(o => {
+            const horiz = o.de >= o.dn;
+            const D = (horiz ? o.dn : o.de) + 0.05;
+            const a0 = horiz ? o.e : o.n, a1 = horiz ? (o.e + o.de) : (o.n + o.dn);
+            const fix = horiz ? (o.n + o.dn/2) : (o.e + o.de/2);
+            const zm = (o.sill + o.head) / 2 + CPA;
+            if (horiz) g.add(box3d(fix - D/2, a0, D, a1 - a0, zm - 0.02, zm + 0.02, matFrame));
+            else       g.add(box3d(a0, fix - D/2, a1 - a0, D, zm - 0.02, zm + 0.02, matFrame));
+        });
+
+        // Folhas de porta — abrem conforme hinge/direção/swing do doorArc 2D
+        model.filter(o => o.k === 'doorleaf').forEach(o => {
+            const r = Math.hypot(o.dn, o.de); if (r < 0.05) return;
+            const t0 = Math.atan2(o.dn, o.de);
+            const tOpen = t0 + 0.78 * (Math.PI/2) * o.swing;   // ~70% aberta
+            const head = 2.1, th = 0.045;
+            const leaf = new THREE.Group();
+            leaf.position.set(o.he, CPA, -o.hn);
+            leaf.rotation.y = tOpen;
+            if (o.glass) {
+                // Folha de vidro: painel transparente + caixilho perimetral + grade 2×3
+                const glassLeafMat = new THREE.MeshStandardMaterial({ color: 0xaecadf, transparent: true,
+                    opacity: 0.28, roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
+                const panel = new THREE.Mesh(new THREE.BoxGeometry(r, head, th * 0.6), glassLeafMat);
+                panel.position.set(r/2, head/2, 0);
+                panel.castShadow = false; panel.receiveShadow = true;
+                leaf.add(panel);
+                // caixilho: montante lateral perto da dobradiça, outro na ponta, travessas e grade
+                const fm = new THREE.MeshStandardMaterial({ color: 0xd4d0c8, roughness: 0.4, metalness: 0.3 });
+                const FR2 = 0.04;
+                [[0, FR2], [r - FR2, r], [0, r]].forEach(([a, b]) => {         // 2 montantes + verga
+                    const g2 = new THREE.BoxGeometry(b - a, head, th);
+                    const m2 = new THREE.Mesh(g2, fm);
+                    m2.position.set((a + b)/2, head/2, 0); leaf.add(m2);
+                });
+                for (let i = 1; i <= 2; i++) {                                 // 2 travessas → 3 faixas
+                    const z = head * i / 3;
+                    const g2 = new THREE.BoxGeometry(r, FR2, th);
+                    const m2 = new THREE.Mesh(g2, fm);
+                    m2.position.set(r/2, z, 0); leaf.add(m2);
+                }
+            } else {
+                const panel = new THREE.Mesh(new THREE.BoxGeometry(r, head, th), matLeaf);
+                panel.position.set(r/2, head/2, 0);
+                panel.castShadow = true; panel.receiveShadow = true;
+                leaf.add(panel);
+                const knob = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 8), matKnob);
+                knob.position.set(r - 0.08, 1.05, th);
+                leaf.add(knob);
+            }
+            g.add(leaf);
+        });
+
+        // ── Laje de cobertura (plana) — V3 recebe 2º pavimento sobre ela ─────
+        // Concreto + leve beiral + platibanda (mureta) no perímetro. Começa oculta.
+        const lajeMat = new THREE.MeshStandardMaterial({ color: 0xc8c4bc, roughness: 0.9, metalness: 0, envMapIntensity: 0.2 });
+        const roof = new THREE.Group();
+        roof.name = 'roof';
+        roof.visible = false;
+        const n0 = 2 - 0.12, n1 = 7 + 0.12, e0 = 22 - 0.12, e1 = 30 + 0.12;   // laje com beiral
+        roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat));
+        const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12;         // platibanda
+        roof.add(box3d(n0, e0, tt, e1 - e0, pb, pbTop, lajeMat));             // sul
+        roof.add(box3d(n1 - tt, e0, tt, e1 - e0, pb, pbTop, lajeMat));        // norte
+        roof.add(box3d(n0, e0, n1 - n0, tt, pb, pbTop, lajeMat));             // oeste
+        roof.add(box3d(n0, e1 - tt, n1 - n0, tt, pb, pbTop, lajeMat));        // leste
+        g.add(roof);
+
+        // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
+        if (v === 'v2' || v === 'v3') {
+            const GN0 = 2.0, GN1 = 10.5, GE0 = 13, GE1 = 22;
+            const COL = 0.20;
+            const GNM  = (GN0 + GN1) / 2 - COL / 2;   // meio N-S
+            const GEM  = (GE0 + GE1) / 2 - COL / 2;   // meio E-O ≈ mE 17,4
+            const GLAJE = CEIL3D + CPA;
+            const VH = 0.35, VW = COL;
+            // Fundo: colunas rente à face exterior da parede da casa
+            const GE1c = GE1 - 0.10 - COL;
+            const GEMc = GEM;                           // coluna intermédia E-O
+            const GCPA  = 0.20;
+            const GEM_P = 0.03;
+
+            // 9 colunas (3×3): frente / meio / fundo × sul / centro / norte
+            [GN0, GNM, GN1 - COL].forEach(n => {
+                g.add(box3d(n, GE0,  COL, COL, -0.10, GLAJE, matEmbase)); // frente
+                g.add(box3d(n, GEMc, COL, COL, -0.10, GLAJE, matEmbase)); // meio
+                g.add(box3d(n, GE1c, COL, COL, -0.10, GLAJE, matEmbase)); // fundo
+            });
+
+            // Vigas E-O (sul, centro, norte) — frente até face ext. da parede
+            const vigaLen = GE1c + COL - GE0;
+            [GN0, (GN0 + GN1) / 2 - VW / 2, GN1 - VW].forEach(n =>
+                g.add(box3d(n, GE0, VW, vigaLen, GLAJE - VH, GLAJE, lajeMat)));
+            // Vigas N-S (frente, meio, fundo)
+            g.add(box3d(GN0, GE0,  GN1 - GN0, VW, GLAJE - VH, GLAJE, lajeMat));
+            g.add(box3d(GN0, GEMc, GN1 - GN0, VW, GLAJE - VH, GLAJE, lajeMat));
+            g.add(box3d(GN0, GE1c, GN1 - GN0, VW, GLAJE - VH, GLAJE, lajeMat));
+
+            // Escada 2º pavimento — canto SE (mN 2,0→2,9), 17 degraus
+            const SRISE = (GLAJE + 0.16 - GCPA) / 17;   // ~0.18 m por degrau
+            const STREAD = 0.27;
+            const matStair = new THREE.MeshStandardMaterial({ color: 0xd4d0c8, roughness: 0.85, metalness: 0, envMapIntensity: 0.2 });
+            for (let i = 1; i <= 17; i++)
+                g.add(box3d(2.0, GE1 - i*STREAD, 0.90, STREAD, GCPA, GCPA + i*SRISE, matStair));
+
+            // Laje + platibanda da garagem — grupo roof (mesmo toggle da casa)
+            const gn0 = GN0 - 0.12, gn1 = GN1 + 0.12, ge0 = GE0 - 0.12; // beiral 12 cm
+            roof.add(box3d(gn0, ge0, gn1-gn0, GE1-ge0, GLAJE, GLAJE+0.16, lajeMat));
+            const gpb = GLAJE + 0.16, gpbTop = gpb + 0.42;
+            roof.add(box3d(gn0,      ge0, tt,       GE1-ge0,  gpb, gpbTop, lajeMat)); // sul
+            roof.add(box3d(gn1-tt,   ge0, tt,       GE1-ge0,  gpb, gpbTop, lajeMat)); // norte
+            roof.add(box3d(gn0,      ge0, gn1-gn0,  tt,       gpb, gpbTop, lajeMat)); // oeste
+            roof.add(box3d(gn0, GE1-tt,  gn1-gn0,  tt,       gpb, gpbTop, lajeMat)); // leste
+
+            // Piso de concreto da garagem — no topo do baldrame (GCPA = 0,20 m)
+            const matGFloor = new THREE.MeshStandardMaterial({ color: 0xd0ccc4, roughness: 0.88, metalness: 0, envMapIntensity: 0.2 });
+            g.add(box3d(GN0, GE0, GN1 - GN0, vigaLen, GCPA - 0.025, GCPA, matGFloor));
+
+            // Baldrame da garagem — 20 cm (metade da casa), projeção 3 cm, manta no topo
+            const gbSides = [
+                [GN0 - GEM_P, GE0 - GEM_P, COL + GEM_P,          vigaLen + 2*GEM_P],  // sul
+                [GN1 - COL,   GE0 - GEM_P, COL + GEM_P,          vigaLen + 2*GEM_P],  // norte
+                [GN0 - GEM_P, GE0 - GEM_P, GN1-GN0 + 2*GEM_P,   COL + GEM_P      ],  // oeste
+                [GN0 - GEM_P, GE1c,        GN1-GN0 + 2*GEM_P,   COL + GEM_P      ],  // leste
+            ];
+            gbSides.forEach(([n, e, dn, de]) =>
+                g.add(box3d(n, e, dn, de, -0.05, GCPA, matEmbase)));
+            gbSides.forEach(([n, e, dn, de]) => {
+                const m = box3d(n-0.005, e-0.005, dn+0.01, de+0.01, GCPA - WP_H, GCPA + 0.004, matWP);
+                m.castShadow = false;
+                g.add(m);
+            });
+        }
+
+        buildDims3D(g);
+        return g;
+    }
+
+    // ── Cotas 3D — réplica das dimLine do 2D ────────────────────────────────
+    // Sprite de texto usando canvas texture (sempre virado para a câmera).
+    function _makeLabel3D(txt, hexColor) {
+        const W = 320, H = 64;
+        const cv = document.createElement('canvas');
+        cv.width = W; cv.height = H;
+        const ctx = cv.getContext('2d');
+        ctx.fillStyle = 'rgba(0,0,0,0.72)';
+        ctx.beginPath();
+        ctx.moveTo(8,0); ctx.lineTo(W-8,0);
+        ctx.arcTo(W,0,W,8,8); ctx.lineTo(W,H-8);
+        ctx.arcTo(W,H,W-8,H,8); ctx.lineTo(8,H);
+        ctx.arcTo(0,H,0,H-8,8); ctx.lineTo(0,8);
+        ctx.arcTo(0,0,8,0,8); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = hexColor || '#ffffff';
+        ctx.font = 'bold 30px "JetBrains Mono",monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(txt, W/2, H/2);
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({
+            map: new THREE.CanvasTexture(cv), depthTest: false, transparent: true
+        }));
+        sp.scale.set(W / 64 * 0.55, 0.55, 1);
+        return sp;
+    }
+
+    // Linha de cota com ticks perpendiculares e label sprite — mesmo padrão do dimLine 2D.
+    // Coordenadas em metros do lote; internamente converte para X=mE, Z=−mN.
+    function _dimLine3D(g, n1, e1, n2, e2, txt, hexColor) {
+        const Y = 0.12, tk = 0.7;
+        const col = new THREE.Color(hexColor || '#ffffff');
+        const lineMat = new THREE.LineDashedMaterial({ color: col, dashSize: 0.4, gapSize: 0.2 });
+        const tickMat = new THREE.LineBasicMaterial({ color: col });
+
+        const ln = new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(e1, Y, -n1), new THREE.Vector3(e2, Y, -n2)
+            ]), lineMat);
+        ln.computeLineDistances();
+        g.add(ln);
+
+        const goE = Math.abs(e2 - e1) >= Math.abs(n2 - n1);
+        const addTick = (n, e) => {
+            const tp = goE
+                ? [new THREE.Vector3(e, Y, -(n - tk)), new THREE.Vector3(e, Y, -(n + tk))]
+                : [new THREE.Vector3(e - tk, Y, -n),   new THREE.Vector3(e + tk, Y, -n)];
+            g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(tp), tickMat));
+        };
+        addTick(n1, e1); addTick(n2, e2);
+
+        const lbl = _makeLabel3D(txt, hexColor || '#ffffff');
+        lbl.position.set((e1 + e2) / 2, Y + 0.55, -(n1 + n2) / 2);
+        g.add(lbl);
+    }
+
+    function buildDims3D(g) {
+        // Afastamentos — branco (mesmas cotas do 2D)
+        _dimLine3D(g,  4.5,  0,    4.5,  22,    '22 m — frente');
+        _dimLine3D(g,  4.5,  30,   4.5,  40,    '10 m — fundo');
+        _dimLine3D(g,  0,    26,   2.0,  26,    '2 m — sul');
+        _dimLine3D(g,  7.0,  26,   12.5, 26,    '5,5 m — norte');
+        // Totais do lote — âmbar
+        _dimLine3D(g,  13.5, 0,    13.5, 40,    '40 m', '#f59e0b');
+        _dimLine3D(g,  0,    41.5, 12.5, 41.5,  '12,5 m', '#f59e0b');
+    }
+
+    // Posição solar REAL para a latitude do lote (−29,96°, hemisfério sul).
+    // Declinação δ por dia do ano + ângulo horário H → vetor do sol em ENU,
+    // mapeado para os eixos da cena (X=Leste, Y=Cima, Z=−Norte).
+    const LOT_PHI = -29.96296858 * Math.PI / 180;
+    const DOY = [15, 46, 74, 105, 135, 162, 198, 228, 259, 289, 319, 345]; // dia aprox. do mês
+
+    function setSun3D(S, hour, month) {
+        if (month == null) month = (S.month != null ? S.month : 4);
+        const N    = DOY[month];
+        const decl = 23.45 * Math.PI/180 * Math.sin(2*Math.PI * (284 + N) / 365); // δ
+        const H    = (hour - 12) * 15 * Math.PI/180;                              // ângulo horário
+        const sinφ = Math.sin(LOT_PHI), cosφ = Math.cos(LOT_PHI);
+        const sinδ = Math.sin(decl),    cosδ = Math.cos(decl);
+
+        // vetor unitário do sol em ENU (East, North, Up)
+        const E = -cosδ * Math.sin(H);
+        const Nn =  sinδ * cosφ - cosδ * Math.cos(H) * sinφ;
+        const U =  sinδ * sinφ + cosδ * Math.cos(H) * cosφ;   // = sin(elevação)
+
+        const cx = 26, cy = 1.0, cz = -4.5, R = 90;            // alvo (centro da casa)
+        const up = Math.max(U, -0.05);
+        S.sun.position.set(cx + E * R, cy + up * R, cz + (-Nn) * R);   // Z = −Norte
+
+        const day = Math.max(0, U);                            // 0 abaixo do horizonte → 1 a pino
+        const dusk = U > 0 && U < 0.25;                        // sol baixo (nascer/pôr)
+        S.sun.intensity = U <= 0 ? 0.03 : (0.35 + 1.9 * day);
+        S.sun.color.setHSL(dusk ? 0.06 : 0.11, dusk ? 0.75 : 0.35 - 0.25*day, 0.55 + 0.1*day);
+        S.hemi.intensity = 0.10 + 0.22 * day;
+        if (S.scene) S.scene.background.setHSL(0.58, 0.5, 0.10 + 0.45 * day); // céu: noite→dia
+        S.hour = hour; S.month = month;
+        S.elevDeg = Math.asin(Math.max(-1, Math.min(1, U))) * 180/Math.PI;
+        return S.elevDeg;
+    }
+
+    function init3D(v) {
+        const host = document.getElementById('scene3d-' + v);
+        if (!host) return;
+        const W = host.clientWidth  || 960;   // fallback p/ container ainda sem largura
+        const H = host.clientHeight || 520;
+
+        let S = scenes3d[v];
+        if (!S) {
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xc7d2dc);
+
+            const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 500);
+            camera.position.set(8, 15, 10);   // sudoeste/acima — vê a frente (oeste) e a lateral sul
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(W, H);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 0.92;
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            host.appendChild(renderer.domElement);
+
+            // Environment (reflexos suaves para os materiais PBR / vidro)
+            try {
+                const pmrem = new THREE.PMREMGenerator(renderer);
+                scene.environment = pmrem.fromScene(new THREE.RoomEnvironment(), 0.04).texture;
+            } catch (e) { /* sem env: cai para iluminação direta */ }
+
+            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.maxPolarAngle = Math.PI / 2 - 0.02;   // não passar por baixo do chão
+            controls.target.set(26, 1.2, -4.5);   // centro da casa (mE 26, mN 4,5 → Z −4,5)
+
+            // Céu + ambiente
+            const hemi = new THREE.HemisphereLight(0xbcd6f2, 0x55603f, 0.55);
+            scene.add(hemi);
+
+            // Sol direcional (caster de sombra), mirando no centro da casa
+            const sun = new THREE.DirectionalLight(0xfff4e0, 2.4);
+            sun.castShadow = true;
+            sun.target.position.set(26, 1.0, -4.5);
+            scene.add(sun, sun.target);
+
+            const d = 16;   // meia-extensão do frustum de sombra (cobre o lote da casa)
+            sun.shadow.camera.left = -d;  sun.shadow.camera.right = d;
+            sun.shadow.camera.top  =  d;  sun.shadow.camera.bottom = -d;
+            sun.shadow.camera.near = 1;   sun.shadow.camera.far = 160;
+            sun.shadow.mapSize.set(2048, 2048);
+            sun.shadow.bias = -0.0004;
+            sun.shadow.normalBias = 0.02;
+
+            S = scenes3d[v] = { scene, camera, renderer, controls, group: null, sun, hemi, month: 4, hour: 14.5 };
+            buildHud3D(v, host, S);     // bússola + slider de horário/mês
+            setSun3D(S, 14.5, 4);       // posição solar inicial (~14h30, maio)
+            syncHud3D(S);
+
+            (function animate() {
+                S._raf = requestAnimationFrame(animate);
+                controls.update();
+                updateCompass3D(S);
+                renderer.render(scene, camera);
+            })();
+
+            window.addEventListener('resize', () => resize3D(v));
+            if (window.ResizeObserver) new ResizeObserver(() => resize3D(v)).observe(host);
+        }
+
+        // (Re)constrói o prédio a cada abertura → 3D sempre reflete o 2D atual
+        if (S.group) S.scene.remove(S.group);
+        S.group = buildBuilding3D(v);
+        S.scene.add(S.group);
+        resize3D(v);
+    }
+
+    function resize3D(v) {
+        const S = scenes3d[v];
+        const host = document.getElementById('scene3d-' + v);
+        if (!S || !host || host.clientWidth === 0) return;
+        S.camera.aspect = host.clientWidth / host.clientHeight;
+        S.camera.updateProjectionMatrix();
+        S.renderer.setSize(host.clientWidth, host.clientHeight);
+    }
+
+    function set3DRoof(v, btn) {
+        const S = scenes3d[v];
+        if (!S || !S.group) return;
+        const roof = S.group.getObjectByName('roof');
+        if (!roof) return;
+        roof.visible = !roof.visible;
+        btn.textContent = 'Laje: ' + (roof.visible ? 'visível' : 'oculta');
+    }
+
+    // ── HUD: bússola + slider de horário/mês ────────────────────────────────
+    const MESES3D = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    function fmtHour3D(h) {
+        const m = Math.round((h % 1) * 60), hh = Math.floor(h);
+        return String(hh).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    }
+
+    function buildHud3D(v, host, S) {
+        // Bússola
+        const comp = document.createElement('div');
+        comp.className = 'scene3d-compass';
+        const rose = document.createElement('div'); rose.className = 'rose'; comp.appendChild(rose);
+        const pos = { N:[29,9], L:[47,29], S:[29,47], O:[11,29] };
+        const ptColor = { L:'#4ade80', S:'#64748b', O:'#f59e0b' };
+        S.compassPts = [];
+        ['N','L','S','O'].forEach(k => {
+            const p = document.createElement('div');
+            p.className = 'pt' + (k === 'N' ? ' n' : '');
+            p.textContent = k;
+            if (ptColor[k]) p.style.color = ptColor[k];
+            p.style.left = pos[k][0] + 'px'; p.style.top = pos[k][1] + 'px';
+            rose.appendChild(p); S.compassPts.push(p);
+        });
+        S.compassRose = rose;
+        host.appendChild(comp);
+
+        // Barra de horário/mês
+        const hud = document.createElement('div');
+        hud.className = 'scene3d-hud';
+        const sel = document.createElement('select');
+        MESES3D.forEach((m, i) => {
+            const o = document.createElement('option'); o.value = i; o.textContent = m;
+            if (i === S.month) o.selected = true; sel.appendChild(o);
+        });
+        const rng = document.createElement('input');
+        rng.type = 'range'; rng.min = '5'; rng.max = '19'; rng.step = '0.25'; rng.value = S.hour;
+        const clock = document.createElement('span');
+        clock.className = 'hud-clock';
+        const apply = () => {
+            const el = setSun3D(S, parseFloat(rng.value), parseInt(sel.value, 10));
+            clock.textContent = fmtHour3D(parseFloat(rng.value)) + '  ☀' + Math.round(el) + '°';
+        };
+        rng.addEventListener('input', apply);
+        sel.addEventListener('change', apply);
+        hud.append('🕑', rng, clock, '📅', sel);
+        host.appendChild(hud);
+        S.hudRange = rng; S.hudSel = sel; S.hudClock = clock;
+    }
+
+    function syncHud3D(S) {
+        if (!S.hudClock) return;
+        S.hudRange.value = S.hour; S.hudSel.value = S.month;
+        S.hudClock.textContent = fmtHour3D(S.hour) + '  ☀' + Math.round(S.elevDeg || 0) + '°';
+    }
+
+    function updateCompass3D(S) {
+        if (!S.compassRose) return;
+        const cam = S.camera, tg = S.controls.target;
+        const bearing = Math.atan2(tg.x - cam.position.x, -(tg.z - cam.position.z)); // 0 = olhando p/ norte
+        const deg = -bearing * 180 / Math.PI;
+        S.compassRose.style.transform = `rotate(${deg}deg)`;
+        const cd = `translate(-50%,-50%) rotate(${-deg}deg)`;   // mantém as letras na vertical
+        S.compassPts.forEach(p => p.style.transform = cd);
+    }
+
+    function initMap(v) {
+        if (maps[v]) { maps[v].invalidateSize(); return; }
+        const el = document.getElementById('map-' + v);
+        if (!el || el.offsetHeight === 0) return;
+
+        const bounds = L.latLngBounds(rot(0,0), rot(12.5,40));
+        const map = L.map('map-' + v, { zoomControl: false, maxZoom: 25 })
+            .fitBounds(bounds, { padding: [48, 48] });
+
+        L.tileLayer(ESRI_URL, {
+            attribution: '© Esri, Maxar, Earthstar Geographics',
+            maxNativeZoom: 18, maxZoom: 25
+        }).addTo(map);
+
+        L.layerGroup(buildLayers(v)).addTo(map);
+        maps[v] = map;
+
+        // Indicador de zoom no canto do mapa
+        const zoomIndicator = L.control({ position: 'bottomleft' });
+        zoomIndicator.onAdd = function() {
+            const div = L.DomUtil.create('div', 'zoom-indicator');
+            div.innerHTML = `zoom: <strong>${map.getZoom()}</strong>`;
+            map.on('zoomend', () => {
+                div.innerHTML = `zoom: <strong>${map.getZoom()}</strong>`;
+            });
+            return div;
+        };
+        zoomIndicator.addTo(map);
+
+        function applyZoomClass() {
+            const z = map.getZoom();
+            const c = map.getContainer();
+            c.classList.toggle('zlvl-far',  z < 22);
+            c.classList.toggle('zlvl-near', z >= 22);
+        }
+        map.on('zoomend', applyZoomClass);
+        applyZoomClass();
+    }
+
+    // Mede altura real do sticky header e atualiza --sticky-h
+    function setViewHeight() {
+        const h = document.querySelector('.sticky-top')?.offsetHeight || 114;
+        document.documentElement.style.setProperty('--sticky-h', h + 'px');
+    }
+    // ResizeObserver dispara após o CSS repintar — mais preciso que 'resize'
+    const _stickyEl = document.querySelector('.sticky-top');
+    if (_stickyEl && window.ResizeObserver) {
+        new ResizeObserver(setViewHeight).observe(_stickyEl);
+    } else {
+        window.addEventListener('resize', setViewHeight);
+    }
+
+    // Inicializa o mapa do painel inicial
+    window.addEventListener('load', () => {
+        setViewHeight();
+        setTimeout(() => initMap('v1'), 150);
+    });
+</script>
+
+</body>
+</html>

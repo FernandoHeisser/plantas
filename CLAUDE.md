@@ -1,0 +1,435 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
+## Como rodar
+
+```bash
+npx serve -p 3131 .
+```
+
+Acesso: http://localhost:3131  
+Config em `.claude/launch.json`.
+
+> **Importante:** o Leaflet cacheia os mapas em `maps[v]`. Após editar o JS, fazer **Ctrl+Shift+R** (hard refresh) para ver as mudanças. O mesmo vale para o 3D (Three.js).
+
+---
+
+## Arquitetura
+
+**Arquivo único:** `index.html` — toda a lógica, estilos e conteúdo numa página só, sem build step, sem dependências locais.
+
+**Dependências externas (CDN):**
+- Leaflet.js 1.9.4 — mapas 2D
+- Three.js r128 + OrbitControls + RoomEnvironment — cena 3D
+- ESRI World Imagery — tiles de satélite (sem API key)
+- Google Fonts — JetBrains Mono + Inter
+
+**Estrutura da página:**
+- Header sticky → tabs V1 / V2 / V3
+- Section nav sticky → Planta 2D / Planta 3D
+- 6 painéis (`p-v1-2d`, `p-v1-3d`, `p-v2-2d`, `p-v2-3d`, `p-v3-2d`, `p-v3-3d`) — só um visível por vez
+- **A aba Detalhes foi removida** (V1, V2, V3) — todo o CSS/JS de detalhes editáveis também foi removido
+
+---
+
+## Sistema de coordenadas do lote
+
+```
+LOT_LAT  = -29.96296858   (ponto SW do lote)
+LOT_LNG  = -51.63740784
+LOT_ANGLE = -3            (graus — lote ligeiramente inclinado)
+
+LAT_M  = 1 / 111320       (metros por grau de latitude)
+LNG_M  = 1 / 96373        (metros por grau de longitude em −30°)
+```
+
+**Eixos 2D:**
+- `mN` = metros para norte, 0 → 12,5 (testada sul → fundo norte)
+- `mE` = metros para leste, 0 → 40 (rua/oeste → quintal/leste)
+- Rua está em `mE = 0` (oeste)
+
+**Eixos 3D:** X = mE (leste), Y = altura (cima), Z = **−mN** (norte → −Z).  
+O Z é negado para não espelhar a planta (regra ENU: com Leste +X e Cima +Y, Norte vai para −Z).  
+A rotação de −3° é ignorada no 3D (irrelevante para a cena local).
+
+**Função `rot(mN, mE)`** — converte metros do lote em `[lat, lng]` aplicando a rotação de −3°.
+
+---
+
+## Funções helper do mapa 2D
+
+Todas retornam `Array<L.Layer>` — usar com `.forEach(l => lys.push(l))`.
+
+```
+rot(mN, mE)
+  Converte coordenadas do lote para [lat, lng] com rotação de -3°.
+
+rect(n, e, dn, de, fill, opts?)
+  Retângulo eixo-NE. n,e = canto SW; dn=tamanho N-S, de=tamanho E-O.
+  opts 3D: h3d, z3d, no3d, m3d (ver seção Pipeline 2D→3D).
+
+circ(n, e, r, fill, opts?)
+  Círculo aproximado por polígono de 32 lados. n,e = centro.
+  opts 3D: h3d, z3d, no3d, m3d.
+
+wall(n1, e1, n2, e2, t, opts?)
+  Parede grossa centrada na linha (n1,e1)→(n2,e2), espessura t.
+  Paredes externas: EW = 0.20m. Internas: IW = 0.10m.
+  Registra automaticamente em GEO quando GEO !== null.
+
+doorArc(hn, he, dn, de, swing, opts?)
+  Arco de abertura de porta + folha + pivô.
+  hinge=(hn,he); (dn,de) = direção inicial da folha;
+  swing: +1 anti-horário / -1 horário.
+  opts.no3d = true → não gera folha 3D (usado em glassdoor).
+  opts.glass = true → gera folha de vidro no 3D (em vez de madeira).
+
+win(n, e, dn, de, axis)
+  Janela: abertura branca (no3d:true) + 3 linhas (caixilho/vidro/caixilho).
+  axis='N' parede horizontal (mN=const), axis='E' parede vertical (mE=const).
+  O rect de fundo branco tem no3d:true — não gera volume 3D.
+
+cut(n, e, dn, de, type?)
+  Recorte de porta na parede. type padrão = 'door'.
+  type = 'glassdoor' → vão de vidro (porta lateral dupla).
+  Sempre no3d:true no rect 2D; registra k:'opening' no GEO.
+
+dimLine(n1, e1, n2, e2, texto, cor?)
+  Linha tracejada de cota com ticks perpendiculares e label central.
+
+roomLabel(mN, mE, nome, dims, area)
+  Marker com label de cômodo (3 linhas). Centralizado via CSS.
+
+dimLabel(mN, mE, nome, dims, area, corNome, corDim)
+  Label grande de área (ex: "Terreno / 12,5×40m / 500m²").
+```
+
+---
+
+## buildLayers — estrutura atual
+
+```javascript
+function buildLayers(v) {
+    // Base comum V1/V2/V3 (bloco { })
+    //   → terreno cinza + casa branca + cotas + paredes + portas + janelas
+    //   → banheiro + quarto + cozinha + sala + área de serviço + labels
+
+    if (v === 'v2' || v === 'v3') {
+        // → garagem (mN 1,5→8,5, mE 14→22)
+    }
+    if (v === 'v3') {
+        // → 2º pavimento (suíte, quartos, home office)
+    }
+}
+```
+
+V1, V2 e V3 compartilham a mesma planta baixa detalhada do térreo. Diferenças são adicionadas nos blocos `if`.
+
+---
+
+## Pipeline 2D → 3D (fonte única)
+
+O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `buildLayers` que desenha o 2D.  
+**Regra: mexeu no 2D → o 3D acompanha sozinho ao reabrir a aba.**
+
+### Como funciona
+
+1. Quando `GEO !== null`, os helpers registram em `GEO` o que desenham (metros do lote).
+2. `captureModel(v)` faz `GEO = []`, roda `buildLayers(v)` e devolve o modelo.
+3. `buildBuilding3D(v)` extruda o modelo:
+   - **paredes** (`k:'wall'`) → caixas até `CEIL3D=2,70 m`, **recortando vãos** (cheio + peitoril + verga + vidro).
+   - **vãos** (`k:'opening'`):
+     - `type:'window'` → vidro fixo peitoril 1,0→verga 2,1 + batente + montante + peitoril saliente.
+     - `type:'door'` → abertura vazia + batente + folha de madeira abrindo pelo swing do `doorArc`.
+     - `type:'glassdoor'` → abertura vazia + batente + soleira + **duas folhas de vidro** abertas (grade 2×3 em cada folha). A lateral dupla usa este tipo.
+   - **móveis** (`k:'solid'`) → modelo realista por tipo via `FURN3D[m3d]`, ou volume de massa se sem tipo.
+
+### Tags nos `opts` da chamada 2D
+
+| Tag | Efeito |
+|---|---|
+| `h3d: n` | Altura em metros (padrão 0,45 m) |
+| `z3d: n` | Base acima do piso em metros (padrão 0) |
+| `no3d: true` | Não gerar volume 3D |
+| `m3d: 'tipo'` | Usa builder dedicado em `FURN3D` |
+
+### Tipos de móveis (`FURN3D`)
+
+| Tipo | Móvel |
+|---|---|
+| `rug` | Tapete plano fosco (respeita `z3d`) |
+| `tv` | Painel fino de TV + tela emissiva |
+| `rack` | Rack baixo + pés + ranhura |
+| `coffee` | Mesa de centro + pernas baixas |
+| `sofa` | Base + encosto + braços + 3 almofadas |
+| `bed` | Estrado + colchão + cabeceira + 2 travesseiros + edredom (GAP=7cm da parede) |
+| `wardrobe` | Guarda-roupa + portas + puxadores |
+| `fridge` | Geladeira inox + fenda freezer + 2 puxadores |
+| `stove` | Fogão + forno + porta + puxador + cooktop |
+| `sink` | Pia + 2 cubas + torneira (sem saliência lateral) |
+| `counter` | Bancada segmentada: abre vãos p/ `stove` e `sink` via `model`. **Recebe `model` como 3º arg.** |
+| `lavatory` | Lavatório + cuba + torneira |
+| `shower` | Box: base + 2 vidros sem sombra + ducha |
+| `toilet` | Vaso: bacia + assento + caixa acoplada |
+| `table` | Mesa de jantar + 4 pernas |
+| `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
+| `tank` | Tanque: pé + cuba |
+| `washer` | — (removido — ponto daquela posição virou tapete/capacho) |
+
+> **Atenção:** `counter` e `chair` recebem `(g, s, model)` — precisam do array model completo. O dispatch já passa: `FURN3D[s.m3d](g, s, model)`.
+
+### Iluminação e sol
+
+- **Sombras** PCFSoft 2048², tone mapping ACESFilmic, saída sRGB.
+- **Environment** RoomEnvironment + PMREM → reflexos suaves nos materiais Standard.
+- `setSun3D(S, hora, mês)` = posição solar **real** para lat −29,96° (declinação por dia do ano + ângulo horário → vetor ENU mapeado pra cena).
+- HUD inferior: slider 5h–19h + seletor de mês + relógio com elevação (`14:30 ☀29°`).
+- Bússola (canto sup. esq.) que gira com a câmera; N em vermelho.
+- Vidros (`matGlass`, box/shower/glassdoor) têm `castShadow=false` → luz passa.
+
+### Chão 3D
+
+- **Satélite dos vizinhos:** plano de ~140 m com tiles ESRI (z18, maxNativeZoom), composto num canvas via `loadSatelliteTexture()`. Singleton `satGroundMat`. Fallback verde se CORS falhar.
+- **Grama no lote:** plano axis-aligned cobrindo mN 0→12,5 / mE 0→40 por **cima** do satélite (y=−0,025 vs satélite y=−0,03). Textura procedural nítida.
+- **Piso interno:** `box3d(2.11, 22.11, 4.78, 7.78, -0.02, 0.001, matFloor)` — 1 cm aquém das faces interiores das paredes p/ evitar z-fight.
+- **Contorno âmbar** do lote em `y=0.02` marcando a propriedade.
+
+### Cobertura
+
+Laje plana de concreto (não telhado de duas águas) — **V3 recebe 2º pavimento sobre ela**.  
+Grupo `roof` = laje (y 2,70→2,86) + platibanda em 4 lados (y 2,86→3,28). Começa oculta.  
+Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
+
+### Bugs resolvidos / armadilhas conhecidas
+
+| Bug | Causa | Solução |
+|---|---|---|
+| Z-fight base de janelas | `win()` criava `rect('#fafafa')` capturado como sólido 3D | `no3d:true` no rect de fundo da janela |
+| Porta parecendo fechada e aberta | Grade de caixilho gerada no vão fechado da glassdoor | Removida a grade do vão; ela existe só nas folhas |
+| Z-fight piso × parede | Piso slab face externa coplanar com parede exterior | Piso insetado 1 cm das faces interiores |
+| Paredes z-fight chão | Paredes começando em y=0 coplanar com topo do piso | `seg()` usa `z0adj=-0.01` quando `z0≤0` |
+| Cabeceira dentro da parede | Cama terminava em mN=4,50 = face da parede | GAP=7 cm: cama vai até mN 4,43 |
+| Vidro bloqueando luz | MeshStandard transparente ainda projeta sombra | `castShadow=false` em todos os vidros |
+
+### Renderização
+
+`init3D(v)` cria cena/câmera/OrbitControls/luzes/HUD **uma vez** e reconstrói o prédio a cada abertura.  
+`render()` chama `init3D` quando `sec === '3d'`.  
+Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda sem largura.
+
+> Só o painel **V1** tem cena 3D hoje (`#scene3d-v1`). Para migrar V2/V3, substitua o placeholder por `<div id="scene3d-v2" class="scene3d">…</div>` e adicione o botão de laje.
+
+---
+
+## Layout V1 — estado final ✅
+
+### Lote
+- **Tamanho:** 12,5 m × 40 m = 500 m²
+- **Frente:** mE=0 (oeste/rua)
+
+### Casa — posição no lote
+- **mN 2,0 → 7,0** × **mE 22 → 30** (5 m × 8 m = 40 m²)
+- Recuo sul: 2,0 m | Recuo norte: 5,5 m | Recuo frente: 22 m | Recuo fundo: 10 m
+
+### Cômodos
+
+| Cômodo | mN | mE | Dimensão | Área |
+|---|---|---|---|---|
+| Banheiro | 2,0 → 4,0 | 25 → 27 | 2 × 2 m | 4 m² |
+| Quarto | 2,0 → 4,5 | 27 → 30 | 2,5 × 3 m | 7,5 m² |
+| Sala | 2,0 → 7,0 | 22 → 27 | — | ~15 m² |
+| Cozinha | 4,5 → 7,0 | 27 → 30 | 2,5 × 3 m | 7,5 m² |
+
+### Mobiliário — Banheiro
+- Vaso (`toilet`): mN 3,10→3,50, mE 26,30→26,75
+- Lavatório (`lavatory`): mN 2,10→2,42, mE 25,20→25,70
+- Box chuveiro (`shower`): mN 2,10→2,90, mE 26,10→26,90 — vidros sem sombra
+
+### Mobiliário — Quarto
+- Cama (`bed`): footprint mN 2,60→4,50, mE 27,40→28,80 — GAP 7cm da parede norte
+- Guarda-roupa (`wardrobe`): mN 2,10→2,65, mE 29,25→29,80, h=2,00 m
+
+### Mobiliário — Sala
+- Rack (`rack`): mN 4,80→6,20, mE 22,15→22,50, h=0,50 m
+- TV (`tv`): mN 4,95→6,05, mE 22,10→22,15 — painel na parede, `m3d:'tv'`
+- Sofá (`sofa`): mN 4,625→6,375, mE 24,45→25,30, h=0,75 m
+- Mesa de centro (`coffee`): mN 5,00→6,00, mE 23,65→24,20
+- Tapete entrada (`rug`): mN 2,80→4,20, mE 22,95→23,90, h=0,02 m
+
+### Mobiliário — Cozinha
+- Bancada (`counter`): mN **6,35**→6,90, mE 27,25→29,90, h=0,90 m — **segmentada** com vãos p/ fogão e pia
+- Fogão (`stove`): mN **6,35**→6,90, mE 28,00→28,55, h=0,90 m — alinhado à frente da bancada
+- Pia (`sink`): mN **6,35**→6,90, mE 28,75→29,30, h=0,90 m — alinhada à frente da bancada
+- Geladeira (`fridge`): mN 5,70→6,35, mE 29,45→30,00, h=1,70 m — frente alinhada à bancada
+- Mesa jantar (`table`): mN 5,30→5,85, mE 27,90→28,65
+- 4 cadeiras (`chair`) ao redor da mesa
+
+### Mobiliário — Área de Serviço (externa, leste)
+- Laje coberta (`rug`): mN 3,50→5,70, mE 30,10→31,50, h=0,06 m (tapete plano)
+- Tanque (`tank`): mN 3,70→4,40, mE 30,20→30,75, z=0,06 m
+- Capacho saída (`rug`): mN 4,70→5,25, mE 30,20→30,75, z=0,06 m
+
+### Portas
+
+| Porta | Tipo | Hinge | Swing |
+|---|---|---|---|
+| Principal | madeira | mN=3,05, mE=22 | −1 (leste) |
+| Banheiro | madeira | mN=2,90, mE=25 | −1 (leste) |
+| Lateral dupla esq | **vidro** (glassdoor) | mE=25,40, mN=7 | +1 (norte) |
+| Lateral dupla dir | **vidro** (glassdoor) | mE=27,20, mN=7 | −1 (norte) |
+| Fundos | madeira | mN=4,70, mE=30 | +1 (oeste) |
+| Quarto | madeira | mE=29,80, mN=4,50 | +1 (sul) |
+
+### Janelas
+
+| Janela | Parede | mN (corte) | mE | Largura |
+|---|---|---|---|---|
+| Banheiro | Sul (mN=2,0) | 1,90→2,10 | 25,70→26,50 | 0,80 m |
+| Quarto | Leste (mE=30) | 2,80→3,80 | 29,90→30,10 | 1,00 m |
+| Sala | Sul (mN=2,0) | 1,90→2,10 | 22,80→23,80 | 1,00 m |
+| Sala solar | Norte (mN=7,0) | 6,90→7,10 | 22,70→24,70 | 2,00 m |
+| Cozinha | Norte (mN=7,0) | 6,90→7,10 | 27,70→29,30 | 1,60 m |
+
+---
+
+## Sistema de layout (atualizado)
+
+```
+--sticky-h   medido via ResizeObserver no .sticky-top — atualiza automaticamente no resize
+```
+
+- Todos os painéis 2D e 3D: `height: calc(100dvh - var(--sticky-h))`, full-bleed (sem padding/borda)
+- `.content { padding: 0; margin: 0; }` — sem max-width
+- `[id$="-2d"] .card, #p-v1-3d .card` → full-bleed; `#p-v2-3d .card, #p-v3-3d .card` → altura padronizada com padding mantido (são placeholders)
+
+### Mapa 2D — overlays internos
+
+O sidebar lateral foi **removido**. Bússola e legenda ficam sobrepostos dentro do mapa:
+- **Bússola:** `div.scene3d-compass` posicionado `top:10px; left:10px; z-index:800` — mesmo CSS/posição do 3D
+- **Legenda:** `div.map-legend-ov` posicionado `bottom:40px; left:10px; z-index:800`
+- `zoomControl: false` no Leaflet — botões +/− removidos; zoom por scroll/pinch permanece
+
+### Mapa 2D — comportamento de zoom
+
+```
+maxZoom       = 25
+maxNativeZoom = 18
+```
+
+- Zoom < 22 → labels ocultos (`zlvl-far`)
+- Zoom ≥ 22 → labels visíveis (`zlvl-near`)
+
+---
+
+## Cor do terreno — constante compartilhada
+
+```javascript
+const LOT_FILL   = '#5f7a3f';   // verde grama — string para Leaflet
+const LOT_FILL_N = 0x5f7a3f;   // numérico para Three.js
+```
+
+Usada em:
+- 2D: `fillColor: LOT_FILL` no polígono do lote
+- 3D grass texture: base color em `texGrass()`
+- 3D satellite fallback material: `color: LOT_FILL_N`
+
+---
+
+## Cotas 3D (dimLine3D)
+
+Funções adicionadas após `buildBuilding3D`:
+
+```javascript
+_makeLabel3D(txt, hexColor)   // sprite canvas sempre voltado para a câmera
+_dimLine3D(g, n1,e1, n2,e2, txt, hexColor)  // linha dashed + ticks + label, Y=0.12m
+buildDims3D(g)                // chamada no final de buildBuilding3D(v)
+```
+
+Cotas renderizadas (mesmas do 2D):
+- Afastamentos (branco): frente 22m, fundo 10m, sul 2m, norte 5,5m
+- Totais do lote (âmbar): 40m (mN=13,5) e 12,5m (mE=41,5)
+
+---
+
+## Bússola — padronização 2D/3D
+
+Ambas usam `.scene3d-compass` (58×58px, `rgba(15,23,42,0.78)`, `border-radius:50%`) com labels:
+- N vermelho (classe `.n`), L verde `#4ade80`, S cinza `#64748b`, O âmbar `#f59e0b`
+- Posições px: N[29,9], L[47,29], S[29,47], O[11,29]
+- 3D: rose rotaciona com câmera via `updateCompass3D()` usando `pos = { N, L, S, O }`
+
+---
+
+## Véu branco no 3D
+
+Plano `MeshBasicMaterial` branco (`opacity:0.35`, `depthWrite:false`) adicionado ao `satGroup` em `y=0.002` — fica entre o satélite (y=−0.03) e a grama (y=−0.025). Mesmo efeito do `L.rectangle fillOpacity:0.35` do 2D.
+
+---
+
+## Classes CSS relevantes
+
+| Classe | Uso |
+|---|---|
+| `.scene3d` | Container da cena Three.js (height: 100% do card) |
+| `.scene3d-toolbar` | Barra de botões (topo direito da cena) |
+| `.scene3d-hud` | HUD de horário/mês (base esquerda) |
+| `.scene3d-compass` | Bússola 58px circular — usada em **ambos** 2D e 3D |
+| `.map-legend-ov` | Legenda do mapa 2D (overlay bottom-left) |
+| `.dim-txt` | Label de cota de afastamento 2D |
+| `.rlbl` / `.rlbl-nome` / `.rlbl-dim` / `.rlbl-area` | Label de cômodo |
+| `.flbl` | Label de móvel |
+| `.zlvl-far` / `.zlvl-near` | Visibilidade por zoom |
+| `.zoom-indicator` | Indicador de zoom (bottomleft Leaflet) |
+
+---
+
+## Financiamento — referência
+
+O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
+- 40 m² > mínimo de 36 m² ✓
+- 1 quarto suficiente no SFH
+- Área de serviço coberta com tanque — **requisito Caixa atendido** ✓
+- Exige PCI assinada por engenheiro/arquiteto antes da liberação do crédito
+
+---
+
+## Estado atual das versões
+
+| Versão | 2D | 3D |
+|---|---|---|
+| **V1** | ✅ Completo | ✅ Completo (com cotas 3D) |
+| **V2** | ⬜ Garagem a desenhar | ⬜ Placeholder |
+| **V3** | ⬜ 2º pavimento a desenhar | ⬜ Placeholder |
+
+---
+
+## Próximos passos — V2
+
+### V2 — Garagem
+Adicionar no bloco `if (v === 'v2' || v === 'v3')` em `buildLayers`:
+- Garagem prevista: **mN 1,5→8,5, mE 14→22** (7×8 m = 56 m²)
+- Paredes externas da garagem (EW=0,20)
+- Portão (mE=14, mN ~3→6): tipo `glassdoor` ou portão de aço
+- Piso de concreto diferenciado
+- Ativar cena 3D no V2: substituir placeholder por `<div id="scene3d-v2" class="scene3d">…</div>` + botão laje
+
+### V3 — Sobrado
+Adicionar no bloco `if (v === 'v3')`:
+- 2º pavimento sobre a laje do V1
+- Suíte master (leste), quartos filhos (norte), home office (oeste)
+- Escada de acesso (a definir: interna ou externa)
+
+---
+
+## Pendências conhecidas
+
+- [ ] Git não inicializado em `C:\dev\plantas`
+- [ ] `@media print` para memorial imprimível
+- [ ] Dados da M² Engenharia (CREA) para incluir no app
+- [ ] Acabamentos por fase (piso, esquadrias, cobertura)
+- [ ] V2: desenhar garagem no 2D + ativar cena 3D (substituir placeholder por `<div id="scene3d-v2" class="scene3d">`) + `buildDims3D` com cotas da garagem
+- [ ] V3: desenhar 2º pavimento no 2D + ativar cena 3D + escada de acesso (interna ou externa a definir)
+- [ ] Cotas 3D de V2/V3: `buildDims3D` precisará ser parametrizado por versão quando V2/V3 forem desenhados
