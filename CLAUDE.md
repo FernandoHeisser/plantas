@@ -7,11 +7,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Como rodar
 
 ```bash
-npx serve -p 3131 .
+npx serve -p 3131 . --single
 ```
 
 Acesso: http://localhost:3131  
 Config em `.claude/launch.json`.
+
+> **`--single` é obrigatório:** o app usa rotas resolvidas no cliente (`/v2` → V2,
+> `/v3` → V3, `/` ou qualquer outra → V1). Sem o modo SPA, o `serve` devolve **404**
+> em `/v2` e `/v3` (só `/` funciona). Na Vercel isso é tratado pelo rewrite catch-all
+> do `vercel.json`.
 
 > **Importante:** o Leaflet cacheia os mapas em `maps[v]`. Após editar o JS, fazer **Ctrl+Shift+R** (hard refresh) para ver as mudanças. O mesmo vale para o 3D (Three.js).
 
