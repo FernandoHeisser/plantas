@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "plantas",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", ".", "--single"],
       "port": 3131,
       "autoPort": true
     }

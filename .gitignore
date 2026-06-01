@@ -4,13 +4,6 @@ node_modules/
 # Vercel
 .vercel
 
-# Config gerado no build (não versionar — vem da env SHOW_ALL_VERSIONS)
-config.js
-
-# Variáveis de ambiente locais (mantêm V2/V3 fora da Vercel por padrão)
-.env.local
-.env*.local
-
 # Claude Code local settings (machine-specific)
 .claude/settings.local.json
 
