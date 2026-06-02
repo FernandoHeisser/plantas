@@ -218,6 +218,54 @@ Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 | Paredes z-fight chão | Paredes começando em y=0 coplanar com topo do piso | `seg()` usa `z0adj=-0.01` quando `z0≤0` |
 | Cabeceira dentro da parede | Cama terminava em mN=4,50 = face da parede | GAP=7 cm: cama vai até mN 4,43 |
 | Vidro bloqueando luz | MeshStandard transparente ainda projeta sombra | `castShadow=false` em todos os vidros |
+| Z-fight coluna×viga/parede | `matEmbase` (col.) e `matWall`/`lajeMat` têm faces coplanares (mesma mE, mN ou y=GLAJE) | `polygonOffset: true, factor:1, units:4` em `matWall` e `lajeMat` — colunas sempre vencem |
+
+### Regra: `polygonOffset` — Z-fight entre materiais coplanares
+
+`matWall` e `lajeMat` têm `polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4`.  
+`matEmbase` (colunas, baldrame) **não tem** offset → suas faces vencem qualquer coplanar.
+
+**Regra:** toda nova geometria criada com `matWall` ou `lajeMat` herda o offset automaticamente.  
+Se criar um **novo material** que possa ter faces coplanares com `matEmbase`, adicione o mesmo offset.
+
+Situações que causam Z-fight (e são cobertas pelo offset):
+- Box de parede com face no mesmo plano de face de coluna (mesma mE ou mN)
+- Box de viga com face no mesmo plano de coluna
+- Topo de parede em `y=GLAJE` coincidindo com topo de coluna
+
+---
+
+### Padrão V2 — garagem usa `{no3d:true}` + `box3d` manual (não pipeline GEO)
+
+**Por quê não usar o pipeline GEO para as paredes da garagem?**  
+O extrusor de paredes (`walls.forEach`) inicia em `z=0` e vai até `CEIL3D+CPA=3,10 m`.  
+O piso da garagem é `GCPA=0,20 m` (não `CPA=0,40 m`). Usando o pipeline, a parede ficaria **20 cm afundada no baldrame**.
+
+**Padrão correto para paredes da garagem:**
+```javascript
+// 2D — visual apenas; NÃO registra no GEO
+lys.push(wall(n1, e1, n2, e2, 0.20, { no3d: true }));
+
+// 3D — box manual assentado no GCPA
+g.add(box3d(n - 0.10, e,       0.20, len,  GCPA, GLAJE, matWall)); // parede E-O
+g.add(box3d(n,       e - 0.10, len,  0.20, GCPA, GLAJE, matWall)); // parede N-S
+```
+
+**Cotas de referência da garagem:**
+- `GCPA = 0.20` — piso da garagem (20 cm acima do chão externo)
+- `GLAJE = CEIL3D + CPA = 3.10` — teto da garagem = teto da casa
+- `EW = 0.20` — espessura de parede externa (centrada: ±0,10 m em torno da linha)
+
+**Paredes da garagem — estado:**
+| Parede | mN/mE | 2D (`wall`) | 3D (`box3d`) |
+|---|---|---|---|
+| Sul | mN=GN0=2,0 | ✅ `no3d:true` | ✅ `GCPA→GLAJE` |
+| Norte | mN=GN1=10,5 | ✅ `no3d:true` | ✅ `GCPA→GLAJE` |
+| Leste superior | mE=GE1=22, mN 7,0→10,5 | ✅ `no3d:true` | ✅ `GCPA→GLAJE` |
+| Leste inferior | mE=GE1=22, mN 2,0→7,0 | ✅ (parede da casa, base comum) | ✅ (pipeline GEO) |
+| Oeste (portão) | mE=GE0=13 | ⬜ pendente | ⬜ pendente |
+
+---
 
 ### Renderização
 
@@ -406,7 +454,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | Versão | 2D | 3D |
 |---|---|---|
 | **V1** | ✅ Completo | ✅ Completo (com cotas 3D) |
-| **V2** | ⬜ Garagem a desenhar | ⬜ Placeholder |
+| **V2** | 🔶 Garagem parcial (paredes sul/norte/leste ✅, portão ⬜, cotas ⬜) | 🔶 Estrutura completa (colunas/vigas/laje/escada/paredes ✅, portão ⬜) |
 | **V3** | ⬜ 2º pavimento a desenhar | ⬜ Placeholder |
 
 ---
@@ -431,10 +479,11 @@ Adicionar no bloco `if (v === 'v3')`:
 
 ## Pendências conhecidas
 
-- [ ] Git não inicializado em `C:\dev\plantas`
 - [ ] `@media print` para memorial imprimível
 - [ ] Dados da M² Engenharia (CREA) para incluir no app
 - [ ] Acabamentos por fase (piso, esquadrias, cobertura)
-- [ ] V2: desenhar garagem no 2D + ativar cena 3D (substituir placeholder por `<div id="scene3d-v2" class="scene3d">`) + `buildDims3D` com cotas da garagem
+- [ ] V2: portão oeste da garagem (mE=GE0=13, abertura p/ carros ~5 m, tipo glassdoor ou aço)
+- [ ] V2: cotas 2D/3D da garagem (`dimLine`, `buildDims3D`)
+- [ ] V2: ativar cena 3D completa (substituir placeholder por `<div id="scene3d-v2" class="scene3d">`) + botão laje
 - [ ] V3: desenhar 2º pavimento no 2D + ativar cena 3D + escada de acesso (interna ou externa a definir)
-- [ ] Cotas 3D de V2/V3: `buildDims3D` precisará ser parametrizado por versão quando V2/V3 forem desenhados
+- [ ] Cotas 3D de V2/V3: `buildDims3D` precisará ser parametrizado por versão

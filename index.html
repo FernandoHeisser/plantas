@@ -1085,8 +1085,11 @@
                 { color: '#64748b', weight: 1.5, dashArray: '6 4',
                   fillColor: '#f1f5f9', fillOpacity: 0.75, interactive: false }));
 
-            // Parede sul — fechada, sem aberturas (3D desenhado manualmente no bloco 3D p/ assentar no GCPA)
-            lys.push(wall(GN0, GE0, GN0, GE1, 0.20, { no3d: true }));
+            // Paredes externas da garagem — no3d:true porque 3D usa box3d manual assentado em GCPA
+            // (pipeline GEO iniciaria em z=0, afundando 20 cm no baldrame)
+            lys.push(wall(GN0, GE0, GN0, GE1, 0.20, { no3d: true }));  // sul
+            lys.push(wall(GN1, GE0, GN1, GE1, 0.20, { no3d: true }));  // norte
+            lys.push(wall(7.0, GE1, GN1, GE1, 0.20, { no3d: true }));  // leste superior (mN 7,0→10,5)
 
             // Colunas nas extremidades da viga E-O de suporte (mN 3,4)
             [GE0, 21.70].forEach(e =>
@@ -1764,8 +1767,11 @@
             roof.add(box3d(gn0,      ge0, gn1-gn0,  tt,       gpb, gpbTop, lajeMat)); // oeste
             roof.add(box3d(gn0, GE1-tt,  gn1-gn0,  tt,       gpb, gpbTop, lajeMat)); // leste
 
-            // Parede sul da garagem — assenta no baldrame (GCPA), sobe até GLAJE
-            g.add(box3d(GN0 - 0.10, GE0, 0.20, GE1 - GE0, GCPA, GLAJE, matWall));
+            // Paredes da garagem — assentam no baldrame (GCPA), sobem até GLAJE
+            // Padrão: box3d manual porque pipeline GEO inicia em z=0 (afundaria no baldrame)
+            g.add(box3d(GN0 - 0.10, GE0,        0.20,       GE1 - GE0, GCPA, GLAJE, matWall)); // sul
+            g.add(box3d(GN1 - 0.10, GE0,        0.20,       GE1 - GE0, GCPA, GLAJE, matWall)); // norte
+            g.add(box3d(7.0,        GE1 - 0.10, GN1 - 7.0, 0.20,       GCPA, GLAJE, matWall)); // leste superior (mN 7,0→GN1)
 
             // Piso de concreto da garagem — no topo do baldrame (GCPA = 0,20 m)
             const matGFloor = new THREE.MeshStandardMaterial({ color: 0xd0ccc4, roughness: 0.88, metalness: 0, envMapIntensity: 0.2 });
