@@ -1441,7 +1441,8 @@
         const g = new THREE.Group();
 
         const floor = texFloor(); floor.repeat.set(8, 5);
-        const matWall   = new THREE.MeshStandardMaterial({ map: texWall(), color: 0xffffff, roughness: 0.95, metalness: 0, envMapIntensity: 0.25 });
+        const matWall   = new THREE.MeshStandardMaterial({ map: texWall(), color: 0xffffff, roughness: 0.95, metalness: 0, envMapIntensity: 0.25,
+                                                           polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
         const matFloor  = new THREE.MeshStandardMaterial({ map: floor, roughness: 0.55, metalness: 0, envMapIntensity: 0.35 });
         const matGlass  = new THREE.MeshStandardMaterial({ color: 0xaecadf, transparent: true, opacity: 0.3,
                                                            roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
