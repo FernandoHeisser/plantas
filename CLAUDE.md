@@ -182,6 +182,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
 | `tank` | Tanque: pé + cuba |
+| `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
 | `washer` | — (removido — ponto daquela posição virou tapete/capacho) |
 
 > **Atenção:** `counter` e `chair` recebem `(g, s, model)` — precisam do array model completo. O dispatch já passa: `FURN3D[s.m3d](g, s, model)`.
@@ -199,7 +200,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 
 - **Satélite dos vizinhos:** plano de ~140 m com tiles ESRI (z18, maxNativeZoom), composto num canvas via `loadSatelliteTexture()`. Singleton `satGroundMat`. Fallback verde se CORS falhar.
 - **Grama no lote:** plano axis-aligned cobrindo mN 0→12,5 / mE 0→40 por **cima** do satélite (y=−0,025 vs satélite y=−0,03). Textura procedural nítida.
-- **Piso interno:** `box3d(2.11, 22.11, 4.78, 7.78, -0.02, 0.001, matFloor)` — 1 cm aquém das faces interiores das paredes p/ evitar z-fight.
+- **Piso interno:** `box3d(2.11, 22.11, 5.28, 7.78, -0.02, 0.001, matFloor)` — 1 cm aquém das faces interiores das paredes p/ evitar z-fight (dn=5,28 cobre mN 2,11→7,39 após extensão norte).
 - **Contorno âmbar** do lote em `y=0.02` marcando a propriedade.
 
 ### Cobertura
@@ -284,22 +285,23 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 - **Frente:** mE=0 (oeste/rua)
 
 ### Casa — posição no lote
-- **mN 2,0 → 7,0** × **mE 22 → 30** (5 m × 8 m = 40 m²)
-- Recuo sul: 2,0 m | Recuo norte: 5,5 m | Recuo frente: 22 m | Recuo fundo: 10 m
+- **mN 2,0 → 7,5** × **mE 22 → 30** (5,5 m × 8 m = 44 m²)
+- Recuo sul: 2,0 m | Recuo norte: 5,0 m | Recuo frente: 22 m | Recuo fundo: 10 m
+- Parede norte estendida de 7,0 → 7,5 (0,5 m do jardim norte → +2,5 m² sala, +1,5 m² cozinha)
 
 ### Cômodos
 
 | Cômodo | mN | mE | Dimensão | Área |
 |---|---|---|---|---|
-| Banheiro | 2,0 → 4,0 | 25 → 27 | 2 × 2 m | 4 m² |
+| Banheiro | 2,0 → 4,5 | 25,5 → 27 | 1,5 × 2,5 m | 3,75 m² |
 | Quarto | 2,0 → 4,5 | 27 → 30 | 2,5 × 3 m | 7,5 m² |
-| Sala | 2,0 → 7,0 | 22 → 27 | — | ~15 m² |
-| Cozinha | 4,5 → 7,0 | 27 → 30 | 2,5 × 3 m | 7,5 m² |
+| Sala | 2,0 → 7,5 | 22 → 27 | — | ~17,5 m² |
+| Cozinha | 4,5 → 7,5 | 27 → 30 | 3 × 3 m | 9 m² |
 
-### Mobiliário — Banheiro
-- Vaso (`toilet`): mN 3,10→3,50, mE 26,30→26,75
-- Lavatório (`lavatory`): mN 2,10→2,42, mE 25,20→25,70
-- Box chuveiro (`shower`): mN 2,10→2,90, mE 26,10→26,90 — vidros sem sombra
+### Mobiliário — Banheiro (linear 1,5×2,5, parede norte alinhada ao quarto em mN=4,5)
+- Box chuveiro (`shower`): mN 2,05→2,85, mE 26,15→26,95 — canto SE, vidros N+O p/ dentro (sem sombra)
+- Vaso (`toilet`): mN 3,20→3,62, mE 26,45→26,90 — parede leste (mE=27)
+- Lavatório (`lavatory`): mN 4,13→4,45, mE 25,65→26,15 — parede norte (mN=4,5), canto NO
 
 ### Mobiliário — Quarto
 - Cama (`bed`): footprint mN 2,60→4,50, mE 27,40→28,80 — GAP 7cm da parede norte
@@ -310,13 +312,18 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 - TV (`tv`): mN 4,95→6,05, mE 22,10→22,15 — painel na parede, `m3d:'tv'`
 - Sofá (`sofa`): mN 4,625→6,375, mE 24,45→25,30, h=0,75 m
 - Mesa de centro (`coffee`): mN 5,00→6,00, mE 23,65→24,20
-- Tapete entrada (`rug`): mN 2,80→4,20, mE 22,95→23,90, h=0,02 m
 
-### Mobiliário — Cozinha
-- Bancada (`counter`): mN **6,35**→6,90, mE 27,25→29,90, h=0,90 m — **segmentada** com vãos p/ fogão e pia
-- Fogão (`stove`): mN **6,35**→6,90, mE 28,00→28,55, h=0,90 m — alinhado à frente da bancada
-- Pia (`sink`): mN **6,35**→6,90, mE 28,75→29,30, h=0,90 m — alinhada à frente da bancada
-- Geladeira (`fridge`): mN 5,70→6,35, mE 29,45→30,00, h=1,70 m — frente alinhada à bancada
+### Mobiliário — Hall de entrada (canto SO — antes "morto")
+- **Estante divisória vazada** (`shelf`): mN 3,83→4,18, mE 23,50→25,50, h=1,80 m — encosta na parede oeste do banheiro (mE=25,5), ponta oeste livre (passagem de ~1,5 m p/ a sala). Esconde a porta do banheiro da sala sem fechar luz/ar.
+- Sapateira/console (`rack`): mN 2,10→2,45, mE 23,95→25,20, h=0,85 m — parede sul, entre janela e porta do banheiro
+- Tapete entrada (`rug`): mN 2,80→3,80, mE 22,95→23,90, h=0,02 m
+- Porta do banheiro abre p/ sul (swing −1): folha aberta protege o box (privacidade) e o olhar cai na pia
+
+### Mobiliário — Cozinha (bancada encostada na parede norte mN=7,5)
+- Bancada (`counter`): mN **6,85**→7,40, mE 27,25→29,90, h=0,90 m — **segmentada** com vãos p/ fogão e pia
+- Fogão (`stove`): mN **6,85**→7,40, mE 28,00→28,55, h=0,90 m — alinhado à frente da bancada
+- Pia (`sink`): mN **6,85**→7,40, mE 28,75→29,30, h=0,90 m — alinhada à frente da bancada
+- Geladeira (`fridge`): mN 6,20→6,85, mE 29,45→30,00, h=1,70 m — frente alinhada à bancada
 - Mesa jantar (`table`): mN 5,30→5,85, mE 27,90→28,65
 - 4 cadeiras (`chair`) ao redor da mesa
 
@@ -330,9 +337,9 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 | Porta | Tipo | Hinge | Swing |
 |---|---|---|---|
 | Principal | madeira | mN=3,05, mE=22 | −1 (leste) |
-| Banheiro | madeira | mN=2,90, mE=25 | −1 (leste) |
-| Lateral dupla esq | **vidro** (glassdoor) | mE=25,40, mN=7 | +1 (norte) |
-| Lateral dupla dir | **vidro** (glassdoor) | mE=27,20, mN=7 | −1 (norte) |
+| Banheiro | madeira | mN=2,90, mE=25,5 | −1 (leste) |
+| Lateral dupla esq | **vidro** (glassdoor) | mE=25,40, mN=7,5 | +1 (norte) |
+| Lateral dupla dir | **vidro** (glassdoor) | mE=27,20, mN=7,5 | −1 (norte) |
 | Fundos | madeira | mN=4,70, mE=30 | +1 (oeste) |
 | Quarto | madeira | mE=29,80, mN=4,50 | +1 (sul) |
 
@@ -343,8 +350,8 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 | Banheiro | Sul (mN=2,0) | 1,90→2,10 | 25,70→26,50 | 0,80 m |
 | Quarto | Leste (mE=30) | 2,80→3,80 | 29,90→30,10 | 1,00 m |
 | Sala | Sul (mN=2,0) | 1,90→2,10 | 22,80→23,80 | 1,00 m |
-| Sala solar | Norte (mN=7,0) | 6,90→7,10 | 22,70→24,70 | 2,00 m |
-| Cozinha | Norte (mN=7,0) | 6,90→7,10 | 27,70→29,30 | 1,60 m |
+| Sala solar | Norte (mN=7,5) | 7,40→7,60 | 22,70→24,70 | 2,00 m |
+| Cozinha | Norte (mN=7,5) | 7,40→7,60 | 27,70→29,30 | 1,60 m |
 
 ---
 
@@ -442,7 +449,7 @@ Plano `MeshBasicMaterial` branco (`opacity:0.35`, `depthWrite:false`) adicionado
 ## Financiamento — referência
 
 O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
-- 40 m² > mínimo de 36 m² ✓
+- 44 m² > mínimo de 36 m² ✓
 - 1 quarto suficiente no SFH
 - Área de serviço coberta com tanque — **requisito Caixa atendido** ✓
 - Exige PCI assinada por engenheiro/arquiteto antes da liberação do crédito
