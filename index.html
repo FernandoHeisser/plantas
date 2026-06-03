@@ -842,9 +842,10 @@
 
     // ── Janela: abertura branca + 3 linhas (caixilho / vidro / caixilho) ─────
     // n,e = canto SW da abertura; dn,de = dimensões; axis='N' parede horiz, 'E' parede vert
-    function win(n, e, dn, de, axis) {
-        if (GEO) GEO.push({ k: 'opening', type: 'window', n, e, dn, de, axis,
-                            sill: 1.0, head: 2.1 });
+    function win(n, e, dn, de, axis, opts) {
+        const sill = (opts && opts.sill != null) ? opts.sill : 1.0;
+        const head = (opts && opts.head != null) ? opts.head : 2.1;
+        if (GEO) GEO.push({ k: 'opening', type: 'window', n, e, dn, de, axis, sill, head });
         const layers = [];
         layers.push(rect(n, e, dn, de, '#fafafa', { color: 'transparent', weight: 0, no3d: true }));
         const WC = { color: '#334155', weight: 1.5, interactive: false };
@@ -961,7 +962,8 @@
             win(2.80, 29.90, 1.00, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — parede leste
             win(1.90, 22.80, 0.20, 1.00, 'N').forEach(l => lys.push(l)); // Sala — parede sul
             win(7.40, 25.40, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala/cozinha — parede norte (janela 1,8m, onde era a porta)
-            win(7.40, 27.70, 0.20, 1.60, 'N').forEach(l => lys.push(l)); // Cozinha — parede norte (1,6m)
+            // Cozinha — janela-fita larga e central (peitoril 0,90 / verga 1,50), passa atrás do cooktop (coifa monta acima da fita); canto da geladeira fica p/ armário
+            win(7.40, 27.80, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l));
 
             // Portas — folha + arco de abertura + pivô
             doorArc(2.30, 22.00,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
@@ -1009,22 +1011,38 @@
             // ─── COZINHA (zona NE) ───────────────────────────────────────────
             // Bancada norte (encostada na parede norte mN=7,5) — tampo claro
             lys.push(rect(6.85, 27.25, 0.55, 2.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
-            // Bancada leste (braço do L) — acima da porta dos fundos (mE=30), canto NE
-            // bancada leste removida — espaço livre para circulação junto da porta dos fundos
+            // Península oeste (braço do U) — mN 5,80→6,85, mE 27,25→28,00 (prof. 0,75 — bancada de preparo robusta)
+            // Deixa mN 4,5→5,80 (1,3m) livre p/ a passagem sala→cozinha. Face oeste = encosto do canto alemão.
+            lys.push(rect(5.80, 27.25, 1.05, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            // Lado leste do U = geladeira (contígua à ponta da bancada norte) — sem braço extra p/ folgar a porta dos fundos
             // Geladeira — parede leste (mE=30), frente alinhada à bancada
             lys.push(rect(6.20, 29.45, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
             lys.push(L.polyline([rot(6.52, 29.52), rot(6.52, 29.85)],
                 { color: '#334155', weight: 0.6, interactive: false }));
-            // Fogão — 4 bocas
-            lys.push(rect(6.85, 28.00, 0.55, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 0.90, m3d: 'stove' }));
-            lys.push(circ(7.05, 28.15, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(7.05, 28.40, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(7.22, 28.15, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(7.22, 28.40, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            // Pia da cozinha — 2 cubas
-            lys.push(rect(6.85, 28.75, 0.55, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'sink' }));
-            lys.push(rect(7.18, 28.82, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
-            lys.push(rect(7.18, 29.07, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            // Fogão — 4 bocas — central na bancada norte (acessível pelo poço), respaldo sólido + coifa
+            lys.push(rect(6.85, 28.10, 0.55, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 0.90, m3d: 'stove' }));
+            lys.push(circ(7.05, 28.25, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(7.05, 28.50, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(7.22, 28.25, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(7.22, 28.50, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            // Pia da cozinha — 2 cubas — sob a fita L (mE 28,75→29,85), lavar louça com luz
+            lys.push(rect(6.85, 28.85, 0.55, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'sink' }));
+            lys.push(rect(7.18, 28.92, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            lys.push(rect(7.18, 29.17, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            // ─── COIFA + ARMÁRIOS AÉREOS (tracejado = sobre a bancada) ────────
+            // Coifa sobre o fogão — encostada na parede norte, fora da linha de visão da TV
+            lys.push(rect(6.95, 28.00, 0.45, 0.75, '#cbd5e1',
+                { color: '#475569', weight: 0.7, dashArray: '4 3', fillOpacity: 0.4, z3d: 1.55, h3d: 1.15, m3d: 'hood' }));
+            // Aéreos na parede norte (verga 1,50 → 2,30), de costas p/ a parede norte
+            lys.push(rect(7.07, 27.30, 0.33, 0.70, '#e5e7eb',
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // sobre a península (parede sólida)
+            lys.push(rect(7.07, 28.75, 0.33, 0.65, '#e5e7eb',
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // sobre a janela
+            // Coluna de armários da geladeira — DE COSTAS P/ A PAREDE LESTE (mE=30), frente p/ oeste
+            lys.push(rect(6.85, 29.45, 0.55, 0.55, '#e5e7eb',
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcabW' })); // aéreo de canto sobre a bancada
+            lys.push(rect(6.20, 29.45, 0.65, 0.55, '#e5e7eb',
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.70, h3d: 0.60, m3d: 'wallcabW' })); // sobre a geladeira
             // ─── ÁREA DE SERVIÇO COBERTA ─────────────────────────────────────
             lys.push(rect(3.50, 30.10, 2.20, 1.40, '#d6d3d1',
                 { color: '#78716c', weight: 1, dashArray: '4 3', fillOpacity: 0.9, h3d: 0.06, m3d: 'rug', extZ3d: CPA / 2 }));
@@ -1039,26 +1057,34 @@
             // ─── SALA ─────────────────────────────────────────────────────────
             // Grupo de estar recentralizado p/ a nova profundidade (centro mN≈5,85)
             // Sofá 3 lugares — encosto a leste, frente p/ a TV (oeste)
-            lys.push(rect(4.975, 24.45, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // base + encosto (faixa E)
-            lys.push(rect(5.075, 24.45, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento (frente oeste)
+            lys.push(rect(4.975, 24.20, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // base + encosto (faixa E) — recuado 0,25m p/ O
+            lys.push(rect(5.075, 24.20, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento (frente oeste)
             // Divisões das 3 almofadas
-            lys.push(L.polyline([rot(5.592, 24.45), rot(5.592, 25.10)],
+            lys.push(L.polyline([rot(5.592, 24.20), rot(5.592, 24.85)],
                 { color: '#451a03', weight: 0.6, interactive: false }));
-            lys.push(L.polyline([rot(6.108, 24.45), rot(6.108, 25.10)],
+            lys.push(L.polyline([rot(6.108, 24.20), rot(6.108, 24.85)],
                 { color: '#451a03', weight: 0.6, interactive: false }));
-            // Mesa de centro
-            lys.push(rect(5.35, 23.65, 1.00, 0.55, '#92400e', { color: '#451a03', weight: 0.7, m3d: 'coffee' }));
+            // Mesa de centro (acompanha o sofá, recuada 0,25m p/ O)
+            lys.push(rect(5.35, 23.40, 1.00, 0.55, '#92400e', { color: '#451a03', weight: 0.7, m3d: 'coffee' }));
 
             // TV e rack — parede oeste
             lys.push(rect(5.15, 22.15, 1.40, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
             lys.push(rect(5.30, 22.10, 1.10, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
 
-            // Mesa de jantar — cozinha
-            lys.push(rect(5.30, 27.90, 0.55, 0.75, '#92400e', { color: '#451a03', weight: 0.8, m3d: 'table' }));
-            lys.push(circ(5.07, 28.275, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' })); // sul
-            lys.push(circ(6.07, 28.275, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' })); // norte
-            lys.push(circ(5.575, 27.65, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' })); // oeste
-            lys.push(circ(5.575, 28.90, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' })); // leste
+            // ─── CANTO ALEMÃO (refeição) — L encostado na parede NORTE ───────
+            // Encosto na parede norte (sob a janela 1,8m) + face oeste da península.
+            // Abre p/ SO; livre a passagem sala→cozinha ao sul (mN<5,80).
+            // Banco norte — encosto na parede norte (mN=7,5), assento p/ sul (ponta O recuada p/ folgar do sofá)
+            lys.push(rect(6.95, 25.55, 0.45, 1.70, '#9a7b46', { color: '#5a4422', weight: 0.7, no3d: true }));
+            // Banco leste — encosto na face oeste da península (mE=27,25), assento p/ oeste
+            lys.push(rect(5.80, 26.80, 1.60, 0.45, '#9a7b46', { color: '#5a4422', weight: 0.7, no3d: true }));
+            // Driver 3D do L (invisível no 2D): assento 0,45 + encosto até 0,85
+            lys.push(rect(5.80, 25.55, 1.60, 1.70, 'transparent', { color: 'transparent', weight: 0, fillOpacity: 0, h3d: 0.85, m3d: 'benchcorner' }));
+            // Mesa do canto — encaixada no L
+            lys.push(rect(5.95, 25.85, 0.90, 1.05, '#92400e', { color: '#451a03', weight: 0.8, m3d: 'table' }));
+            // 2 cadeiras soltas no lado sul aberto (voltadas p/ a mesa/janela)
+            lys.push(circ(5.75, 26.05, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' }));
+            lys.push(circ(5.75, 26.70, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' }));
 
             // Hall de entrada (canto SO) — tapete + sapateira + estante divisória vazada
             lys.push(rect(2.80, 22.95, 1.00, 0.95, '#fde68a',
@@ -1356,9 +1382,12 @@
         },
         // Bancada — gabinete + tampo, segmentada deixando vãos p/ fogão e pia
         counter(g, s, model) {
+            const end = s.e + s.de;
+            // recortes (fogão/pia) clampados ao próprio vão da bancada — ignora os que ficam fora
             const cuts = ['stove', 'sink'].map(t => model.find(o => o.m3d === t)).filter(Boolean)
-                .map(a => [a.e, a.e + a.de]).sort((p, q) => p[0] - q[0]);
-            let cur = s.e; const end = s.e + s.de; const segs = [];
+                .map(a => [Math.max(a.e, s.e), Math.min(a.e + a.de, end)])
+                .filter(c => c[1] > c[0] + 0.001).sort((p, q) => p[0] - q[0]);
+            let cur = s.e; const segs = [];
             cuts.forEach(c => { if (c[0] > cur + 0.001) segs.push([cur, c[0]]); cur = Math.max(cur, c[1]); });
             if (cur < end - 0.001) segs.push([cur, end]);
             segs.forEach(([a, b]) => {
@@ -1382,6 +1411,49 @@
             [[s.n + 0.02, s.e + 0.02], [s.n + s.dn - 0.07, s.e + 0.02],
              [s.n + 0.02, s.e + s.de - 0.07], [s.n + s.dn - 0.07, s.e + s.de - 0.07]]
               .forEach(p => fbox(g, p[0], p[1], L, L, 0, 0.72, '#6b3410'));
+        },
+        // Canto alemão — banco em L: assento (0→0,45) + encosto (0,45→0,85)
+        // Driver = bbox do L. Banco sul encosta no mN baixo; banco leste no mE alto (península).
+        benchcorner(g, s) {
+            const SD = 0.45, BK = 0.08, sz = 0.45, h = s.h || 0.85;
+            const wood = '#9a7b46', dark = '#5a4422';
+            const nN = s.n + s.dn, eE = s.e + s.de;   // faces norte e leste = encostos
+            // banco norte — assento p/ sul, encosto na parede norte
+            fbox(g, nN - SD, s.e, SD, s.de, 0, sz, wood, { roughness: 0.8 });
+            fbox(g, nN - BK, s.e, BK, s.de, sz, h, dark, { roughness: 0.8 });
+            // banco leste — assento p/ oeste, encosto na face da península
+            fbox(g, s.n, eE - SD, s.dn, SD, 0, sz, wood, { roughness: 0.8 });
+            fbox(g, s.n, eE - BK, s.dn, BK, sz, h, dark, { roughness: 0.8 });
+        },
+        // Armário aéreo — carcaça + 2 portas + puxadores na face SUL (mN=s.n)
+        wallcab(g, s) {
+            const z0 = s.z || 0, z1 = z0 + (s.h || 0.70);
+            fbox(g, s.n, s.e, s.dn, s.de, z0, z1, '#cfc9bb', { roughness: 0.5 });       // carcaça
+            fbox(g, s.n - 0.015, s.e + 0.01, 0.02, s.de - 0.02, z0 + 0.02, z1 - 0.02,
+                 '#e7e2d7', { roughness: 0.45 });                                       // frente (porta)
+            fbox(g, s.n - 0.02, s.e + s.de / 2 - 0.004, 0.01, 0.008, z0 + 0.04, z1 - 0.04, '#9a9489'); // fenda central entre as 2 portas
+            // puxadores (na base das portas — aéreo abre p/ cima)
+            fbox(g, s.n - 0.045, s.e + s.de * 0.30, 0.04, 0.03, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
+            fbox(g, s.n - 0.045, s.e + s.de * 0.70 - 0.03, 0.04, 0.03, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
+        },
+        // Coifa — canopy inox + boca de sucção escura + duto até o teto (z local 2,70)
+        hood(g, s) {
+            const z0 = s.z || 1.55;
+            fbox(g, s.n, s.e, s.dn, s.de, z0, z0 + 0.50, '#c7ccd1', { metalness: 0.6, roughness: 0.3 });        // canopy
+            fbox(g, s.n, s.e + 0.02, s.dn, s.de - 0.04, z0 - 0.03, z0 + 0.02, '#2b2f36', { roughness: 0.5 });   // boca de sucção
+            const ddn = 0.16, dde = 0.22;
+            fbox(g, s.n + s.dn - ddn, s.e + (s.de - dde) / 2, ddn, dde, z0 + 0.50, 2.70, '#aeb4ba', { metalness: 0.6, roughness: 0.3 }); // duto ao teto
+        },
+        // Armário aéreo virado p/ OESTE — costas na parede leste (mE=s.e+s.de), frente em mE=s.e
+        wallcabW(g, s) {
+            const z0 = s.z || 0, z1 = z0 + (s.h || 0.70);
+            fbox(g, s.n, s.e, s.dn, s.de, z0, z1, '#cfc9bb', { roughness: 0.5 });       // carcaça
+            fbox(g, s.n + 0.01, s.e - 0.015, s.dn - 0.02, 0.02, z0 + 0.02, z1 - 0.02,
+                 '#e7e2d7', { roughness: 0.45 });                                       // frente (porta, face oeste)
+            fbox(g, s.n + s.dn / 2 - 0.004, s.e - 0.02, 0.008, 0.01, z0 + 0.04, z1 - 0.04, '#9a9489'); // fenda central
+            // puxadores (base das portas — aéreo abre p/ cima)
+            fbox(g, s.n + s.dn * 0.30, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
+            fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
         },
         // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
         chair(g, s, model) {
