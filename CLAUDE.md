@@ -4,6 +4,56 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## Metodologia de trabalho — LER E SEGUIR EM TODA SESSÃO
+
+Esta é a forma de trabalho que produziu resultados aprovados pelo cliente. Replicar.
+
+### 1. Incremental, com commits granulares
+- Trabalhar em **feature branch** (`git checkout -b <nome>`), nunca direto na `main`.
+- **Uma mudança lógica = um commit separado**, mensagem descritiva em pt-BR + `Co-Authored-By`.
+  Isso dá **rollback granular**: o cliente reverte só o que não gostou sem perder o resto.
+- O cliente pediu explicitamente "faz um de cada vez" — não empacotar mudanças não relacionadas.
+- Merge na `main` (`--no-ff`), push e deletar a branch **só quando o cliente pedir**.
+
+### 2. Discutir antes de implementar (decisões subjetivas/de layout)
+- **Propor com números concretos e o porquê**; confirmar a direção antes de codar.
+- Oferecer opções (leve / médio / pesado) quando couber.
+- O cliente tem opinião forte e corrige — respeitar e iterar, não defender o que fiz.
+  Ex.: reverteu a inversão da porta do banheiro (privacidade do box + acesso à pia);
+  trocou um biombo sólido por uma **estante vazada** como divisória.
+
+### 3. Verificar SEMPRE no preview antes de commitar
+- Rodar o preview, recarregar, **checar console (erros)** + screenshot **2D e 3D**.
+- O 3D é extrudado do 2D (pipeline GEO) — conferir paredes/vãos/móveis e **z-fight**.
+- **Nunca** pedir pro cliente conferir manualmente — mostrar a prova (screenshot).
+- Screenshot do mapa 2D às vezes trava (tiles de satélite). **Reiniciar o preview server resolve.**
+  O canvas 3D não depende de tiles.
+
+### 4. Raciocínio bioclimático (lat −29,96°, hemisfério sul, RS — Zona Bioclim. 3)
+- **Sol vem sempre do NORTE** ao meio-dia: verão alto ~83°, inverno baixo ~37°.
+- **Norte = fachada nobre** → estar/jantar/cozinha (pega sol de inverno). Beiral norte ~0,9 m
+  auto-regula (sombreia verão, admite inverno). **Não fazer beiral resolver o oeste** (sol baixo).
+- **Sul** = frio + vento minuano → usos de baixa permanência (banheiro, serviço, hall).
+- **Oeste** = sol da tarde quente + ofuscamento, difícil sombrear → evitar TV/longa permanência.
+- **Leste** = sol da manhã suave → bom p/ quarto.
+- **Canto sudoeste** (oeste+sul) = pior da casa → hall/entrada/storage, nunca estar.
+- Estratégias: ventilação cruzada + admitir sol de inverno + sombrear no verão.
+
+### 5. Conformidade Caixa (FGTS/SFH) — checar a CADA mudança de cômodo
+- Casa ≥ **36 m²** (serviço externa) / 39 m² (interna). Hoje **44 m²** ✓.
+- Dormitório: **menor dimensão ≥ 2,40 m**; casal ~8 m². Janela de quarto **≥ 1,50 m²** de abertura.
+- Área de serviço coberta com tanque (atendido). Exige PCI assinada por eng./arq.
+- **O quarto vira despensa/depósito só no V3**; em V1/V2 é 100% dormitório (entra na planta
+  aprovada como quarto). Por isso ele fica colado na cozinha e a porta dá pro lado dela — proposital.
+
+### 6. Regras de código (detalhes nas seções abaixo)
+- **Fonte única 2D→3D:** mexeu no `buildLayers` (2D) → o 3D acompanha ao reabrir. **Base comum
+  propaga V1/V2/V3.** Mudou cota/posição/novo tipo `FURN3D`? **Atualizar este CLAUDE.md junto.**
+- Após editar JS: **Ctrl+Shift+R** (Leaflet e Three cacheiam).
+- Z-fight: `polygonOffset` em `matWall`/`lajeMat`; colunas (`matEmbase`) sempre vencem.
+
+---
+
 ## Como rodar
 
 ```bash
@@ -307,11 +357,11 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 - Cama (`bed`): footprint mN 2,60→4,50, mE 27,40→28,80 — GAP 7cm da parede norte
 - Guarda-roupa (`wardrobe`): mN 2,10→2,65, mE 29,25→29,80, h=2,00 m
 
-### Mobiliário — Sala
-- Rack (`rack`): mN 4,80→6,20, mE 22,15→22,50, h=0,50 m
-- TV (`tv`): mN 4,95→6,05, mE 22,10→22,15 — painel na parede, `m3d:'tv'`
-- Sofá (`sofa`): mN 4,625→6,375, mE 24,45→25,30, h=0,75 m
-- Mesa de centro (`coffee`): mN 5,00→6,00, mE 23,65→24,20
+### Mobiliário — Sala (grupo recentralizado p/ a nova profundidade — centro mN≈5,85)
+- Rack (`rack`): mN 5,15→6,55, mE 22,15→22,50, h=0,50 m
+- TV (`tv`): mN 5,30→6,40, mE 22,10→22,15 — painel na parede, `m3d:'tv'`
+- Sofá (`sofa`): mN 4,975→6,725, mE 24,45→25,30, h=0,75 m — frente p/ a TV (oeste)
+- Mesa de centro (`coffee`): mN 5,35→6,35, mE 23,65→24,20
 
 ### Mobiliário — Hall de entrada (canto SO — antes "morto")
 - **Estante divisória vazada** (`shelf`): mN 3,83→4,18, mE 23,50→25,50, h=1,80 m — encosta na parede oeste do banheiro (mE=25,5), ponta oeste livre (passagem de ~1,5 m p/ a sala). Esconde a porta do banheiro da sala sem fechar luz/ar.
@@ -338,8 +388,8 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 |---|---|---|---|
 | Principal | madeira | mN=3,05, mE=22 | −1 (leste) |
 | Banheiro | madeira | mN=2,90, mE=25,5 | −1 (leste) |
-| Lateral dupla esq | **vidro** (glassdoor) | mE=25,40, mN=7,5 | +1 (norte) |
-| Lateral dupla dir | **vidro** (glassdoor) | mE=27,20, mN=7,5 | −1 (norte) |
+| Porta grande sala esq | **vidro** (glassdoor, 1,0 m) | mE=22,70, mN=7,5 | +1 (norte) |
+| Porta grande sala dir | **vidro** (glassdoor, 1,0 m) | mE=24,70, mN=7,5 | −1 (norte) |
 | Fundos | madeira | mN=4,70, mE=30 | +1 (oeste) |
 | Quarto | madeira | mE=29,80, mN=4,50 | +1 (sul) |
 
@@ -350,8 +400,12 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 | Banheiro | Sul (mN=2,0) | 1,90→2,10 | 25,70→26,50 | 0,80 m |
 | Quarto | Leste (mE=30) | 2,80→3,80 | 29,90→30,10 | 1,00 m |
 | Sala | Sul (mN=2,0) | 1,90→2,10 | 22,80→23,80 | 1,00 m |
-| Sala solar | Norte (mN=7,5) | 7,40→7,60 | 22,70→24,70 | 2,00 m |
+| Sala (norte) | Norte (mN=7,5) | 7,40→7,60 | 25,40→27,20 | 1,80 m |
 | Cozinha | Norte (mN=7,5) | 7,40→7,60 | 27,70→29,30 | 1,60 m |
+
+> **Porta grande de vidro (sala) em mE 22,70→24,70** (onde era a janela solar): estilo japonês,
+> abre a sala pro jardim norte. A janela de 1,80 m foi pro vão onde era a porta (mE 25,40→27,20).
+> Troca feita na branch `sala-japonesa`.
 
 ---
 
