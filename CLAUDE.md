@@ -291,15 +291,15 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 
 | Cômodo | mN | mE | Dimensão | Área |
 |---|---|---|---|---|
-| Banheiro | 2,0 → 4,0 | 25 → 27 | 2 × 2 m | 4 m² |
+| Banheiro | 2,0 → 4,5 | 25,5 → 27 | 1,5 × 2,5 m | 3,75 m² |
 | Quarto | 2,0 → 4,5 | 27 → 30 | 2,5 × 3 m | 7,5 m² |
 | Sala | 2,0 → 7,0 | 22 → 27 | — | ~15 m² |
 | Cozinha | 4,5 → 7,0 | 27 → 30 | 2,5 × 3 m | 7,5 m² |
 
-### Mobiliário — Banheiro
-- Vaso (`toilet`): mN 3,10→3,50, mE 26,30→26,75
-- Lavatório (`lavatory`): mN 2,10→2,42, mE 25,20→25,70
-- Box chuveiro (`shower`): mN 2,10→2,90, mE 26,10→26,90 — vidros sem sombra
+### Mobiliário — Banheiro (linear 1,5×2,5, parede norte alinhada ao quarto em mN=4,5)
+- Box chuveiro (`shower`): mN 2,05→2,85, mE 26,15→26,95 — canto SE, vidros N+O p/ dentro (sem sombra)
+- Vaso (`toilet`): mN 3,20→3,62, mE 26,45→26,90 — parede leste (mE=27)
+- Lavatório (`lavatory`): mN 4,13→4,45, mE 25,65→26,15 — parede norte (mN=4,5), canto NO
 
 ### Mobiliário — Quarto
 - Cama (`bed`): footprint mN 2,60→4,50, mE 27,40→28,80 — GAP 7cm da parede norte
@@ -330,7 +330,7 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 | Porta | Tipo | Hinge | Swing |
 |---|---|---|---|
 | Principal | madeira | mN=3,05, mE=22 | −1 (leste) |
-| Banheiro | madeira | mN=2,90, mE=25 | −1 (leste) |
+| Banheiro | madeira | mN=2,90, mE=25,5 | −1 (leste) |
 | Lateral dupla esq | **vidro** (glassdoor) | mE=25,40, mN=7 | +1 (norte) |
 | Lateral dupla dir | **vidro** (glassdoor) | mE=27,20, mN=7 | −1 (norte) |
 | Fundos | madeira | mN=4,70, mE=30 | +1 (oeste) |
