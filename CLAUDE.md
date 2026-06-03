@@ -182,6 +182,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
 | `tank` | Tanque: pé + cuba |
+| `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
 | `washer` | — (removido — ponto daquela posição virou tapete/capacho) |
 
 > **Atenção:** `counter` e `chair` recebem `(g, s, model)` — precisam do array model completo. O dispatch já passa: `FURN3D[s.m3d](g, s, model)`.
@@ -311,7 +312,12 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 - TV (`tv`): mN 4,95→6,05, mE 22,10→22,15 — painel na parede, `m3d:'tv'`
 - Sofá (`sofa`): mN 4,625→6,375, mE 24,45→25,30, h=0,75 m
 - Mesa de centro (`coffee`): mN 5,00→6,00, mE 23,65→24,20
-- Tapete entrada (`rug`): mN 2,80→4,20, mE 22,95→23,90, h=0,02 m
+
+### Mobiliário — Hall de entrada (canto SO — antes "morto")
+- **Estante divisória vazada** (`shelf`): mN 3,83→4,18, mE 23,50→25,50, h=1,80 m — encosta na parede oeste do banheiro (mE=25,5), ponta oeste livre (passagem de ~1,5 m p/ a sala). Esconde a porta do banheiro da sala sem fechar luz/ar.
+- Sapateira/console (`rack`): mN 2,10→2,45, mE 23,95→25,20, h=0,85 m — parede sul, entre janela e porta do banheiro
+- Tapete entrada (`rug`): mN 2,80→3,80, mE 22,95→23,90, h=0,02 m
+- Porta do banheiro abre p/ sul (swing −1): folha aberta protege o box (privacidade) e o olhar cai na pia
 
 ### Mobiliário — Cozinha (bancada encostada na parede norte mN=7,5)
 - Bancada (`counter`): mN **6,85**→7,40, mE 27,25→29,90, h=0,90 m — **segmentada** com vãos p/ fogão e pia
