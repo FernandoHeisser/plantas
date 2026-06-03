@@ -142,10 +142,12 @@ doorArc(hn, he, dn, de, swing, opts?)
   opts.no3d = true → não gera folha 3D (usado em glassdoor).
   opts.glass = true → gera folha de vidro no 3D (em vez de madeira).
 
-win(n, e, dn, de, axis)
+win(n, e, dn, de, axis, opts?)
   Janela: abertura branca (no3d:true) + 3 linhas (caixilho/vidro/caixilho).
   axis='N' parede horizontal (mN=const), axis='E' parede vertical (mE=const).
   O rect de fundo branco tem no3d:true — não gera volume 3D.
+  opts.sill / opts.head = peitoril/verga customizados (padrão 1,0 / 2,1).
+    Ex.: fita horizontal de respaldo (entre armário de baixo e de cima) → { sill: 0.90, head: 1.50 }.
 
 cut(n, e, dn, de, type?)
   Recorte de porta na parede. type padrão = 'door'.
@@ -197,7 +199,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 3. `buildBuilding3D(v)` extruda o modelo:
    - **paredes** (`k:'wall'`) → caixas até `CEIL3D=2,70 m`, **recortando vãos** (cheio + peitoril + verga + vidro).
    - **vãos** (`k:'opening'`):
-     - `type:'window'` → vidro fixo peitoril 1,0→verga 2,1 + batente + montante + peitoril saliente.
+     - `type:'window'` → vidro fixo entre peitoril e verga (padrão 1,0→2,1; customizável via `opts.sill`/`opts.head` no `win()`) + batente + montante + peitoril saliente.
      - `type:'door'` → abertura vazia + batente + folha de madeira abrindo pelo swing do `doorArc`.
      - `type:'glassdoor'` → abertura vazia + batente + soleira + **duas folhas de vidro** abertas (grade 2×3 em cada folha). A lateral dupla usa este tipo.
    - **móveis** (`k:'solid'`) → modelo realista por tipo via `FURN3D[m3d]`, ou volume de massa se sem tipo.
@@ -225,7 +227,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `fridge` | Geladeira inox + fenda freezer + 2 puxadores |
 | `stove` | Fogão + forno + porta + puxador + cooktop |
 | `sink` | Pia + 2 cubas + torneira (sem saliência lateral) |
-| `counter` | Bancada segmentada: abre vãos p/ `stove` e `sink` via `model`. **Recebe `model` como 3º arg.** |
+| `counter` | Bancada segmentada: abre vãos p/ `stove` e `sink` via `model`. **Recebe `model` como 3º arg.** Recortes são **clampados ao próprio vão** (ignora fogão/pia fora do range da bancada — necessário p/ a península não vazar segmentos). |
 | `lavatory` | Lavatório + cuba + torneira |
 | `shower` | Box: base + 2 vidros sem sombra + ducha |
 | `toilet` | Vaso: bacia + assento + caixa acoplada |
@@ -233,6 +235,10 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
+| `benchcorner` | Canto alemão: banco em **L** (assento 0→0,45 + encosto 0,45→0,85). Driver = **bbox do L** (rect transparente no 2D); encostos na face **N + L** (mN/mE altos). Bancos visíveis no 2D são `rect{no3d:true}` separados. |
+| `wallcab` | Armário **aéreo**, frente p/ **SUL** (costas na parede norte). Carcaça + porta + fenda central + puxadores na base. Usa `z3d` (base) + `h3d`. |
+| `wallcabW` | Armário **aéreo**, frente p/ **OESTE** (costas na parede leste, mE=s.e+s.de). `wallcab` espelhado — usado na coluna da geladeira. |
+| `hood` | **Coifa**: canopy inox + boca de sucção escura + duto até o teto (z local **2,70**). Usa `z3d` como base (~1,55). Monta acima de uma janela-fita. |
 | `washer` | — (removido — ponto daquela posição virou tapete/capacho) |
 
 > **Atenção:** `counter` e `chair` recebem `(g, s, model)` — precisam do array model completo. O dispatch já passa: `FURN3D[s.m3d](g, s, model)`.
@@ -358,10 +364,10 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 - Guarda-roupa (`wardrobe`): mN 2,10→2,65, mE 29,25→29,80, h=2,00 m
 
 ### Mobiliário — Sala (grupo recentralizado p/ a nova profundidade — centro mN≈5,85)
-- Rack (`rack`): mN 5,15→6,55, mE 22,15→22,50, h=0,50 m
+- Rack (`rack`): mN 5,15→6,55, mE 22,15→22,50, h=0,50 m — na parede oeste
 - TV (`tv`): mN 5,30→6,40, mE 22,10→22,15 — painel na parede, `m3d:'tv'`
-- Sofá (`sofa`): mN 4,975→6,725, mE 24,45→25,30, h=0,75 m — frente p/ a TV (oeste)
-- Mesa de centro (`coffee`): mN 5,35→6,35, mE 23,65→24,20
+- Sofá (`sofa`): mN 4,975→6,725, mE **24,20→25,05**, h=0,75 m — frente p/ a TV (oeste). Recuado 0,25 m p/ O p/ abrir folga do canto alemão.
+- Mesa de centro (`coffee`): mN 5,35→6,35, mE **23,40→23,95** (acompanha o sofá)
 
 ### Mobiliário — Hall de entrada (canto SO — antes "morto")
 - **Estante divisória vazada** (`shelf`): mN 3,83→4,18, mE 23,50→25,50, h=1,80 m — encosta na parede oeste do banheiro (mE=25,5), ponta oeste livre (passagem de ~1,5 m p/ a sala). Esconde a porta do banheiro da sala sem fechar luz/ar.
@@ -369,13 +375,29 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 - Tapete entrada (`rug`): mN 2,80→3,80, mE 22,95→23,90, h=0,02 m
 - Porta do banheiro abre p/ sul (swing −1): folha aberta protege o box (privacidade) e o olhar cai na pia
 
-### Mobiliário — Cozinha (bancada encostada na parede norte mN=7,5)
-- Bancada (`counter`): mN **6,85**→7,40, mE 27,25→29,90, h=0,90 m — **segmentada** com vãos p/ fogão e pia
-- Fogão (`stove`): mN **6,85**→7,40, mE 28,00→28,55, h=0,90 m — alinhado à frente da bancada
-- Pia (`sink`): mN **6,85**→7,40, mE 28,75→29,30, h=0,90 m — alinhada à frente da bancada
-- Geladeira (`fridge`): mN 6,20→6,85, mE 29,45→30,00, h=1,70 m — frente alinhada à bancada
-- Mesa jantar (`table`): mN 5,30→5,85, mE 27,90→28,65
-- 4 cadeiras (`chair`) ao redor da mesa
+### Mobiliário — Cozinha em U (bancada norte + península O + geladeira L)
+Layout em **U**: o cozinheiro fica no "poço" (mE 28,00→29,45) e acessa fogão/pia pela parede norte;
+a geladeira fecha o leste; a península fecha o oeste e vira bancada de preparo voltada p/ a TV.
+- Bancada norte (`counter`): mN 6,85→7,40, mE 27,25→29,90, h=0,90 — **segmentada** (vãos p/ fogão e pia)
+- Península O (`counter`): mN 5,80→6,85, mE 27,25→**28,00** (prof. 0,75) — braço O do U; face O = encosto do canto alemão; deixa mN 4,5→5,80 (1,3 m) livre p/ a passagem sala→cozinha
+- Fogão (`stove`): mN 6,85→7,40, mE **28,10→28,65**, h=0,90 — central, acessível pelo poço, respaldo + coifa
+- Coifa (`hood`): mN 6,95→7,40, mE 28,00→28,75, base z=1,55 → duto até 2,70 — encostada na parede norte, **fora da linha de visão da TV** (cliente cozinha vendo TV → coifa de ilha foi descartada)
+- Pia (`sink`): mN 6,85→7,40, mE **28,85→29,40**, h=0,90 — sob a janela-fita (lavar louça com luz)
+- Geladeira (`fridge`): mN 6,20→6,85, mE 29,45→30,00, h=1,70 — parede leste, abre p/ O
+
+**Armários aéreos** (tracejado no 2D):
+- Aéreo parede norte (`wallcab`, frente S): mN 7,07→7,40, z 1,50→2,30 — mE 27,30→28,00 (sobre a península) e mE 28,75→29,40 (sobre a janela)
+- Coluna da geladeira (`wallcabW`, frente O, costas na parede leste mE=30):
+  - canto sobre a bancada: mN 6,85→7,40, mE 29,45→30,00, z 1,50→2,30
+  - sobre a geladeira: mN 6,20→6,85, mE 29,45→30,00, z **1,70**→2,30
+
+### Mobiliário — Canto alemão (refeição, encostado na parede norte)
+Substitui a antiga mesa central da cozinha. Banco em **L** abre p/ SO; fica ao N (mN≥5,80), fora da passagem.
+- Banco norte: mN 6,95→7,40, mE 25,55→27,25 — encosto na parede norte, assento p/ S (2D `rect{no3d}`)
+- Banco leste: mN 5,80→7,40, mE 26,80→27,25 — encosto na face O da península, assento p/ O (2D `rect{no3d}`)
+- Driver 3D do L (`benchcorner`, rect transparente): bbox mN 5,80→7,40, mE 25,55→27,25, h=0,85
+- Mesa (`table`): mN 5,95→6,85, mE 25,85→26,90
+- 2 cadeiras (`chair`): lado sul aberto — (mN 5,75; mE 26,05) e (mN 5,75; mE 26,70)
 
 ### Mobiliário — Área de Serviço (externa, leste)
 - Laje coberta (`rug`): mN 3,50→5,70, mE 30,10→31,50, h=0,06 m (tapete plano)
@@ -401,7 +423,7 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 | Quarto | Leste (mE=30) | 2,80→3,80 | 29,90→30,10 | 1,00 m |
 | Sala | Sul (mN=2,0) | 1,90→2,10 | 22,80→23,80 | 1,00 m |
 | Sala (norte) | Norte (mN=7,5) | 7,40→7,60 | 25,40→27,20 | 1,80 m |
-| Cozinha | Norte (mN=7,5) | 7,40→7,60 | 27,70→29,30 | 1,60 m |
+| Cozinha (fita) | Norte (mN=7,5) | 7,40→7,60 | 27,80→29,40 | 1,60 m — **janela-fita** peitoril 0,90 / verga 1,50; passa atrás do cooktop (coifa monta acima); canto da geladeira fica p/ armário |
 
 > **Porta grande de vidro (sala) em mE 22,70→24,70** (onde era a janela solar): estilo japonês,
 > abre a sala pro jardim norte. A janela de 1,80 m foi pro vão onde era a porta (mE 25,40→27,20).
