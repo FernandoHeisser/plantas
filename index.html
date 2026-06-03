@@ -882,9 +882,9 @@
                 { color: '#f59e0b', weight: 2.5, fillColor: LOT_FILL, fillOpacity: 0.82, interactive: false }
             ));
 
-            // Casa MVP — chão papel: mN 2.0→7.0 × mE 22→30 (corredor sul = 2m, norte = 5,5m)
+            // Casa MVP — chão papel: mN 2.0→7.5 × mE 22→30 (corredor sul = 2m, norte = 5,0m)
             lys.push(L.polygon(
-                [rot(2.0,22), rot(7.0,22), rot(7.0,30), rot(2.0,30)],
+                [rot(2.0,22), rot(7.5,22), rot(7.5,30), rot(2.0,30)],
                 { color: 'transparent', weight: 0, fillColor: '#fafafa', fillOpacity: 1, interactive: false }
             ));
 
@@ -915,7 +915,7 @@
             dimLine(0, 26, 2.0, 26, '2 m — sul').forEach(l => lys.push(l));
 
             // Lat. esquerda (norte): parede norte → limite norte
-            dimLine(7.0, 26, 12.5, 26, '5,5 m — norte').forEach(l => lys.push(l));
+            dimLine(7.5, 26, 12.5, 26, '5,0 m — norte').forEach(l => lys.push(l));
 
             // ── Cotas totais do lote (beiradas externas) ─────────────────────
             // Âmbar para diferenciar das cotas de afastamento (brancas).
@@ -929,9 +929,9 @@
 
             // Paredes externas (centradas em mN=1.5/6.5, mE=22/30)
             lys.push(wall(2.0, 22,  2.0, 30, EW)); // sul
-            lys.push(wall(7.0, 22,  7.0, 30, EW)); // norte
-            lys.push(wall(2.0, 22,  7.0, 22, EW)); // oeste (frente)
-            lys.push(wall(2.0, 30,  7.0, 30, EW)); // leste (fundos)
+            lys.push(wall(7.5, 22,  7.5, 30, EW)); // norte
+            lys.push(wall(2.0, 22,  7.5, 22, EW)); // oeste (frente)
+            lys.push(wall(2.0, 30,  7.5, 30, EW)); // leste (fundos)
 
             // Paredes internas — banheiro + quarto
             // Banheiro linear 1,5×2,5: parede norte alinhada ao quarto (mN=4,5), sem degrau
@@ -952,7 +952,7 @@
                 lys.push(rect(2.15, 21.70, 1.20, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
             }
             cut(2.90, 25.40, 0.8, 0.20); // Banheiro (interna) — parede oeste mE=25,5
-            cut(6.85, 25.40, 0.30, 1.80, 'glassdoor'); // Lateral dupla (parede norte) — porta de vidro
+            cut(7.35, 25.40, 0.30, 1.80, 'glassdoor'); // Lateral dupla (parede norte) — porta de vidro
             cut(4.70, 29.85, 0.9, 0.30); // Fundos (parede leste)
             cut(4.40, 28.90, 0.20, 0.9); // Quarto (interna)
 
@@ -960,17 +960,17 @@
             win(1.90, 25.70, 0.20, 0.80, 'N').forEach(l => lys.push(l)); // Banheiro — parede sul
             win(2.80, 29.90, 1.00, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — parede leste
             win(1.90, 22.80, 0.20, 1.00, 'N').forEach(l => lys.push(l)); // Sala — parede sul
-            win(6.90, 22.70, 0.20, 2.00, 'N').forEach(l => lys.push(l)); // Sala — parede norte (janela solar 2m, centralizada)
-            win(6.90, 27.70, 0.20, 1.60, 'N').forEach(l => lys.push(l)); // Cozinha — parede norte (1,6m)
+            win(7.40, 22.70, 0.20, 2.00, 'N').forEach(l => lys.push(l)); // Sala — parede norte (janela solar 2m, centralizada)
+            win(7.40, 27.70, 0.20, 1.60, 'N').forEach(l => lys.push(l)); // Cozinha — parede norte (1,6m)
 
             // Portas — folha + arco de abertura + pivô
             doorArc(2.30, 22.00,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
             doorArc(2.90, 25.50,  0.8,  0.0, -1).forEach(l => lys.push(l)); // Banheiro → leste
-            doorArc(7.00, 25.40,  0.0,  0.9, +1, { glass: true }).forEach(l => lys.push(l)); // Lateral esq — folha de vidro aberta
-            doorArc(7.00, 27.20,  0.0, -0.9, -1, { glass: true }).forEach(l => lys.push(l)); // Lateral dir — folha de vidro aberta
+            doorArc(7.50, 25.40,  0.0,  0.9, +1, { glass: true }).forEach(l => lys.push(l)); // Lateral esq — folha de vidro aberta
+            doorArc(7.50, 27.20,  0.0, -0.9, -1, { glass: true }).forEach(l => lys.push(l)); // Lateral dir — folha de vidro aberta
             // Degraus porta lateral (parede norte) — 2 × 20 cm, largura 2,0 m, pisada 30 cm
-            lys.push(rect(7.10, 25.30, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
-            lys.push(rect(7.40, 25.30, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
+            lys.push(rect(7.60, 25.30, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
+            lys.push(rect(7.90, 25.30, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
             doorArc(4.70, 30.00,  0.9,  0.0, +1).forEach(l => lys.push(l)); // Fundos → abre para dentro (oeste, cozinha)
             doorArc(4.50, 29.80,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → abre para sul (dentro), hinge leste
 
@@ -1007,24 +1007,24 @@
                 { color: '#451a03', weight: 0.5, interactive: false }));
 
             // ─── COZINHA (zona NE) ───────────────────────────────────────────
-            // Bancada norte (encostada na parede norte) — tampo claro
-            lys.push(rect(6.35, 27.25, 0.55, 2.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            // Bancada norte (encostada na parede norte mN=7,5) — tampo claro
+            lys.push(rect(6.85, 27.25, 0.55, 2.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
             // Bancada leste (braço do L) — acima da porta dos fundos (mE=30), canto NE
             // bancada leste removida — espaço livre para circulação junto da porta dos fundos
-            // Geladeira — parede leste (mE=30), afastada do canto NE para porta abrir
-            lys.push(rect(5.70, 29.45, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
-            lys.push(L.polyline([rot(6.02, 29.52), rot(6.02, 29.85)],
+            // Geladeira — parede leste (mE=30), frente alinhada à bancada
+            lys.push(rect(6.20, 29.45, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
+            lys.push(L.polyline([rot(6.52, 29.52), rot(6.52, 29.85)],
                 { color: '#334155', weight: 0.6, interactive: false }));
             // Fogão — 4 bocas
-            lys.push(rect(6.35, 28.00, 0.55, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 0.90, m3d: 'stove' }));
-            lys.push(circ(6.55, 28.15, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(6.55, 28.40, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(6.72, 28.15, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(6.72, 28.40, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(rect(6.85, 28.00, 0.55, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 0.90, m3d: 'stove' }));
+            lys.push(circ(7.05, 28.15, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(7.05, 28.40, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(7.22, 28.15, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(7.22, 28.40, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
             // Pia da cozinha — 2 cubas
-            lys.push(rect(6.35, 28.75, 0.55, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'sink' }));
-            lys.push(rect(6.68, 28.82, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
-            lys.push(rect(6.68, 29.07, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            lys.push(rect(6.85, 28.75, 0.55, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'sink' }));
+            lys.push(rect(7.18, 28.82, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            lys.push(rect(7.18, 29.07, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             // ─── ÁREA DE SERVIÇO COBERTA ─────────────────────────────────────
             lys.push(rect(3.50, 30.10, 2.20, 1.40, '#d6d3d1',
                 { color: '#78716c', weight: 1, dashArray: '4 3', fillOpacity: 0.9, h3d: 0.06, m3d: 'rug', extZ3d: CPA / 2 }));
@@ -1090,7 +1090,7 @@
             // (pipeline GEO iniciaria em z=0, afundando 20 cm no baldrame)
             lys.push(wall(GN0, GE0, GN0, GE1, 0.20, { no3d: true }));  // sul
             lys.push(wall(GN1, GE0, GN1, GE1, 0.20, { no3d: true }));  // norte
-            lys.push(wall(7.0, GE1, GN1, GE1, 0.20, { no3d: true }));  // leste superior (mN 7,0→10,5)
+            lys.push(wall(7.5, GE1, GN1, GE1, 0.20, { no3d: true }));  // leste superior (mN 7,5→10,5)
 
             // Colunas nas extremidades da viga E-O de suporte (mN 3,4)
             [GE0, 21.70].forEach(e =>
@@ -1485,7 +1485,7 @@
 
         // ── Embasamento: base de concreto (CPA=40cm) com projeção de 3cm além das paredes ──
         const EM_P = 0.03;
-        const EN0 = 2 - 0.20 - EM_P, EN1 = 7 + 0.20 + EM_P;
+        const EN0 = 2 - 0.20 - EM_P, EN1 = 7.5 + 0.20 + EM_P;
         const EE0 = 22 - 0.20 - EM_P, EE1 = 30 + 0.20 + EM_P;
         const emSides = [
             [EN0,            EE0, 0.20 + EM_P, EE1 - EE0],   // sul
@@ -1504,7 +1504,7 @@
         });
 
         // Piso da casa elevado à CPA (1cm aquém das faces interiores das paredes)
-        g.add(box3d(2.11, 22.11, 4.78, 7.78, CPA - 0.025, CPA, matFloor));
+        g.add(box3d(2.11, 22.11, 5.28, 7.78, CPA - 0.025, CPA, matFloor));
         // Piso da área de serviço — nível CPA/2 (mesma altura da garagem)
         const AS_H = CPA / 2;
         g.add(box3d(3.50, 30.10, 2.20, 1.40, AS_H - 0.025, AS_H, matFloor));
@@ -1514,9 +1514,9 @@
             g.add(box3d(2.15, 21.70, 1.20, 0.30, -0.05, 0.40, matEmbase)); // degrau 2 / patim
         }
 
-        // Porta lateral dupla (norte, mN=7) — 2 × 20 cm, 2,0 m de largura
-        g.add(box3d(7.40, 25.30, 0.30, 2.00, -0.05, 0.20, matEmbase)); // degrau 1 (externo)
-        g.add(box3d(7.10, 25.30, 0.30, 2.00, -0.05, 0.40, matEmbase)); // degrau 2 / patim
+        // Porta lateral dupla (norte, mN=7,5) — 2 × 20 cm, 2,0 m de largura
+        g.add(box3d(7.90, 25.30, 0.30, 2.00, -0.05, 0.20, matEmbase)); // degrau 1 (externo)
+        g.add(box3d(7.60, 25.30, 0.30, 2.00, -0.05, 0.40, matEmbase)); // degrau 2 / patim
 
 
         // Embasamento sob a área de serviço
@@ -1695,7 +1695,7 @@
         const roof = new THREE.Group();
         roof.name = 'roof';
         roof.visible = false;
-        const n0 = 2 - 0.12, n1 = 7 + 0.12, e0 = 22 - 0.12, e1 = 30 + 0.12;   // laje com beiral
+        const n0 = 2 - 0.12, n1 = 7.5 + 0.12, e0 = 22 - 0.12, e1 = 30 + 0.12;   // laje com beiral
         roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat));
         const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12;         // platibanda
         roof.add(box3d(n0, e0, tt, e1 - e0, pb, pbTop, lajeMat));             // sul
@@ -1772,7 +1772,7 @@
             // Padrão: box3d manual porque pipeline GEO inicia em z=0 (afundaria no baldrame)
             g.add(box3d(GN0 - 0.10, GE0,        0.20,       GE1 - GE0, GCPA, GLAJE, matWall)); // sul
             g.add(box3d(GN1 - 0.10, GE0,        0.20,       GE1 - GE0, GCPA, GLAJE, matWall)); // norte
-            g.add(box3d(7.0,        GE1 - 0.10, GN1 - 7.0, 0.20,       GCPA, GLAJE, matWall)); // leste superior (mN 7,0→GN1)
+            g.add(box3d(7.5,        GE1 - 0.10, GN1 - 7.5, 0.20,       GCPA, GLAJE, matWall)); // leste superior (mN 7,5→GN1)
 
             // Piso de concreto da garagem — no topo do baldrame (GCPA = 0,20 m)
             const matGFloor = new THREE.MeshStandardMaterial({ color: 0xd0ccc4, roughness: 0.88, metalness: 0, envMapIntensity: 0.2 });
@@ -1857,7 +1857,7 @@
         _dimLine3D(g,  4.5,  0,    4.5,  22,    '22 m — frente');
         _dimLine3D(g,  4.5,  30,   4.5,  40,    '10 m — fundo');
         _dimLine3D(g,  0,    26,   2.0,  26,    '2 m — sul');
-        _dimLine3D(g,  7.0,  26,   12.5, 26,    '5,5 m — norte');
+        _dimLine3D(g,  7.5,  26,   12.5, 26,    '5,0 m — norte');
         // Totais do lote — âmbar
         _dimLine3D(g,  13.5, 0,    13.5, 40,    '40 m', '#f59e0b');
         _dimLine3D(g,  0,    41.5, 12.5, 41.5,  '12,5 m', '#f59e0b');
