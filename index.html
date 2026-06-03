@@ -952,7 +952,7 @@
                 lys.push(rect(2.15, 21.70, 1.20, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
             }
             cut(2.90, 25.40, 0.8, 0.20); // Banheiro (interna) — parede oeste mE=25,5
-            cut(7.35, 25.40, 0.30, 1.80, 'glassdoor'); // Lateral dupla (parede norte) — porta de vidro
+            cut(7.35, 22.70, 0.30, 2.00, 'glassdoor'); // Porta grande de vidro (lado da sala) — abre p/ o jardim norte, estilo japonês
             cut(4.70, 29.85, 0.9, 0.30); // Fundos (parede leste)
             cut(4.40, 28.90, 0.20, 0.9); // Quarto (interna)
 
@@ -960,17 +960,17 @@
             win(1.90, 25.70, 0.20, 0.80, 'N').forEach(l => lys.push(l)); // Banheiro — parede sul
             win(2.80, 29.90, 1.00, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — parede leste
             win(1.90, 22.80, 0.20, 1.00, 'N').forEach(l => lys.push(l)); // Sala — parede sul
-            win(7.40, 22.70, 0.20, 2.00, 'N').forEach(l => lys.push(l)); // Sala — parede norte (janela solar 2m, centralizada)
+            win(7.40, 25.40, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala/cozinha — parede norte (janela 1,8m, onde era a porta)
             win(7.40, 27.70, 0.20, 1.60, 'N').forEach(l => lys.push(l)); // Cozinha — parede norte (1,6m)
 
             // Portas — folha + arco de abertura + pivô
             doorArc(2.30, 22.00,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
             doorArc(2.90, 25.50,  0.8,  0.0, -1).forEach(l => lys.push(l)); // Banheiro → folha aberta protege o box (privacidade) e olha p/ a pia
-            doorArc(7.50, 25.40,  0.0,  0.9, +1, { glass: true }).forEach(l => lys.push(l)); // Lateral esq — folha de vidro aberta
-            doorArc(7.50, 27.20,  0.0, -0.9, -1, { glass: true }).forEach(l => lys.push(l)); // Lateral dir — folha de vidro aberta
-            // Degraus porta lateral (parede norte) — 2 × 20 cm, largura 2,0 m, pisada 30 cm
-            lys.push(rect(7.60, 25.30, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
-            lys.push(rect(7.90, 25.30, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
+            doorArc(7.50, 22.70,  0.0,  1.0, +1, { glass: true }).forEach(l => lys.push(l)); // Folha esq (1,0m) — vidro aberta
+            doorArc(7.50, 24.70,  0.0, -1.0, -1, { glass: true }).forEach(l => lys.push(l)); // Folha dir (1,0m) — vidro aberta
+            // Degraus porta grande (parede norte) — 2 × 20 cm, largura 2,0 m, pisada 30 cm
+            lys.push(rect(7.60, 22.70, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
+            lys.push(rect(7.90, 22.70, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
             doorArc(4.70, 30.00,  0.9,  0.0, +1).forEach(l => lys.push(l)); // Fundos → abre para dentro (oeste, cozinha)
             doorArc(4.50, 29.80,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → abre para sul (dentro), hinge leste
 
@@ -1037,20 +1037,21 @@
             lys.push(roomLabel(5.00, 31.10, 'Á. Serviço', 'coberta', '~3 m²'));
 
             // ─── SALA ─────────────────────────────────────────────────────────
-            // Sofá 3 lugares — próximo da TV (sem mexer, como antes)
-            lys.push(rect(4.625, 24.45, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // base + encosto (faixa E)
-            lys.push(rect(4.725, 24.45, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento (frente oeste)
+            // Grupo de estar recentralizado p/ a nova profundidade (centro mN≈5,85)
+            // Sofá 3 lugares — encosto a leste, frente p/ a TV (oeste)
+            lys.push(rect(4.975, 24.45, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // base + encosto (faixa E)
+            lys.push(rect(5.075, 24.45, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento (frente oeste)
             // Divisões das 3 almofadas
-            lys.push(L.polyline([rot(5.242, 24.45), rot(5.242, 25.10)],
+            lys.push(L.polyline([rot(5.592, 24.45), rot(5.592, 25.10)],
                 { color: '#451a03', weight: 0.6, interactive: false }));
-            lys.push(L.polyline([rot(5.758, 24.45), rot(5.758, 25.10)],
+            lys.push(L.polyline([rot(6.108, 24.45), rot(6.108, 25.10)],
                 { color: '#451a03', weight: 0.6, interactive: false }));
             // Mesa de centro
-            lys.push(rect(5.00, 23.65, 1.00, 0.55, '#92400e', { color: '#451a03', weight: 0.7, m3d: 'coffee' }));
+            lys.push(rect(5.35, 23.65, 1.00, 0.55, '#92400e', { color: '#451a03', weight: 0.7, m3d: 'coffee' }));
 
             // TV e rack — parede oeste
-            lys.push(rect(4.80, 22.15, 1.40, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
-            lys.push(rect(4.95, 22.10, 1.10, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
+            lys.push(rect(5.15, 22.15, 1.40, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
+            lys.push(rect(5.30, 22.10, 1.10, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
 
             // Mesa de jantar — cozinha
             lys.push(rect(5.30, 27.90, 0.55, 0.75, '#92400e', { color: '#451a03', weight: 0.8, m3d: 'table' }));
@@ -1553,9 +1554,9 @@
             g.add(box3d(2.15, 21.70, 1.20, 0.30, -0.05, 0.40, matEmbase)); // degrau 2 / patim
         }
 
-        // Porta lateral dupla (norte, mN=7,5) — 2 × 20 cm, 2,0 m de largura
-        g.add(box3d(7.90, 25.30, 0.30, 2.00, -0.05, 0.20, matEmbase)); // degrau 1 (externo)
-        g.add(box3d(7.60, 25.30, 0.30, 2.00, -0.05, 0.40, matEmbase)); // degrau 2 / patim
+        // Porta grande de vidro (norte, mN=7,5, lado da sala) — 2 × 20 cm, 2,0 m de largura
+        g.add(box3d(7.90, 22.70, 0.30, 2.00, -0.05, 0.20, matEmbase)); // degrau 1 (externo)
+        g.add(box3d(7.60, 22.70, 0.30, 2.00, -0.05, 0.40, matEmbase)); // degrau 2 / patim
 
 
         // Embasamento sob a área de serviço
