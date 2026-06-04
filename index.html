@@ -902,6 +902,8 @@
                 [rot(2.0,21.0), rot(7.5,21.0), rot(7.5,26.5), rot(8.0,26.5), rot(8.0,29.5), rot(2.0,29.5)],
                 { color: 'transparent', weight: 0, fillColor: '#fafafa', fillOpacity: 1, interactive: false }
             ));
+            // Chão da área de serviço interna (leste da cozinha) — fica sob paredes/móveis
+            lys.push(rect(4.5, 30, 3.5, 1.5, '#fafafa', { color: 'transparent', weight: 0, fillOpacity: 1, no3d: true }));
 
             // Contorno âmbar do lote
             lys.push(L.polygon(
