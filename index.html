@@ -902,8 +902,6 @@
                 [rot(2.0,21.0), rot(7.5,21.0), rot(7.5,26.5), rot(8.0,26.5), rot(8.0,29.5), rot(2.0,29.5)],
                 { color: 'transparent', weight: 0, fillColor: '#fafafa', fillOpacity: 1, interactive: false }
             ));
-            // Chão da área de serviço interna (leste da cozinha) — fica sob paredes/móveis
-            lys.push(rect(4.5, 30, 3.5, 1.5, '#fafafa', { color: 'transparent', weight: 0, fillOpacity: 1, no3d: true }));
 
             // Contorno âmbar do lote
             lys.push(L.polygon(
@@ -948,11 +946,7 @@
             lys.push(wall(8.0, 27,    8.0, 30,   EW)); // norte-cozinha bump-out (mN=8,0)
             lys.push(wall(7.5, 27,    8.0, 27,   EW)); // degrau N-S (mE=27, mN 7,5→8,0)
             lys.push(wall(2.0, 21.5,  7.5, 21.5, EW)); // oeste (frente)
-            lys.push(wall(2.0, 30,    8.0, 30,   EW)); // leste (fundos — estende ao bump-out); divisória cozinha/á.serviço em mN 4,5→8,0
-            // Á. serviço interna (leste da cozinha) — norte alinhado à parede norte (mN=8,0)
-            lys.push(wall(4.5, 30,    4.5, 31.5, EW)); // sul da á. serviço
-            lys.push(wall(8.0, 30,    8.0, 31.5, EW)); // norte da á. serviço (alinhada à cozinha)
-            lys.push(wall(4.5, 31.5,  8.0, 31.5, EW)); // leste da á. serviço (fachada)
+            lys.push(wall(2.0, 30,    8.0, 30,   EW)); // leste (fundos — estende ao bump-out)
 
             // Paredes internas — banheiro + quarto
             // Banheiro linear 1,5×2,5: parede norte alinhada ao quarto (mN=4,5), sem degrau
@@ -975,8 +969,7 @@
             }
             cut(2.90, 25.40, 0.8, 0.20); // Banheiro (interna) — parede oeste mE=25,5
             cut(7.35, 22.70, 0.30, 2.00, 'glassdoor'); // Porta grande de vidro (lado da sala) — abre p/ o jardim norte, estilo japonês
-            cut(4.70, 29.85, 0.9, 0.30); // Fundos → agora liga cozinha ↔ á. serviço (parede mE=30, divisória única)
-            cut(5.20, 31.35, 0.9, 0.30); // Á. serviço → quintal leste (fachada mE=31,5)
+            cut(4.70, 29.85, 0.9, 0.30); // Fundos (parede leste) → cozinha p/ quintal
             cut(4.40, 28.90, 0.20, 0.9); // Quarto (interna)
 
             // Janelas
@@ -996,7 +989,6 @@
             lys.push(rect(7.60, 22.70, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
             lys.push(rect(7.90, 22.70, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
             doorArc(4.70, 30.00,  0.9,  0.0, +1).forEach(l => lys.push(l)); // Fundos → abre para dentro (oeste, cozinha)
-            doorArc(5.20, 31.50,  0.9,  0.0, +1).forEach(l => lys.push(l)); // Á. serviço → abre para dentro (oeste)
             doorArc(4.50, 29.80,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → abre para sul (dentro), hinge leste
 
             // ─── BANHEIRO LINEAR 1,5×2,5 (mN 2.0→4.5, mE 25.5→27) ───────────────
@@ -1068,14 +1060,6 @@
                 { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcabW' })); // aéreo coluna mN 6,85→7,90 (preenche gap + canto)
             lys.push(rect(6.20, 29.45, 0.65, 0.55, '#e5e7eb',
                 { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.70, h3d: 0.60, m3d: 'wallcabW' })); // sobre a geladeira
-            // ─── ÁREA DE SERVIÇO (interna — leste da cozinha, piso na cota da casa) ──
-            // Tanque encostado na parede norte (mN=8,0), canto NE
-            lys.push(rect(7.35, 30.85, 0.55, 0.55, '#bae6fd', { color: '#0369a1', weight: 0.8, h3d: 0.85, m3d: 'tank' }));
-            lys.push(rect(7.42, 30.92, 0.40, 0.40, '#7dd3fc', { color: '#0369a1', weight: 0.5, no3d: true }));
-            // Máquina de lavar — ao lado do tanque, encostada na parede norte (volume de massa)
-            lys.push(rect(7.35, 30.20, 0.55, 0.55, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 0.85 }));
-            lys.push(circ(7.62, 30.47, 0.16, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true })); // tampa frontal
-            lys.push(roomLabel(5.80, 30.75, 'Á. Serviço', '1,5 × 3,5 m', '5,25 m²'));
 
             // ─── SALA ─────────────────────────────────────────────────────────
             // Grupo de estar recentralizado p/ a nova profundidade (centro mN≈5,85)
@@ -1652,8 +1636,6 @@
         g.add(box3d(2.11, 21.61 + OE, 5.28, 8.28, CPA - 0.025, CPA, matFloor));
         // Piso do bump-out cozinha (mN 7,5→8,0; mE 27→30) — 1cm aquém das paredes interiores
         g.add(box3d(7.41, 27.11 + OE, 0.48, 2.78, CPA - 0.025, CPA, matFloor));
-        // Piso da área de serviço interna — nível CPA (mesma cota da casa), 1cm aquém das faces interiores
-        g.add(box3d(4.61, 30.11 + OE, 3.28, 1.28, CPA - 0.025, CPA, matFloor));
         // Degraus porta principal — só V1 (V2/V3 a garagem cobre essa área)
         if (v === 'v1') {
             g.add(box3d(2.15, 20.90 + OE, 1.20, 0.30, -0.05, 0.20, matEmbase)); // degrau 1
@@ -1663,13 +1645,6 @@
         // Porta grande de vidro (norte, mN=7,5, lado da sala) — 2 × 20 cm, 2,0 m de largura
         g.add(box3d(7.90, 22.70 + OE, 0.30, 2.00, -0.05, 0.20, matEmbase)); // degrau 1 (externo)
         g.add(box3d(7.60, 22.70 + OE, 0.30, 2.00, -0.05, 0.40, matEmbase)); // degrau 2 / patim
-
-
-        // Embasamento sob a área de serviço interna — até CPA (nível da casa)
-        // Footprint = faces externas das paredes (mN 4,4→8,1; mE 30,0→31,6) + projeção EM_P
-        g.add(box3d(4.40 - EM_P, 30.10 + OE, 3.70 + 2*EM_P, 1.50 + EM_P, -0.05, CPA, matEmbase));
-        // Manta asfáltica no topo
-        g.add(box3d(4.40 - EM_P - 0.005, 30.10 + OE - 0.005, 3.70 + 2*EM_P + 0.01, 1.50 + EM_P + 0.01, CPA - WP_H, CPA + 0.004, matWP));
 
         // Contorno do lote (âmbar) sobre o satélite — destaca a propriedade
         g.add(new THREE.LineLoop(
@@ -1848,19 +1823,13 @@
         roof.add(box3d(n0, e0, tt, e1 - e0, pb, pbTop, lajeMat));             // sul
         roof.add(box3d(n1 - tt, e0, tt, e1 - e0, pb, pbTop, lajeMat));        // norte-sala
         roof.add(box3d(n0, e0, n1 - n0, tt, pb, pbTop, lajeMat));             // oeste
-        roof.add(box3d(n0, e1 - tt, 4.5 - n0, tt, pb, pbTop, lajeMat));        // leste (só mN<4,5; á.serviço estende a laje a partir daí)
+        roof.add(box3d(n0, e1 - tt, n1 - n0, tt, pb, pbTop, lajeMat));        // leste
         // Laje do bump-out cozinha (mN 7,5→8,0; mE 27→30)
         const bn0 = 7.5 - 0.12, bn1 = 8.0 + 0.12, be0 = 27 + OE - 0.12;
         roof.add(box3d(bn0, be0, bn1 - bn0, e1 - be0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab
         roof.add(box3d(bn1 - tt, be0, tt,        e1 - be0, pb, pbTop, lajeMat)); // norte-cozinha
         roof.add(box3d(bn0,      be0, bn1 - bn0, tt,        pb, pbTop, lajeMat)); // oeste (degrau)
-        // (platibanda leste do bump-out removida — a á. serviço estende a laje além de mE=30)
-        // Laje da área de serviço (mN 4,5→8,0; mE 30→31,5) — sem beiral oeste (encosta na laje da casa)
-        const as_n0 = 4.5 - 0.12, as_n1 = 8.0 + 0.12, as_e0 = 30 + OE, as_e1 = 31.5 + OE + 0.12;
-        roof.add(box3d(as_n0, as_e0, as_n1 - as_n0, as_e1 - as_e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab
-        roof.add(box3d(as_n0, as_e0, tt, as_e1 - as_e0, pb, pbTop, lajeMat));        // platibanda sul
-        roof.add(box3d(as_n1 - tt, as_e0, tt, as_e1 - as_e0, pb, pbTop, lajeMat));   // platibanda norte
-        roof.add(box3d(as_n0, as_e1 - tt, as_n1 - as_n0, tt, pb, pbTop, lajeMat));   // platibanda leste (fachada)
+        roof.add(box3d(bn0,      e1 - tt, bn1 - bn0, tt,   pb, pbTop, lajeMat)); // leste (estende)
         g.add(roof);
 
         // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
