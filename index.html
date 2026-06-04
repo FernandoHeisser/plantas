@@ -430,6 +430,180 @@
             color: #cbd5e1; transform: translate(-50%,-50%);
         }
         .scene3d-compass .pt.n { color: #f87171; }
+
+        /* ── MEDIDAS PAGE ── */
+        #p-v1-med,
+        #p-v2-med,
+        #p-v3-med {
+            min-height: calc(100dvh - var(--sticky-h));
+            overflow-y: auto;
+        }
+        .med-page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 28px 24px 48px;
+        }
+        /* Summary bar */
+        .med-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 32px;
+        }
+        .med-sum-item {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .med-sum-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #4b5563;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .med-sum-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: block;
+            line-height: 1.1;
+        }
+        .med-sum-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #4b5563;
+            display: block;
+            margin-top: 3px;
+        }
+        /* Section title */
+        .med-section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #4b5563;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 14px;
+        }
+        /* Rooms grid */
+        .med-rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        .med-room-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            border-left: 3px solid var(--border);
+            transition: border-color 0.15s;
+        }
+        .med-room-card.col-blue  { border-left-color: #3b82f6; }
+        .med-room-card.col-teal  { border-left-color: #0d9488; }
+        .med-room-card.col-green { border-left-color: #16a34a; }
+        .med-room-card.col-amber { border-left-color: #f59e0b; }
+        .med-room-card.col-orange{ border-left-color: #ea580c; }
+        .med-room-card.col-slate { border-left-color: #475569; }
+        .med-room-name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 10px;
+        }
+        .med-room-dims {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.1;
+        }
+        .med-room-area {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 2px;
+            margin-bottom: 10px;
+        }
+        .med-room-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9.5px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+        /* Openings section */
+        .med-openings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 640px) {
+            .med-openings-grid { grid-template-columns: 1fr; }
+            .med-page { padding: 18px 14px 40px; }
+            .med-rooms-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .med-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+        .med-table thead tr {
+            background: rgba(0,0,0,0.3);
+        }
+        .med-table th {
+            text-align: left;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #4b5563;
+            padding: 7px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .med-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(45,55,72,0.5);
+            color: #94a3b8;
+            vertical-align: top;
+        }
+        .med-table tr:last-child td { border-bottom: none; }
+        .med-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .med-table .td-name { color: var(--text-dark); font-weight: 600; }
+        .med-table .td-dims { color: #e2e8f0; }
+        .med-table .td-tag {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border);
+            color: #6b7280;
+            white-space: nowrap;
+        }
+        .med-table .td-tag.glass { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.3); color: #93c5fd; }
+        /* Placeholder med */
+        .med-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 14px;
+            text-align: center;
+            padding: 40px;
+        }
+        .med-placeholder-title { font-size: 1rem; font-weight: 600; color: #374151; }
+        .med-placeholder-sub { font-size: 11px; color: #374151; font-family: 'JetBrains Mono', monospace; }
     </style>
 </head>
 <body>
@@ -451,6 +625,7 @@
 <nav class="section-nav">
     <button class="stab active" data-s="2d"       onclick="setSection('2d')">Planta 2D</button>
     <button class="stab"        data-s="3d"       onclick="setSection('3d')">Planta 3D</button>
+    <button class="stab"        data-s="med"      onclick="setSection('med')">Medidas</button>
 </nav>
 </div>
 
@@ -574,6 +749,218 @@
                 <span class="ph3d-badge">Aguardando projeto executivo V3</span>
             </div>
         </div>
+    </div>
+
+
+    <!-- ══════════ MEDIDAS V1 ══════════ -->
+    <div class="panel" id="p-v1-med">
+      <div class="med-page">
+
+        <!-- Summary -->
+        <div class="med-summary">
+          <div class="med-sum-item">
+            <span class="med-sum-label">Lote</span>
+            <span class="med-sum-value">500 m²</span>
+            <span class="med-sum-sub">12,5 × 40 m</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Área construída</span>
+            <span class="med-sum-value">49,5 m²</span>
+            <span class="med-sum-sub">térreo V1</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Pé-direito</span>
+            <span class="med-sum-value">2,70 m</span>
+            <span class="med-sum-sub">laje plana</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Recuo frente</span>
+            <span class="med-sum-value">21,0 m</span>
+            <span class="med-sum-sub">da rua (oeste)</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Recuo sul</span>
+            <span class="med-sum-value">2,0 m</span>
+            <span class="med-sum-sub">limite sul</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Recuo norte</span>
+            <span class="med-sum-value">4,5 m</span>
+            <span class="med-sum-sub">limite norte</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Recuo fundos</span>
+            <span class="med-sum-value">10,0 m</span>
+            <span class="med-sum-sub">leste (quintal)</span>
+          </div>
+        </div>
+
+        <!-- Cômodos -->
+        <div class="med-section-title">Cômodos</div>
+        <div class="med-rooms-grid">
+
+          <div class="med-room-card col-slate">
+            <div class="med-room-name">Hall / Entrada</div>
+            <div class="med-room-dims">3,0 m (frente)</div>
+            <div class="med-room-area">aberto p/ sala</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul + Oeste<br>Acesso direto à rua</div>
+          </div>
+
+          <div class="med-room-card col-amber">
+            <div class="med-room-name">Sala</div>
+            <div class="med-room-dims">6,0 × 5,5 m</div>
+            <div class="med-room-area">~17,5 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Sul<br>Porta de vidro ao norte</div>
+          </div>
+
+          <div class="med-room-card col-blue">
+            <div class="med-room-name">Banheiro</div>
+            <div class="med-room-dims">2,0 × 2,5 m</div>
+            <div class="med-room-area">5,0 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Box 1,0×1,0 m</div>
+          </div>
+
+          <div class="med-room-card col-teal">
+            <div class="med-room-name">Área de Serviço</div>
+            <div class="med-room-dims">2,0 × 2,5 m</div>
+            <div class="med-room-area">5,0 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Tanque + máquina + despensa</div>
+          </div>
+
+          <div class="med-room-card col-green">
+            <div class="med-room-name">Quarto</div>
+            <div class="med-room-dims">3,0 × 2,5 m</div>
+            <div class="med-room-area">7,5 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul + Leste<br>Dim. menor: 2,50 m ≥ 2,40 ✓</div>
+          </div>
+
+          <div class="med-room-card col-orange">
+            <div class="med-room-name">Cozinha</div>
+            <div class="med-room-dims">3,0 × 3,5 m</div>
+            <div class="med-room-area">~10,5 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte<br>Bancada em U + ilha</div>
+          </div>
+
+        </div>
+
+        <!-- Aberturas -->
+        <div class="med-openings-grid">
+
+          <!-- Portas -->
+          <div>
+            <div class="med-section-title">Portas</div>
+            <table class="med-table">
+              <thead>
+                <tr>
+                  <th>Local</th>
+                  <th>Larg. × Alt.</th>
+                  <th>Tipo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-name">Principal</td>
+                  <td class="td-dims">0,90 × 2,10 m</td>
+                  <td><span class="td-tag">madeira</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Banheiro</td>
+                  <td class="td-dims">0,80 × 2,10 m</td>
+                  <td><span class="td-tag">madeira</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Área de Serviço</td>
+                  <td class="td-dims">0,90 × 2,10 m</td>
+                  <td><span class="td-tag">madeira</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Quarto</td>
+                  <td class="td-dims">0,90 × 2,10 m</td>
+                  <td><span class="td-tag">madeira</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Sala (dupla)</td>
+                  <td class="td-dims">2× 1,00 × 2,10 m</td>
+                  <td><span class="td-tag glass">vidro</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Fundos</td>
+                  <td class="td-dims">0,90 × 2,10 m</td>
+                  <td><span class="td-tag">madeira</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Janelas -->
+          <div>
+            <div class="med-section-title">Janelas</div>
+            <table class="med-table">
+              <thead>
+                <tr>
+                  <th>Local</th>
+                  <th>Larg. × Alt.</th>
+                  <th>Parede</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-name">Banheiro</td>
+                  <td class="td-dims">0,80 × 1,10 m</td>
+                  <td><span class="td-tag">Sul</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Á. Serviço</td>
+                  <td class="td-dims">0,80 × 1,10 m</td>
+                  <td><span class="td-tag">Sul</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Quarto</td>
+                  <td class="td-dims">1,20 × 1,10 m</td>
+                  <td><span class="td-tag">Sul</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Quarto (cruzada)</td>
+                  <td class="td-dims">1,20 × 1,10 m</td>
+                  <td><span class="td-tag">Leste</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Sala / Hall</td>
+                  <td class="td-dims">1,20 × 1,10 m</td>
+                  <td><span class="td-tag">Sul</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Sala</td>
+                  <td class="td-dims">1,80 × 1,10 m</td>
+                  <td><span class="td-tag">Norte</span></td>
+                </tr>
+                <tr>
+                  <td class="td-name">Cozinha (fita)</td>
+                  <td class="td-dims">1,60 × 0,60 m</td>
+                  <td><span class="td-tag">Norte</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ MEDIDAS V2 ══════════ -->
+    <div class="panel" id="p-v2-med">
+      <div class="med-placeholder">
+        <div class="med-placeholder-title">Ficha técnica V2 em elaboração</div>
+        <div class="med-placeholder-sub">Disponível após finalização do projeto executivo da garagem</div>
+      </div>
+    </div>
+
+    <!-- ══════════ MEDIDAS V3 ══════════ -->
+    <div class="panel" id="p-v3-med">
+      <div class="med-placeholder">
+        <div class="med-placeholder-title">Ficha técnica V3 em elaboração</div>
+        <div class="med-placeholder-sub">Disponível após finalização do projeto executivo do sobrado</div>
+      </div>
     </div>
 
 </main>
