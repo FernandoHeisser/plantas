@@ -40,7 +40,7 @@ Esta é a forma de trabalho que produziu resultados aprovados pelo cliente. Repl
 - Estratégias: ventilação cruzada + admitir sol de inverno + sombrear no verão.
 
 ### 5. Conformidade Caixa (FGTS/SFH) — checar a CADA mudança de cômodo
-- Casa ≥ **36 m²** (serviço externa) / 39 m² (interna). Hoje **44 m²** ✓.
+- Casa ≥ **36 m²** (serviço externa) / 39 m² (interna). Hoje **49,5 m²** ✓.
 - Dormitório: **menor dimensão ≥ 2,40 m**; casal ~8 m². Janela de quarto **≥ 1,50 m²** de abertura.
 - Área de serviço coberta com tanque (atendido). Exige PCI assinada por eng./arq.
 - **O quarto vira despensa/depósito só no V3**; em V1/V2 é 100% dormitório (entra na planta
@@ -265,6 +265,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `benchcorner` | Canto alemão: banco em **L** (assento 0→0,45 + encosto 0,45→0,85). Driver = **bbox do L** (rect transparente no 2D); encostos na face **N + L** (mN/mE altos). Bancos visíveis no 2D são `rect{no3d:true}` separados. |
 | `wallcab` | Armário **aéreo**, frente p/ **SUL** (costas na parede norte). Carcaça + porta + fenda central + puxadores na base. Usa `z3d` (base) + `h3d`. |
 | `wallcabW` | Armário **aéreo**, frente p/ **OESTE** (costas na parede leste, mE=s.e+s.de). `wallcab` espelhado — usado na coluna da geladeira. |
+| `wardrobeE` | Guarda-roupa com portas voltadas p/ **LESTE** (costas na parede oeste). Espelho do `wardrobe` — usado no quarto (parede oeste mE=28,5). |
 | `hood` | **Coifa**: canopy inox + boca de sucção escura + duto até o teto (z local **2,70**). Usa `z3d` como base (~1,55). Monta acima de uma janela-fita. |
 | `washer` | — (removido — ponto daquela posição virou tapete/capacho) |
 
@@ -367,99 +368,93 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 - **Tamanho:** 12,5 m × 40 m = 500 m²
 - **Frente:** mE=0 (oeste/rua)
 
-### Casa — posição no lote
-- **Posição real no lote:** mN 2,0 → 7,5 × **mE 21,0 → 29,5** (deslocada 0,5 m p/ oeste via `OE`).
-- Recuo sul: 2,0 m | Recuo norte: 5,0 m | **Recuo frente: 21 m | Recuo fundo: 10,5 m**
-- Parede norte estendida de 7,0 → 7,5 (0,5 m do jardim norte → +2,5 m² sala, +1,5 m² cozinha)
+### Casa — posição no lote e área total
+- **Posição real no lote:** mN 2,0→8,0 × mE 21,0→30,0 (corpo principal) + saliência quarto mE 29,5→31,0 (já com OE)
+- Recuo sul: 2,0 m | Recuo norte: ~5,0 m | **Recuo frente: 21 m | Recuo fundo: ~9,5 m (cozinha) / ~8,5 m (quarto)**
+- **Área total V1: ~49,5 m²** (44 m² base + 3,75 m² saliência quarto + 1,75 m² extensão leste cozinha)
 
-> **Importante — coordenadas das tabelas abaixo:** os valores de `mE` nas tabelas de
-> cômodos/mobiliário/portas/janelas são as **coordenadas do código** (pré-`OE`, ex. casa
-> mE 21,5→30). A **posição renderizada subtrai 0,5 m** (`OE = -0.5`), aplicado nos helpers.
-> Ver a seção **"Deslocamento da casa — constante `OE`"**.
+> **Coordenadas das tabelas abaixo:** valores de `mE` são pré-`OE` (código). A posição renderizada subtrai 0,5 m. Ver seção **"Deslocamento da casa — constante `OE`"**.
 
 ### Cômodos
 
-| Cômodo | mN | mE | Dimensão | Área |
+| Cômodo | mN | mE (código) | Dimensão | Área |
 |---|---|---|---|---|
-| Banheiro | 2,0 → 4,5 | 25,5 → 27 | 1,5 × 2,5 m | 3,75 m² |
-| Quarto | 2,0 → 4,5 | 27 → 30 | 2,5 × 3 m | 7,5 m² |
-| Sala | 2,0 → 7,5 | 22 → 27 | — | ~17,5 m² |
-| Cozinha | 4,5 → 7,5 | 27 → 30 | 3 × 3 m | 9 m² |
+| Hall | 2,0 → 7,5 | 21,5 → 24,5 | ~3,0 m aberto | — |
+| Banheiro | 2,0 → 4,5 | 24,5 → 26,5 | 2,0 × 2,5 m | 5,0 m² |
+| Á. Serviço | 2,0 → 4,5 | 26,5 → 28,5 | 2,0 × 2,5 m | 5,0 m² |
+| Quarto | 2,0 → 4,5 | 28,5 → 31,5 | 3,0 × 2,5 m | 7,5 m² (saliência mE 30→31,5) |
+| Sala | 2,0 → 7,5 | 21,5 → 27,5 | — | ~17,5 m² |
+| Cozinha | 4,5 → 8,0 | 27,5 → 30,5 | 3,0 × 3,5 m | ~10,5 m² (+ bump-out) |
 
-### Mobiliário — Banheiro (linear 1,5×2,5, parede norte alinhada ao quarto em mN=4,5)
-- Box chuveiro (`shower`): mN 2,05→2,85, mE 26,15→26,95 — canto SE, vidros N+O p/ dentro (sem sombra)
-- Vaso (`toilet`): mN 3,20→3,62, mE 26,45→26,90 — parede leste (mE=27)
-- Lavatório (`lavatory`): mN 4,13→4,45, mE 25,65→26,15 — parede norte (mN=4,5), canto NO
+### Mobiliário — Banheiro (2,0×2,5, mE 24,5→26,5)
+- Box chuveiro (`shower`): mN 2,05→3,05, mE 25,45→26,45 — canto SE, 1,0×1,0 m
+- Vaso (`toilet`): mN 3,20→3,62, mE 25,95→26,40 — parede leste (mE=26,5)
+- Bancada/cuba (`lavatory`): mN 4,13→4,45, mE 24,65→25,60 — parede norte, 0,95 m de largura
 
-### Mobiliário — Quarto
-- Cama (`bed`): footprint mN 2,60→4,50, mE 27,40→28,80 — GAP 7cm da parede norte
-- Guarda-roupa (`wardrobe`): mN 2,10→2,65, mE 29,25→29,80, h=2,00 m
+### Mobiliário — Área de Serviço (2,0×2,5, mE 26,5→28,5)
+- Tanque (`tank`): mN 2,15→2,65, mE 26,70→27,25 — parede sul, sob janela de ventilação
+- Máquina de lavar: mN 2,15→2,65, mE 27,35→27,85 — ao lado do tanque, parede sul
+- Despensa/armário alto: mN 2,10→2,65, mE 27,95→28,40 — canto SE
 
-### Mobiliário — Sala (grupo recentralizado p/ a nova profundidade — centro mN≈5,85)
-- Rack (`rack`): mN 5,15→6,55, mE 22,15→22,50, h=0,50 m — na parede oeste
-- TV (`tv`): mN 5,30→6,40, mE 22,10→22,15 — painel na parede, `m3d:'tv'`
-- Sofá (`sofa`): mN 4,975→6,725, mE **24,20→25,05**, h=0,75 m — frente p/ a TV (oeste). Recuado 0,25 m p/ O p/ abrir folga do canto alemão.
-- Mesa de centro (`coffee`): mN 5,35→6,35, mE **23,40→23,95** (acompanha o sofá)
+### Mobiliário — Quarto (3,0×2,5, mE 28,5→31,5)
+- Cama (`bed`): mN 2,60→4,50, mE 29,90→31,30 — pé p/ sul, cabeceira ao norte; deslocada p/ leste (livra a porta)
+- Guarda-roupa (`wardrobeE`, portas p/ leste): mN 2,10→3,30, mE 28,60→29,15 — parede oeste, abre p/ dentro do quarto
 
-### Mobiliário — Hall de entrada (canto SO — antes "morto")
-- **Estante divisória vazada** (`shelf`): mN 3,83→4,18, mE 23,50→25,50, h=1,80 m — encosta na parede oeste do banheiro (mE=25,5), ponta oeste livre (passagem de ~1,5 m p/ a sala). Esconde a porta do banheiro da sala sem fechar luz/ar.
-- Sapateira/console (`rack`): mN 2,10→2,45, mE 23,95→25,20, h=0,85 m — parede sul, entre janela e porta do banheiro
-- Tapete entrada (`rug`): mN 2,80→3,80, mE 22,95→23,90, h=0,02 m
-- Porta do banheiro abre p/ sul (swing −1): folha aberta protege o box (privacidade) e o olhar cai na pia
+### Mobiliário — Sala
+- Rack (`rack`): mN 5,15→6,55, mE 22,15→22,50, h=0,50 m — parede oeste
+- TV (`tv`): mN 5,30→6,40, mE 22,10→22,15 — painel na parede
+- Sofá (`sofa`): mN 4,975→6,725, mE 24,20→25,05, h=0,75 m — frente p/ TV (oeste)
+- Mesa de centro (`coffee`): mN 5,35→6,35, mE 23,40→23,95
 
-### Mobiliário — Cozinha em U (bancada norte + península O + geladeira L)
-Layout em **U**: o cozinheiro fica no "poço" (mE 28,00→29,45) e acessa fogão/pia pela parede norte;
-a geladeira fecha o leste; a península fecha o oeste e vira bancada de preparo voltada p/ a TV.
-- Bancada norte (`counter`): mN 6,85→7,40, mE 27,25→29,90, h=0,90 — **segmentada** (vãos p/ fogão e pia)
-- Península O (`counter`): mN 5,80→6,85, mE 27,25→**28,00** (prof. 0,75) — braço O do U; face O = encosto do canto alemão; deixa mN 4,5→5,80 (1,3 m) livre p/ a passagem sala→cozinha
-- Fogão (`stove`): mN 6,85→7,40, mE **28,10→28,65**, h=0,90 — central, acessível pelo poço, respaldo + coifa
-- Coifa (`hood`): mN 6,95→7,40, mE 28,00→28,75, base z=1,55 → duto até 2,70 — encostada na parede norte, **fora da linha de visão da TV** (cliente cozinha vendo TV → coifa de ilha foi descartada)
-- Pia (`sink`): mN 6,85→7,40, mE **28,85→29,40**, h=0,90 — sob a janela-fita (lavar louça com luz)
-- Geladeira (`fridge`): mN 6,20→6,85, mE 29,45→30,00, h=1,70 — parede leste, abre p/ O
+### Mobiliário — Hall de entrada (canto SO, aberto à sala)
+- Estante divisória vazada (`shelf`): mN 3,83→4,18, mE 22,85→24,35, h=1,80 m
+- Sapateira/console (`rack`): mN 2,10→2,45, mE 23,40→24,35, h=0,85 m — parede sul
+- Tapete entrada (`rug`): mN 2,80→3,80, mE 22,95→23,90
 
-**Armários aéreos** (tracejado no 2D):
-- Aéreo parede norte (`wallcab`, frente S): mN 7,07→7,40, z 1,50→2,30 — mE 27,30→28,00 (sobre a península) e mE 28,75→29,40 (sobre a janela)
-- Coluna da geladeira (`wallcabW`, frente O, costas na parede leste mE=30):
-  - canto sobre a bancada: mN 6,85→7,40, mE 29,45→30,00, z 1,50→2,30
-  - sobre a geladeira: mN 6,20→6,85, mE 29,45→30,00, z **1,70**→2,30
+### Mobiliário — Cozinha em U (mE 27,5→30,5)
+O cozinheiro fica no "poço" central e acessa fogão/pia pela parede norte; a geladeira fecha o leste; a península fecha o oeste (encosto do canto alemão). Passagem sala→cozinha em mN 4,5→5,8.
+- Bancada norte (`counter`): mN 7,35→7,90, mE 27,75→30,40 — segmentada (vãos fogão e pia)
+- Península O (`counter`): mN 5,80→7,35, mE 27,75→28,50 (prof. 0,75)
+- Fogão (`stove`): mN 7,35→7,90, mE 28,60→29,15
+- Coifa (`hood`): mN 7,45→7,90, mE 28,50→29,25, z3d=1,55 — parede norte, fora da linha de visão da TV
+- Pia (`sink`): mN 7,35→7,90, mE 29,35→29,90 — sob a janela-fita
+- Geladeira (`fridge`): mN 6,20→6,85, mE 29,95→30,50, h=1,70 — parede leste (mE=30,5)
+- Aéreos norte (`wallcab`): mE 27,80→28,50 e mE 29,25→29,90, z 1,50→2,30
+- Coluna geladeira (`wallcabW`): mE 29,95→30,50, z 1,50→2,30
 
-### Mobiliário — Canto alemão (refeição, encostado na parede norte)
-Substitui a antiga mesa central da cozinha. Banco em **L** abre p/ SO; fica ao N (mN≥5,80), fora da passagem.
-- Banco norte: mN 6,95→7,40, mE 25,55→27,25 — encosto na parede norte, assento p/ S (2D `rect{no3d}`)
-- Banco leste: mN 5,80→7,40, mE 26,80→27,25 — encosto na face O da península, assento p/ O (2D `rect{no3d}`)
-- Driver 3D do L (`benchcorner`, rect transparente): bbox mN 5,80→7,40, mE 25,55→27,25, h=0,85
-- Mesa (`table`): mN 5,95→6,85, mE 25,65→26,70 — recuada 0,20 m p/ O p/ folgar do banco leste (face O mE=26,80)
-- 2 cadeiras (`chair`): lado sul aberto — (mN 5,75; mE 25,85) e (mN 5,75; mE 26,50)
-
-### Mobiliário — Área de Serviço (externa, leste)
-- Laje coberta (`rug`): mN 3,50→5,70, mE 30,10→31,50, h=0,06 m (tapete plano)
-- Tanque (`tank`): mN 3,70→4,40, mE 30,20→30,75, z=0,06 m
-- Capacho saída (`rug`): mN 4,70→5,25, mE 30,20→30,75, z=0,06 m
+### Mobiliário — Canto alemão (refeição, parede norte)
+Banco em **L** maior (cozinha cresceu 0,5 m p/ leste, liberando espaço). Passagem sala→cozinha ao sul (mN<5,80).
+- Banco norte: mN 6,95→7,40, mE 25,55→27,75 — assento p/ sul (2D `rect{no3d}`)
+- Banco leste: mN 5,80→7,40, mE 27,30→27,75 — encosto na face O da península (2D `rect{no3d}`)
+- Driver 3D (`benchcorner`): bbox mN 5,80→7,40, mE 25,55→27,75, h=0,85
+- Mesa (`table`): mN 5,95→6,85, mE 25,65→27,10
+- 2 cadeiras (`chair`): (mN 5,75; mE 26,05) e (mN 5,75; mE 26,80)
 
 ### Portas
 
 | Porta | Tipo | Hinge | Swing |
 |---|---|---|---|
 | Principal | madeira | mN=3,05, mE=22 | −1 (leste) |
-| Banheiro | madeira | mN=2,90, mE=25,5 | −1 (leste) |
+| Banheiro | madeira | mN=2,90, mE=24,5 | −1 (leste) |
+| Á. Serviço | madeira | mN=4,50, mE=27,95 | +1 (sul) |
+| Quarto | madeira | mN=4,50, mE=28,90 | +1 (sul) |
 | Porta grande sala esq | **vidro** (glassdoor, 1,0 m) | mE=22,70, mN=7,5 | +1 (norte) |
 | Porta grande sala dir | **vidro** (glassdoor, 1,0 m) | mE=24,70, mN=7,5 | −1 (norte) |
-| Fundos | madeira | mN=4,70, mE=30 | +1 (oeste) |
-| Quarto | madeira | mE=29,80, mN=4,50 | +1 (sul) |
+| Fundos | madeira | mN=4,70, mE=30,5 | +1 (oeste) |
 
-### Janelas
+### Janelas (centradas e proporcionais ao ambiente)
 
-| Janela | Parede | mN (corte) | mE | Largura |
-|---|---|---|---|---|
-| Banheiro | Sul (mN=2,0) | 1,90→2,10 | 25,70→26,50 | 0,80 m |
-| Quarto | Leste (mE=30) | 2,80→3,80 | 29,90→30,10 | 1,00 m |
-| Sala | Sul (mN=2,0) | 1,90→2,10 | 22,80→23,80 | 1,00 m |
-| Sala (norte) | Norte (mN=7,5) | 7,40→7,60 | 25,40→27,20 | 1,80 m |
-| Cozinha (fita) | Norte (mN=7,5) | 7,40→7,60 | 27,80→29,40 | 1,60 m — **janela-fita** peitoril 0,90 / verga 1,50; passa atrás do cooktop (coifa monta acima); canto da geladeira fica p/ armário |
+| Janela | Parede | mE ou mN (centro) | Largura |
+|---|---|---|---|
+| Banheiro | Sul (mN=2,0) | mE 25,10→25,90 | 0,80 m |
+| Á. Serviço | Sul (mN=2,0) | mE 27,10→27,90 | 0,80 m |
+| Quarto (sol manhã) | Leste (mE=31,5) | mN 2,65→3,85 | 1,20 m |
+| Quarto (cruzada) | Sul (mN=2,0) | mE 29,40→30,60 | 1,20 m |
+| Sala/hall | Sul (mN=2,0) | mE 22,40→23,60 | 1,20 m |
+| Sala | Norte (mN=7,5) | mE 25,20→27,00 | 1,80 m |
+| Cozinha (fita) | Norte (mN=8,0) | mE 28,20→29,80 | 1,60 m — peitoril 0,90 / verga 1,50 |
 
-> **Porta grande de vidro (sala) em mE 22,70→24,70** (onde era a janela solar): estilo japonês,
-> abre a sala pro jardim norte. A janela de 1,80 m foi pro vão onde era a porta (mE 25,40→27,20).
-> Troca feita na branch `sala-japonesa`.
+> **Ventilação cruzada:** quarto (sul + leste) · sala/living (sul + norte/porta de vidro) · cozinha (fita norte + abertura p/ sala).
 
 ---
 
@@ -557,7 +552,7 @@ Plano `MeshBasicMaterial` branco (`opacity:0.35`, `depthWrite:false`) adicionado
 ## Financiamento — referência
 
 O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
-- 44 m² > mínimo de 36 m² ✓
+- 49,5 m² > mínimo de 36 m² ✓
 - 1 quarto suficiente no SFH
 - Área de serviço coberta com tanque — **requisito Caixa atendido** ✓
 - Exige PCI assinada por engenheiro/arquiteto antes da liberação do crédito
