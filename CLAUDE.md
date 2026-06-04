@@ -112,6 +112,33 @@ A rotação de −3° é ignorada no 3D (irrelevante para a cena local).
 
 **Função `rot(mN, mE)`** — converte metros do lote em `[lat, lng]` aplicando a rotação de −3°.
 
+### Deslocamento da casa — constante `OE`
+
+```javascript
+const OE = -0.5;   // metros em mE — desloca casa+garagem p/ OESTE (frente)
+```
+
+A casa/garagem inteira está deslocada **0,5 m para o oeste** (frente/rua) em relação ao
+lote. O **lote/terreno não se move** (continua mE 0→40, ancorado ao satélite).
+
+**Como é aplicado (fonte única):** os helpers métricos (`rect`, `circ`, `wall`,
+`doorArc`, `win`, `roomLabel`) **somam `OE` ao `mE`** logo na entrada — isso desloca o
+desenho 2D **e** o que vai pro `GEO`, então todo o 3D extrudado do GEO (paredes, vãos,
+móveis, folhas de porta) acompanha automaticamente.
+
+**Cuidados ao mexer:**
+- Helpers que chamam outro helper internamente **cancelam** o `OE` p/ não duplicar:
+  `doorArc` chama `circ(hn, he - OE, …)`; `win` chama `rect(n, e - OE, …)`. O `cut`
+  (closure) empurra o GEO com `e + OE` para casar o recorte 3D com a parede deslocada.
+- **Geometria 3D manual** (`box3d`: embasamento, baldrame, pisos, degraus, laje/roof,
+  garagem) **não passa pelo GEO** → soma `OE` explicitamente (constantes `EE0/EE1`,
+  `GE0/GE1`, `e0/e1`, `be0`, `ESC_E_*`, `HE1`, e nos slabs/pisos literais).
+- **Cotas** (`dimLine` 2D / `_dimLine3D` 3D): pontos sobre a parede usam o `mE`
+  deslocado e o **rótulo muda** (frente 21,5→**21 m**, fundo 10→**10,5 m**; garagem
+  frente 12,5→**12 m**). Pontos na borda do lote (0, 40) e as cotas-totais (40 m, 12,5 m)
+  **não mudam**.
+- **Para reverter ou ajustar o deslocamento, basta mudar `OE`** — não reescrever cotas.
+
 ---
 
 ## Funções helper do mapa 2D
@@ -341,9 +368,14 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 - **Frente:** mE=0 (oeste/rua)
 
 ### Casa — posição no lote
-- **mN 2,0 → 7,5** × **mE 22 → 30** (5,5 m × 8 m = 44 m²)
-- Recuo sul: 2,0 m | Recuo norte: 5,0 m | Recuo frente: 22 m | Recuo fundo: 10 m
+- **Posição real no lote:** mN 2,0 → 7,5 × **mE 21,0 → 29,5** (deslocada 0,5 m p/ oeste via `OE`).
+- Recuo sul: 2,0 m | Recuo norte: 5,0 m | **Recuo frente: 21 m | Recuo fundo: 10,5 m**
 - Parede norte estendida de 7,0 → 7,5 (0,5 m do jardim norte → +2,5 m² sala, +1,5 m² cozinha)
+
+> **Importante — coordenadas das tabelas abaixo:** os valores de `mE` nas tabelas de
+> cômodos/mobiliário/portas/janelas são as **coordenadas do código** (pré-`OE`, ex. casa
+> mE 21,5→30). A **posição renderizada subtrai 0,5 m** (`OE = -0.5`), aplicado nos helpers.
+> Ver a seção **"Deslocamento da casa — constante `OE`"**.
 
 ### Cômodos
 
