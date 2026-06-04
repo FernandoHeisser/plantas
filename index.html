@@ -1097,11 +1097,11 @@
             lys.push(rect(5.80, 26.80, 1.60, 0.45, '#9a7b46', { color: '#5a4422', weight: 0.7, no3d: true }));
             // Driver 3D do L (invisível no 2D): assento 0,45 + encosto até 0,85
             lys.push(rect(5.80, 25.55, 1.60, 1.70, 'transparent', { color: 'transparent', weight: 0, fillOpacity: 0, h3d: 0.85, m3d: 'benchcorner' }));
-            // Mesa do canto — encaixada no L
-            lys.push(rect(5.95, 25.85, 0.90, 1.05, '#92400e', { color: '#451a03', weight: 0.8, m3d: 'table' }));
-            // 2 cadeiras soltas no lado sul aberto (voltadas p/ a mesa/janela)
-            lys.push(circ(5.75, 26.05, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' }));
-            lys.push(circ(5.75, 26.70, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' }));
+            // Mesa do canto — encaixada no L, recuada 0,20 m p/ O p/ não sobrepor o banco leste (face O em mE=26,80)
+            lys.push(rect(5.95, 25.65, 0.90, 1.05, '#92400e', { color: '#451a03', weight: 0.8, m3d: 'table' }));
+            // 2 cadeiras soltas no lado sul aberto (voltadas p/ a mesa/janela) — acompanham a mesa
+            lys.push(circ(5.75, 25.85, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' }));
+            lys.push(circ(5.75, 26.50, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' }));
 
             // Hall de entrada (canto SO) — tapete + sapateira + estante divisória vazada
             lys.push(rect(2.80, 22.95, 1.00, 0.95, '#fde68a',

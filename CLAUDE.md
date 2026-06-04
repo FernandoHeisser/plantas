@@ -428,8 +428,8 @@ Substitui a antiga mesa central da cozinha. Banco em **L** abre p/ SO; fica ao N
 - Banco norte: mN 6,95→7,40, mE 25,55→27,25 — encosto na parede norte, assento p/ S (2D `rect{no3d}`)
 - Banco leste: mN 5,80→7,40, mE 26,80→27,25 — encosto na face O da península, assento p/ O (2D `rect{no3d}`)
 - Driver 3D do L (`benchcorner`, rect transparente): bbox mN 5,80→7,40, mE 25,55→27,25, h=0,85
-- Mesa (`table`): mN 5,95→6,85, mE 25,85→26,90
-- 2 cadeiras (`chair`): lado sul aberto — (mN 5,75; mE 26,05) e (mN 5,75; mE 26,70)
+- Mesa (`table`): mN 5,95→6,85, mE 25,65→26,70 — recuada 0,20 m p/ O p/ folgar do banco leste (face O mE=26,80)
+- 2 cadeiras (`chair`): lado sul aberto — (mN 5,75; mE 25,85) e (mN 5,75; mE 26,50)
 
 ### Mobiliário — Área de Serviço (externa, leste)
 - Laje coberta (`rug`): mN 3,50→5,70, mE 30,10→31,50, h=0,06 m (tapete plano)
