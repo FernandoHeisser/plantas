@@ -883,9 +883,9 @@
                 { color: '#f59e0b', weight: 2.5, fillColor: LOT_FILL, fillOpacity: 0.82, interactive: false }
             ));
 
-            // Casa MVP — chão papel: mN 2.0→7.5 × mE 22→30 (corredor sul = 2m, norte = 5,0m)
+            // Casa MVP — chão papel: mN 2.0→7.5 × mE 21.5→30 (corredor sul = 2m, norte = 5,0m)
             lys.push(L.polygon(
-                [rot(2.0,22), rot(7.5,22), rot(7.5,30), rot(2.0,30)],
+                [rot(2.0,21.5), rot(7.5,21.5), rot(7.5,30), rot(2.0,30)],
                 { color: 'transparent', weight: 0, fillColor: '#fafafa', fillOpacity: 1, interactive: false }
             ));
 
@@ -904,9 +904,9 @@
 
             // Frente: V1 → casa (22 m); V2/V3 → frente da garagem (15 m)
             if (v === 'v1') {
-                dimLine(4.5, 0, 4.5, 22, '22 m — frente').forEach(l => lys.push(l));
+                dimLine(4.5, 0, 4.5, 21.5, '21,5 m — frente').forEach(l => lys.push(l));
             } else {
-                dimLine(4.5, 0, 4.5, 13, '13 m — frente').forEach(l => lys.push(l));
+                dimLine(4.5, 0, 4.5, 12.5, '12,5 m — frente').forEach(l => lys.push(l));
             }
 
             // Fundo: parede traseira → limite do fundo  (10 m)
@@ -929,9 +929,9 @@
             const EW = 0.20, IW = 0.10, FL = '#fafafa';
 
             // Paredes externas (centradas em mN=1.5/6.5, mE=22/30)
-            lys.push(wall(2.0, 22,  2.0, 30, EW)); // sul
-            lys.push(wall(7.5, 22,  7.5, 30, EW)); // norte
-            lys.push(wall(2.0, 22,  7.5, 22, EW)); // oeste (frente)
+            lys.push(wall(2.0, 21.5,  2.0, 30, EW)); // sul
+            lys.push(wall(7.5, 21.5,  7.5, 30, EW)); // norte
+            lys.push(wall(2.0, 21.5,  7.5, 21.5, EW)); // oeste (frente)
             lys.push(wall(2.0, 30,  7.5, 30, EW)); // leste (fundos)
 
             // Paredes internas — banheiro + quarto
@@ -946,11 +946,11 @@
                 if (GEO) GEO.push({ k: 'opening', type: type || 'door', n, e, dn, de, sill: 0, head: 2.1 });
                 lys.push(rect(n, e, dn, de, FL, { color: 'transparent', weight: 0, no3d: true }));
             };
-            cut(2.30, 21.85, 0.9, 0.30); // Principal (parede oeste) — alinhada com a escada da garagem
+            cut(2.30, 21.35, 0.9, 0.30); // Principal (parede oeste) — alinhada com a escada da garagem
             // Degraus externos — só V1 (no V2/V3 a garagem cobre essa área)
             if (v === 'v1') {
-                lys.push(rect(2.15, 21.40, 1.20, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));
-                lys.push(rect(2.15, 21.70, 1.20, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
+                lys.push(rect(2.15, 20.90, 1.20, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));
+                lys.push(rect(2.15, 21.20, 1.20, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
             }
             cut(2.90, 25.40, 0.8, 0.20); // Banheiro (interna) — parede oeste mE=25,5
             cut(7.35, 22.70, 0.30, 2.00, 'glassdoor'); // Porta grande de vidro (lado da sala) — abre p/ o jardim norte, estilo japonês
@@ -966,7 +966,7 @@
             win(7.40, 27.80, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l));
 
             // Portas — folha + arco de abertura + pivô
-            doorArc(2.30, 22.00,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
+            doorArc(2.30, 21.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
             doorArc(2.90, 25.50,  0.8,  0.0, -1).forEach(l => lys.push(l)); // Banheiro → folha aberta protege o box (privacidade) e olha p/ a pia
             doorArc(7.50, 22.70,  0.0,  1.0, +1, { glass: true }).forEach(l => lys.push(l)); // Folha esq (1,0m) — vidro aberta
             doorArc(7.50, 24.70,  0.0, -1.0, -1, { glass: true }).forEach(l => lys.push(l)); // Folha dir (1,0m) — vidro aberta
@@ -1068,8 +1068,8 @@
             lys.push(rect(5.35, 23.40, 1.00, 0.55, '#92400e', { color: '#451a03', weight: 0.7, m3d: 'coffee' }));
 
             // TV e rack — parede oeste
-            lys.push(rect(5.15, 22.15, 1.40, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
-            lys.push(rect(5.30, 22.10, 1.10, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
+            lys.push(rect(5.15, 21.65, 1.40, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
+            lys.push(rect(5.30, 21.60, 1.10, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
 
             // ─── CANTO ALEMÃO (refeição) — L encostado na parede NORTE ───────
             // Encosto na parede norte (sob a janela 1,8m) + face oeste da península.
@@ -1109,7 +1109,7 @@
         // ── V2: garagem (laje aberta — fundação + colunas + laje, sem paredes) ──
         if (v === 'v2' || v === 'v3') {
             const GN0 = 2.0,  GN1 = 10.5;  // 8,5 m de largura (2 m de cada muro lateral)
-            const GE0 = 13,   GE1 = 22;   // 9 m de profundidade
+            const GE0 = 12.5, GE1 = 21.5; // 9 m de profundidade
             const COL = 0.20;             // seção das colunas (20 × 20 cm)
 
             // Contorno da laje — tracejado (estrutura aberta, sem vedação)
@@ -1125,10 +1125,10 @@
             lys.push(wall(7.5, GE1, GN1, GE1, 0.20, { no3d: true }));  // leste superior (mN 7,5→10,5)
 
             // Colunas nas extremidades da viga E-O de suporte (mN 3,4)
-            [GE0, 21.70].forEach(e =>
+            [GE0, 21.20].forEach(e =>
                 lys.push(rect(3.40, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
             // Viga E-O aérea (mN 3,4) ao norte da escada — encosta sem sobreposição
-            lys.push(L.polyline([rot(3.40, GE0), rot(3.40, 21.9)],
+            lys.push(L.polyline([rot(3.40, GE0), rot(3.40, 21.4)],
                 { color: '#94a3b8', weight: 2, dashArray: '8 5', interactive: false }));
 
             // Colunas 3×3 — vão N-S centralizado na zona de vagas (mN 3,40→10,30)
@@ -1139,12 +1139,12 @@
                     lys.push(rect(n, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
             });
 
-            lys.push(roomLabel(6.25, 17.5, 'Garagem', '8,5 × 9 m', '76,5 m²'));
+            lys.push(roomLabel(6.25, 17.0, 'Garagem', '8,5 × 9 m', '76,5 m²'));
 
             // Escada p/ 2º pavimento — base junto à porta (leste, mE 21), sobe LONGA p/ oeste
             const ESC_N0 = 2.20, ESC_DN = 1.20, NST = 18, ESC_COL = 0.20;
-            const ESC_E_base = 20.40, ESC_E_top = 15.40;  // base leste → topo oeste (1,5 m da parede)
-            const ESC_HE1 = 19.30;                         // limite leste do vão na laje (≥19.29 p/ 2,10 m livre no deg.5)
+            const ESC_E_base = 19.90, ESC_E_top = 14.90;  // base leste → topo oeste (1,5 m da parede)
+            const ESC_HE1 = 18.80;                         // limite leste do vão na laje (≥19.29 p/ 2,10 m livre no deg.5)
             const STRD = (ESC_E_base - ESC_E_top) / NST;
             lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_E_base - ESC_E_top, '#ebebf0',
                 { color: '#475569', weight: 1.2, no3d: true }));
@@ -1598,7 +1598,7 @@
         // ── Embasamento: base de concreto (CPA=40cm) com projeção de 3cm além das paredes ──
         const EM_P = 0.03;
         const EN0 = 2 - 0.20 - EM_P, EN1 = 7.5 + 0.20 + EM_P;
-        const EE0 = 22 - 0.20 - EM_P, EE1 = 30 + 0.20 + EM_P;
+        const EE0 = 21.5 - 0.20 - EM_P, EE1 = 30 + 0.20 + EM_P;
         const emSides = [
             [EN0,            EE0, 0.20 + EM_P, EE1 - EE0],   // sul
             [EN1 - 0.20 - EM_P, EE0, 0.20 + EM_P, EE1 - EE0],   // norte
@@ -1616,14 +1616,14 @@
         });
 
         // Piso da casa elevado à CPA (1cm aquém das faces interiores das paredes)
-        g.add(box3d(2.11, 22.11, 5.28, 7.78, CPA - 0.025, CPA, matFloor));
+        g.add(box3d(2.11, 21.61, 5.28, 8.28, CPA - 0.025, CPA, matFloor));
         // Piso da área de serviço — nível CPA/2 (mesma altura da garagem)
         const AS_H = CPA / 2;
         g.add(box3d(3.50, 30.10, 2.20, 1.40, AS_H - 0.025, AS_H, matFloor));
         // Degraus porta principal — só V1 (V2/V3 a garagem cobre essa área)
         if (v === 'v1') {
-            g.add(box3d(2.15, 21.40, 1.20, 0.30, -0.05, 0.20, matEmbase)); // degrau 1
-            g.add(box3d(2.15, 21.70, 1.20, 0.30, -0.05, 0.40, matEmbase)); // degrau 2 / patim
+            g.add(box3d(2.15, 20.90, 1.20, 0.30, -0.05, 0.20, matEmbase)); // degrau 1
+            g.add(box3d(2.15, 21.20, 1.20, 0.30, -0.05, 0.40, matEmbase)); // degrau 2 / patim
         }
 
         // Porta grande de vidro (norte, mN=7,5, lado da sala) — 2 × 20 cm, 2,0 m de largura
@@ -1807,7 +1807,7 @@
         const roof = new THREE.Group();
         roof.name = 'roof';
         roof.visible = false;
-        const n0 = 2 - 0.12, n1 = 7.5 + 0.12, e0 = 22 - 0.12, e1 = 30 + 0.12;   // laje com beiral
+        const n0 = 2 - 0.12, n1 = 7.5 + 0.12, e0 = 21.5 - 0.12, e1 = 30 + 0.12;   // laje com beiral
         roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat));
         const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12;         // platibanda
         roof.add(box3d(n0, e0, tt, e1 - e0, pb, pbTop, lajeMat));             // sul
@@ -1818,7 +1818,7 @@
 
         // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
         if (v === 'v2' || v === 'v3') {
-            const GN0 = 2.0, GN1 = 10.5, GE0 = 13, GE1 = 22;
+            const GN0 = 2.0, GN1 = 10.5, GE0 = 12.5, GE1 = 21.5;
             const COL = 0.20;
             const GNM  = (3.40 + (GN1 - COL)) / 2 - COL / 2;  // = 6,75 — centra no vão de vagas
             const GEM  = (GE0 + GE1) / 2 - COL / 2;   // meio E-O ≈ mE 17,4
@@ -1858,14 +1858,14 @@
             // 18 degraus (espelho ~0,17 m, piso ~0,28 m) → rampa suave; run de 5,0 m até mE 16.
             // Sobe livre: a viga central que cruzava foi removida no trecho sul.
             const ESC_N0 = 2.20, ESC_DN = 1.20, NST = 18;  // 2.20 = face norte da viga sul (GN0+VW)
-            const ESC_E_base = 20.40, ESC_E_top = 15.40;     // base leste → topo oeste (1,5 m da parede)
+            const ESC_E_base = 19.90, ESC_E_top = 14.90;     // base leste → topo oeste (1,5 m da parede)
             const STREAD = (ESC_E_base - ESC_E_top) / NST;   // ~0,278 m
             const SRISE  = (GLAJE + 0.16 - GCPA) / NST;      // ~0,170 m
             const matStair = new THREE.MeshStandardMaterial({ color: 0xd4d0c8, roughness: 0.85, metalness: 0, envMapIntensity: 0.2 });
             for (let i = 1; i <= NST; i++)
                 g.add(box3d(ESC_N0, ESC_E_base - i*STREAD, ESC_DN, STREAD, GCPA, GCPA + i*SRISE, matStair));
             // Vão (stairwell) na laje — sobre o trecho alto (oeste), onde a cabeça passaria
-            const HN0 = ESC_N0, HN1 = ESC_N0 + ESC_DN, HE0 = ESC_E_top, HE1 = 19.30;
+            const HN0 = ESC_N0, HN1 = ESC_N0 + ESC_DN, HE0 = ESC_E_top, HE1 = 18.80;
 
             // Laje + platibanda da garagem — grupo roof (mesmo toggle da casa)
             const gn0 = GN0 - 0.12, gn1 = GN1 + 0.12, ge0 = GE0 - 0.12; // beiral 12 cm
@@ -1966,7 +1966,7 @@
 
     function buildDims3D(g) {
         // Afastamentos — branco (mesmas cotas do 2D)
-        _dimLine3D(g,  4.5,  0,    4.5,  22,    '22 m — frente');
+        _dimLine3D(g,  4.5,  0,    4.5,  21.5,  '21,5 m — frente');
         _dimLine3D(g,  4.5,  30,   4.5,  40,    '10 m — fundo');
         _dimLine3D(g,  0,    26,   2.0,  26,    '2 m — sul');
         _dimLine3D(g,  7.5,  26,   12.5, 26,    '5,0 m — norte');
