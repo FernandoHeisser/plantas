@@ -980,14 +980,14 @@
             cut(4.40, 27.05, 0.20, 0.9); // Á. serviço (interna) — pela cozinha (recentrada no cômodo maior)
 
             // Janelas
-            win(1.90, 25.70, 0.20, 0.80, 'N').forEach(l => lys.push(l)); // Banheiro — parede sul
-            win(1.90, 26.75, 0.20, 0.60, 'N').forEach(l => lys.push(l)); // Á. serviço — parede sul (ventila a umidade, sobre o tanque)
-            win(2.80, 31.40, 1.00, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — parede leste (mE=31,5) — sol da manhã
-            win(1.90, 30.15, 0.20, 0.90, 'N').forEach(l => lys.push(l)); // Quarto — parede sul — ventilação cruzada com a leste
-            win(1.90, 22.80, 0.20, 1.00, 'N').forEach(l => lys.push(l)); // Sala — parede sul
-            win(7.40, 25.00, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — parede norte (1,8m, deslocada 0,4m oeste p/ não sobrepor parede degrau)
-            // Cozinha — janela-fita larga e central (peitoril 0,90 / verga 1,50), passa atrás do cooktop (coifa monta acima da fita); canto da geladeira fica p/ armário
-            win(7.90, 28.30, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l));
+            win(1.90, 25.10, 0.20, 0.80, 'N').forEach(l => lys.push(l)); // Banheiro — sul, centrada no cômodo (mE 24,5→26,5)
+            win(1.90, 27.10, 0.20, 0.80, 'N').forEach(l => lys.push(l)); // Á. serviço — sul, centrada (mE 26,5→28,5); ventila a umidade
+            win(2.65, 31.40, 1.20, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — leste, centrada (mN 2→4,5) — sol da manhã
+            win(1.90, 29.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 28,5→31,5) — ventilação cruzada com a leste
+            win(1.90, 22.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall (mE 21,5→24,5)
+            win(7.40, 25.20, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, centrada no vão entre a porta de vidro e o degrau (sobre o canto alemão)
+            // Cozinha — janela-fita (peitoril 0,90 / verga 1,50), passa atrás do cooktop; centrada na cozinha (mE 27,5→30,5)
+            win(7.90, 28.20, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l));
 
             // Portas — folha + arco de abertura + pivô
             doorArc(2.30, 21.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
