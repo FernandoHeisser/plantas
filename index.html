@@ -963,7 +963,7 @@
             win(1.90, 25.70, 0.20, 0.80, 'N').forEach(l => lys.push(l)); // Banheiro — parede sul
             win(2.80, 29.90, 1.00, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — parede leste
             win(1.90, 22.80, 0.20, 1.00, 'N').forEach(l => lys.push(l)); // Sala — parede sul
-            win(7.40, 25.40, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala/cozinha — parede norte (janela 1,8m, onde era a porta)
+            win(7.40, 25.00, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — parede norte (1,8m, deslocada 0,4m oeste p/ não sobrepor parede degrau)
             // Cozinha — janela-fita larga e central (peitoril 0,90 / verga 1,50), passa atrás do cooktop (coifa monta acima da fita); canto da geladeira fica p/ armário
             win(7.90, 27.80, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l));
 
@@ -1015,7 +1015,7 @@
             lys.push(rect(7.35, 27.25, 0.55, 2.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
             // Península oeste (braço do U) — mN 5,80→6,85, mE 27,25→28,00 (prof. 0,75 — bancada de preparo robusta)
             // Deixa mN 4,5→5,80 (1,3m) livre p/ a passagem sala→cozinha. Face oeste = encosto do canto alemão.
-            lys.push(rect(5.80, 27.25, 1.05, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            lys.push(rect(5.80, 27.25, 1.55, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' })); // estendida até mN=7,35 p/ fechar gap com bancada norte
             // Lado leste do U = geladeira (contígua à ponta da bancada norte) — sem braço extra p/ folgar a porta dos fundos
             // Geladeira — parede leste (mE=30), frente alinhada à bancada
             lys.push(rect(6.20, 29.45, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
@@ -1041,8 +1041,8 @@
             lys.push(rect(7.57, 28.75, 0.33, 0.65, '#e5e7eb',
                 { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // sobre a janela
             // Coluna de armários da geladeira — DE COSTAS P/ A PAREDE LESTE (mE=30), frente p/ oeste
-            lys.push(rect(7.35, 29.45, 0.55, 0.55, '#e5e7eb',
-                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcabW' })); // aéreo de canto sobre a bancada
+            lys.push(rect(6.85, 29.45, 1.05, 0.55, '#e5e7eb',
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcabW' })); // aéreo coluna mN 6,85→7,90 (preenche gap + canto)
             lys.push(rect(6.20, 29.45, 0.65, 0.55, '#e5e7eb',
                 { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.70, h3d: 0.60, m3d: 'wallcabW' })); // sobre a geladeira
             // ─── ÁREA DE SERVIÇO COBERTA ─────────────────────────────────────
@@ -1617,12 +1617,12 @@
             g.add(m);
         });
 
-        // Embasamento do bump-out cozinha (mN 7,5→8,0; mE 27→30) — 2 lados novos
-        // Sul e leste já cobertos pelo embasamento principal (EN1 e EE1)
+        // Embasamento do bump-out cozinha (mN 7,5→8,0; mE 27→30) — 3 lados novos
         const BEM_W = [7.5 - EM_P, 27 - 0.20 - EM_P, 0.5 + 0.20 + 2*EM_P, 0.20 + 2*EM_P]; // degrau mE=27
         const BEM_N = [8.0 - EM_P, 27 - 0.20 - EM_P, 0.20 + 2*EM_P, EE1 - (27 - 0.20 - EM_P)]; // norte mN=8,0
-        [BEM_W, BEM_N].forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, -0.05, CPA, matEmbase)));
-        [BEM_W, BEM_N].forEach(([n, e, dn, de]) => {
+        const BEM_E = [7.5 - EM_P, EE1 - 0.20 - EM_P, 0.5 + 0.20 + 2*EM_P, 0.20 + 2*EM_P]; // leste mE=30 (gap mN 7,73→8,23)
+        [BEM_W, BEM_N, BEM_E].forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, -0.05, CPA, matEmbase)));
+        [BEM_W, BEM_N, BEM_E].forEach(([n, e, dn, de]) => {
             const m = box3d(n-0.005, e-0.005, dn+0.01, de+0.01, CPA-WP_H, CPA+0.004, matWP);
             m.castShadow = false; g.add(m);
         });
