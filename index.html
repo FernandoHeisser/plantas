@@ -1017,6 +1017,8 @@
             // Deixa mN 4,5→5,80 (1,3m) livre p/ a passagem sala→cozinha. Face oeste = encosto do canto alemão.
             lys.push(rect(5.80, 27.25, 1.55, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' })); // estendida até mN=7,35 p/ fechar gap com bancada norte
             // Lado leste do U = geladeira (contígua à ponta da bancada norte) — sem braço extra p/ folgar a porta dos fundos
+            // Armário baixo entre geladeira e bancada norte (mN 6,85→7,35) — fecha o U no chão
+            lys.push(rect(6.85, 29.45, 0.50, 0.55, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
             // Geladeira — parede leste (mE=30), frente alinhada à bancada
             lys.push(rect(6.20, 29.45, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
             lys.push(L.polyline([rot(6.52, 29.52), rot(6.52, 29.85)],
