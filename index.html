@@ -1014,13 +1014,13 @@
             lys.push(rect(4.14, 27.50, 0.26, 0.55, '#ffffff', { color: '#94a3b8', weight: 0.5, no3d: true })); // travesseiro 1
             lys.push(rect(4.14, 28.15, 0.26, 0.55, '#ffffff', { color: '#94a3b8', weight: 0.5, no3d: true })); // travesseiro 2
             // Linha do edredom (vinco ~0,65m abaixo da cabeceira)
-            lys.push(L.polyline([rot(3.75, 27.45), rot(3.75, 28.75)],
+            lys.push(L.polyline([rot(3.75, 27.45+OE), rot(3.75, 28.75+OE)],
                 { color: '#92400e', weight: 0.6, dashArray: '3 2', interactive: false }));
             // Guarda-roupa — canto SUDESTE
             lys.push(rect(2.10, 29.25, 0.55, 0.55, '#a16207', { color: '#451a03', weight: 0.8, h3d: 2.00, m3d: 'wardrobe' }));
-            lys.push(L.polyline([rot(2.10, 29.525), rot(2.65, 29.525)],
+            lys.push(L.polyline([rot(2.10, 29.525+OE), rot(2.65, 29.525+OE)],
                 { color: '#451a03', weight: 0.5, interactive: false }));
-            lys.push(L.polyline([rot(2.375, 29.25), rot(2.375, 29.80)],
+            lys.push(L.polyline([rot(2.375, 29.25+OE), rot(2.375, 29.80+OE)],
                 { color: '#451a03', weight: 0.5, interactive: false }));
 
             // ─── COZINHA (zona NE) ───────────────────────────────────────────
@@ -1034,7 +1034,7 @@
             lys.push(rect(6.85, 29.45, 0.50, 0.55, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
             // Geladeira — parede leste (mE=30), frente alinhada à bancada
             lys.push(rect(6.20, 29.45, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
-            lys.push(L.polyline([rot(6.52, 29.52), rot(6.52, 29.85)],
+            lys.push(L.polyline([rot(6.52, 29.52+OE), rot(6.52, 29.85+OE)],
                 { color: '#334155', weight: 0.6, interactive: false }));
             // Fogão — 4 bocas — central na bancada norte (acessível pelo poço), respaldo sólido + coifa
             lys.push(rect(7.35, 28.10, 0.55, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 0.90, m3d: 'stove' }));
@@ -1077,9 +1077,9 @@
             lys.push(rect(4.975, 23.70, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // base + encosto (faixa E) — recuado 0,25m p/ O
             lys.push(rect(5.075, 23.70, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento (frente oeste)
             // Divisões das 3 almofadas
-            lys.push(L.polyline([rot(5.592, 23.70), rot(5.592, 24.35)],
+            lys.push(L.polyline([rot(5.592, 23.70+OE), rot(5.592, 24.35+OE)],
                 { color: '#451a03', weight: 0.6, interactive: false }));
-            lys.push(L.polyline([rot(6.108, 23.70), rot(6.108, 24.35)],
+            lys.push(L.polyline([rot(6.108, 23.70+OE), rot(6.108, 24.35+OE)],
                 { color: '#451a03', weight: 0.6, interactive: false }));
             // Mesa de centro (acompanha o sofá, recuada 0,25m p/ O)
             lys.push(rect(5.35, 22.90, 1.00, 0.55, '#92400e', { color: '#451a03', weight: 0.7, m3d: 'coffee' }));
