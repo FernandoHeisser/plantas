@@ -1017,8 +1017,11 @@
     const LOT_FILL   = '#5f7a3f';   // verde grama (string para Leaflet)
     const LOT_FILL_N = 0x5f7a3f;   // numérico para Three.js
 
-    // Coordenadas alinhadas ao satélite (meio da testada) e rotação do lote
-    const LOT_LAT   = -29.96296858;
+    // Coordenadas alinhadas ao satélite (meio da testada) e rotação do lote.
+    // Terreno SUL (escolhido após visita): deslocado 12,5 m ao sul do lote norte
+    // original (−29.96296858). Os dois lotes têm a mesma largura de testada (12,5 m)
+    // e ficam lado a lado, então mover = subtrair 12,5 m em latitude da âncora.
+    const LOT_LAT   = -29.96308087;   // antes: −29.96296858 (lote norte)
     const LOT_LNG   = -51.63740784;
     const LOT_ANGLE = -3;           // graus — lote levemente girado anti-horário
 

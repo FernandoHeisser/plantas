@@ -93,7 +93,7 @@ Config em `.claude/launch.json`.
 ## Sistema de coordenadas do lote
 
 ```
-LOT_LAT  = -29.96296858   (ponto SW do lote)
+LOT_LAT  = -29.96308087   (ponto SW do lote — TERRENO SUL; antes -29.96296858 = lote norte)
 LOT_LNG  = -51.63740784
 LOT_ANGLE = -3            (graus — lote ligeiramente inclinado)
 
