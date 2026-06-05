@@ -1568,6 +1568,15 @@
 
             lys.push(roomLabel(6.25, 18.0, 'Garagem', '8,5 × 9 m', '76,5 m²'));
 
+            // Plataforma externa (pátio) na porta de vidro norte — mN 7,55→10,55, mE 22,5→25,5
+            lys.push(rect(7.55, 22.5, 3.0, 3.0, '#e2e8f0',
+                { color: '#64748b', weight: 1.2, no3d: true }));
+            // Degraus norte da plataforma (4 degraus descendo p/ o jardim)
+            for (let i = 1; i <= 4; i++)
+                lys.push(L.polyline(
+                    [rot(10.55 + i*0.317, 22.5 + OE), rot(10.55 + i*0.317, 25.5 + OE)],
+                    { color: '#94a3b8', weight: 1.0, interactive: false }));
+
             // Escada p/ 2º pavimento — base junto à porta (leste, mE 21), sobe LONGA p/ oeste
             const ESC_N0 = 2.20, ESC_DN = 1.20, NST = 18, ESC_COL = 0.20;
             const ESC_E_base = 20.90, ESC_E_top = 15.90;  // base leste → topo oeste (1,5 m da parede)
