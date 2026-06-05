@@ -765,7 +765,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Área construída</span>
-            <span class="med-sum-value">49,5 m²</span>
+            <span class="med-sum-value">~44 m²</span>
             <span class="med-sum-sub">térreo V1</span>
           </div>
           <div class="med-sum-item">
@@ -775,7 +775,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo frente</span>
-            <span class="med-sum-value">21,0 m</span>
+            <span class="med-sum-value">22,0 m</span>
             <span class="med-sum-sub">da rua (oeste)</span>
           </div>
           <div class="med-sum-item">
@@ -785,7 +785,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo norte</span>
-            <span class="med-sum-value">4,5 m</span>
+            <span class="med-sum-value">5,0 m</span>
             <span class="med-sum-sub">limite norte</span>
           </div>
           <div class="med-sum-item">
@@ -808,22 +808,22 @@
 
           <div class="med-room-card col-amber">
             <div class="med-room-name">Sala</div>
-            <div class="med-room-dims">6,0 × 5,5 m</div>
-            <div class="med-room-area">~17,5 m²</div>
+            <div class="med-room-dims">5,0 × 5,5 m</div>
+            <div class="med-room-area">~14,5 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Sul<br>Porta de vidro ao norte</div>
           </div>
 
           <div class="med-room-card col-blue">
             <div class="med-room-name">Banheiro</div>
-            <div class="med-room-dims">2,0 × 2,5 m</div>
-            <div class="med-room-area">5,0 m²</div>
+            <div class="med-room-dims">1,5 × 2,5 m</div>
+            <div class="med-room-area">3,75 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Box 1,0×1,0 m</div>
           </div>
 
           <div class="med-room-card col-teal">
             <div class="med-room-name">Área de Serviço</div>
-            <div class="med-room-dims">2,0 × 2,5 m</div>
-            <div class="med-room-area">5,0 m²</div>
+            <div class="med-room-dims">1,5 × 2,5 m</div>
+            <div class="med-room-area">3,75 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Tanque + máquina + despensa</div>
           </div>
 
@@ -1309,7 +1309,7 @@
             // a parede frontal está em mE=21,0 e a traseira em mE=29,5.
             // Laterais correm ao longo de mE=25,5 (centro E-O da casa, mE 21–29,5).
 
-            // Frente: V1 → casa (21 m); V2/V3 → frente da garagem (12 m)
+            // Frente: V1 → casa (22 m); V2/V3 → frente da garagem (12 m)
             if (v === 'v1') {
                 dimLine(4.5, 0, 4.5, 22.0, '22 m — frente').forEach(l => lys.push(l));
             } else {
@@ -2541,7 +2541,7 @@
 
     function buildDims3D(g) {
         // Afastamentos — branco (mesmas cotas do 2D)
-        _dimLine3D(g,  4.5,  0,    4.5,  21.0,  '21 m — frente');
+        _dimLine3D(g,  4.5,  0,    4.5,  22.0,  '22 m — frente');
         _dimLine3D(g,  4.5,  29.5, 4.5,  40,    '10,5 m — fundo');
         _dimLine3D(g,  0,    25.5, 2.0,  25.5,  '2 m — sul');
         _dimLine3D(g,  7.5,  25.5, 12.5, 25.5,  '5,0 m — norte');
