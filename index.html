@@ -1368,7 +1368,7 @@
             }
             cut(2.90, 25.40, 0.8, 0.20); // Banheiro (interna) — parede oeste mE=25,5
             cut(7.35, 23.00, 0.30, 2.00, 'glassdoor'); // Porta grande de vidro (lado da sala) — deslocada 0,3m p/ leste p/ equilíbrio
-            cut(5.10, 30.40, 0.90, 0.20); // Fundos (leste) — ao sul da geladeira (mN 5,10→6,00)
+            cut(4.50, 30.40, 0.90, 0.20); // Fundos (leste) — encostado na parede sul (mN 4,50→5,40)
             cut(4.40, 28.90, 0.20, 0.9); // Quarto (interna) — pela cozinha
             cut(4.40, 27.30, 0.20, 0.9); // Á. serviço (interna) — pela cozinha (recentrada no cômodo 1,5 m)
 
@@ -1391,9 +1391,9 @@
             lys.push(rect(7.60, 23.00, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim porta vidro
             lys.push(rect(7.90, 23.00, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau porta vidro
             // Degraus externos fundos (leste) — 5 degraus Caixa: espelho 0,165m / piso 0,30m / Blondel 0,63 ✓
-            lys.push(rect(5.10, 30.70, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
-            lys.push(rect(5.10, 31.00, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
-            doorArc(6.00, 30.50, -0.90, 0.0, -1).forEach(l => lys.push(l)); // Fundos → abre p/ oeste (cozinha), hinge norte (junto à geladeira)
+            lys.push(rect(4.50, 30.70, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
+            lys.push(rect(4.50, 31.00, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
+            doorArc(5.40, 30.50, -0.90, 0.0, -1).forEach(l => lys.push(l)); // Fundos → abre p/ oeste (cozinha), hinge em mN=5,40 — escada encostada na parede sul
             doorArc(4.50, 29.80,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → abre para sul (dentro), hinge leste
             doorArc(4.50, 28.20,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Á. serviço → abre para sul (dentro), hinge leste
 
@@ -2189,7 +2189,7 @@
         // Porta de vidro (norte, lado da sala) — desce p/ o jardim norte, 2,0 m de largura
         extStairs(7.55, 23.00 + OE, 2.00, 'N');
         // Porta dos fundos (leste) — 5 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
-        extStairs(5.10, 30.6 + OE, 0.90, 'E');
+        extStairs(4.50, 30.6 + OE, 0.90, 'E');
 
         // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
         // fundos em y≈−0,98 (grade(mE) + 2 cm)
