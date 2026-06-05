@@ -1021,7 +1021,7 @@
     // Terreno SUL (escolhido após visita): deslocado 12,5 m ao sul do lote norte
     // original (−29.96296858). Os dois lotes têm a mesma largura de testada (12,5 m)
     // e ficam lado a lado, então mover = subtrair 12,5 m em latitude da âncora.
-    const LOT_LAT   = -29.96308087;   // antes: −29.96296858 (lote norte)
+    const LOT_LAT   = -29.96307189;   // terreno sul, +1 m ao norte p/ não invadir o vizinho sul (era −29.96308087)
     const LOT_LNG   = -51.63740784;
     const LOT_ANGLE = -1.95;        // graus — alinha a divisa SUL ao muro do vizinho sul
                                     // (medido no satélite por 2 pontos sobre o muro: ângulo −1,95°)
