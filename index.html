@@ -2138,14 +2138,18 @@
             const p  = Math.min(0.32, Math.max(0.28, 0.63 - 2*e)); // piso p/ Blondel ≈ 0,63
             for (let i = 1; i <= NS; i++) {
                 const top = base + i * e;                        // i=NS → topo na CPA (patamar = piso)
-                if (dir === 'W') g.add(box3d(topN, faceE - (NS - i + 1) * p, w, p, base, top, matEmbase));
-                else             g.add(box3d(topN + (NS - i) * p, faceE, p, w, base, top, matEmbase));
+                if      (dir === 'W') g.add(box3d(topN, faceE - (NS - i + 1) * p, w, p, base, top, matEmbase));
+                else if (dir === 'E') g.add(box3d(topN, faceE + (NS - i) * p,     w, p, base, top, matEmbase));
+                else                  g.add(box3d(topN + (NS - i) * p, faceE,     p, w, base, top, matEmbase)); // 'N'
             }
         };
         // Porta principal (oeste) — só V1 (no V2/V3 a garagem ocupa a frente; acesso pela garagem)
         if (v === 'v1') extStairs(2.15, EE0, 1.20, 'W');
         // Porta de vidro (norte, lado da sala) — desce p/ o jardim norte, 2,0 m de largura
         extStairs(7.55, 22.70 + OE, 2.00, 'N');
+        // Porta dos fundos (cozinha, parede leste) — desce p/ o quintal (lado baixo do
+        // declive → lance mais alto, ~8 degraus). Largura 1,0 m.
+        extStairs(4.65, 30.5 + OE, 1.00, 'E');
 
         // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
         // fundos em y≈−0,98 (grade(mE) + 2 cm)
