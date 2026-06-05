@@ -1537,6 +1537,10 @@
         if (v === 'v2' || v === 'v3') {
             const GN0 = 2.0,  GN1 = 10.5;  // 8,5 m de largura (2 m de cada muro lateral)
             const GE0 = 13.5, GE1 = 22.5; // 9 m de profundidade (compensados p/ nova OE=-3,5; exibido 10→19)
+            const cut = (n, e, dn, de, type) => {
+                if (GEO) GEO.push({ k: 'opening', type: type || 'door', n, e: e + OE, dn, de, sill: 0, head: 2.1 });
+                lys.push(rect(n, e - OE, dn, de, 'white', { no3d: true }));
+            };
             const COL = 0.20;             // seção das colunas (20 × 20 cm)
 
             // Contorno da laje — tracejado (estrutura aberta, sem vedação)
@@ -1579,10 +1583,10 @@
 
             // ── Depósito (embaixo da escada) — mN 2,0→3,4 × mE 13,5→15,9 ────────
             const DEP_N1 = 3.4, DEP_E0 = 13.5, DEP_E1 = 15.9;
-            wall(GN0,   DEP_E0, DEP_N1, DEP_E0, EW);              // parede oeste (fachada)
-            wall(DEP_N1, DEP_E0, DEP_N1, DEP_E1, IW);             // parede norte (segue viga)
-            wall(GN0,   DEP_E1, DEP_N1, DEP_E1, IW);              // parede leste (divide da garagem)
-            cut(2.5, DEP_E1 - IW/2, 0.9, IW);                     // vão da porta na parede leste
+            wall(GN0,    DEP_E0, DEP_N1, DEP_E0, 0.20);           // parede oeste (fachada)
+            wall(DEP_N1, DEP_E0, DEP_N1, DEP_E1, 0.10);           // parede norte (segue viga)
+            wall(GN0,    DEP_E1, DEP_N1, DEP_E1, 0.10);           // parede leste (divide da garagem)
+            cut(2.5, DEP_E1 - 0.05, 0.9, 0.10);                   // vão da porta na parede leste
             doorArc(DEP_N1, DEP_E1, -0.9, 0.0, -1).forEach(l => lys.push(l)); // porta abre p/ leste (garagem)
             lys.push(roomLabel(2.7, 14.7, 'Depósito', '1,4 × 2,4 m', '~3 m²'));
 
