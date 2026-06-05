@@ -298,7 +298,7 @@ const grade = mE => -mE * SLOPE;   // cota natural do solo (m), datum 0 = calça
 ```
 
 - **Datum 0 = calçada** (frente, mE=0). Fundos (mE=40) = −1,0 m.
-- **`CPA = 0,50`** — piso acabado 50 cm **acima da calçada**: protege de umidade/chuva e já é a **altura final pós-aterramento** (a casa não se mexe quando o lote for aterrado).
+- **`CPA = 0,30`** — piso acabado 30 cm **acima do terreno acabado**: protege de umidade, atende Caixa, resulta em apenas **2 degraus** na entrada pós-aterro (antes era 0,50 m = 6+ degraus).
 - **Embasamento/aterro exposto:** as cintas do embasamento (`emSides`/`BEM`/`QEM`) descem da `CPA` até `baseBot(e,de) = grade(e+de)` — usa a borda **leste** de cada caixa (ponto mais baixo) p/ a base **nunca flutuar** (fica enterrada onde o terreno é mais alto). Mostra ~1,0–1,3 m de aterro exposto = o vão que o aterramento futuro preenche.
 - **Escadas externas** (`extStairs()`, normas Caixa/NBR 9050): lances de degraus **iguais** do solo (`grade`) até a `CPA`. Espelho 16–18 cm (`NS=ceil(rise/0,18)`), piso ~0,28–0,29 m, **Blondel** 2e+p≈0,63. Porta principal (V1): 6 degraus, 1,20 m, desce p/ oeste; porta de vidro (norte): 6 degraus, 2,00 m, desce p/ o jardim; porta dos fundos (cozinha, leste): ~8 degraus, 1,0 m, desce p/ o quintal (lado baixo do declive → lance mais alto). Direções suportadas: `'W'`/`'E'`/`'N'`. No **V2** há ainda 2 degraus de transição garagem (`GCPA=0,20`) → casa (`CPA=0,50`) na porta principal. A escada interna da garagem p/ 2º pav. (18 degraus, e≈0,176/p≈0,278) já era compliant (lance de 3,16 m < 3,20 m sem patamar).
 - **Cota 3D `declive 1,0 m (2,5%)`** (ciano) no canto fundo-sul, em `buildDims3D`.
@@ -340,8 +340,8 @@ Situações que causam Z-fight (e são cobertas pelo offset):
 ### Padrão V2 — garagem usa `{no3d:true}` + `box3d` manual (não pipeline GEO)
 
 **Por quê não usar o pipeline GEO para as paredes da garagem?**  
-O extrusor de paredes (`walls.forEach`) inicia em `z=0` e vai até `CEIL3D+CPA=3,20 m`.  
-O piso da garagem é `GCPA=0,20 m` (não `CPA=0,50 m`). Usando o pipeline, a parede ficaria **30 cm afundada no baldrame**.
+O extrusor de paredes (`walls.forEach`) inicia em `z=0` e vai até `CEIL3D+CPA=3,00 m`.  
+O piso da garagem é `GCPA=0,15 m` (não `CPA=0,30 m`). Usando o pipeline, a parede ficaria **15 cm afundada no baldrame**.
 
 **Padrão correto para paredes da garagem:**
 ```javascript
@@ -354,8 +354,8 @@ g.add(box3d(n,       e - 0.10, len,  0.20, GCPA, GLAJE, matWall)); // parede N-S
 ```
 
 **Cotas de referência da garagem:**
-- `GCPA = 0.20` — piso da garagem (20 cm acima da calçada/datum; menor que a casa pra entrada de carro)
-- `GLAJE = CEIL3D + CPA = 3.20` — teto da garagem = teto da casa
+- `GCPA = 0.15` — piso da garagem (15 cm acima da calçada/datum; entrada quase plana para o carro)
+- `GLAJE = CEIL3D + CPA = 3.00` — teto da garagem = teto da casa
 - `EW = 0.20` — espessura de parede externa (centrada: ±0,10 m em torno da linha)
 - **Declive:** colunas (12) e baldrame (`gbSides`) descem da `GCPA` até `baseBot(e,de)=grade(e+de)` — assentam no terreno em declive sem flutuar (a garagem fica na frente/oeste, terreno mais alto, ~0,3–0,5 m de base exposta). Mesmo `baseBot` da casa, em escopo na `buildBuilding3D`.
 
