@@ -1387,9 +1387,11 @@
             doorArc(2.90, 25.50,  0.8,  0.0, -1).forEach(l => lys.push(l)); // Banheiro → folha aberta protege o box (privacidade) e olha p/ a pia
             doorArc(7.50, 23.00,  0.0,  1.0, +1, { glass: true }).forEach(l => lys.push(l)); // Folha esq (1,0m) — vidro aberta
             doorArc(7.50, 25.00,  0.0, -1.0, -1, { glass: true }).forEach(l => lys.push(l)); // Folha dir (1,0m) — vidro aberta
-            // Degraus porta grande (parede norte) — 2 × 20 cm, largura 2,0 m, pisada 30 cm
-            lys.push(rect(7.60, 23.00, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim porta vidro
-            lys.push(rect(7.90, 23.00, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau porta vidro
+            // Degraus porta grande (parede norte) — só V1; no V2/V3 o piso é nivelado à garagem
+            if (v === 'v1') {
+                lys.push(rect(7.60, 23.00, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
+                lys.push(rect(7.90, 23.00, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
+            }
             // Degraus externos fundos (leste) — 5 degraus Caixa: espelho 0,165m / piso 0,30m / Blondel 0,63 ✓
             lys.push(rect(4.70, 30.70, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
             lys.push(rect(4.70, 31.00, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
@@ -2186,8 +2188,14 @@
         };
         // Porta principal (oeste) — só V1 (no V2/V3 a garagem ocupa a frente; acesso pela garagem)
         if (v === 'v1') extStairs(2.15, EE0, 1.20, 'W');
-        // Porta de vidro (norte, lado da sala) — desce p/ o jardim norte, 2,0 m de largura
-        extStairs(7.55, 23.00 + OE, 2.00, 'N');
+        // Porta de vidro (norte, lado da sala)
+        if (v === 'v1') {
+            extStairs(7.55, 23.00 + OE, 2.00, 'N'); // V1: escada desce p/ o jardim
+        } else {
+            // V2/V3: laje plana nivelada à garagem (GCPA=0,15) — sem desnível
+            const GCPA_V2 = 0.15;
+            g.add(box3d(7.55, 23.00 + OE, 1.00, 2.00, grade(23.00 + OE) - 0.02, GCPA_V2, matEmbase));
+        }
         // Porta dos fundos (leste) — 5 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
         extStairs(4.70, 30.6 + OE, 0.90, 'E');
 
