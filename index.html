@@ -1606,9 +1606,9 @@
     //  Nada de coordenadas é redigitado: tudo vem de buildLayers → GEO.
     // ═══════════════════════════════════════════════════════════════════════
     const CEIL3D = 2.70;          // pé-direito (m)
-    const CPA    = 0.30;          // Cota do Piso Acabado — 30 cm acima do terreno acabado (datum 0)
-                                  // Protege de umidade, atende Caixa, e resulta em apenas
-                                  // 2 degraus na entrada após o aterramento do lote.
+    const CPA    = 0.15;          // Cota do Piso Acabado — 15 cm acima do terreno acabado (datum 0)
+                                  // Mesmo nível da garagem (GCPA=0,15). Atende Caixa,
+                                  // resulta em 1 degrau na entrada após o aterramento.
 
     // ── Declive do terreno (visita): ~1 m em 40 m = 2,5%, descendo da frente
     //    (calçada, mE=0 = datum 0) para os fundos (mE=40 → −1,0 m). Cota natural
