@@ -2125,18 +2125,27 @@
         g.add(box3d(4.61, 29.89 + OE, 2.78, 0.51, CPA - 0.025, CPA, matFloor));
         // Piso da saliência leste do quarto (mN 2→4,5; mE 30→31,5) — complementa o piso da casa
         g.add(box3d(2.11, 29.89 + OE, 2.29, 1.50, CPA - 0.025, CPA, matFloor));
-        // Escada da porta principal — 3 degraus subindo da calçada (grade) até a
-        // CPA=0,50 (casa elevada). Só V1 (V2/V3 a garagem cobre essa área).
-        if (v === 'v1') {
-            g.add(box3d(2.15, 20.30 + OE, 1.20, 0.30, baseBot(20.30 + OE, 0.30), 0.17, matEmbase)); // degrau 1
-            g.add(box3d(2.15, 20.60 + OE, 1.20, 0.30, baseBot(20.60 + OE, 0.30), 0.34, matEmbase)); // degrau 2
-            g.add(box3d(2.15, 20.90 + OE, 1.20, 0.30, baseBot(20.90 + OE, 0.30), CPA,  matEmbase)); // degrau 3 / patim
-        }
-
-        // Escada da porta de vidro (norte, mN=7,5, lado da sala) — 3 degraus, 2,0 m de largura
-        g.add(box3d(8.06, 22.70 + OE, 0.30, 2.00, baseBot(22.70 + OE, 2.00), 0.17, matEmbase)); // degrau 1
-        g.add(box3d(7.78, 22.70 + OE, 0.30, 2.00, baseBot(22.70 + OE, 2.00), 0.34, matEmbase)); // degrau 2
-        g.add(box3d(7.50, 22.70 + OE, 0.30, 2.00, baseBot(22.70 + OE, 2.00), CPA,  matEmbase)); // degrau 3 / patim
+        // ── Escadas externas — normas Caixa/NBR 9050 ───────────────────────────
+        // Espelho (e) 16–18 cm · piso (p) ~28–29 cm · Blondel 2e+p ≈ 0,63 m ·
+        // degraus IGUAIS · largura ≥ 0,80 m. Como a casa está +1,0 m acima do solo
+        // natural (declive), o lance precisa de ~6 degraus (não 3). Sobe do solo
+        // (grade) até a CPA. dir 'W' desce p/ oeste; dir 'N' desce p/ norte.
+        const extStairs = (topN, faceE, w, dir) => {
+            const base = grade(faceE) - 0.02;                    // solo na soleira
+            const rise = CPA - base;
+            const NS = Math.max(2, Math.ceil(rise / 0.18));      // nº de espelhos → e ≤ 0,18 m
+            const e  = rise / NS;                                // espelho (igual em todos)
+            const p  = Math.min(0.32, Math.max(0.28, 0.63 - 2*e)); // piso p/ Blondel ≈ 0,63
+            for (let i = 1; i <= NS; i++) {
+                const top = base + i * e;                        // i=NS → topo na CPA (patamar = piso)
+                if (dir === 'W') g.add(box3d(topN, faceE - (NS - i + 1) * p, w, p, base, top, matEmbase));
+                else             g.add(box3d(topN + (NS - i) * p, faceE, p, w, base, top, matEmbase));
+            }
+        };
+        // Porta principal (oeste) — só V1 (no V2/V3 a garagem ocupa a frente; acesso pela garagem)
+        if (v === 'v1') extStairs(2.15, EE0, 1.20, 'W');
+        // Porta de vidro (norte, lado da sala) — desce p/ o jardim norte, 2,0 m de largura
+        extStairs(7.55, 22.70 + OE, 2.00, 'N');
 
         // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
         // fundos em y≈−0,98 (grade(mE) + 2 cm)
@@ -2408,6 +2417,13 @@
             // Piso de concreto da garagem — no topo do baldrame (GCPA = 0,20 m)
             const matGFloor = new THREE.MeshStandardMaterial({ color: 0xd0ccc4, roughness: 0.88, metalness: 0, envMapIntensity: 0.2 });
             g.add(box3d(GN0, GE0, GN1 - GN0, vigaLen, GCPA - 0.025, GCPA, matGFloor));
+
+            // Degraus da porta principal: garagem (GCPA=0,20) → casa (CPA=0,50).
+            // Desnível 0,30 m em 2 espelhos iguais de 0,15 m (piso 0,30) — sobem p/ leste
+            // até a face oeste da casa (GE1). Normas Caixa (espelho ≤ 0,18; degraus iguais).
+            const dN = 2.30, dW = 1.00, dP = 0.30;
+            g.add(box3d(dN, GE1 - 2*dP, dW, dP, GCPA, GCPA + 0.15, matEmbase));
+            g.add(box3d(dN, GE1 - 1*dP, dW, dP, GCPA, CPA,         matEmbase));
 
             // Baldrame da garagem — 20 cm (metade da casa), projeção 3 cm, manta no topo
             const gbSides = [
