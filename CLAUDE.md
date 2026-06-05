@@ -354,9 +354,10 @@ g.add(box3d(n,       e - 0.10, len,  0.20, GCPA, GLAJE, matWall)); // parede N-S
 ```
 
 **Cotas de referência da garagem:**
-- `GCPA = 0.20` — piso da garagem (20 cm acima do chão externo)
+- `GCPA = 0.20` — piso da garagem (20 cm acima da calçada/datum; menor que a casa pra entrada de carro)
 - `GLAJE = CEIL3D + CPA = 3.20` — teto da garagem = teto da casa
 - `EW = 0.20` — espessura de parede externa (centrada: ±0,10 m em torno da linha)
+- **Declive:** colunas (12) e baldrame (`gbSides`) descem da `GCPA` até `baseBot(e,de)=grade(e+de)` — assentam no terreno em declive sem flutuar (a garagem fica na frente/oeste, terreno mais alto, ~0,3–0,5 m de base exposta). Mesmo `baseBot` da casa, em escopo na `buildBuilding3D`.
 
 **Paredes da garagem — estado:**
 | Parede | mN/mE | 2D (`wall`) | 3D (`box3d`) |
@@ -375,7 +376,7 @@ g.add(box3d(n,       e - 0.10, len,  0.20, GCPA, GLAJE, matWall)); // parede N-S
 `render()` chama `init3D` quando `sec === '3d'`.  
 Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda sem largura.
 
-> Só o painel **V1** tem cena 3D hoje (`#scene3d-v1`). Para migrar V2/V3, substitua o placeholder por `<div id="scene3d-v2" class="scene3d">…</div>` e adicione o botão de laje.
+> **V1 e V2** têm cena 3D ativa (`#scene3d-v1`, `#scene3d-v2`, ambos com botão de laje). V2 renderiza casa + garagem. **V3** ainda é placeholder (`#p-v3-3d`) — para ativar, trocar por `<div id="scene3d-v3" class="scene3d">…</div>` + botão de laje.
 
 ---
 
@@ -580,8 +581,8 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 
 | Versão | 2D | 3D |
 |---|---|---|
-| **V1** | ✅ Completo | ✅ Completo (com cotas 3D) |
-| **V2** | 🔶 Garagem parcial (paredes sul/norte/leste ✅, portão ⬜, cotas ⬜) | 🔶 Estrutura completa (colunas/vigas/laje/escada/paredes ✅, portão ⬜) |
+| **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro) |
+| **V2** | 🔶 Garagem parcial (paredes sul/norte/leste ✅, portão ⬜, cotas ⬜) | ✅ Cena ativa: casa + garagem (colunas/vigas/laje/escada/paredes ✅, base seguindo o declive ✅; portão ⬜) |
 | **V3** | ⬜ 2º pavimento a desenhar | ⬜ Placeholder |
 
 ---
