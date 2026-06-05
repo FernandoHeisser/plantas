@@ -2005,7 +2005,10 @@
         // ── Chão = imagem de satélite cobrindo o entorno, alinhada ao lote ───
         const spec = satGroundSpec();
         const satGroup = new THREE.Group();
-        satGroup.position.set(20, -0.03, -6.25);                       // centro do lote (mE 20, mN 6,25)
+        // Rebaixado para −1,05 (abaixo do ponto mais baixo da grama inclinada, −1,0
+        // nos fundos) p/ o satélite plano nunca ocultar o lote em declive. É um plano
+        // de contexto (vizinhos); a leitura do lote/casa fica correta.
+        satGroup.position.set(20, -1.05, -6.25);                       // centro do lote (mE 20, mN 6,25)
         satGroup.rotation.y = THREE.MathUtils.degToRad(LOT_ANGLE);     // alinha satélite (norte) ao lote (−3°)
         const satPlane = new THREE.Mesh(new THREE.PlaneGeometry(spec.meters, spec.meters), getSatGroundMat());
         satPlane.rotation.x = -Math.PI / 2;
@@ -2025,12 +2028,45 @@
 
         g.add(satGroup);
 
-        // Grama nítida só no lote (axis-aligned), por cima do satélite dos vizinhos
+        // Grama nítida só no lote, INCLINADA pelo declive (frente mE=0 em y=0 →
+        // fundos mE=40 em y=−1,0). Plano de 2 triângulos com a cota natural grade(mE).
         const grass = texGrass(); grass.repeat.set(20, 6);
-        const matGrass = new THREE.MeshStandardMaterial({ map: grass, roughness: 1, metalness: 0, envMapIntensity: 0.15 });
-        const lawn = box3d(0, 0, 12.5, 40, -0.06, -0.025, matGrass);
-        lawn.castShadow = false;     // só recebe sombra
+        const matGrass = new THREE.MeshStandardMaterial({ map: grass, roughness: 1, metalness: 0, envMapIntensity: 0.15, side: THREE.DoubleSide });
+        // cantos (mE, mN) → (x=mE, y=grade(mE), z=−mN)
+        const gGeo = new THREE.BufferGeometry();
+        gGeo.setAttribute('position', new THREE.Float32BufferAttribute([
+            0,  grade(0),  0,        // SO (frente-sul)
+            40, grade(40), 0,        // SE (fundo-sul)
+            40, grade(40), -12.5,    // NE (fundo-norte)
+            0,  grade(0),  -12.5,    // NO (frente-norte)
+        ], 3));
+        gGeo.setAttribute('uv', new THREE.Float32BufferAttribute([0,0, 1,0, 1,1, 0,1], 2));
+        gGeo.setIndex([0, 2, 1, 0, 3, 2]);
+        gGeo.computeVertexNormals();
+        const lawn = new THREE.Mesh(gGeo, matGrass);
+        lawn.receiveShadow = true; lawn.castShadow = false;
         g.add(lawn);
+
+        // Saia de terra nas bordas do lote: fecha o vão entre a grama inclinada e o
+        // satélite rebaixado (−1,05), evitando o efeito de "lote flutuando". Quads
+        // verticais com o topo seguindo grade(mE) e a base em −1,05.
+        const matSoil = new THREE.MeshStandardMaterial({ color: 0x6b5236, roughness: 1, metalness: 0, envMapIntensity: 0.1, side: THREE.DoubleSide });
+        const SKIRT_B = -1.05;
+        const skirtQuad = (pts) => {
+            const sg = new THREE.BufferGeometry();
+            sg.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+            sg.setIndex([0, 1, 2, 0, 2, 3]);
+            sg.computeVertexNormals();
+            const m = new THREE.Mesh(sg, matSoil);
+            m.receiveShadow = true; m.castShadow = false;
+            g.add(m);
+        };
+        // frente (oeste, mE=0): topo 0 → base −1,05 (face da calçada/corte)
+        skirtQuad([0,grade(0),0,  0,SKIRT_B,0,  0,SKIRT_B,-12.5,  0,grade(0),-12.5]);
+        // sul (mN=0): topo grade(mE) de 0→−1,0
+        skirtQuad([0,grade(0),0,  40,grade(40),0,  40,SKIRT_B,0,  0,SKIRT_B,0]);
+        // norte (mN=12,5)
+        skirtQuad([0,grade(0),-12.5,  0,SKIRT_B,-12.5,  40,SKIRT_B,-12.5,  40,grade(40),-12.5]);
 
         // ── Embasamento: base de concreto (CPA=40cm) com projeção de 3cm além das paredes ──
         const EM_P = 0.03;
@@ -2093,11 +2129,12 @@
         g.add(box3d(7.90, 22.70 + OE, 0.30, 2.00, -0.05, 0.20, matEmbase)); // degrau 1 (externo)
         g.add(box3d(7.60, 22.70 + OE, 0.30, 2.00, -0.05, 0.40, matEmbase)); // degrau 2 / patim
 
-        // Contorno do lote (âmbar) sobre o satélite — destaca a propriedade
+        // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
+        // fundos em y≈−0,98 (grade(mE) + 2 cm)
         g.add(new THREE.LineLoop(
             new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(0, 0.02, 0), new THREE.Vector3(40, 0.02, 0),
-                new THREE.Vector3(40, 0.02, -12.5), new THREE.Vector3(0, 0.02, -12.5)]),
+                new THREE.Vector3(0, grade(0) + 0.02, 0), new THREE.Vector3(40, grade(40) + 0.02, 0),
+                new THREE.Vector3(40, grade(40) + 0.02, -12.5), new THREE.Vector3(0, grade(0) + 0.02, -12.5)]),
             new THREE.LineBasicMaterial({ color: 0xf59e0b })));
 
         const walls    = model.filter(o => o.k === 'wall');
@@ -2445,6 +2482,22 @@
         // Totais do lote — âmbar
         _dimLine3D(g,  13.5, 0,    13.5, 40,    '40 m', '#f59e0b');
         _dimLine3D(g,  0,    41.5, 12.5, 41.5,  '12,5 m', '#f59e0b');
+
+        // Cota do declive — queda de 1,0 m da frente p/ os fundos (2,5%).
+        // Barra vertical no canto fundo-sul, fora do lote (mN=−0,8 → z=+0,8).
+        (function () {
+            const x = 40, z = 0.8, yTop = grade(0), yBot = grade(40);   // 0 e −1,0
+            const col = new THREE.Color('#38bdf8');
+            const seg = (a, b) => g.add(new THREE.Line(
+                new THREE.BufferGeometry().setFromPoints([a, b]),
+                new THREE.LineBasicMaterial({ color: col })));
+            seg(new THREE.Vector3(x, yTop, z), new THREE.Vector3(x, yBot, z));               // queda vertical
+            seg(new THREE.Vector3(x - 0.8, yTop, z), new THREE.Vector3(x + 0.4, yTop, z));   // nível frente
+            seg(new THREE.Vector3(x - 0.8, yBot, z), new THREE.Vector3(x + 0.4, yBot, z));   // nível fundos
+            const lbl = _makeLabel3D('declive 1,0 m (2,5%)', '#38bdf8');
+            lbl.position.set(x + 1.7, (yTop + yBot) / 2, z);
+            g.add(lbl);
+        })();
     }
 
     // Posição solar REAL para a latitude do lote (−29,96°, hemisfério sul).
