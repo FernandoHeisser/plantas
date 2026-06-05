@@ -2348,11 +2348,12 @@
             const GCPA  = 0.20;
             const GEM_P = 0.03;
 
-            // 9 colunas (3×3): frente / meio / fundo × sul / centro / norte
+            // 9 colunas (3×3): frente / meio / fundo × sul / centro / norte.
+            // Base desce até a cota natural (baseBot) — casa com o declive, sem flutuar.
             [GN0, GNM, GN1 - COL].forEach(n => {
-                g.add(box3d(n, GE0,  COL, COL, -0.10, GLAJE, matEmbase)); // frente
-                g.add(box3d(n, GEMc, COL, COL, -0.10, GLAJE, matEmbase)); // meio
-                g.add(box3d(n, GE1c, COL, COL, -0.10, GLAJE, matEmbase)); // fundo
+                g.add(box3d(n, GE0,  COL, COL, baseBot(GE0, COL),  GLAJE, matEmbase)); // frente
+                g.add(box3d(n, GEMc, COL, COL, baseBot(GEMc, COL), GLAJE, matEmbase)); // meio
+                g.add(box3d(n, GE1c, COL, COL, baseBot(GE1c, COL), GLAJE, matEmbase)); // fundo
             });
 
             // Vigas E-O (sul, centro, norte) — frente até face ext. da parede
@@ -2366,9 +2367,9 @@
             // cruzava o caminho da escada, é removido; reapoiada por um pilar em mN 3,4.
             g.add(box3d(3.40, GEMc, GN1 - 3.40, VW, GLAJE - VH, GLAJE, lajeMat));
             // Colunas + pilar de reapoio da viga E-O de suporte da escada (mN 3,4 = ESC_N0+ESC_DN)
-            g.add(box3d(3.40, GE0,  COL, COL, -0.10, GLAJE, matEmbase));   // coluna oeste (mE 13)
-            g.add(box3d(3.40, GEMc, COL, COL, -0.10, GLAJE, matEmbase));   // pilar centro (mE 17,4)
-            g.add(box3d(3.40, GE1c, COL, COL, -0.10, GLAJE, matEmbase));   // coluna leste (mE 21,7)
+            g.add(box3d(3.40, GE0,  COL, COL, baseBot(GE0, COL),  GLAJE, matEmbase));   // coluna oeste (mE 13)
+            g.add(box3d(3.40, GEMc, COL, COL, baseBot(GEMc, COL), GLAJE, matEmbase));   // pilar centro (mE 17,4)
+            g.add(box3d(3.40, GE1c, COL, COL, baseBot(GE1c, COL), GLAJE, matEmbase));   // coluna leste (mE 21,7)
             // Viga E-O (mN 3,4) ao NORTE da escada — encosta na face norte da escada, sem sobreposição
             g.add(box3d(3.40, GE0, VW, (GE1c + COL) - GE0, GLAJE - VH, GLAJE, lajeMat));
 
@@ -2416,7 +2417,7 @@
                 [GN0 - GEM_P, GE1c,        GN1-GN0 + 2*GEM_P,   COL + GEM_P      ],  // leste
             ];
             gbSides.forEach(([n, e, dn, de]) =>
-                g.add(box3d(n, e, dn, de, -0.05, GCPA, matEmbase)));
+                g.add(box3d(n, e, dn, de, baseBot(e, de), GCPA, matEmbase)));
             gbSides.forEach(([n, e, dn, de]) => {
                 const m = box3d(n-0.005, e-0.005, dn+0.01, de+0.01, GCPA - WP_H, GCPA + 0.004, matWP);
                 m.castShadow = false;
