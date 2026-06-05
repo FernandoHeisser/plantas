@@ -300,7 +300,7 @@ const grade = mE => -mE * SLOPE;   // cota natural do solo (m), datum 0 = calça
 - **Datum 0 = calçada** (frente, mE=0). Fundos (mE=40) = −1,0 m.
 - **`CPA = 0,50`** — piso acabado 50 cm **acima da calçada**: protege de umidade/chuva e já é a **altura final pós-aterramento** (a casa não se mexe quando o lote for aterrado).
 - **Embasamento/aterro exposto:** as cintas do embasamento (`emSides`/`BEM`/`QEM`) descem da `CPA` até `baseBot(e,de) = grade(e+de)` — usa a borda **leste** de cada caixa (ponto mais baixo) p/ a base **nunca flutuar** (fica enterrada onde o terreno é mais alto). Mostra ~1,0–1,3 m de aterro exposto = o vão que o aterramento futuro preenche.
-- **Escadas externas** (porta principal + porta de vidro norte): 3 degraus subindo de `grade` até `CPA`.
+- **Escadas externas** (`extStairs()`, normas Caixa/NBR 9050): lances de degraus **iguais** do solo (`grade`) até a `CPA`. Espelho 16–18 cm (`NS=ceil(rise/0,18)`), piso ~0,28–0,29 m, **Blondel** 2e+p≈0,63. Porta principal (V1): 6 degraus, 1,20 m, desce p/ oeste; porta de vidro (norte): 6 degraus, 2,00 m, desce p/ o jardim. No **V2** há ainda 2 degraus de transição garagem (`GCPA=0,20`) → casa (`CPA=0,50`) na porta principal. A escada interna da garagem p/ 2º pav. (18 degraus, e≈0,176/p≈0,278) já era compliant (lance de 3,16 m < 3,20 m sem patamar).
 - **Cota 3D `declive 1,0 m (2,5%)`** (ciano) no canto fundo-sul, em `buildDims3D`.
 - As cotas de afastamento (`_dimLine3D`, Y=0,12) seguem esquemáticas/planas — não acompanham o declive (de propósito, leitura tipo CAD).
 
