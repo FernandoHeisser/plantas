@@ -2495,8 +2495,8 @@
 
     // ── Cotas 3D — réplica das dimLine do 2D ────────────────────────────────
     // Sprite de texto usando canvas texture (sempre virado para a câmera).
-    function _makeLabel3D(txt, hexColor) {
-        const W = 320, H = 64;
+    function _makeLabel3D(txt, hexColor, cw) {
+        const W = cw || 320, H = 64;
         const cv = document.createElement('canvas');
         cv.width = W; cv.height = H;
         const ctx = cv.getContext('2d');
@@ -2568,7 +2568,7 @@
             seg(new THREE.Vector3(x, yTop, z), new THREE.Vector3(x, yBot, z));               // queda vertical
             seg(new THREE.Vector3(x - 0.8, yTop, z), new THREE.Vector3(x + 0.4, yTop, z));   // nível frente
             seg(new THREE.Vector3(x - 0.8, yBot, z), new THREE.Vector3(x + 0.4, yBot, z));   // nível fundos
-            const lbl = _makeLabel3D('declive 1,0 m (2,5%)', '#38bdf8');
+            const lbl = _makeLabel3D('declive 1,0 m (2,5%)', '#38bdf8', 420); // canvas mais largo: 21 chars × 18px ≈ 378px
             lbl.position.set(x + 1.7, (yTop + yBot) / 2, z);
             g.add(lbl);
         })();
