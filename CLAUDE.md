@@ -282,10 +282,27 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 
 ### Chão 3D
 
-- **Satélite dos vizinhos:** plano de ~140 m com tiles ESRI (z18, maxNativeZoom), composto num canvas via `loadSatelliteTexture()`. Singleton `satGroundMat`. Fallback verde se CORS falhar.
-- **Grama no lote:** plano axis-aligned cobrindo mN 0→12,5 / mE 0→40 por **cima** do satélite (y=−0,025 vs satélite y=−0,03). Textura procedural nítida.
-- **Piso interno:** `box3d(2.11, 22.11, 5.28, 7.78, -0.02, 0.001, matFloor)` — 1 cm aquém das faces interiores das paredes p/ evitar z-fight (dn=5,28 cobre mN 2,11→7,39 após extensão norte).
-- **Contorno âmbar** do lote em `y=0.02` marcando a propriedade.
+- **Satélite dos vizinhos:** plano de ~140 m com tiles ESRI (z18, maxNativeZoom), composto num canvas via `loadSatelliteTexture()`. Singleton `satGroundMat`. Fallback verde se CORS falhar. **Rebaixado p/ y=−1,05** (`satGroup.position.y`) — abaixo do ponto mais baixo da grama em declive, p/ o plano de contexto nunca ocultar o lote. É só backdrop; a leitura do lote/casa fica correta.
+- **Grama no lote (inclinada):** plano de 2 triângulos (não mais axis-aligned) seguindo `grade(mE)` — frente (mE=0) em y=0, fundos (mE=40) em y=−1,0. `side: DoubleSide`. Textura procedural nítida.
+- **Saia de terra (skirt):** quads verticais nas bordas frente/sul/norte do lote, do topo `grade(mE)` até a base `−1,05`, fechando o vão até o satélite rebaixado (evita "lote flutuando"). `matSoil` marrom.
+- **Piso interno:** slabs `matFloor` em `CPA−0,025 → CPA` (sobem com a CPA=0,50).
+- **Contorno âmbar** do lote acompanha o declive: `grade(mE)+0,02` (frente ≈0,02, fundos ≈−0,98).
+
+### Declive do terreno (visita) — datum, CPA e aterro
+
+Observado na visita: **~1 m de queda em 40 m = 2,5 %**, descendo da frente (calçada) para os fundos. Constantes (perto da `CPA`):
+
+```javascript
+const SLOPE = 1.0 / 40;            // 2,5%
+const grade = mE => -mE * SLOPE;   // cota natural do solo (m), datum 0 = calçada (mE=0)
+```
+
+- **Datum 0 = calçada** (frente, mE=0). Fundos (mE=40) = −1,0 m.
+- **`CPA = 0,50`** — piso acabado 50 cm **acima da calçada**: protege de umidade/chuva e já é a **altura final pós-aterramento** (a casa não se mexe quando o lote for aterrado).
+- **Embasamento/aterro exposto:** as cintas do embasamento (`emSides`/`BEM`/`QEM`) descem da `CPA` até `baseBot(e,de) = grade(e+de)` — usa a borda **leste** de cada caixa (ponto mais baixo) p/ a base **nunca flutuar** (fica enterrada onde o terreno é mais alto). Mostra ~1,0–1,3 m de aterro exposto = o vão que o aterramento futuro preenche.
+- **Escadas externas** (porta principal + porta de vidro norte): 3 degraus subindo de `grade` até `CPA`.
+- **Cota 3D `declive 1,0 m (2,5%)`** (ciano) no canto fundo-sul, em `buildDims3D`.
+- As cotas de afastamento (`_dimLine3D`, Y=0,12) seguem esquemáticas/planas — não acompanham o declive (de propósito, leitura tipo CAD).
 
 ### Cobertura
 
