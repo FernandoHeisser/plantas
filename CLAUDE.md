@@ -95,7 +95,7 @@ Config em `.claude/launch.json`.
 ```
 LOT_LAT  = -29.96308087   (ponto SW do lote — TERRENO SUL; antes -29.96296858 = lote norte)
 LOT_LNG  = -51.63740784
-LOT_ANGLE = -3            (graus — lote ligeiramente inclinado)
+LOT_ANGLE = -1.95         (graus — divisa SUL alinhada ao muro do vizinho sul; antes -3)
 
 LAT_M  = 1 / 111320       (metros por grau de latitude)
 LNG_M  = 1 / 96373        (metros por grau de longitude em −30°)
@@ -108,9 +108,9 @@ LNG_M  = 1 / 96373        (metros por grau de longitude em −30°)
 
 **Eixos 3D:** X = mE (leste), Y = altura (cima), Z = **−mN** (norte → −Z).  
 O Z é negado para não espelhar a planta (regra ENU: com Leste +X e Cima +Y, Norte vai para −Z).  
-A rotação de −3° é ignorada no 3D (irrelevante para a cena local).
+A rotação de `LOT_ANGLE` (−1,95°) é ignorada no 3D (irrelevante para a cena local).
 
-**Função `rot(mN, mE)`** — converte metros do lote em `[lat, lng]` aplicando a rotação de −3°.
+**Função `rot(mN, mE)`** — converte metros do lote em `[lat, lng]` aplicando a rotação de `LOT_ANGLE` (−1,95°).
 
 ### Deslocamento da casa — constante `OE`
 
@@ -147,7 +147,7 @@ Todas retornam `Array<L.Layer>` — usar com `.forEach(l => lys.push(l))`.
 
 ```
 rot(mN, mE)
-  Converte coordenadas do lote para [lat, lng] com rotação de -3°.
+  Converte coordenadas do lote para [lat, lng] com rotação de LOT_ANGLE (-1,95°).
 
 rect(n, e, dn, de, fill, opts?)
   Retângulo eixo-NE. n,e = canto SW; dn=tamanho N-S, de=tamanho E-O.
