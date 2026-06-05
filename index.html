@@ -2068,8 +2068,13 @@
         // norte (mN=12,5)
         skirtQuad([0,grade(0),-12.5,  0,SKIRT_B,-12.5,  40,SKIRT_B,-12.5,  40,grade(40),-12.5]);
 
-        // ── Embasamento: base de concreto (CPA=40cm) com projeção de 3cm além das paredes ──
+        // ── Embasamento/aterro: base de concreto até a CPA, agora DESCENDO até a
+        //    cota natural do terreno em declive. baseBot usa a grade da borda LESTE
+        //    (e+de) — ponto mais baixo da caixa — p/ a base nunca flutuar (fica
+        //    enterrada onde o terreno é mais alto). Mostra o pé-direito de aterro
+        //    que o aterramento futuro vai preencher. ──
         const EM_P = 0.03;
+        const baseBot = (e, de) => grade(e + de);
         const EN0 = 2 - 0.20 - EM_P, EN1 = 7.5 + 0.20 + EM_P;
         const EE0 = 21.5 + OE - 0.20 - EM_P, EE1 = 30 + OE + 0.20 + EM_P;
         const emSides = [
@@ -2078,7 +2083,7 @@
             [EN0, EE0,           EN1 - EN0, 0.20 + EM_P],    // oeste
             [4.5, 30.5 + OE, EN1 - 4.5, 0.20 + EM_P],   // leste cozinha em mE=30,5 (só mN≥4,5 — o quarto avança a leste em mN<4,5)
         ];
-        emSides.forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, -0.05, CPA, matEmbase)));
+        emSides.forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, baseBot(e, de), CPA, matEmbase)));
 
         // Manta asfáltica de impermeabilização no topo do baldrame (4 cm, escura)
         const WP_H = 0.04;
@@ -2092,7 +2097,7 @@
         const BEM_W = [7.5 - EM_P, 27.5 + OE - 0.20 - EM_P, 0.5 + 0.20 + 2*EM_P, 0.20 + 2*EM_P]; // degrau mE=27,5
         const BEM_N = [8.0 - EM_P, 27.5 + OE - 0.20 - EM_P, 0.20 + 2*EM_P, (30.5 + OE + 0.20 + EM_P) - (27.5 + OE - 0.20 - EM_P)]; // norte mN=8,0
         const BEM_E = [7.5 - EM_P, 30.5 + OE, 0.5 + 0.20 + 2*EM_P, 0.20 + 2*EM_P]; // leste mE=30,5 (gap mN 7,73→8,23)
-        [BEM_W, BEM_N, BEM_E].forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, -0.05, CPA, matEmbase)));
+        [BEM_W, BEM_N, BEM_E].forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, baseBot(e, de), CPA, matEmbase)));
         [BEM_W, BEM_N, BEM_E].forEach(([n, e, dn, de]) => {
             const m = box3d(n-0.005, e-0.005, dn+0.01, de+0.01, CPA-WP_H, CPA+0.004, matWP);
             m.castShadow = false; g.add(m);
@@ -2105,7 +2110,7 @@
             [2 - 0.20 - EM_P, 31.5 + OE, (4.5 + 0.20 + EM_P) - (2 - 0.20 - EM_P), 0.20 + EM_P],      // leste (fachada)
             [4.5,             30 + OE,   0.20 + EM_P, (31.5 + 0.20 + EM_P) - 30],                    // norte (degrau)
         ];
-        QEM.forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, -0.05, CPA, matEmbase)));
+        QEM.forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, baseBot(e, de), CPA, matEmbase)));
         QEM.forEach(([n, e, dn, de]) => {
             const m = box3d(n - 0.005, e - 0.005, dn + 0.01, de + 0.01, CPA - WP_H, CPA + 0.004, matWP);
             m.castShadow = false; g.add(m);
@@ -2119,15 +2124,18 @@
         g.add(box3d(4.61, 29.89 + OE, 2.78, 0.51, CPA - 0.025, CPA, matFloor));
         // Piso da saliência leste do quarto (mN 2→4,5; mE 30→31,5) — complementa o piso da casa
         g.add(box3d(2.11, 29.89 + OE, 2.29, 1.50, CPA - 0.025, CPA, matFloor));
-        // Degraus porta principal — só V1 (V2/V3 a garagem cobre essa área)
+        // Escada da porta principal — 3 degraus subindo da calçada (grade) até a
+        // CPA=0,50 (casa elevada). Só V1 (V2/V3 a garagem cobre essa área).
         if (v === 'v1') {
-            g.add(box3d(2.15, 20.90 + OE, 1.20, 0.30, -0.05, 0.20, matEmbase)); // degrau 1
-            g.add(box3d(2.15, 21.20 + OE, 1.20, 0.30, -0.05, 0.40, matEmbase)); // degrau 2 / patim
+            g.add(box3d(2.15, 20.30 + OE, 1.20, 0.30, baseBot(20.30 + OE, 0.30), 0.17, matEmbase)); // degrau 1
+            g.add(box3d(2.15, 20.60 + OE, 1.20, 0.30, baseBot(20.60 + OE, 0.30), 0.34, matEmbase)); // degrau 2
+            g.add(box3d(2.15, 20.90 + OE, 1.20, 0.30, baseBot(20.90 + OE, 0.30), CPA,  matEmbase)); // degrau 3 / patim
         }
 
-        // Porta grande de vidro (norte, mN=7,5, lado da sala) — 2 × 20 cm, 2,0 m de largura
-        g.add(box3d(7.90, 22.70 + OE, 0.30, 2.00, -0.05, 0.20, matEmbase)); // degrau 1 (externo)
-        g.add(box3d(7.60, 22.70 + OE, 0.30, 2.00, -0.05, 0.40, matEmbase)); // degrau 2 / patim
+        // Escada da porta de vidro (norte, mN=7,5, lado da sala) — 3 degraus, 2,0 m de largura
+        g.add(box3d(8.06, 22.70 + OE, 0.30, 2.00, baseBot(22.70 + OE, 2.00), 0.17, matEmbase)); // degrau 1
+        g.add(box3d(7.78, 22.70 + OE, 0.30, 2.00, baseBot(22.70 + OE, 2.00), 0.34, matEmbase)); // degrau 2
+        g.add(box3d(7.50, 22.70 + OE, 0.30, 2.00, baseBot(22.70 + OE, 2.00), CPA,  matEmbase)); // degrau 3 / patim
 
         // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
         // fundos em y≈−0,98 (grade(mE) + 2 cm)
