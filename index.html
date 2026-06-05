@@ -1605,7 +1605,15 @@
     //  Nada de coordenadas é redigitado: tudo vem de buildLayers → GEO.
     // ═══════════════════════════════════════════════════════════════════════
     const CEIL3D = 2.70;          // pé-direito (m)
-    const CPA    = 0.40;          // Cota do Piso Acabado — 40 cm acima do pátio
+    const CPA    = 0.50;          // Cota do Piso Acabado — 50 cm acima da calçada (datum 0)
+                                  // Eleva a casa contra umidade/chuva e já a deixa na
+                                  // altura final prevista para após o aterramento do lote.
+
+    // ── Declive do terreno (visita): ~1 m em 40 m = 2,5%, descendo da frente
+    //    (calçada, mE=0 = datum 0) para os fundos (mE=40 → −1,0 m). Cota natural
+    //    do solo, relativa à calçada, em função de mE. Usada só no 3D.
+    const SLOPE = 1.0 / 40;                 // 2,5%
+    const grade = mE => -mE * SLOPE;        // y do solo natural (m) p/ dado mE
     const scenes3d = {};
 
     // Coleta o modelo geométrico rodando o MESMO buildLayers do 2D

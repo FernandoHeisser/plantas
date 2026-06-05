@@ -323,8 +323,8 @@ Situações que causam Z-fight (e são cobertas pelo offset):
 ### Padrão V2 — garagem usa `{no3d:true}` + `box3d` manual (não pipeline GEO)
 
 **Por quê não usar o pipeline GEO para as paredes da garagem?**  
-O extrusor de paredes (`walls.forEach`) inicia em `z=0` e vai até `CEIL3D+CPA=3,10 m`.  
-O piso da garagem é `GCPA=0,20 m` (não `CPA=0,40 m`). Usando o pipeline, a parede ficaria **20 cm afundada no baldrame**.
+O extrusor de paredes (`walls.forEach`) inicia em `z=0` e vai até `CEIL3D+CPA=3,20 m`.  
+O piso da garagem é `GCPA=0,20 m` (não `CPA=0,50 m`). Usando o pipeline, a parede ficaria **30 cm afundada no baldrame**.
 
 **Padrão correto para paredes da garagem:**
 ```javascript
@@ -338,7 +338,7 @@ g.add(box3d(n,       e - 0.10, len,  0.20, GCPA, GLAJE, matWall)); // parede N-S
 
 **Cotas de referência da garagem:**
 - `GCPA = 0.20` — piso da garagem (20 cm acima do chão externo)
-- `GLAJE = CEIL3D + CPA = 3.10` — teto da garagem = teto da casa
+- `GLAJE = CEIL3D + CPA = 3.20` — teto da garagem = teto da casa
 - `EW = 0.20` — espessura de parede externa (centrada: ±0,10 m em torno da linha)
 
 **Paredes da garagem — estado:**
