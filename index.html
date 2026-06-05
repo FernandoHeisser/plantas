@@ -1606,9 +1606,9 @@
     //  Nada de coordenadas é redigitado: tudo vem de buildLayers → GEO.
     // ═══════════════════════════════════════════════════════════════════════
     const CEIL3D = 2.70;          // pé-direito (m)
-    const CPA    = 0.50;          // Cota do Piso Acabado — 50 cm acima da calçada (datum 0)
-                                  // Eleva a casa contra umidade/chuva e já a deixa na
-                                  // altura final prevista para após o aterramento do lote.
+    const CPA    = 0.30;          // Cota do Piso Acabado — 30 cm acima do terreno acabado (datum 0)
+                                  // Protege de umidade, atende Caixa, e resulta em apenas
+                                  // 2 degraus na entrada após o aterramento do lote.
 
     // ── Declive do terreno (visita): ~1 m em 40 m = 2,5%, descendo da frente
     //    (calçada, mE=0 = datum 0) para os fundos (mE=40 → −1,0 m). Cota natural
@@ -2358,7 +2358,7 @@
             // Fundo: colunas rente à face exterior da parede da casa
             const GE1c = GE1 - 0.10 - COL;
             const GEMc = GEM;                           // coluna intermédia E-O
-            const GCPA  = 0.20;
+            const GCPA  = 0.15;   // piso garagem — 15 cm acima da calçada (entrada quase plana p/ carro)
             const GEM_P = 0.03;
 
             // 9 colunas (3×3): frente / meio / fundo × sul / centro / norte.
