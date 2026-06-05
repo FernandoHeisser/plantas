@@ -1287,10 +1287,10 @@
                 { color: '#f59e0b', weight: 2.5, fillColor: LOT_FILL, fillOpacity: 0.82, interactive: false }
             ));
 
-            // Casa MVP — forma em L: mN 2.0→7.5 × mE 21.0→29.5 + bump-out cozinha mN 7.5→8.0 × mE 26.5→29.5
-            // (deslocada 0,5 m p/ oeste em relação ao lote — ver OE)
+            // Casa MVP — forma em L: mN 2.0→7.5 × mE 22.0→29.5 + bump-out cozinha mN 7.5→8.0 × mE 26.5→29.5
+            // (deslocada 0,5 m p/ oeste em relação ao lote — ver OE; fachada oeste recuada 1 m p/ leste)
             lys.push(L.polygon(
-                [rot(2.0,21.0), rot(7.5,21.0), rot(7.5,26.5), rot(8.0,26.5), rot(8.0,29.5), rot(2.0,29.5)],
+                [rot(2.0,22.0), rot(7.5,22.0), rot(7.5,26.5), rot(8.0,26.5), rot(8.0,29.5), rot(2.0,29.5)],
                 { color: 'transparent', weight: 0, fillColor: '#fafafa', fillOpacity: 1, interactive: false }
             ));
             // Chão da saliência leste do quarto (mN 2→4,5 × mE 30→31,5) — fica sob paredes/móveis
@@ -1311,7 +1311,7 @@
 
             // Frente: V1 → casa (21 m); V2/V3 → frente da garagem (12 m)
             if (v === 'v1') {
-                dimLine(4.5, 0, 4.5, 21.0, '21 m — frente').forEach(l => lys.push(l));
+                dimLine(4.5, 0, 4.5, 22.0, '22 m — frente').forEach(l => lys.push(l));
             } else {
                 dimLine(4.5, 0, 4.5, 12.0, '12 m — frente').forEach(l => lys.push(l));
             }
@@ -1336,11 +1336,11 @@
             const EW = 0.20, IW = 0.10, FL = '#fafafa';
 
             // Paredes externas (centradas em mN=1.5/6.5, mE=22/30)
-            lys.push(wall(2.0, 21.5,  2.0, 31.5, EW)); // sul (estende ao quarto avançado a leste)
-            lys.push(wall(7.5, 21.5,  7.5, 27.5, EW)); // norte-sala (mE 21,5→27,5 — cozinha cresceu 0,5 p/ leste)
+            lys.push(wall(2.0, 22.5,  2.0, 31.5, EW)); // sul (estende ao quarto avançado a leste)
+            lys.push(wall(7.5, 22.5,  7.5, 27.5, EW)); // norte-sala (mE 22,5→27,5 — fachada oeste recuou 1 m p/ leste)
             lys.push(wall(8.0, 27.5,  8.0, 30.5, EW)); // norte-cozinha bump-out (mN=8,0)
             lys.push(wall(7.5, 27.5,  8.0, 27.5, EW)); // degrau N-S (mE=27,5, mN 7,5→8,0)
-            lys.push(wall(2.0, 21.5,  7.5, 21.5, EW)); // oeste (frente)
+            lys.push(wall(2.0, 22.5,  7.5, 22.5, EW)); // oeste (frente) — recuada 1 m p/ leste (casa menor)
             lys.push(wall(4.5, 30.5,  8.0, 30.5, EW)); // leste — só faixa norte (sala/cozinha), mN 4,5→8,0
             // Quarto avançado a leste (mE 28,5→31,5): fachada leste + degrau no recuo (mN=4,5)
             lys.push(wall(2.0, 31.5,  4.5, 31.5, EW)); // leste do quarto (fachada)
@@ -1360,11 +1360,11 @@
                 if (GEO) GEO.push({ k: 'opening', type: type || 'door', n, e: e + OE, dn, de, sill: 0, head: 2.1 });
                 lys.push(rect(n, e, dn, de, FL, { color: 'transparent', weight: 0, no3d: true }));
             };
-            cut(2.30, 21.35, 0.9, 0.30); // Principal (parede oeste) — alinhada com a escada da garagem
+            cut(2.30, 22.35, 0.9, 0.30); // Principal (parede oeste mE=22,5) — alinhada com a escada da garagem
             // Degraus externos — só V1 (no V2/V3 a garagem cobre essa área)
             if (v === 'v1') {
-                lys.push(rect(2.15, 20.90, 1.20, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));
-                lys.push(rect(2.15, 21.20, 1.20, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
+                lys.push(rect(2.15, 21.90, 1.20, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));
+                lys.push(rect(2.15, 22.20, 1.20, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
             }
             cut(2.90, 25.40, 0.8, 0.20); // Banheiro (interna) — parede oeste mE=25,5
             cut(7.35, 22.70, 0.30, 2.00, 'glassdoor'); // Porta grande de vidro (lado da sala) — abre p/ o jardim norte, estilo japonês
@@ -1377,13 +1377,13 @@
             win(1.90, 27.35, 0.20, 0.80, 'N').forEach(l => lys.push(l)); // Á. serviço — sul, centrada (mE 27,0→28,5); ventila a umidade
             win(2.65, 31.40, 1.20, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — leste, centrada (mN 2→4,5) — sol da manhã
             win(1.90, 29.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 28,5→31,5) — ventilação cruzada com a leste
-            win(1.90, 22.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall (mE 21,5→24,5)
+            win(1.90, 23.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall (mE 22,5→25,5)
             win(7.40, 25.20, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, centrada no vão entre a porta de vidro e o degrau (sobre o canto alemão)
             // Cozinha — janela-fita (peitoril 0,90 / verga 1,50), passa atrás do cooktop; centrada na cozinha (mE 27,5→30,5)
             win(7.90, 28.20, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l));
 
             // Portas — folha + arco de abertura + pivô
-            doorArc(2.30, 21.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
+            doorArc(2.30, 22.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
             doorArc(2.90, 25.50,  0.8,  0.0, -1).forEach(l => lys.push(l)); // Banheiro → folha aberta protege o box (privacidade) e olha p/ a pia
             doorArc(7.50, 22.70,  0.0,  1.0, +1, { glass: true }).forEach(l => lys.push(l)); // Folha esq (1,0m) — vidro aberta
             doorArc(7.50, 24.70,  0.0, -1.0, -1, { glass: true }).forEach(l => lys.push(l)); // Folha dir (1,0m) — vidro aberta
@@ -1478,19 +1478,19 @@
             // ─── SALA ─────────────────────────────────────────────────────────
             // Grupo de estar recentralizado p/ a nova profundidade (centro mN≈5,85)
             // Sofá 3 lugares — encosto a leste, frente p/ a TV (oeste)
-            lys.push(rect(4.975, 23.70, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // base + encosto (faixa E) — recuado 0,25m p/ O
-            lys.push(rect(5.075, 23.70, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento (frente oeste)
+            lys.push(rect(4.975, 24.20, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // base + encosto (faixa E)
+            lys.push(rect(5.075, 24.20, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento (frente oeste)
             // Divisões das 3 almofadas
-            lys.push(L.polyline([rot(5.592, 23.70+OE), rot(5.592, 24.35+OE)],
+            lys.push(L.polyline([rot(5.592, 24.20+OE), rot(5.592, 24.85+OE)],
                 { color: '#451a03', weight: 0.6, interactive: false }));
-            lys.push(L.polyline([rot(6.108, 23.70+OE), rot(6.108, 24.35+OE)],
+            lys.push(L.polyline([rot(6.108, 24.20+OE), rot(6.108, 24.85+OE)],
                 { color: '#451a03', weight: 0.6, interactive: false }));
-            // Mesa de centro (acompanha o sofá, recuada 0,25m p/ O)
-            lys.push(rect(5.35, 22.90, 1.00, 0.55, '#92400e', { color: '#451a03', weight: 0.7, m3d: 'coffee' }));
+            // Mesa de centro (acompanha o sofá)
+            lys.push(rect(5.35, 23.40, 1.00, 0.55, '#92400e', { color: '#451a03', weight: 0.7, m3d: 'coffee' }));
 
-            // TV e rack — parede oeste
-            lys.push(rect(5.15, 21.65, 1.40, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
-            lys.push(rect(5.30, 21.60, 1.10, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
+            // TV e rack — parede oeste (recuou 1 m p/ leste)
+            lys.push(rect(5.15, 22.65, 1.40, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
+            lys.push(rect(5.30, 22.60, 1.10, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
 
             // ─── CANTO ALEMÃO (refeição) — L encostado na parede NORTE ───────
             // Encosto na parede norte (sob a janela 1,8m) + face oeste da península.
@@ -1508,19 +1508,19 @@
             lys.push(circ(5.75, 26.80, 0.16, '#a16207', { color: '#451a03', weight: 0.5, m3d: 'chair' }));
 
             // Hall de entrada (canto SO) — tapete + sapateira + estante divisória vazada
-            lys.push(rect(2.80, 22.95, 1.00, 0.95, '#fde68a',
+            lys.push(rect(2.80, 23.45, 1.00, 0.95, '#fde68a',
                 { color: '#a16207', weight: 0.6, fillOpacity: 0.55, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
-            // Sapateira/console encostada na parede sul (mN=2) — recuada p/ não encostar na nova parede do banheiro (mE 24,5)
-            lys.push(rect(2.10, 23.40, 0.35, 0.95, '#9a7b46', { color: '#5a4422', weight: 0.7, h3d: 0.85, m3d: 'rack' }));
+            // Sapateira/console encostada na parede sul (mN=2) — recuada p/ não encostar na parede do banheiro (mE 25,5)
+            lys.push(rect(2.10, 23.90, 0.35, 0.95, '#9a7b46', { color: '#5a4422', weight: 0.7, h3d: 0.85, m3d: 'rack' }));
             // Estante vazada divisória — livros + folhagens; separa o hall da sala sem fechar (ponta oeste livre)
-            lys.push(rect(3.83, 22.85, 0.35, 1.50, '#8a6d4b', { color: '#5a4422', weight: 1.0, h3d: 1.80, m3d: 'shelf' }));
+            lys.push(rect(3.83, 23.35, 0.35, 1.50, '#8a6d4b', { color: '#5a4422', weight: 1.0, h3d: 1.80, m3d: 'shelf' }));
 
             // ─── LABELS DOS CÔMODOS ──────────────────────────────────────────
             lys.push(roomLabel(3.25, 26.25, 'Banheiro', '1,5 × 2,5 m', '3,75 m²'));
             lys.push(roomLabel(3.30, 27.75, 'Á. Serviço', '1,5 × 2,5 m', '3,75 m²'));
             lys.push(roomLabel(3.25, 30.00, 'Quarto',   '3 × 2,5 m', '7,5 m²'));
             lys.push(roomLabel(3.30, 23.50, 'Hall',      '',         ''));
-            lys.push(roomLabel(5.00, 24.50, 'Sala',      '',         ''));
+            lys.push(roomLabel(5.00, 25.00, 'Sala',      '',         ''));
             lys.push(roomLabel(6.30, 28.70, 'Cozinha',   '',         ''));
 
             // ── Labels das áreas ─────────────────────────────────────────────
@@ -2077,7 +2077,7 @@
         const EM_P = 0.03;
         const baseBot = (e, de) => grade(e + de);
         const EN0 = 2 - 0.20 - EM_P, EN1 = 7.5 + 0.20 + EM_P;
-        const EE0 = 21.5 + OE - 0.20 - EM_P, EE1 = 30 + OE + 0.20 + EM_P;
+        const EE0 = 22.5 + OE - 0.20 - EM_P, EE1 = 30 + OE + 0.20 + EM_P;
         const emSides = [
             [EN0,            EE0, 0.20 + EM_P, EE1 - EE0],   // sul
             [EN1 - 0.20 - EM_P, EE0, 0.20 + EM_P, EE1 - EE0],   // norte
@@ -2118,7 +2118,7 @@
         });
 
         // Piso da casa elevado à CPA (1cm aquém das faces interiores das paredes)
-        g.add(box3d(2.11, 21.61 + OE, 5.28, 8.28, CPA - 0.025, CPA, matFloor));
+        g.add(box3d(2.11, 22.61 + OE, 5.28, 7.28, CPA - 0.025, CPA, matFloor));
         // Piso do bump-out cozinha (mN 7,5→8,0; mE 27,5→30,5) — 1cm aquém das paredes interiores
         g.add(box3d(7.41, 27.61 + OE, 0.48, 2.78, CPA - 0.025, CPA, matFloor));
         // Faixa leste nova da cozinha (mN 4,5→7,4; mE 30→30,5) — complementa o piso da casa
@@ -2325,7 +2325,7 @@
         const roof = new THREE.Group();
         roof.name = 'roof';
         roof.visible = false;
-        const n0 = 2 - 0.12, n1 = 7.5 + 0.12, e0 = 21.5 + OE - 0.12, e1 = 30 + OE + 0.12;   // laje com beiral
+        const n0 = 2 - 0.12, n1 = 7.5 + 0.12, e0 = 22.5 + OE - 0.12, e1 = 30 + OE + 0.12;   // laje com beiral
         const e1b = 30.5 + OE + 0.12;   // beiral leste da cozinha (cresceu 0,5 m p/ leste)
         roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat));
         // Faixa leste da cozinha (mN 4,5→7,5; mE 30→30,5) — estende a laje além do corpo principal
