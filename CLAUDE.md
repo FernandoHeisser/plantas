@@ -363,10 +363,12 @@ g.add(box3d(n,       e - 0.10, len,  0.20, GCPA, GLAJE, matWall)); // parede N-S
 | Parede | mN/mE | 2D (`wall`) | 3D (`box3d`) |
 |---|---|---|---|
 | Sul | mN=GN0=2,0 | ✅ `no3d:true` | ✅ `GCPA→GLAJE` |
-| Norte | mN=GN1=10,5 | ✅ `no3d:true` | ✅ `GCPA→GLAJE` |
-| Leste superior | mE=GE1=22, mN 7,0→10,5 | ✅ `no3d:true` | ✅ `GCPA→GLAJE` |
+| Norte | mN=GN1=10,5 | ❌ removida (estrutura aberta) | ❌ removida |
+| Leste superior | mE=GE1=22, mN 7,5→10,5 | ❌ removida | ❌ removida |
 | Leste inferior | mE=GE1=22, mN 2,0→7,0 | ✅ (parede da casa, base comum) | ✅ (pipeline GEO) |
 | Oeste (portão) | mE=GE0=13 | ⬜ pendente | ⬜ pendente |
+
+> A garagem é **estrutura aberta** (colunas + laje + baldrame de perímetro). Só a parede **sul** existe; norte e leste-superior foram removidas (tinham sido adicionadas por engano). O baldrame (`gbSides`) continua nos 4 lados como fundação.
 
 ---
 
