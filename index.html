@@ -1381,10 +1381,6 @@
             win(7.40, 25.20, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, centrada no vão entre a porta de vidro e o degrau (sobre o canto alemão)
             // Cozinha — janela-fita (peitoril 0,90 / verga 1,50), passa atrás do cooktop; centrada na cozinha (mE 27,5→30,5)
             win(7.90, 28.20, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l));
-            // Cozinha — janela leste (futura porta dos fundos pós-aterro): vão 0,90 m
-            // no exato lugar da porta removida (mN 4,70→5,60, parede mE=30,5). O vão
-            // estrutural já fica pré-preparado; depois do aterro é só trocar o caixilho.
-            win(4.70, 30.50, 0.90, 0.20, 'E').forEach(l => lys.push(l));
 
             // Portas — folha + arco de abertura + pivô
             doorArc(2.30, 21.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
