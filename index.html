@@ -1578,7 +1578,7 @@
             for (let i = 1; i < NST; i++)              // nosings dos degraus (linhas N-S)
                 lys.push(L.polyline(
                     [rot(ESC_N0, ESC_E_base - i*STRD + OE), rot(ESC_N0 + ESC_DN, ESC_E_base - i*STRD + OE)],
-                    { color: '#64748b', weight: 0.7, interactive: false }));
+                    { color: '#334155', weight: 1.2, interactive: false }));
             // Vão (stairwell) na laje — tracejado, sobre o trecho alto (oeste)
             lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_HE1 - ESC_E_top, 'transparent',
                 { color: '#0ea5e9', weight: 1, dashArray: '4 3', fill: false, no3d: true }));
@@ -1593,6 +1593,10 @@
             // Cotas laterais: recuo sul e recuo norte da garagem
             dimLine(0,   15.5, GN0, 15.5, '2,0 m — sul').forEach(l => lys.push(l));
             dimLine(GN1, 15.5, 12.5, 15.5, '2,0 m — norte').forEach(l => lys.push(l));
+
+            // Cotas da casa (mesmo posicionamento que V1)
+            dimLine(0, 22.5, 2.0, 22.5, '2 m — sul').forEach(l => lys.push(l));
+            dimLine(7.5, 22.5, 12.5, 22.5, '5,0 m — norte').forEach(l => lys.push(l));
         }
 
         // ── V3: 2º pavimento + elementos adicionais ──────────────────────────
