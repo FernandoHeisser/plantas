@@ -2469,12 +2469,16 @@
             g.add(box3d(dN, GE1 - 2*dP, dW, dP, GCPA, GCPA + 0.15, matEmbase));
             g.add(box3d(dN, GE1 - 1*dP, dW, dP, GCPA, CPA,         matEmbase));
 
-            // Baldrame da garagem — 20 cm (metade da casa), projeção 3 cm, manta no topo
+            // Baldrame da garagem — mesmo padrão da casa: cobre EW (0,20) + projeção GEM_P
+            // gS0 = borda sul exterior da fundação (= face externa da parede sul + proj)
+            const gS0 = GN0 - 0.20 - GEM_P;           // = GN0 − EW − GEM_P  (igual ao EN0 da casa)
+            const gN1 = GN1 - COL - GEM_P;             // = borda sul da coluna norte − proj
+            const gNspan = GN1 - gS0;                  // comprimento N-S total do baldrame
             const gbSides = [
-                [GN0 - GEM_P, GE0 - GEM_P, COL + GEM_P,          vigaLen + 2*GEM_P],  // sul
-                [GN1 - COL,   GE0 - GEM_P, COL + GEM_P,          vigaLen + 2*GEM_P],  // norte
-                [GN0 - GEM_P, GE0 - GEM_P, GN1-GN0 + 2*GEM_P,   COL + GEM_P      ],  // oeste
-                [GN0 - GEM_P, GE1c,        GN1-GN0 + 2*GEM_P,   COL + GEM_P      ],  // leste
+                [gS0,  GE0 - GEM_P, 0.20 + GEM_P,  vigaLen + 2*GEM_P],  // sul  (cobre parede EW + proj)
+                [gN1,  GE0 - GEM_P, COL + GEM_P,   vigaLen + 2*GEM_P],  // norte (cobre coluna + proj)
+                [gS0,  GE0 - GEM_P, gNspan,         COL + GEM_P      ],  // oeste (largura total N-S)
+                [gS0,  GE1c,        gNspan,          COL + GEM_P      ],  // leste (largura total N-S)
             ];
             gbSides.forEach(([n, e, dn, de]) =>
                 g.add(box3d(n, e, dn, de, baseBot(e, de), GCPA, matEmbase)));
