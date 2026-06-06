@@ -1431,9 +1431,9 @@
                         html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.8);padding:1px 4px;border-radius:3px">consolo + junta 15mm</div>' }) }));
             }
 
-            // Degraus externos fundos (leste) — 5 degraus Caixa: espelho 0,165m / piso 0,30m / Blondel 0,63 ✓
-            lys.push(rect(4.70, 30.70, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
-            lys.push(rect(4.70, 31.00, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
+            // Degraus externos fundos (leste) — nova parede leste mE=31,5 (face exterior 31,6)
+            lys.push(rect(4.70, 31.60, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
+            lys.push(rect(4.70, 31.90, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
             doorArc(5.60, 31.50, -0.90, 0.0, -1).forEach(l => lys.push(l)); // Fundos → abre p/ oeste (cozinha), hinge mN=5,60
             doorArc(4.50, 29.80,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → abre para sul (dentro), hinge leste
             doorArc(4.50, 28.20,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Á. serviço → abre para sul (dentro), hinge leste
@@ -1511,6 +1511,8 @@
                 { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // sobre parede sólida (oeste)
             lys.push(rect(7.07, 29.30, 0.33, 0.60, '#e5e7eb',
                 { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // leste da coifa / sobre janela
+            lys.push(rect(7.07, 29.95, 0.33, 0.90, '#e5e7eb',
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // pia→canto NE (fecha o gap)
             // Coluna de armários da geladeira — costas na parede leste (mE=31,5)
             lys.push(rect(6.85, 30.85, 0.55, 0.55, '#e5e7eb',
                 { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcabW' })); // aéreo acima da bancada
