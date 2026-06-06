@@ -2382,7 +2382,7 @@
         // ── Laje de cobertura (plana) — V3 recebe 2º pavimento sobre ela ─────
         // Concreto + leve beiral + platibanda (mureta) no perímetro. Começa oculta.
         const lajeMat = new THREE.MeshStandardMaterial({ color: 0xc8c4bc, roughness: 0.9, metalness: 0, envMapIntensity: 0.2,
-                                                         polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
+                                                         polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
         const roof = new THREE.Group();
         roof.name = 'roof';
         roof.visible = false;
