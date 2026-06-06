@@ -1416,20 +1416,28 @@
                 lys.push(rect(7.90, 23.00, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
             }
             // ── Esperas para garagem V2 — fachada oeste (mE=22,5), só V1 ─────────
-            // Consolos de concreto nas posições das vigas V2 que irão apoiar na parede.
-            // rect soma OE internamente → código mE=22,20 renderiza 0,20 m a oeste da fachada.
+            // Garagem é estrutura INDEPENDENTE. Conexões reais com a casa:
+            // (a) Ferragens de alvenaria: vergalhões distribuídos na parede para
+            //     amarrar a alvenaria do V2 à parede do V1 (evita fissura parede/parede).
+            // (b) Consolo de laje + JUNTA DE DILATAÇÃO 15 mm (não ancoragem rígida):
+            //     a laje do V2 apoia no consolo mas pode deslizar — cada estrutura
+            //     assenta independentemente → sem risco de recalque diferencial.
             if (v === 'v1') {
-                const ESP_E = 22.20, ESP_D = 0.20; // início do stub (code) e profundidade
-                lys.push(rect(3.30, ESP_E, 0.20, ESP_D, '#bfdbfe',
-                    { color: '#3b82f6', weight: 1, no3d: true })); // viga E-O mN=3,4
-                lys.push(rect(6.65, ESP_E, 0.20, ESP_D, '#bfdbfe',
-                    { color: '#3b82f6', weight: 1, no3d: true })); // coluna intermediária mN=6,75
-                // Linha de apoio de laje (topo da parede oeste — cota GLAJE)
-                lys.push(L.polyline([rot(2.0, 22.4 + OE), rot(7.5, 22.4 + OE)],
-                    { color: '#3b82f6', weight: 1.5, dashArray: '5 4', opacity: 0.75, interactive: false }));
-                lys.push(L.marker(rot(5.1, 22.0 + OE), { interactive: false,
-                    icon: L.divIcon({ className: '', iconAnchor: [24, 8],
-                        html: '<div class="flbl" style="color:#93c5fd;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.7);padding:1px 4px;border-radius:3px">esp. V2</div>' }) }));
+                const WF = 22.4 + OE; // face exterior oeste da parede (rot coord = mE raw)
+                // (a) Ferragens de alvenaria — tiques a cada 0,55 m (mN 2,3→7,3)
+                for (let n = 2.30; n <= 7.30; n += 0.55)
+                    lys.push(L.polyline([rot(n, WF), rot(n, WF - 0.28)],
+                        { color: '#60a5fa', weight: 1.8, interactive: false }));
+                // (b) Consolo + junta de dilatação (linha âmbar sólida no topo da parede)
+                lys.push(L.polyline([rot(2.0, WF), rot(7.5, WF)],
+                    { color: '#f59e0b', weight: 4, opacity: 0.9, interactive: false }));
+                // Labels
+                lys.push(L.marker(rot(3.5, WF - 0.9), { interactive: false,
+                    icon: L.divIcon({ className: '', iconAnchor: [34, 7],
+                        html: '<div class="flbl" style="color:#93c5fd;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.8);padding:1px 4px;border-radius:3px">ferragens V2</div>' }) }));
+                lys.push(L.marker(rot(6.5, WF - 0.9), { interactive: false,
+                    icon: L.divIcon({ className: '', iconAnchor: [44, 7],
+                        html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.8);padding:1px 4px;border-radius:3px">consolo + junta 15mm</div>' }) }));
             }
 
             // Degraus externos fundos (leste) — 5 degraus Caixa: espelho 0,165m / piso 0,30m / Blondel 0,63 ✓
