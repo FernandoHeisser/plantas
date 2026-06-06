@@ -1486,6 +1486,10 @@
             lys.push(rect(6.85, 27.75, 0.55, 3.10, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
             // Península oeste — mN 5,80→6,85, mE 27,75→28,50
             lys.push(rect(5.80, 27.75, 1.05, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            // Balcão NE — fecha o canto entre bancada norte e parede leste (mN 6,85→7,40, mE 30,85→31,40)
+            lys.push(rect(6.85, 30.85, 0.55, 0.55, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            // Despensa leste — entre porta dos fundos (mN≈5,60) e geladeira (mN=6,20), parede leste
+            lys.push(rect(5.65, 30.85, 0.55, 0.55, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, no3d: true }));
             // Geladeira — nova parede leste (mE=31,5), frente alinhada à bancada
             lys.push(rect(6.20, 30.85, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
             lys.push(L.polyline([rot(6.52, 30.92+OE), rot(6.52, 31.25+OE)],
