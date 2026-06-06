@@ -1533,8 +1533,8 @@
             win(1.90, 29.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 28,5→31,5) — ventilação cruzada com a leste
             win(1.90, 23.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall (mE 22,5→25,5)
             win(7.40, 26.10, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, centrada no vão N2(25,5)→N3(28,5): 26,1→27,9
-            // Cozinha — janela-fita (peitoril 0,90 / verga 1,50); centrada na seção N da cozinha (mE 27,0→31,5 = 4,5 m → margem 1,45 m cada lado)
-            win(7.40, 28.45, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l)); // cozinha — fita norte: mE 28,45→30,05
+            // Cozinha — janela-fita (peitoril 0,90 / verga 1,50); centrada no vão N3→N4 (col. mE 28,5 / 31,5; faces internas 28,6→31,4 = 2,8 m; margem 0,6 m)
+            win(7.40, 29.20, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l)); // cozinha — fita norte: mE 29,2→30,8
 
             // Portas — folha + arco de abertura + pivô
             doorArc(2.30, 22.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
