@@ -1392,6 +1392,23 @@
                 lys.push(rect(7.60, 23.00, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
                 lys.push(rect(7.90, 23.00, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
             }
+            // ── Esperas para garagem V2 — fachada oeste (mE=22,5), só V1 ─────────
+            // Consolos de concreto nas posições das vigas V2 que irão apoiar na parede.
+            // rect soma OE internamente → código mE=22,20 renderiza 0,20 m a oeste da fachada.
+            if (v === 'v1') {
+                const ESP_E = 22.20, ESP_D = 0.20; // início do stub (code) e profundidade
+                lys.push(rect(3.30, ESP_E, 0.20, ESP_D, '#bfdbfe',
+                    { color: '#3b82f6', weight: 1, no3d: true })); // viga E-O mN=3,4
+                lys.push(rect(6.65, ESP_E, 0.20, ESP_D, '#bfdbfe',
+                    { color: '#3b82f6', weight: 1, no3d: true })); // coluna intermediária mN=6,75
+                // Linha de apoio de laje (topo da parede oeste — cota GLAJE)
+                lys.push(L.polyline([rot(2.0, 22.4 + OE), rot(7.5, 22.4 + OE)],
+                    { color: '#3b82f6', weight: 1.5, dashArray: '5 4', opacity: 0.75, interactive: false }));
+                lys.push(L.marker(rot(5.1, 22.0 + OE), { interactive: false,
+                    icon: L.divIcon({ className: '', iconAnchor: [24, 8],
+                        html: '<div class="flbl" style="color:#93c5fd;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.7);padding:1px 4px;border-radius:3px">esp. V2</div>' }) }));
+            }
+
             // Degraus externos fundos (leste) — 5 degraus Caixa: espelho 0,165m / piso 0,30m / Blondel 0,63 ✓
             lys.push(rect(4.70, 30.70, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
             lys.push(rect(4.70, 31.00, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
@@ -2227,6 +2244,19 @@
             // Escada leste — 4 degraus descendo p/ o quintal (e=0,175 m; p=0,28 m; Blondel ✓)
             extStairs(pN0, pE1, pN1-pN0, 'E');
         }
+        // Esperas para garagem V2 — consolos na fachada oeste, só V1
+        if (v === 'v1') {
+            const GLAJE_V1 = CEIL3D + CPA;          // = 2,85 m
+            const WF = 22.5 + OE - 0.10;            // = 21,90 — face exterior (oeste) da parede
+            const SD = 0.20;                         // saliência dos consolos
+            const VH = 0.35;                         // altura da viga V2 (idem buildBuilding3D V2)
+            // Consolos nos apoios das vigas V2
+            g.add(box3d(3.30, WF - SD, 0.20, SD, GLAJE_V1 - VH, GLAJE_V1, matEmbase)); // viga E-O mN=3,4
+            g.add(box3d(6.65, WF - SD, 0.20, SD, GLAJE_V1 - VH, GLAJE_V1, matEmbase)); // col. mN=6,75
+            // Faixa de apoio de laje ao longo de toda a fachada oeste (mN 2,0→7,5)
+            g.add(box3d(2.0, WF - 0.10, 5.5, 0.10, GLAJE_V1 - 0.10, GLAJE_V1, matEmbase));
+        }
+
         // Porta dos fundos (leste) — 5 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
         extStairs(4.70, 30.6 + OE, 0.90, 'E');
 
