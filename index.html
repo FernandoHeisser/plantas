@@ -808,7 +808,7 @@
 
           <div class="med-room-card col-amber">
             <div class="med-room-name">Sala</div>
-            <div class="med-room-dims">5,0 × 5,5 m</div>
+            <div class="med-room-dims">5,0 × 3,0 m</div>
             <div class="med-room-area">~14,5 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Sul<br>Porta de vidro ao norte</div>
           </div>
@@ -836,9 +836,9 @@
 
           <div class="med-room-card col-orange">
             <div class="med-room-name">Cozinha</div>
-            <div class="med-room-dims">3,0 × 3,5 m</div>
-            <div class="med-room-area">~10,5 m²</div>
-            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte<br>Bancada em U + ilha</div>
+            <div class="med-room-dims">3,0 × 3,0 m</div>
+            <div class="med-room-area">~9,0 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte<br>Bancada em U + canto alemão</div>
           </div>
 
         </div>
@@ -1347,27 +1347,6 @@
             lys.push(wall(2.0, 28.5,  4.5, 28.5, IW)); // leste á. serviço / oeste quarto (quarto intocado)
             lys.push(wall(4.5, 27.0,  4.5, 31.5, IW)); // norte da á.serviço + quarto → nova parede leste (retângulo)
 
-            // ── Colunas estruturais — grelha V1→V3 (15×15 cm, sem3D por ora) ──────
-            // Centradas em (mN, mE); rect soma OE internamente.
-            const COL_SZ = 0.20; // NBR 6118 art.13.2.3: mín. 20 cm
-            const col = (n, e) => lys.push(rect(n - COL_SZ/2, e - COL_SZ/2, COL_SZ, COL_SZ,
-                '#ef4444', { color: '#7f1d1d', weight: 1, no3d: true }));
-            // Linha sul (mN=2,0)
-            col(2.0, 22.5); // S1 — canto SW (espera V2)
-            col(2.0, 25.5); // S2 — divisória hall/banheiro
-            col(2.0, 28.5); // S3 — divisória serviço/quarto
-            col(2.0, 31.5); // S4 — canto SE quarto
-            // Linha meio (mN=4,5) — divisor estrutural N/S
-            col(4.5, 22.5); // M1 — W
-            col(4.5, 25.5); // M2 — cruzamento banheiro/sala
-            col(4.5, 28.5); // M3 — div. serviço/quarto
-            col(4.5, 31.5); // M4 — canto NE (alinha com S4/N4)
-            // Linha norte (mN=7,5)
-            col(7.5, 22.5);  // N1 — canto NW (espera V2)
-            col(7.5, 25.5);  // N2 — borda leste do pilar (glassdoor→25,0; pilar 25,0→25,5; janela 25,5→); alinha S2/M2
-            col(7.5, 28.5);  // N3 — alinha com S3/M3 (retângulo perfeito)
-            col(7.5, 31.5);  // N4 — canto NE (alinha com S4/M4)
-
             // Aberturas — cortam as paredes nas posições das portas
             const cut = (n, e, dn, de, type) => {
                 // GEO usa e+OE (alinha o recorte 3D à parede já deslocada); rect soma OE no 2D
@@ -1408,40 +1387,6 @@
             }
             // ── Esperas para garagem V2 — fachada oeste (mE=22,5), só V1 ─────────
             // Garagem é estrutura INDEPENDENTE. Conexões reais com a casa:
-            // (a) Ferragens de alvenaria: vergalhões distribuídos na parede para
-            //     amarrar a alvenaria do V2 à parede do V1 (evita fissura parede/parede).
-            // (b) Consolo de laje + JUNTA DE DILATAÇÃO 15 mm (não ancoragem rígida):
-            //     a laje do V2 apoia no consolo mas pode deslizar — cada estrutura
-            //     assenta independentemente → sem risco de recalque diferencial.
-            if (v === 'v1') {
-                const WF = 22.4 + OE; // face exterior oeste da parede (rot coord = mE raw)
-                // (a) Ferragens de alvenaria — tiques a cada 0,55 m (mN 2,3→7,3)
-                for (let n = 2.30; n <= 7.30; n += 0.55)
-                    lys.push(L.polyline([rot(n, WF), rot(n, WF - 0.28)],
-                        { color: '#60a5fa', weight: 1.8, interactive: false }));
-                // (b) Consolo + junta de dilatação (linha âmbar sólida no topo da parede)
-                lys.push(L.polyline([rot(2.0, WF), rot(7.5, WF)],
-                    { color: '#f59e0b', weight: 4, opacity: 0.9, interactive: false }));
-                // Labels
-                lys.push(L.marker(rot(3.5, WF - 0.9), { interactive: false,
-                    icon: L.divIcon({ className: '', iconAnchor: [34, 7],
-                        html: '<div class="flbl" style="color:#93c5fd;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.8);padding:1px 4px;border-radius:3px">ferragens V2</div>' }) }));
-                lys.push(L.marker(rot(6.5, WF - 0.9), { interactive: false,
-                    icon: L.divIcon({ className: '', iconAnchor: [44, 7],
-                        html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.8);padding:1px 4px;border-radius:3px">consolo + junta 15mm</div>' }) }));
-
-            // ── Esperas V3 — tiques roxos no topo das 12 colunas (vergalhão ↑ para o 2º pav) ──
-            [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
-             [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
-             [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
-            ].forEach(([cn,ce]) =>
-                lys.push(L.polyline([rot(cn + 0.12, ce + OE), rot(cn + 0.32, ce + OE)],
-                    { color: '#a78bfa', weight: 2, interactive: false })));
-            lys.push(L.marker(rot(4.75, 27.0+OE), { interactive: false,
-                icon: L.divIcon({ className: '', iconAnchor: [36, 7],
-                    html: '<div class="flbl" style="color:#a78bfa;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.8);padding:1px 4px;border-radius:3px">↑ esp. V3 (12×)</div>' }) }));
-            }
-
             // Degraus externos fundos (leste) — nova parede leste mE=31,5 (face exterior 31,6)
             lys.push(rect(4.70, 31.60, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
             lys.push(rect(4.70, 31.90, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
@@ -1661,14 +1606,6 @@
                 [rot(ESC_N0 + ESC_DN/2, ESC_E_base - 0.3 + OE), rot(ESC_N0 + ESC_DN/2, ESC_E_top + 0.3 + OE)],
                 { color: '#475569', weight: 1.2, interactive: false }));
             lys.push(roomLabel(ESC_N0 + ESC_DN/2, (ESC_E_top + ESC_E_base) / 2, 'Escada', '↑ 2º pav', ''));
-
-            // Junta de dilatação casa/garagem — interface mE=22,5 (estruturas independentes)
-            // Linha âmbar sólida na face exterior da parede oeste, mN 2,0→7,5
-            lys.push(L.polyline([rot(GN0, 22.4+OE), rot(7.5, 22.4+OE)],
-                { color: '#f59e0b', weight: 3, opacity: 0.95, interactive: false }));
-            lys.push(L.marker(rot(5.2, 21.3+OE), { interactive: false,
-                icon: L.divIcon({ className: '', iconAnchor: [40, 8],
-                    html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.8);padding:1px 4px;border-radius:3px">junta dilat. 15mm</div>' }) }));
 
             // Cotas laterais: recuo sul e recuo norte da garagem
             dimLine(0,   15.5, GN0, 15.5, '2,0 m — sul').forEach(l => lys.push(l));
@@ -2274,17 +2211,6 @@
           });
         }
 
-        // Esperas para garagem V2 — consolos na fachada oeste, só V1
-        if (v === 'v1') {
-            // Consolo de apoio de laje — faixa âmbar na fachada oeste (mN 2,0→7,5).
-            // A laje da garagem V2 APOIA aqui e desliza via junta de dilatação 15mm.
-            // Os consolos de coluna (mN=3,4 e 6,75) foram removidos: garagem é
-            // estrutura independente com fundações próprias (não ancora na parede).
-            const GLAJE_V1 = CEIL3D + CPA;
-            const WF = 22.5 + OE - 0.10; // face exterior oeste da parede (21,90)
-            g.add(box3d(2.0, WF - 0.10, 5.5, 0.10, GLAJE_V1 - 0.10, GLAJE_V1, matEmbase));
-        }
-
         // Porta dos fundos (leste) — 5 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
         extStairs(4.70, 31.6 + OE, 0.90, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
 
@@ -2469,20 +2395,6 @@
         roof.add(box3d(n1 - tt, e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // norte (uniform)
         roof.add(box3d(n0,      e0, n1 - n0, tt,       pb, pbTop, lajeMat)); // oeste
         roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
-        // Esperas V3 — stubs roxos saindo do topo da laje (só V1, visíveis com laje ligada)
-        if (v === 'v1') {
-            const espV3Mat = new THREE.MeshBasicMaterial({ color: 0xa78bfa, depthWrite: false });
-            const LAJE_TOP = CEIL3D + CPA + 0.16; // topo da laje
-            [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
-             [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
-             [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
-            ].forEach(([cn,ce]) => {
-                const e3 = ce + OE;
-                const st = box3d(cn-0.04, e3-0.04, 0.08, 0.08, LAJE_TOP, LAJE_TOP+0.30, espV3Mat);
-                st.castShadow = false;
-                roof.add(st); // junto à laje → toggle laje oculta/visível
-            });
-        }
         g.add(roof);
 
         // ── Vigas estruturais da casa (V1+V2+V3) ────────────────────────────────
@@ -2608,13 +2520,6 @@
                 g.add(m);
             });
 
-            // Junta de dilatação casa/garagem — faixa âmbar fina no topo da parede oeste
-            // A laje da garagem apoia no consolo e desliza via junta de 15mm (recalque diferencial)
-            const juntaMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, depthWrite: false });
-            const JWF = 22.5 + OE - 0.10; // face exterior oeste da parede (21,90)
-            const jt = box3d(GN0, JWF - 0.015, GN1 - GN0, 0.015, GLAJE - 0.04, GLAJE + 0.02, juntaMat);
-            jt.castShadow = false;
-            g.add(jt);
         }
 
         buildDims3D(g);
