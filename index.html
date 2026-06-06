@@ -1354,6 +1354,31 @@
             lys.push(wall(2.0, 28.5,  4.5, 28.5, IW)); // leste á. serviço / oeste quarto (quarto intocado)
             lys.push(wall(4.5, 27.0,  4.5, 30.5, IW)); // norte da á.serviço + quarto (divide da cozinha)
 
+            // ── Colunas estruturais — grelha V1→V3 (15×15 cm, sem3D por ora) ──────
+            // Centradas em (mN, mE); rect soma OE internamente.
+            const COL_SZ = 0.15;
+            const col = (n, e) => lys.push(rect(n - COL_SZ/2, e - COL_SZ/2, COL_SZ, COL_SZ,
+                '#ef4444', { color: '#7f1d1d', weight: 1, no3d: true }));
+            // Linha sul (mN=2,0)
+            col(2.0, 22.5); // S1 — canto SW (espera V2)
+            col(2.0, 25.5); // S2 — divisória hall/banheiro
+            col(2.0, 28.5); // S3 — divisória serviço/quarto
+            col(2.0, 31.5); // S4 — canto SE quarto
+            // Linha meio (mN=4,5) — divisor estrutural N/S
+            col(4.5, 22.5); // M1 — W
+            col(4.5, 25.5); // M2 — cruzamento banheiro/sala
+            col(4.5, 28.5); // M3 — cruzamento serviço/sala
+            col(4.5, 30.5); // M4 — degrau quarto/leste
+            col(4.5, 31.5); // M5 — canto NE quarto (saliência)
+            // Linha norte (mN=7,5)
+            col(7.5, 22.5); // N1 — canto NW (espera V2)
+            col(7.5, 26.5); // N2 — quebra vão 5m da sala (parede sólida após porta de vidro)
+            col(7.5, 27.5); // N3 — início cozinha (degrau N-S)
+            col(7.5, 30.5); // N4 — canto NE corpo principal
+            // Linha cozinha (mN=8,0 — bump-out)
+            col(8.0, 27.5); // K1 — cozinha NW
+            col(8.0, 30.5); // K2 — cozinha NE
+
             // Aberturas — cortam as paredes nas posições das portas
             const cut = (n, e, dn, de, type) => {
                 // GEO usa e+OE (alinha o recorte 3D à parede já deslocada); rect soma OE no 2D
