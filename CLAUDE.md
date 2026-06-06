@@ -50,7 +50,7 @@ Esta é a forma de trabalho que produziu resultados aprovados pelo cliente. Repl
 - **Fonte única 2D→3D:** mexeu no `buildLayers` (2D) → o 3D acompanha ao reabrir. **Base comum
   propaga V1/V2/V3.** Mudou cota/posição/novo tipo `FURN3D`? **Atualizar este CLAUDE.md junto.**
 - Após editar JS: **Ctrl+Shift+R** (Leaflet e Three cacheiam).
-- Z-fight: `polygonOffset` em `matWall`/`lajeMat`; colunas (`matEmbase`) sempre vencem.
+- Z-fight: hierarquia de `polygonOffset` — `matEmbase` (sem offset) > `matWall` (factor:1/units:4) > `lajeMat` (factor:2/units:8). Colunas sempre vencem paredes, paredes sempre vencem vigas/laje.
 
 ---
 
@@ -84,9 +84,10 @@ Config em `.claude/launch.json`.
 
 **Estrutura da página:**
 - Header sticky → tabs V1 / V2 / V3
-- Section nav sticky → Planta 2D / Planta 3D
-- 6 painéis (`p-v1-2d`, `p-v1-3d`, `p-v2-2d`, `p-v2-3d`, `p-v3-2d`, `p-v3-3d`) — só um visível por vez
+- Section nav sticky → Planta 2D / Planta 3D / **Medidas**
+- 9 painéis (`p-v1-2d`, `p-v1-3d`, `p-v1-med`, `p-v2-2d`, `p-v2-3d`, `p-v2-med`, `p-v3-2d`, `p-v3-3d`, `p-v3-med`) — só um visível por vez
 - **A aba Detalhes foi removida** (V1, V2, V3) — todo o CSS/JS de detalhes editáveis também foi removido
+- **Marcadores de engenharia removidos do 2D**: colunas vermelhas (`col()`), esperas V3 (roxo), ferragens/consolo V2 (azul/âmbar), junta de dilatação. A estrutura 3D (vigas, colunas embutidas) permanece intacta.
 
 ---
 
@@ -115,11 +116,11 @@ A rotação de `LOT_ANGLE` (−1,95°) é ignorada no 3D (irrelevante para a cen
 ### Deslocamento da casa — constante `OE`
 
 ```javascript
-const OE = -0.5;   // metros em mE — desloca casa+garagem p/ OESTE (frente)
+const OE = -3.5;   // −3,5 m: casa encostada na garagem (GE1=22,5 exibido=19,0)
 ```
 
-A casa/garagem inteira está deslocada **0,5 m para o oeste** (frente/rua) em relação ao
-lote. O **lote/terreno não se move** (continua mE 0→40, ancorado ao satélite).
+A casa/garagem inteira está deslocada **3,5 m para o oeste** em relação ao lote.
+O **lote/terreno não se move** (continua mE 0→40, ancorado ao satélite).
 
 **Como é aplicado (fonte única):** os helpers métricos (`rect`, `circ`, `wall`,
 `doorArc`, `win`, `roomLabel`) **somam `OE` ao `mE`** logo na entrada — isso desloca o
@@ -134,8 +135,8 @@ móveis, folhas de porta) acompanha automaticamente.
   garagem) **não passa pelo GEO** → soma `OE` explicitamente (constantes `EE0/EE1`,
   `GE0/GE1`, `e0/e1`, `be0`, `ESC_E_*`, `HE1`, e nos slabs/pisos literais).
 - **Cotas** (`dimLine` 2D / `_dimLine3D` 3D): pontos sobre a parede usam o `mE`
-  deslocado e o **rótulo muda** (frente: parede em mE 22,5 → cota **22 m**; fundo 10→**10,5 m**; garagem
-  frente 12,5→**12 m**). Pontos na borda do lote (0, 40) e as cotas-totais (40 m, 12,5 m)
+  deslocado e o **rótulo muda** (V1 frente: parede em mE 22,5 → cota **19 m**; V1 fundo → **13,5 m**;
+  V2 frente garagem → **10 m**). Pontos na borda do lote (0, 40) e as cotas-totais (40 m, 12,5 m)
   **não mudam**.
 - **Para reverter ou ajustar o deslocamento, basta mudar `OE`** — não reescrever cotas.
 
@@ -324,16 +325,20 @@ Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
 ### Regra: `polygonOffset` — Z-fight entre materiais coplanares
 
-`matWall` e `lajeMat` têm `polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4`.  
-`matEmbase` (colunas, baldrame) **não tem** offset → suas faces vencem qualquer coplanar.
+Hierarquia de prioridade (quem aparece na frente quando faces são coplanares):
 
-**Regra:** toda nova geometria criada com `matWall` ou `lajeMat` herda o offset automaticamente.  
-Se criar um **novo material** que possa ter faces coplanares com `matEmbase`, adicione o mesmo offset.
+| Material | offset | Prioridade |
+|---|---|---|
+| `matEmbase` (colunas, baldrame) | nenhum | **1º — sempre vence** |
+| `matWall` (paredes) | factor:1 / units:4 | 2º |
+| `lajeMat` (vigas, laje, platibanda) | factor:2 / units:8 | 3º |
 
-Situações que causam Z-fight (e são cobertas pelo offset):
-- Box de parede com face no mesmo plano de face de coluna (mesma mE ou mN)
-- Box de viga com face no mesmo plano de coluna
-- Topo de parede em `y=GLAJE` coincidindo com topo de coluna
+**Regra:** toda nova geometria deve herdar o offset do seu "tipo". Se criar novo material coplanar com `matEmbase`, adicione o offset de `matWall`. Vigas e laje nunca devem ter o mesmo offset de `matWall` (causa z-fight).
+
+Situações cobertas:
+- Face de coluna × face de parede (mesma mE ou mN) → coluna vence ✓
+- Face de viga × face de parede (VW=EW=0,20 m, mesma posição) → parede vence ✓
+- Topo de parede × topo de coluna (mesmo y=GLAJE) → coluna vence ✓
 
 ---
 
@@ -474,7 +479,7 @@ Banco em **L** maior (cozinha cresceu 0,5 m p/ leste, liberando espaço). Passag
 | Quarto (cruzada) | Sul (mN=2,0) | mE 29,40→30,60 | 1,20 m |
 | Sala/hall | Sul (mN=2,0) | mE 23,40→24,60 | 1,20 m |
 | Sala | Norte (mN=7,5) | mE 25,20→27,00 | 1,80 m |
-| Cozinha (fita) | Norte (mN=8,0) | mE 28,20→29,80 | 1,60 m — peitoril 0,90 / verga 1,50 |
+| Cozinha (fita) | Norte (mN=7,5) | mE 29,20→30,80 | 1,60 m — peitoril 0,90 / verga 1,50 — centrada no vão N3→N4 (margem 0,60 m) |
 
 > **Ventilação cruzada:** quarto (sul + leste) · sala/living (sul + norte/porta de vidro) · cozinha (fita norte + abertura p/ sala).
 
@@ -534,7 +539,7 @@ buildDims3D(g)                // chamada no final de buildBuilding3D(v)
 ```
 
 Cotas renderizadas (mesmas do 2D):
-- Afastamentos (branco): frente 22m, fundo 10m, sul 2m, norte 5,5m
+- Afastamentos V1 (branco): frente 19m, fundo 13,5m, sul 2m, norte 5,0m
 - Totais do lote (âmbar): 40m (mN=13,5) e 12,5m (mE=41,5)
 
 ---
@@ -574,7 +579,7 @@ Plano `MeshBasicMaterial` branco (`opacity:0.35`, `depthWrite:false`) adicionado
 ## Financiamento — referência
 
 O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
-- 49,5 m² > mínimo de 36 m² ✓
+- ~44 m² > mínimo de 36 m² ✓ (área interna líquida; footprint externo 49,5 m²)
 - 1 quarto suficiente no SFH
 - Área de serviço coberta com tanque — **requisito Caixa atendido** ✓
 - Exige PCI assinada por engenheiro/arquiteto antes da liberação do crédito
@@ -583,29 +588,29 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 
 ## Estado atual das versões
 
-| Versão | 2D | 3D |
-|---|---|---|
-| **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro) |
-| **V2** | 🔶 Garagem parcial (paredes sul/norte/leste ✅, portão ⬜, cotas ⬜) | ✅ Cena ativa: casa + garagem (colunas/vigas/laje/escada/paredes ✅, base seguindo o declive ✅; portão ⬜) |
-| **V3** | ⬜ 2º pavimento a desenhar | ⬜ Placeholder |
+| Versão | 2D | 3D | Medidas |
+|---|---|---|---|
+| **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro) | ✅ Completo |
+| **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) | ✅ Preenchida (garagem + depósito + escada) |
+| **V3** | ⬜ 2º pavimento a desenhar | ⬜ Placeholder | ⬜ Placeholder |
 
 ---
 
-## Próximos passos — V2
+## Próximos passos
 
-### V2 — Garagem
-Adicionar no bloco `if (v === 'v2' || v === 'v3')` em `buildLayers`:
-- Garagem prevista: **mN 1,5→8,5, mE 14→22** (7×8 m = 56 m²)
-- Paredes externas da garagem (EW=0,20)
-- Portão (mE=14, mN ~3→6): tipo `glassdoor` ou portão de aço
-- Piso de concreto diferenciado
-- Ativar cena 3D no V2: substituir placeholder por `<div id="scene3d-v2" class="scene3d">…</div>` + botão laje
+### V2 — Pendências
+- Portão oeste da garagem (mE=GE0=13,5; abertura ~5 m; tipo glassdoor ou aço)
+- Cotas 2D/3D da garagem (`dimLine` + `buildDims3D` parametrizado por versão)
+
+**Garagem já implementada:** `GN0=2,0 / GN1=10,5 / GE0=13,5 / GE1=22,5` → 8,5×9,0 m = 76,5 m²  
+Depósito sob escada: mN 2,0→3,4 × mE 13,5→15,9 (1,4×2,4 m ≈ 3 m²)  
+Escada: 18 degraus, 1,20 m largura, leste→oeste (mE 20,9→15,9 code)
 
 ### V3 — Sobrado
 Adicionar no bloco `if (v === 'v3')`:
 - 2º pavimento sobre a laje do V1
 - Suíte master (leste), quartos filhos (norte), home office (oeste)
-- Escada de acesso (a definir: interna ou externa)
+- Escada de acesso (interna a partir da garagem — já modelada em V2)
 
 ---
 
@@ -614,8 +619,7 @@ Adicionar no bloco `if (v === 'v3')`:
 - [ ] `@media print` para memorial imprimível
 - [ ] Dados da M² Engenharia (CREA) para incluir no app
 - [ ] Acabamentos por fase (piso, esquadrias, cobertura)
-- [ ] V2: portão oeste da garagem (mE=GE0=13, abertura p/ carros ~5 m, tipo glassdoor ou aço)
-- [ ] V2: cotas 2D/3D da garagem (`dimLine`, `buildDims3D`)
-- [ ] V2: ativar cena 3D completa (substituir placeholder por `<div id="scene3d-v2" class="scene3d">`) + botão laje
-- [ ] V3: desenhar 2º pavimento no 2D + ativar cena 3D + escada de acesso (interna ou externa a definir)
-- [ ] Cotas 3D de V2/V3: `buildDims3D` precisará ser parametrizado por versão
+- [ ] V2: portão oeste da garagem (mE=GE0=13,5+OE; abertura ~5 m; tipo glassdoor ou aço)
+- [ ] V2: cotas 2D/3D da garagem (`dimLine` + `buildDims3D` parametrizado por versão)
+- [ ] V3: desenhar 2º pavimento no 2D + ativar cena 3D + ficha medidas V3
+- [ ] V3: medidas tab — substituir placeholder
