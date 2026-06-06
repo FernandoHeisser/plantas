@@ -1660,6 +1660,14 @@
                 { color: '#475569', weight: 1.2, interactive: false }));
             lys.push(roomLabel(ESC_N0 + ESC_DN/2, (ESC_E_top + ESC_E_base) / 2, 'Escada', '↑ 2º pav', ''));
 
+            // Junta de dilatação casa/garagem — interface mE=22,5 (estruturas independentes)
+            // Linha âmbar sólida na face exterior da parede oeste, mN 2,0→7,5
+            lys.push(L.polyline([rot(GN0, 22.4+OE), rot(7.5, 22.4+OE)],
+                { color: '#f59e0b', weight: 3, opacity: 0.95, interactive: false }));
+            lys.push(L.marker(rot(5.2, 21.3+OE), { interactive: false,
+                icon: L.divIcon({ className: '', iconAnchor: [40, 8],
+                    html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.8);padding:1px 4px;border-radius:3px">junta dilat. 15mm</div>' }) }));
+
             // Cotas laterais: recuo sul e recuo norte da garagem
             dimLine(0,   15.5, GN0, 15.5, '2,0 m — sul').forEach(l => lys.push(l));
             dimLine(GN1, 15.5, 12.5, 15.5, '2,0 m — norte').forEach(l => lys.push(l));
@@ -2275,16 +2283,27 @@
             // Escada leste — 4 degraus descendo p/ o quintal (e=0,175 m; p=0,28 m; Blondel ✓)
             extStairs(pN0, pE1, pN1-pN0, 'E');
         }
+        // ── Colunas estruturais da casa — 15×15 cm, matEmbase (V1+V2+V3) ──────
+        // Mesmo grid marcado em vermelho no 2D; embedded nas paredes (Z-fight
+        // evitado: seção 0,15 m fica 2,5 cm atrás das faces da parede 0,20 m).
+        { const CS = 0.075; // meia-seção
+          [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
+           [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,30.5],[4.5,31.5],
+           [7.5,22.5],[7.5,25.5],[7.5,27.5],[7.5,30.5]
+          ].forEach(([cn,ce]) => {
+              const e3 = ce + OE;
+              g.add(box3d(cn-CS, e3-CS, 2*CS, 2*CS, baseBot(e3, 2*CS), CEIL3D+CPA, matEmbase));
+          });
+        }
+
         // Esperas para garagem V2 — consolos na fachada oeste, só V1
         if (v === 'v1') {
-            const GLAJE_V1 = CEIL3D + CPA;          // = 2,85 m
-            const WF = 22.5 + OE - 0.10;            // = 21,90 — face exterior (oeste) da parede
-            const SD = 0.20;                         // saliência dos consolos
-            const VH = 0.35;                         // altura da viga V2 (idem buildBuilding3D V2)
-            // Consolos nos apoios das vigas V2
-            g.add(box3d(3.30, WF - SD, 0.20, SD, GLAJE_V1 - VH, GLAJE_V1, matEmbase)); // viga E-O mN=3,4
-            g.add(box3d(6.65, WF - SD, 0.20, SD, GLAJE_V1 - VH, GLAJE_V1, matEmbase)); // col. mN=6,75
-            // Faixa de apoio de laje ao longo de toda a fachada oeste (mN 2,0→7,5)
+            // Consolo de apoio de laje — faixa âmbar na fachada oeste (mN 2,0→7,5).
+            // A laje da garagem V2 APOIA aqui e desliza via junta de dilatação 15mm.
+            // Os consolos de coluna (mN=3,4 e 6,75) foram removidos: garagem é
+            // estrutura independente com fundações próprias (não ancora na parede).
+            const GLAJE_V1 = CEIL3D + CPA;
+            const WF = 22.5 + OE - 0.10; // face exterior oeste da parede (21,90)
             g.add(box3d(2.0, WF - 0.10, 5.5, 0.10, GLAJE_V1 - 0.10, GLAJE_V1, matEmbase));
         }
 
@@ -2587,6 +2606,14 @@
                 m.castShadow = false;
                 g.add(m);
             });
+
+            // Junta de dilatação casa/garagem — faixa âmbar fina no topo da parede oeste
+            // A laje da garagem apoia no consolo e desliza via junta de 15mm (recalque diferencial)
+            const juntaMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, depthWrite: false });
+            const JWF = 22.5 + OE - 0.10; // face exterior oeste da parede (21,90)
+            const jt = box3d(GN0, JWF - 0.015, GN1 - GN0, 0.015, GLAJE - 0.04, GLAJE + 0.02, juntaMat);
+            jt.castShadow = false;
+            g.add(jt);
         }
 
         buildDims3D(g);
