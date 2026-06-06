@@ -1582,12 +1582,12 @@
                     { color: '#94a3b8', weight: 1.0, interactive: false }));
 
             // ── Depósito (embaixo da escada) — mN 2,0→3,4 × mE 13,5→15,9 ────────
+            // Parede leste removida: escada delimita o espaço; porta na parede norte
             const DEP_N1 = 3.4, DEP_E0 = 13.5, DEP_E1 = 15.9;
             wall(GN0,    DEP_E0, DEP_N1, DEP_E0, 0.20);           // parede oeste (fachada)
-            wall(DEP_N1, DEP_E0, DEP_N1, DEP_E1, 0.10);           // parede norte (segue viga)
-            wall(GN0,    DEP_E1, DEP_N1, DEP_E1, 0.10);           // parede leste (divide da garagem)
-            cut(2.5, DEP_E1 - 0.05, 0.9, 0.10);                   // vão da porta na parede leste
-            doorArc(DEP_N1, DEP_E1, -0.9, 0.0, -1).forEach(l => lys.push(l)); // porta abre p/ leste (garagem)
+            wall(DEP_N1, DEP_E0, DEP_N1, DEP_E1, 0.10);           // parede norte (segue viga) com porta
+            cut(3.35, 14.5, 0.10, 0.9);                            // vão da porta na parede norte
+            doorArc(DEP_N1, 14.5, 0.0, 0.9, +1).forEach(l => lys.push(l)); // porta abre p/ norte (garagem)
             lys.push(roomLabel(2.7, 14.7, 'Depósito', '1,4 × 2,4 m', '~3 m²'));
 
             // Escada p/ 2º pavimento — base junto à porta (leste, mE 21), sobe LONGA p/ oeste
