@@ -1293,10 +1293,8 @@
                 [rot(2.0,19.0), rot(7.5,19.0), rot(7.5,23.5), rot(8.0,23.5), rot(8.0,26.5), rot(2.0,26.5)],
                 { color: 'transparent', weight: 0, fillColor: '#fafafa', fillOpacity: 1, interactive: false }
             ));
-            // Chão da saliência leste do quarto (mN 2→4,5 × mE 30→31,5) — fica sob paredes/móveis
-            lys.push(rect(2.0, 30, 2.5, 1.5, '#fafafa', { color: 'transparent', weight: 0, fillOpacity: 1, no3d: true }));
-            // Chão da extensão leste da cozinha (mN 4,5→8,0 × mE 29,5→30,5) — polígono base vai só até mE=29,5
-            lys.push(rect(4.5, 29.5, 3.5, 1.0, '#fafafa', { color: 'transparent', weight: 0, fillOpacity: 1, no3d: true }));
+            // Chão retângulo leste completo (mN 2→7,5 × mE 30→31,5) — retângulo perfeito
+            lys.push(rect(2.0, 30, 5.5, 1.5, '#fafafa', { color: 'transparent', weight: 0, fillOpacity: 1, no3d: true }));
 
             // Contorno âmbar do lote
             lys.push(L.polygon(
@@ -1337,14 +1335,9 @@
 
             // Paredes externas (centradas em mN=1.5/6.5, mE=22/30)
             lys.push(wall(2.0, 22.5,  2.0, 31.5, EW)); // sul (estende ao quarto avançado a leste)
-            lys.push(wall(7.5, 22.5,  7.5, 27.5, EW)); // norte-sala (mE 22,5→27,5 — fachada oeste recuou 1 m p/ leste)
-            lys.push(wall(8.0, 27.5,  8.0, 30.5, EW)); // norte-cozinha bump-out (mN=8,0)
-            lys.push(wall(7.5, 27.5,  8.0, 27.5, EW)); // degrau N-S (mE=27,5, mN 7,5→8,0)
-            lys.push(wall(2.0, 22.5,  7.5, 22.5, EW)); // oeste (frente) — recuada 1 m p/ leste (casa menor)
-            lys.push(wall(4.5, 30.5,  8.0, 30.5, EW)); // leste — só faixa norte (sala/cozinha), mN 4,5→8,0
-            // Quarto avançado a leste (mE 28,5→31,5): fachada leste + degrau no recuo (mN=4,5)
-            lys.push(wall(2.0, 31.5,  4.5, 31.5, EW)); // leste do quarto (fachada)
-            lys.push(wall(4.5, 30.5,  4.5, 31.5, EW)); // degrau externo norte do quarto (mE 30,5→31,5)
+            lys.push(wall(7.5, 22.5,  7.5, 31.5, EW)); // norte — retângulo completo (mE 22,5→31,5)
+            lys.push(wall(2.0, 22.5,  7.5, 22.5, EW)); // oeste (frente)
+            lys.push(wall(2.0, 31.5,  7.5, 31.5, EW)); // leste — fachada completa (mN 2,0→7,5)
 
             // Paredes internas — banheiro + quarto
             // Banheiro linear 1,5×2,5: parede norte alinhada ao quarto (mN=4,5), sem degrau
@@ -1352,7 +1345,7 @@
             lys.push(wall(4.5, 25.5,  4.5, 27.0, IW)); // norte do banheiro (mE 25,5→27,0)
             lys.push(wall(2.0, 27.0,  4.5, 27.0, IW)); // leste banheiro / oeste á. serviço (mE 27,0)
             lys.push(wall(2.0, 28.5,  4.5, 28.5, IW)); // leste á. serviço / oeste quarto (quarto intocado)
-            lys.push(wall(4.5, 27.0,  4.5, 30.5, IW)); // norte da á.serviço + quarto (divide da cozinha)
+            lys.push(wall(4.5, 27.0,  4.5, 31.5, IW)); // norte da á.serviço + quarto → nova parede leste (retângulo)
 
             // ── Colunas estruturais — grelha V1→V3 (15×15 cm, sem3D por ora) ──────
             // Centradas em (mN, mE); rect soma OE internamente.
@@ -1367,15 +1360,13 @@
             // Linha meio (mN=4,5) — divisor estrutural N/S
             col(4.5, 22.5); // M1 — W
             col(4.5, 25.5); // M2 — cruzamento banheiro/sala
-            col(4.5, 28.5); // M3 — cruzamento serviço/sala
-            col(4.5, 30.5); // M4 — degrau quarto/leste
-            col(4.5, 31.5); // M5 — canto NE quarto (saliência)
+            col(4.5, 28.5); // M3 — div. serviço/quarto
+            col(4.5, 31.5); // M4 — canto NE (alinha com S4/N4)
             // Linha norte (mN=7,5)
             col(7.5, 22.5);  // N1 — canto NW (espera V2)
             col(7.5, 25.5);  // N2 — borda leste do pilar (glassdoor→25,0; pilar 25,0→25,5; janela 25,5→); alinha S2/M2
-            col(7.5, 27.5);  // N3 — início cozinha (degrau N-S)
-            col(7.5, 30.5);  // N4 — canto NE corpo principal
-            // Linha cozinha (mN=8,0): bump-out de só 0,5m — N3+N4 já cobrem, sem col. extras
+            col(7.5, 28.5);  // N3 — alinha com S3/M3 (retângulo perfeito)
+            col(7.5, 31.5);  // N4 — canto NE (alinha com S4/M4)
 
             // Aberturas — cortam as paredes nas posições das portas
             const cut = (n, e, dn, de, type) => {
@@ -1391,7 +1382,7 @@
             }
             cut(2.90, 25.40, 0.8, 0.20); // Banheiro (interna) — parede oeste mE=25,5
             cut(7.35, 23.00, 0.30, 2.00, 'glassdoor'); // Porta grande de vidro (lado da sala) — deslocada 0,3m p/ leste p/ equilíbrio
-            cut(4.70, 30.40, 0.90, 0.20); // Fundos (leste) — mN 4,70→5,60 (folga da parede IW em mN=4,55)
+            cut(4.70, 31.40, 0.90, 0.20); // Fundos (leste) — nova parede leste mE=31,5
             cut(4.40, 28.90, 0.20, 0.9); // Quarto (interna) — pela cozinha
             cut(4.40, 27.30, 0.20, 0.9); // Á. serviço (interna) — pela cozinha (recentrada no cômodo 1,5 m)
 
@@ -1403,7 +1394,7 @@
             win(1.90, 23.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall (mE 22,5→25,5)
             win(7.40, 25.50, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, deslocada 0,3m p/ leste p/ equilíbrio
             // Cozinha — janela-fita (peitoril 0,90 / verga 1,50), passa atrás do cooktop; centrada na cozinha (mE 27,5→30,5)
-            win(7.90, 28.20, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l));
+            win(7.40, 28.70, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l)); // cozinha — fita norte (mN=7,5; leste do pilar N3 em 28,5)
 
             // Portas — folha + arco de abertura + pivô
             doorArc(2.30, 22.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
@@ -1443,7 +1434,7 @@
             // Degraus externos fundos (leste) — 5 degraus Caixa: espelho 0,165m / piso 0,30m / Blondel 0,63 ✓
             lys.push(rect(4.70, 30.70, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
             lys.push(rect(4.70, 31.00, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
-            doorArc(5.60, 30.50, -0.90, 0.0, -1).forEach(l => lys.push(l)); // Fundos → abre p/ oeste (cozinha), hinge mN=5,60
+            doorArc(5.60, 31.50, -0.90, 0.0, -1).forEach(l => lys.push(l)); // Fundos → abre p/ oeste (cozinha), hinge mN=5,60
             doorArc(4.50, 29.80,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → abre para sul (dentro), hinge leste
             doorArc(4.50, 28.20,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Á. serviço → abre para sul (dentro), hinge leste
 
@@ -1490,42 +1481,36 @@
             // Despensa / armário alto — canto NE (contra a parede leste mE=28,5), livre da porta
             lys.push(rect(2.80, 27.95, 0.55, 0.45, '#a16207', { color: '#5a4422', weight: 0.8, h3d: 2.00 }));
 
-            // ─── COZINHA (zona NE) ───────────────────────────────────────────
-            // Bancada norte (encostada na parede norte mN=8,0) — tampo claro
-            lys.push(rect(7.35, 27.75, 0.55, 2.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
-            // Península oeste (braço do U) — mN 5,80→6,85, mE 27,75→28,50 (prof. 0,75 — bancada de preparo robusta)
-            // Deixa mN 4,5→5,80 (1,3m) livre p/ a passagem sala→cozinha. Face oeste = encosto do canto alemão.
-            lys.push(rect(5.80, 27.75, 1.55, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' })); // estendida até mN=7,35 p/ fechar gap com bancada norte
-            // Lado leste do U = geladeira (contígua à ponta da bancada norte) — sem braço extra p/ folgar a porta dos fundos
-            // Armário baixo entre geladeira e bancada norte (mN 6,85→7,35) — fecha o U no chão
-            lys.push(rect(6.85, 29.95, 0.50, 0.55, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
-            // Geladeira — parede leste (mE=30,5), frente alinhada à bancada
-            lys.push(rect(6.20, 29.95, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
-            lys.push(L.polyline([rot(6.52, 30.02+OE), rot(6.52, 30.35+OE)],
+            // ─── COZINHA — retângulo perfeito (mN 4,5→7,5 × mE 27,5→31,5) ──────
+            // Bancada norte (parede norte mN=7,5, inner face 7,40) — mE 27,75→30,85
+            lys.push(rect(6.85, 27.75, 0.55, 3.10, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            // Península oeste — mN 5,80→6,85, mE 27,75→28,50
+            lys.push(rect(5.80, 27.75, 1.05, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            // Geladeira — nova parede leste (mE=31,5), frente alinhada à bancada
+            lys.push(rect(6.20, 30.85, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
+            lys.push(L.polyline([rot(6.52, 30.92+OE), rot(6.52, 31.25+OE)],
                 { color: '#334155', weight: 0.6, interactive: false }));
-            // Fogão — 4 bocas — central na bancada norte (acessível pelo poço), respaldo sólido + coifa
-            lys.push(rect(7.35, 28.60, 0.55, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 0.90, m3d: 'stove' }));
-            lys.push(circ(7.55, 28.75, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(7.55, 29.00, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(7.72, 28.75, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(7.72, 29.00, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            // Pia da cozinha — 2 cubas — sob a fita L (mE 29,25→30,35), lavar louça com luz
-            lys.push(rect(7.35, 29.35, 0.55, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'sink' }));
-            lys.push(rect(7.68, 29.42, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
-            lys.push(rect(7.68, 29.67, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
-            // ─── COIFA + ARMÁRIOS AÉREOS (tracejado = sobre a bancada) ────────
-            // Coifa sobre o fogão — encostada na parede norte, fora da linha de visão da TV
-            lys.push(rect(7.45, 28.50, 0.45, 0.75, '#cbd5e1',
+            // Fogão — 4 bocas — central na bancada norte
+            lys.push(rect(6.85, 28.60, 0.55, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 0.90, m3d: 'stove' }));
+            lys.push(circ(7.05, 28.75, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(7.05, 29.00, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(7.22, 28.75, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(circ(7.22, 29.00, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            // Pia — 2 cubas — na bancada norte (mE 29,35→29,90)
+            lys.push(rect(6.85, 29.35, 0.55, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'sink' }));
+            lys.push(rect(7.18, 29.42, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            lys.push(rect(7.18, 29.67, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            // ─── COIFA + ARMÁRIOS AÉREOS ─────────────────────────────────────
+            lys.push(rect(6.95, 28.50, 0.45, 0.75, '#cbd5e1',
                 { color: '#475569', weight: 0.7, dashArray: '4 3', fillOpacity: 0.4, z3d: 1.55, h3d: 1.15, m3d: 'hood' }));
-            // Aéreos na parede norte (verga 1,50 → 2,30), de costas p/ a parede norte
-            lys.push(rect(7.57, 27.80, 0.33, 0.70, '#e5e7eb',
-                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // sobre a península (parede sólida)
-            lys.push(rect(7.57, 29.25, 0.33, 0.65, '#e5e7eb',
-                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // sobre a janela
-            // Coluna de armários da geladeira — DE COSTAS P/ A PAREDE LESTE (mE=30,5), frente p/ oeste
-            lys.push(rect(6.85, 29.95, 1.05, 0.55, '#e5e7eb',
-                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcabW' })); // aéreo coluna mN 6,85→7,90 (preenche gap + canto)
-            lys.push(rect(6.20, 29.95, 0.65, 0.55, '#e5e7eb',
+            lys.push(rect(7.07, 27.80, 0.33, 0.70, '#e5e7eb',
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // sobre parede sólida (oeste)
+            lys.push(rect(7.07, 29.30, 0.33, 0.60, '#e5e7eb',
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // leste da coifa / sobre janela
+            // Coluna de armários da geladeira — costas na parede leste (mE=31,5)
+            lys.push(rect(6.85, 30.85, 0.55, 0.55, '#e5e7eb',
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcabW' })); // aéreo acima da bancada
+            lys.push(rect(6.20, 30.85, 0.65, 0.55, '#e5e7eb',
                 { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.70, h3d: 0.60, m3d: 'wallcabW' })); // sobre a geladeira
 
             // ─── SALA ─────────────────────────────────────────────────────────
@@ -2198,12 +2183,12 @@
         const EM_P = 0.03;
         const baseBot = (e, de) => grade(e + de);
         const EN0 = 2 - 0.20 - EM_P, EN1 = 7.5 + 0.20 + EM_P;
-        const EE0 = 22.5 + OE - 0.20 - EM_P, EE1 = 30 + OE + 0.20 + EM_P;
+        const EE0 = 22.5 + OE - 0.20 - EM_P, EE1 = 31.5 + OE + 0.20 + EM_P; // retângulo perfeito: leste agora em mE=31,5
         const emSides = [
-            [EN0,            EE0, 0.20 + EM_P, EE1 - EE0],   // sul
-            [EN1 - 0.20 - EM_P, EE0, 0.20 + EM_P, EE1 - EE0],   // norte
-            [EN0, EE0,           EN1 - EN0, 0.20 + EM_P],    // oeste
-            [4.5, 30.5 + OE, EN1 - 4.5, 0.20 + EM_P],   // leste cozinha em mE=30,5 (só mN≥4,5 — o quarto avança a leste em mN<4,5)
+            [EN0,                EE0, 0.20 + EM_P, EE1 - EE0],  // sul
+            [EN1 - 0.20 - EM_P, EE0, 0.20 + EM_P, EE1 - EE0],  // norte (mN=7,5, retângulo completo)
+            [EN0, EE0,           EN1 - EN0, 0.20 + EM_P],        // oeste
+            [EN0, 31.5 + OE,     EN1 - EN0, 0.20 + EM_P],        // leste (mE=31,5, mN 2,0→7,5 — retângulo)
         ];
         emSides.forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, baseBot(e, de), CPA, matEmbase)));
 
@@ -2215,37 +2200,12 @@
             g.add(m);
         });
 
-        // Embasamento do bump-out cozinha (mN 7,5→8,0; mE 27,5→30,5) — 3 lados novos
-        const BEM_W = [7.5 - EM_P, 27.5 + OE - 0.20 - EM_P, 0.5 + 0.20 + 2*EM_P, 0.20 + 2*EM_P]; // degrau mE=27,5
-        const BEM_N = [8.0 - EM_P, 27.5 + OE - 0.20 - EM_P, 0.20 + 2*EM_P, (30.5 + OE + 0.20 + EM_P) - (27.5 + OE - 0.20 - EM_P)]; // norte mN=8,0
-        const BEM_E = [7.5 - EM_P, 30.5 + OE, 0.5 + 0.20 + 2*EM_P, 0.20 + 2*EM_P]; // leste mE=30,5 (gap mN 7,73→8,23)
-        [BEM_W, BEM_N, BEM_E].forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, baseBot(e, de), CPA, matEmbase)));
-        [BEM_W, BEM_N, BEM_E].forEach(([n, e, dn, de]) => {
-            const m = box3d(n-0.005, e-0.005, dn+0.01, de+0.01, CPA-WP_H, CPA+0.004, matWP);
-            m.castShadow = false; g.add(m);
-        });
+        // Bump-out cozinha removido (retângulo perfeito) — embasamento BEM eliminado.
+        // Saliência leste do quarto eliminada (fachada leste agora uniforme em mE=31,5).
+        // emSides já cobre mE=31,5 no 4º lado, então QEM não é mais necessário.
 
-        // Embasamento (cinta sob as paredes) da saliência leste do quarto — mesma projeção da casa.
-        // Cinta, não bloco maciço: deixa o interior livre p/ o piso (evita matEmbase coplanar = z-fight cinza).
-        const QEM = [
-            [2 - 0.20 - EM_P, 30 + OE,   0.20 + EM_P, (31.5 + 0.20 + EM_P) - 30],                   // sul
-            [2 - 0.20 - EM_P, 31.5 + OE, (4.5 + 0.20 + EM_P) - (2 - 0.20 - EM_P), 0.20 + EM_P],      // leste (fachada)
-            [4.5,             30 + OE,   0.20 + EM_P, (31.5 + 0.20 + EM_P) - 30],                    // norte (degrau)
-        ];
-        QEM.forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, baseBot(e, de), CPA, matEmbase)));
-        QEM.forEach(([n, e, dn, de]) => {
-            const m = box3d(n - 0.005, e - 0.005, dn + 0.01, de + 0.01, CPA - WP_H, CPA + 0.004, matWP);
-            m.castShadow = false; g.add(m);
-        });
-
-        // Piso da casa elevado à CPA (1cm aquém das faces interiores das paredes)
-        g.add(box3d(2.11, 22.61 + OE, 5.28, 7.28, CPA - 0.025, CPA, matFloor));
-        // Piso do bump-out cozinha (mN 7,5→8,0; mE 27,5→30,5) — 1cm aquém das paredes interiores
-        g.add(box3d(7.41, 27.61 + OE, 0.48, 2.78, CPA - 0.025, CPA, matFloor));
-        // Faixa leste nova da cozinha (mN 4,5→7,4; mE 30→30,5) — complementa o piso da casa
-        g.add(box3d(4.61, 29.89 + OE, 2.78, 0.51, CPA - 0.025, CPA, matFloor));
-        // Piso da saliência leste do quarto (mN 2→4,5; mE 30→31,5) — complementa o piso da casa
-        g.add(box3d(2.11, 29.89 + OE, 2.29, 1.50, CPA - 0.025, CPA, matFloor));
+        // Piso retângulo completo (mN 2,0→7,5 × mE 22,5→31,5) — 1cm aquém das faces interiores
+        g.add(box3d(2.11, 22.61 + OE, 5.28, 8.78, CPA - 0.025, CPA, matFloor));
         // ── Escadas externas — normas Caixa/NBR 9050 ───────────────────────────
         // Espelho (e) 16–18 cm · piso (p) ~28–29 cm · Blondel 2e+p ≈ 0,63 m ·
         // degraus IGUAIS · largura ≥ 0,80 m. Como a casa está +1,0 m acima do solo
@@ -2287,9 +2247,10 @@
         // Mesmo grid marcado em vermelho no 2D; embedded nas paredes (Z-fight
         // evitado: seção 0,15 m fica 2,5 cm atrás das faces da parede 0,20 m).
         { const CS = 0.075; // meia-seção
+          // Grid perfeito 4×3: mE=22,5/25,5/28,5/31,5 × mN=2,0/4,5/7,5
           [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
-           [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,30.5],[4.5,31.5],
-           [7.5,22.5],[7.5,25.5],[7.5,27.5],[7.5,30.5]
+           [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
+           [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
           ].forEach(([cn,ce]) => {
               const e3 = ce + OE;
               g.add(box3d(cn-CS, e3-CS, 2*CS, 2*CS, baseBot(e3, 2*CS), CEIL3D+CPA, matEmbase));
@@ -2482,49 +2443,34 @@
         const roof = new THREE.Group();
         roof.name = 'roof';
         roof.visible = false;
-        const n0 = 2 - 0.12, n1 = 7.5 + 0.12, e0 = 22.5 + OE - 0.12, e1 = 30 + OE + 0.12;   // laje com beiral
-        const e1b = 30.5 + OE + 0.12;   // beiral leste da cozinha (cresceu 0,5 m p/ leste)
-        roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat));
-        // Faixa leste da cozinha (mN 4,5→7,5; mE 30→30,5) — estende a laje além do corpo principal
-        roof.add(box3d(4.5, e1, n1 - 4.5, e1b - e1, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat));
-        const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12;         // platibanda
-        roof.add(box3d(n0, e0, tt, e1 - e0, pb, pbTop, lajeMat));             // sul
-        roof.add(box3d(n1 - tt, e0, tt, (27.5 + OE) - e0, pb, pbTop, lajeMat));        // norte-sala (para em mE=27,5; o bump-out tem a sua própria platibanda)
-        roof.add(box3d(n0, e0, n1 - n0, tt, pb, pbTop, lajeMat));             // oeste
-        roof.add(box3d(4.5, e1b - tt, n1 - 4.5, tt, pb, pbTop, lajeMat));        // leste cozinha (mE 30,5; só faixa norte mN 4,5→7,5)
-        // Laje do bump-out cozinha (mN 7,5→8,0; mE 27,5→30,5)
-        const bn0 = 7.5 - 0.12, bn1 = 8.0 + 0.12, be0 = 27.5 + OE - 0.12;
-        roof.add(box3d(bn0, be0, bn1 - bn0, e1b - be0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab
-        roof.add(box3d(bn1 - tt, be0, tt,        e1b - be0, pb, pbTop, lajeMat)); // norte-cozinha
-        roof.add(box3d(bn0,      be0, bn1 - bn0, tt,        pb, pbTop, lajeMat)); // oeste (degrau)
-        roof.add(box3d(bn0,      e1b - tt, bn1 - bn0, tt,   pb, pbTop, lajeMat)); // leste (estende)
-        // Laje da saliência leste do quarto (mN 2→4,5; mE 30→31,5) — sem beiral oeste (encosta na laje da casa)
-        const q_n0 = 2.0 - 0.12, q_n1 = 4.5 + 0.12, q_e0 = 30 + OE, q_e1 = 31.5 + OE + 0.12;
-        roof.add(box3d(q_n0, q_e0, q_n1 - q_n0, q_e1 - q_e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab
-        roof.add(box3d(q_n0, q_e0, tt, q_e1 - q_e0, pb, pbTop, lajeMat));        // platibanda sul
-        roof.add(box3d(q_n1 - tt, 30.5 + OE, tt, q_e1 - (30.5 + OE), pb, pbTop, lajeMat));   // platibanda norte (degrau mN=4,5; só mE≥30,5 — a cozinha cobre até lá)
-        roof.add(box3d(q_n0, q_e1 - tt, q_n1 - q_n0, tt, pb, pbTop, lajeMat));   // platibanda leste (fachada)
+        // Laje retângulo perfeito (mN 2,0→7,5 × mE 22,5→31,5) + beiral 12 cm
+        const n0 = 2 - 0.12, n1 = 7.5 + 0.12;
+        const e0 = 22.5 + OE - 0.12, e1 = 31.5 + OE + 0.12; // leste agora em mE=31,5
+        roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab
+        const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12; // platibanda
+        roof.add(box3d(n0,      e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // sul
+        roof.add(box3d(n1 - tt, e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // norte (uniform)
+        roof.add(box3d(n0,      e0, n1 - n0, tt,       pb, pbTop, lajeMat)); // oeste
+        roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
         g.add(roof);
 
         // ── Vigas estruturais da casa (V1+V2+V3) — mesmo nível e material das vigas da garagem ──
         // VH=0,35m altura / VW=0,15m largura (=seção da coluna). Nível: CPA+CEIL3D−VH → CPA+CEIL3D.
         { const VH = 0.35, VW = 0.15;
           const BZ0 = CPA + CEIL3D - VH, BZ1 = CPA + CEIL3D; // y 2,50→2,85
-          // Vigas E-O (ao longo de mE, constante mN) — conectam colunas na direção leste
+          // Vigas E-O — grid do retângulo perfeito (3 linhas × 3 vãos de 3m)
           [
-            [2.0, 22.5, 25.5], [2.0, 25.5, 28.5], [2.0, 28.5, 31.5],
-            [4.5, 22.5, 25.5], [4.5, 25.5, 28.5], [4.5, 28.5, 30.5], [4.5, 30.5, 31.5],
-            [7.5, 22.5, 25.5], [7.5, 25.5, 27.5], [7.5, 27.5, 30.5],
-            [8.0, 27.5, 30.5],  // cozinha bump-out
+            [2.0, 22.5, 25.5], [2.0, 25.5, 28.5], [2.0, 28.5, 31.5],  // sul
+            [4.5, 22.5, 25.5], [4.5, 25.5, 28.5], [4.5, 28.5, 31.5],  // meio
+            [7.5, 22.5, 25.5], [7.5, 25.5, 28.5], [7.5, 28.5, 31.5],  // norte
           ].forEach(([n, e0, e1]) =>
               g.add(box3d(n - VW/2, e0 + OE, VW, e1 - e0, BZ0, BZ1, lajeMat)));
-          // Vigas N-S (ao longo de mN, constante mE) — conectam colunas na direção norte
+          // Vigas N-S — 4 linhas completas (mN 2,0→7,5 em cada mE)
           [
-            [22.5, 2.0, 4.5], [22.5, 4.5, 7.5],  // fachada oeste (espera V2)
+            [22.5, 2.0, 4.5], [22.5, 4.5, 7.5],  // oeste (espera V2)
             [25.5, 2.0, 4.5], [25.5, 4.5, 7.5],  // div. hall/banheiro
-            [28.5, 2.0, 4.5],                      // div. serviço/quarto (só sul)
-            [30.5, 4.5, 7.5],                      // fachada leste N-zona (só norte)
-            [31.5, 2.0, 4.5],                      // fachada leste quarto (só sul)
+            [28.5, 2.0, 4.5], [28.5, 4.5, 7.5],  // div. serviço/quarto — agora completa!
+            [31.5, 2.0, 4.5], [31.5, 4.5, 7.5],  // fachada leste — completa!
           ].forEach(([e, n0, n1]) =>
               g.add(box3d(n0, e + OE - VW/2, n1 - n0, VW, BZ0, BZ1, lajeMat)));
         }
