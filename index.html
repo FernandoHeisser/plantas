@@ -2506,6 +2506,29 @@
         roof.add(box3d(q_n0, q_e1 - tt, q_n1 - q_n0, tt, pb, pbTop, lajeMat));   // platibanda leste (fachada)
         g.add(roof);
 
+        // ── Vigas estruturais da casa (V1+V2+V3) — mesmo nível e material das vigas da garagem ──
+        // VH=0,35m altura / VW=0,15m largura (=seção da coluna). Nível: CPA+CEIL3D−VH → CPA+CEIL3D.
+        { const VH = 0.35, VW = 0.15;
+          const BZ0 = CPA + CEIL3D - VH, BZ1 = CPA + CEIL3D; // y 2,50→2,85
+          // Vigas E-O (ao longo de mE, constante mN) — conectam colunas na direção leste
+          [
+            [2.0, 22.5, 25.5], [2.0, 25.5, 28.5], [2.0, 28.5, 31.5],
+            [4.5, 22.5, 25.5], [4.5, 25.5, 28.5], [4.5, 28.5, 30.5], [4.5, 30.5, 31.5],
+            [7.5, 22.5, 25.5], [7.5, 25.5, 27.5], [7.5, 27.5, 30.5],
+            [8.0, 27.5, 30.5],  // cozinha bump-out
+          ].forEach(([n, e0, e1]) =>
+              g.add(box3d(n - VW/2, e0 + OE, VW, e1 - e0, BZ0, BZ1, lajeMat)));
+          // Vigas N-S (ao longo de mN, constante mE) — conectam colunas na direção norte
+          [
+            [22.5, 2.0, 4.5], [22.5, 4.5, 7.5],  // fachada oeste (espera V2)
+            [25.5, 2.0, 4.5], [25.5, 4.5, 7.5],  // div. hall/banheiro
+            [28.5, 2.0, 4.5],                      // div. serviço/quarto (só sul)
+            [30.5, 4.5, 7.5],                      // fachada leste N-zona (só norte)
+            [31.5, 2.0, 4.5],                      // fachada leste quarto (só sul)
+          ].forEach(([e, n0, n1]) =>
+              g.add(box3d(n0, e + OE - VW/2, n1 - n0, VW, BZ0, BZ1, lajeMat)));
+        }
+
         // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
         if (v === 'v2' || v === 'v3') {
             const GN0 = 2.0, GN1 = 10.5, GE0 = 13.5 + OE, GE1 = 22.5 + OE;
