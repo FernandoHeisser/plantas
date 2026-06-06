@@ -1371,13 +1371,11 @@
             col(4.5, 30.5); // M4 — degrau quarto/leste
             col(4.5, 31.5); // M5 — canto NE quarto (saliência)
             // Linha norte (mN=7,5)
-            col(7.5, 22.5); // N1 — canto NW (espera V2)
-            col(7.5, 26.5); // N2 — quebra vão 5m da sala (parede sólida após porta de vidro)
-            col(7.5, 27.5); // N3 — início cozinha (degrau N-S)
-            col(7.5, 30.5); // N4 — canto NE corpo principal
-            // Linha cozinha (mN=8,0 — bump-out)
-            col(8.0, 27.5); // K1 — cozinha NW
-            col(8.0, 30.5); // K2 — cozinha NE
+            col(7.5, 22.5);  // N1 — canto NW (espera V2)
+            col(7.5, 25.25); // N2 — pilar entre glassdoor (→mE 25,0) e janela (mE 25,5→); 0,5m sólido
+            col(7.5, 27.5);  // N3 — início cozinha (degrau N-S)
+            col(7.5, 30.5);  // N4 — canto NE corpo principal
+            // Linha cozinha (mN=8,0): bump-out de só 0,5m — N3+N4 já cobrem, sem col. extras
 
             // Aberturas — cortam as paredes nas posições das portas
             const cut = (n, e, dn, de, type) => {
