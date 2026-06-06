@@ -1349,7 +1349,7 @@
 
             // ── Colunas estruturais — grelha V1→V3 (15×15 cm, sem3D por ora) ──────
             // Centradas em (mN, mE); rect soma OE internamente.
-            const COL_SZ = 0.15;
+            const COL_SZ = 0.20; // NBR 6118 art.13.2.3: mín. 20 cm
             const col = (n, e) => lys.push(rect(n - COL_SZ/2, e - COL_SZ/2, COL_SZ, COL_SZ,
                 '#ef4444', { color: '#7f1d1d', weight: 1, no3d: true }));
             // Linha sul (mN=2,0)
@@ -1392,7 +1392,7 @@
             win(2.65, 31.40, 1.20, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — leste, centrada (mN 2→4,5) — sol da manhã
             win(1.90, 29.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 28,5→31,5) — ventilação cruzada com a leste
             win(1.90, 23.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall (mE 22,5→25,5)
-            win(7.40, 25.50, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, deslocada 0,3m p/ leste p/ equilíbrio
+            win(7.40, 26.10, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, centrada no vão N2(25,5)→N3(28,5): 26,1→27,9
             // Cozinha — janela-fita (peitoril 0,90 / verga 1,50), passa atrás do cooktop; centrada na cozinha (mE 27,5→30,5)
             win(7.40, 28.70, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l)); // cozinha — fita norte (mN=7,5; leste do pilar N3 em 28,5)
 
@@ -1429,6 +1429,17 @@
                 lys.push(L.marker(rot(6.5, WF - 0.9), { interactive: false,
                     icon: L.divIcon({ className: '', iconAnchor: [44, 7],
                         html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.8);padding:1px 4px;border-radius:3px">consolo + junta 15mm</div>' }) }));
+
+            // ── Esperas V3 — tiques roxos no topo das 12 colunas (vergalhão ↑ para o 2º pav) ──
+            [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
+             [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
+             [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
+            ].forEach(([cn,ce]) =>
+                lys.push(L.polyline([rot(cn + 0.12, ce + OE), rot(cn + 0.32, ce + OE)],
+                    { color: '#a78bfa', weight: 2, interactive: false })));
+            lys.push(L.marker(rot(4.75, 27.0+OE), { interactive: false,
+                icon: L.divIcon({ className: '', iconAnchor: [36, 7],
+                    html: '<div class="flbl" style="color:#a78bfa;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.8);padding:1px 4px;border-radius:3px">↑ esp. V3 (12×)</div>' }) }));
             }
 
             // Degraus externos fundos (leste) — nova parede leste mE=31,5 (face exterior 31,6)
@@ -2252,7 +2263,7 @@
         // ── Colunas estruturais da casa — 15×15 cm, matEmbase (V1+V2+V3) ──────
         // Mesmo grid marcado em vermelho no 2D; embedded nas paredes (Z-fight
         // evitado: seção 0,15 m fica 2,5 cm atrás das faces da parede 0,20 m).
-        { const CS = 0.075; // meia-seção
+        { const CS = 0.10; // meia-seção 20×20 cm (NBR 6118 mín.)
           // Grid perfeito 4×3: mE=22,5/25,5/28,5/31,5 × mN=2,0/4,5/7,5
           [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
            [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
@@ -2458,11 +2469,26 @@
         roof.add(box3d(n1 - tt, e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // norte (uniform)
         roof.add(box3d(n0,      e0, n1 - n0, tt,       pb, pbTop, lajeMat)); // oeste
         roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
+        // Esperas V3 — stubs roxos saindo do topo da laje (só V1, visíveis com laje ligada)
+        if (v === 'v1') {
+            const espV3Mat = new THREE.MeshBasicMaterial({ color: 0xa78bfa, depthWrite: false });
+            const LAJE_TOP = CEIL3D + CPA + 0.16; // topo da laje
+            [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
+             [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
+             [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
+            ].forEach(([cn,ce]) => {
+                const e3 = ce + OE;
+                const st = box3d(cn-0.04, e3-0.04, 0.08, 0.08, LAJE_TOP, LAJE_TOP+0.30, espV3Mat);
+                st.castShadow = false;
+                roof.add(st); // junto à laje → toggle laje oculta/visível
+            });
+        }
         g.add(roof);
 
-        // ── Vigas estruturais da casa (V1+V2+V3) — mesmo nível e material das vigas da garagem ──
-        // VH=0,35m altura / VW=0,15m largura (=seção da coluna). Nível: CPA+CEIL3D−VH → CPA+CEIL3D.
-        { const VH = 0.35, VW = 0.15;
+        // ── Vigas estruturais da casa (V1+V2+V3) ────────────────────────────────
+        // VH=0,45m (p/ suportar V3 — regra L/10: 3m/10=30cm mín, 45cm c/ folga)
+        // VW=0,20m (= seção das colunas, NBR 6118). Nível: CPA+CEIL3D−VH → CPA+CEIL3D.
+        { const VH = 0.45, VW = 0.20;
           const BZ0 = CPA + CEIL3D - VH, BZ1 = CPA + CEIL3D; // y 2,50→2,85
           // Vigas E-O — grid do retângulo perfeito (3 linhas × 3 vãos de 3m)
           [
