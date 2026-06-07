@@ -1694,7 +1694,7 @@
             const GN0 = 2.0,  GN1 = 10.5;  // 8,5 m de largura (2 m de cada muro lateral)
             const GE0 = 13.5, GE1 = 22.5; // extremidade nominal leste (= parede oeste da casa)
             const EW = 0.20;               // espessura parede externa (reutilizada aqui)
-            const GAP = 0.05;              // junta estrutural real: 5 cm (selada c/ silicone/PU impermeável)
+            const GAP = 0.03;              // junta estrutural: 3 cm de isopor (impermeável, compressível)
             const GE1j = GE1 - EW/2 - GAP; // face leste da garagem: para antes da face ext. da casa (= 22,35)
             const cut = (n, e, dn, de, type) => {
                 if (GEO) GEO.push({ k: 'opening', type: type || 'door', n, e: e + OE, dn, de, sill: 0, head: 2.1 });
@@ -1715,7 +1715,7 @@
                   fillColor: '#f59e0b', fillOpacity: 0.30, interactive: false }));
             lys.push(L.marker(rot((GN0+GN1)/2, GE1j+OE + GAP/2), { interactive: false,
                 icon: L.divIcon({ className: '', iconAnchor: [30, 7],
-                    html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.85);padding:1px 5px;border-radius:3px">junta 5cm</div>' }) }));
+                    html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.85);padding:1px 5px;border-radius:3px">isopor 3cm</div>' }) }));
 
             // Parede sul da garagem — para na junta (estrutura independente da casa)
             lys.push(wall(GN0, GE0, GN0, GE1j, 0.20, { no3d: true }));
@@ -2592,7 +2592,7 @@
         // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
         if (v === 'v2' || v === 'v3') {
             const GN0 = 2.0, GN1 = 10.5, GE0 = 13.5 + OE, GE1 = 22.5 + OE;
-            const GAP  = 0.05;            // junta estrutural real: 5 cm
+            const GAP  = 0.03;            // junta estrutural: 3 cm de isopor
             const GE1j = GE1 - 0.10 - GAP; // face leste da garagem (para antes da face ext. da casa)
             const COL = 0.20;
             const GNM  = (3.40 + (GN1 - COL)) / 2 - COL / 2;  // = 6,75 — centra no vão de vagas
