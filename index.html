@@ -1693,8 +1693,9 @@
         if (v === 'v2' || v === 'v3') {
             const GN0 = 2.0,  GN1 = 10.5;  // 8,5 m de largura (2 m de cada muro lateral)
             const GE0 = 13.5, GE1 = 22.5; // extremidade nominal leste (= parede oeste da casa)
-            const JUNTA = 0.20;            // gap estrutural entre garagem e casa (estruturas independentes)
-            const GE1j = GE1 - JUNTA;     // face leste real da garagem (= 22,30)
+            const EW = 0.20;               // espessura parede externa (reutilizada aqui)
+            const GAP = 0.05;              // junta estrutural real: 5 cm (selada c/ silicone/PU impermeável)
+            const GE1j = GE1 - EW/2 - GAP; // face leste da garagem: para antes da face ext. da casa (= 22,35)
             const cut = (n, e, dn, de, type) => {
                 if (GEO) GEO.push({ k: 'opening', type: type || 'door', n, e: e + OE, dn, de, sill: 0, head: 2.1 });
                 lys.push(rect(n, e - OE, dn, de, 'white', { no3d: true }));
@@ -1712,9 +1713,9 @@
                 [rot(GN0, GE1j+OE), rot(GN1, GE1j+OE), rot(GN1, GE1+OE), rot(GN0, GE1+OE)],
                 { color: '#f59e0b', weight: 1, dashArray: '3 2',
                   fillColor: '#f59e0b', fillOpacity: 0.30, interactive: false }));
-            lys.push(L.marker(rot((GN0+GN1)/2, GE1j+OE + JUNTA/2), { interactive: false,
+            lys.push(L.marker(rot((GN0+GN1)/2, GE1j+OE + GAP/2), { interactive: false,
                 icon: L.divIcon({ className: '', iconAnchor: [30, 7],
-                    html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.85);padding:1px 5px;border-radius:3px">junta 20cm</div>' }) }));
+                    html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.85);padding:1px 5px;border-radius:3px">junta 5cm</div>' }) }));
 
             // Parede sul da garagem — para na junta (estrutura independente da casa)
             lys.push(wall(GN0, GE0, GN0, GE1j, 0.20, { no3d: true }));
@@ -2591,15 +2592,15 @@
         // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
         if (v === 'v2' || v === 'v3') {
             const GN0 = 2.0, GN1 = 10.5, GE0 = 13.5 + OE, GE1 = 22.5 + OE;
-            const JUNTA = 0.20;           // gap estrutural — garagem e casa são independentes
-            const GE1j  = GE1 - JUNTA;   // face leste real da garagem (para antes da parede da casa)
+            const GAP  = 0.05;            // junta estrutural real: 5 cm
+            const GE1j = GE1 - 0.10 - GAP; // face leste da garagem (para antes da face ext. da casa)
             const COL = 0.20;
             const GNM  = (3.40 + (GN1 - COL)) / 2 - COL / 2;  // = 6,75 — centra no vão de vagas
             const GEM  = (GE0 + GE1j) / 2 - COL / 2;  // meio E-O ajustado à junta
             const GLAJE = CEIL3D + CPA;
             const VH = 0.35, VW = COL;
-            // Coluna leste: recua JUNTA da parede da casa → gap físico = 20 cm
-            const GE1c = GE1j - 0.10 - COL;
+            // Coluna leste: face leste em GE1j → gap físico = 5 cm até face ext. da casa
+            const GE1c = GE1j - COL;
             const GEMc = GEM;                           // coluna intermédia E-O
             const GCPA  = 0.15;   // piso garagem — 15 cm acima da calçada (entrada quase plana p/ carro)
             const GEM_P = 0.03;
