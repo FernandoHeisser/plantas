@@ -162,6 +162,9 @@ wall(n1, e1, n2, e2, t, opts?)
   Parede grossa centrada na linha (n1,e1)→(n2,e2), espessura t.
   Paredes externas: EW = 0.20m. Internas: IW = 0.10m.
   Registra automaticamente em GEO quando GEO !== null.
+  opts.z0 = base da parede no 3D (padrão 0 = datum/calçada). Use p/ paredes que
+    assentam num piso elevado — ex.: depósito da garagem sobre GCPA=0,15 (senão a
+    base começa em z=0 e atravessa a fundação/baldrame).
 
 doorArc(hn, he, dn, de, swing, opts?)
   Arco de abertura de porta + folha + pivô.
@@ -319,6 +322,7 @@ Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 | Porta parecendo fechada e aberta | Grade de caixilho gerada no vão fechado da glassdoor | Removida a grade do vão; ela existe só nas folhas |
 | Z-fight piso × parede | Piso slab face externa coplanar com parede exterior | Piso insetado 1 cm das faces interiores |
 | Paredes z-fight chão | Paredes começando em y=0 coplanar com topo do piso | `seg()` usa `z0adj=-0.01` quando `z0≤0` |
+| Parede do depósito atravessando a fundação (V2/V3) | Paredes do depósito iam pelo pipeline GEO (sempre de z=0); piso da garagem é GCPA=0,15 → 15 cm de parede abaixo do piso, dentro do baldrame | `wall(..., {z0:0.15})` + pipeline usa `base=w.z0` nos `seg()` (assenta no piso) |
 | Cabeceira dentro da parede | Cama terminava em mN=4,50 = face da parede | GAP=7 cm: cama vai até mN 4,43 |
 | Vidro bloqueando luz | MeshStandard transparente ainda projeta sombra | `castShadow=false` em todos os vidros |
 | Z-fight coluna×viga/parede | `matEmbase` (col.) e `matWall`/`lajeMat` têm faces coplanares (mesma mE, mN ou y=GLAJE) | `polygonOffset: true, factor:1, units:4` em `matWall` e `lajeMat` — colunas sempre vencem |
