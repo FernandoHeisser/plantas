@@ -1776,22 +1776,26 @@
         return lys;
     }
 
-    // ── V3 sobrado (pilotis): footprint do 2º piso = união casa + garagem (L) ──
-    //    NÃO extrapola o térreo — o canto NE (pátio) fica de fora. Coords do lote
-    //    (sem OE); os helpers/box3d aplicam OE. Centerlines das paredes externas.
+    // ── V3 sobrado (pilotis): 2º piso = DUAS estruturas independentes (garagem +
+    //    casa), separadas pela MESMA junta de dilatação do V2 (GE1j, isopor 3 cm).
+    //    Coords do lote (sem OE); os helpers aplicam OE. Centerlines das paredes.
+    const F2_GAP  = 0.03;
+    const F2_GE1j = 22.5 - 0.10 - F2_GAP;   // 22,37 — face leste da garagem (= GE1j do V2)
     const F2_WALLS = [
-        [2.0,  13.5,  2.0,  31.5],  // sul (casa + garagem alinhadas em mN=2,0)
-        [2.0,  31.5,  7.5,  31.5],  // leste casa (mE=31,5, mN 2,0→7,5)
-        [7.5,  22.5,  7.5,  31.5],  // norte casa (mN=7,5, mE 22,5→31,5)
-        [7.5,  22.5, 10.5,  22.5],  // leste garagem acima da casa (mE=22,5, mN 7,5→10,5)
-        [10.5, 13.5, 10.5,  22.5],  // norte garagem (mN=10,5, mE 13,5→22,5)
-        [2.0,  13.5, 10.5,  13.5],  // oeste (mE=13,5, mN 2,0→10,5)
+        // Garagem (mN 2→10,5, mE 13,5→GE1j) — leste recuada p/ a face cair na junta
+        [2.0,           13.5,  2.0,           F2_GE1j],  // sul
+        [2.0,           13.5,  10.5,          13.5   ],  // oeste (face das colunas)
+        [10.5,          13.5,  10.5,          F2_GE1j],  // norte (face das colunas)
+        [2.0,  F2_GE1j - 0.10, 10.5, F2_GE1j - 0.10  ],  // leste (junta) — face em GE1j
+        // Casa (mN 2→7,5, mE 22,5→31,5) — oeste = parede oeste do térreo (face 22,40)
+        [2.0,           22.5,  2.0,           31.5   ],  // sul
+        [2.0,           22.5,  7.5,           22.5   ],  // oeste (junta)
+        [7.5,           22.5,  7.5,           31.5   ],  // norte
+        [2.0,           31.5,  7.5,           31.5   ],  // leste
     ];
-    // Contorno da laje (polígono em L), vértices [mN, mE] no sentido horário
-    const F2_SLAB = [
-        [2.0, 13.5], [2.0, 31.5], [7.5, 31.5],
-        [7.5, 22.5], [10.5, 22.5], [10.5, 13.5],
-    ];
+    // Contornos das lajes (2 retângulos) [n0,e0,n1,e1] + faixa da junta
+    const F2_SLAB_GAR  = [2.0, 13.5, 10.5, F2_GE1j];   // garagem (até a junta)
+    const F2_SLAB_CASA = [2.0, 22.5, 7.5,  31.5];      // casa
 
     // Escada 2D (só desenho, no3d) — fonte única: térreo V2/V3 + visão 2º piso V3.
     // O volume 3D da escada é montado à parte (box3d manual na garagem).
@@ -1844,9 +1848,19 @@
         lys.push(L.polygon([rot(0,0), rot(12.5,0), rot(12.5,40), rot(0,40)],
             { color: '#f59e0b', weight: 3, fillOpacity: 0, interactive: false }));
 
-        // Laje do 2º piso (em L) — preenchida
-        lys.push(L.polygon(F2_SLAB.map(([n, e]) => rot(n, e + OE)),
-            { color: '#94a3b8', weight: 1.5, fillColor: '#fafafa', fillOpacity: 1, interactive: false }));
+        // Laje do 2º piso — DUAS estruturas independentes (junta = V2)
+        const slabSty = { color: '#94a3b8', weight: 1.5, fillColor: '#fafafa', fillOpacity: 1, interactive: false };
+        const slabRect = ([n0, e0, n1, e1]) => L.polygon(
+            [rot(n0, e0 + OE), rot(n1, e0 + OE), rot(n1, e1 + OE), rot(n0, e1 + OE)], slabSty);
+        lys.push(slabRect(F2_SLAB_GAR));   // garagem (até a junta)
+        lys.push(slabRect(F2_SLAB_CASA));  // casa
+        // Junta de dilatação (faixa âmbar) + label — mesma do V2, onde casa e garagem
+        // são adjacentes (mN 2→7,5). Norte disso, a face leste da garagem dá p/ o pátio.
+        lys.push(L.polygon([rot(2.0, F2_GE1j + OE), rot(7.5, F2_GE1j + OE), rot(7.5, 22.5 + OE), rot(2.0, 22.5 + OE)],
+            { color: '#f59e0b', weight: 1, dashArray: '3 2', fillColor: '#f59e0b', fillOpacity: 0.30, interactive: false }));
+        lys.push(L.marker(rot((2.0 + 7.5) / 2, F2_GE1j + OE + F2_GAP / 2), { interactive: false,
+            icon: L.divIcon({ className: '', iconAnchor: [30, 7],
+                html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.85);padding:1px 5px;border-radius:3px">isopor 3cm</div>' }) }));
 
         // Escada de acesso + plataforma norte (contexto do térreo, p/ orientação)
         stair2D().forEach(l => lys.push(l));
@@ -2667,43 +2681,45 @@
         // 2º). NÃO extrapola o terreno. Começa oculto; a laje de cobertura (roof)
         // sobe sobre ele quando visível (set3DFloor2). Sem paredes internas (etapa 1).
         if (v === 'v3') {
+            // 2º pavimento = DUAS estruturas independentes, como no térreo: garagem e
+            // casa separadas pela MESMA junta de dilatação do V2 (GE1j, isopor 3 cm).
             const F2 = new THREE.Group();
             F2.name = 'floor2';
             F2.visible = false;
-            const EW = 0.20;
+            const EW = 0.20, GAP = 0.03;
             const fz0 = CEIL3D + CPA + 0.16;   // topo da laje 1 (= chão do 2º piso)
             const fz1 = fz0 + CEIL3D;           // topo das paredes do 2º piso
             const lz0 = CEIL3D + CPA, lz1 = CEIL3D + CPA + 0.16;  // laje 1 (intermediária)
+            const addWall = (n, e, dn, de) => F2.add(box3d(n, e + OE, dn, de, fz0, fz1, matWall));
+            const addSlab = (n, e, dn, de) => F2.add(box3d(n, e + OE, dn, de, lz0, lz1, lajeMat));
 
-            // Envelope do 2º piso por FACES EXTERNAS, alinhadas à estrutura do térreo
-            // (mesmo padrão da parede do depósito): casa = face das paredes centradas
-            // (linha∓EW/2); garagem = face das COLUNAS (na própria linha). As paredes
-            // assentam por DENTRO dessas faces; a laje 1 vai flush até elas.
-            const S     = 2.0 - EW/2;    // face sul        (mN 1,90 = parede sul do térreo)
-            const Ncasa = 7.5 + EW/2;    // face norte casa (mN 7,60 = parede norte do térreo)
-            const Ngar  = 10.5;          // face norte garagem (= face das colunas)
-            const W     = 13.5;          // face oeste         (= face das colunas)
-            const Egar  = 22.5;          // face leste garagem / borda oeste do recorte (notch)
-            const Ecasa = 31.5 + EW/2;   // face leste casa (mE 31,60 = parede leste do térreo)
+            // Faces externas (alinhadas à estrutura do térreo). Casa = face das paredes
+            // (linha∓EW/2); garagem = face das colunas (na linha). Junta = GE1j do V2.
+            const S     = 2.0 - EW/2;     // sul (mN 1,90)
+            const W     = 13.5;           // oeste garagem (face das colunas)
+            const Ngar  = 10.5;           // norte garagem (face das colunas)
+            const Wcasa = 22.5 - EW/2;    // oeste casa = face da parede oeste térreo (mE 22,40)
+            const Egar  = Wcasa - GAP;    // leste garagem = junta (mE 22,37 = GE1j do V2)
+            const Ncasa = 7.5 + EW/2;     // norte casa (mN 7,60)
+            const Ecasa = 31.5 + EW/2;    // leste casa (mE 31,60)
+            const hN0 = 2.20, hN1 = 3.40, hE0 = 15.90, hE1 = 19.80;  // vão da escada (garagem)
 
-            // ── Laje 1 (em L), flush com as faces; vão da escada na parte garagem ──
-            // (vão = limites do vão 3D da escada: mN 2,20→3,40, mE 15,90→19,80)
-            const hN0 = 2.20, hN1 = 3.40, hE0 = 15.90 + OE, hE1 = 19.80 + OE;
-            const gE0 = W + OE, gE1 = Egar + OE;            // garagem: mE W→Egar
-            F2.add(box3d(S,   gE0, hN0 - S,    gE1 - gE0, lz0, lz1, lajeMat)); // sul do vão
-            F2.add(box3d(hN1, gE0, Ngar - hN1, gE1 - gE0, lz0, lz1, lajeMat)); // norte do vão
-            F2.add(box3d(hN0, gE0, hN1 - hN0,  hE0 - gE0, lz0, lz1, lajeMat)); // oeste do vão
-            F2.add(box3d(hN0, hE1, hN1 - hN0,  gE1 - hE1, lz0, lz1, lajeMat)); // leste do vão
-            F2.add(box3d(S, Egar + OE, Ncasa - S, Ecasa - Egar, lz0, lz1, lajeMat)); // casa (mE Egar→Ecasa)
+            // ── Estrutura GARAGEM (mN S→Ngar, mE W→Egar) — laje 1 c/ vão + 4 paredes ──
+            addSlab(S,   W,   hN0 - S,    Egar - W);   // sul do vão
+            addSlab(hN1, W,   Ngar - hN1, Egar - W);   // norte do vão
+            addSlab(hN0, W,   hN1 - hN0,  hE0 - W);    // oeste do vão
+            addSlab(hN0, hE1, hN1 - hN0,  Egar - hE1); // leste do vão
+            addWall(S,        W,         EW,        Egar - W); // sul
+            addWall(S,        W,         Ngar - S,  EW);       // oeste
+            addWall(Ngar-EW,  W,         EW,        Egar - W); // norte
+            addWall(S,        Egar-EW,   Ngar - S,  EW);       // leste (junta)
 
-            // ── Paredes externas (perímetro do L) — face externa NA linha do envelope ──
-            // box3d(n, e, dn, de): face externa no envelope, espessura p/ dentro; cantos sobrepõem.
-            F2.add(box3d(S,          W + OE,           EW,                Ecasa - W,         fz0, fz1, matWall)); // sul (mE W→Ecasa)
-            F2.add(box3d(S,          Ecasa - EW + OE,  Ncasa - S,         EW,                fz0, fz1, matWall)); // leste casa
-            F2.add(box3d(Ncasa - EW, Egar - EW + OE,   EW,                Ecasa - (Egar-EW), fz0, fz1, matWall)); // norte casa
-            F2.add(box3d(Ncasa - EW, Egar - EW + OE,   Ngar - (Ncasa-EW), EW,                fz0, fz1, matWall)); // leste garagem (notch)
-            F2.add(box3d(Ngar - EW,  W + OE,           EW,                Egar - W,          fz0, fz1, matWall)); // norte garagem
-            F2.add(box3d(S,          W + OE,           Ngar - S,          EW,                fz0, fz1, matWall)); // oeste
+            // ── Estrutura CASA (mN S→Ncasa, mE Wcasa→Ecasa) — laje 1 sólida + 4 paredes ──
+            addSlab(S, Wcasa, Ncasa - S, Ecasa - Wcasa);
+            addWall(S,        Wcasa,      EW,         Ecasa - Wcasa); // sul
+            addWall(S,        Wcasa,      Ncasa - S,  EW);            // oeste (junta)
+            addWall(Ncasa-EW, Wcasa,      EW,         Ecasa - Wcasa); // norte
+            addWall(S,        Ecasa-EW,   Ncasa - S,  EW);            // leste
             g.add(F2);
         }
 

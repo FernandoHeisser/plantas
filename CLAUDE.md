@@ -612,25 +612,30 @@ Escada: 18 degraus, 1,20 m largura, leste→oeste (mE 20,9→15,9 code)
 
 ### V3 — Sobrado (pilotis)
 
-**Etapa 1 (feita):** 2º pavimento = **só laje + paredes externas**, footprint em **L** =
-união casa (mN 2→7,5 × mE 22,5→31,5) + garagem (mN 2→10,5 × mE 13,5→22,5). NÃO
-extrapola o terreno (o canto NE / pátio fica de fora). Garagem vira **pilotis**
-(aberta embaixo, 2º piso fechado em cima). Sem paredes/divisórias internas ainda.
+**Etapa 1 (feita):** 2º pavimento = **só laje + paredes externas**, em **DUAS estruturas
+independentes** (como o térreo): **garagem** (mN 2→10,5 × mE 13,5→GE1j) + **casa**
+(mN 2→7,5 × mE 22,5→31,5), separadas pela **MESMA junta de dilatação do V2** (GE1j =
+22,5 − EW/2 − GAP = **22,37**; isopor 3 cm até a face oeste da casa em 22,40). NÃO
+extrapola o terreno (canto NE/pátio fora). Garagem vira **pilotis**. Sem divisórias internas.
+
+**Padrão das paredes (alinhamento):** face externa de cada parede do 2º piso = face da
+estrutura do térreo abaixo. Casa segue a face das **paredes** (centradas → linha∓EW/2);
+garagem segue a face das **colunas** (na própria linha). Mesmo padrão da parede do depósito.
 
 **Duas lajes (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
 piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, sólida (cobre tudo).
 
 - **2D:** botão `Piso: térreo ↔ 2º pav.` (`.map-floortoggle`) chama `setV3Floor(btn)`,
   que troca `map._overlay` entre `buildLayers('v3')` (térreo) e `buildFloor2Layers()`.
-  A visão do 2º piso mostra: laje em L + 6 paredes externas + **escada + plataforma
-  norte + cotas de afastamento** (contexto p/ orientação). Footprint compartilhado em
-  `F2_WALLS` (centerlines) e `F2_SLAB` (polígono do L). Escada e plataforma vêm de
-  **`stair2D()` / `northPlat2D()`** (fonte única — usadas também no térreo V2/V3).
-- **3D:** grupo `floor2` (em `buildBuilding3D`, só `v==='v3'`) = **laje 1** (cobre o L,
-  com o vão da escada recortado em 4 faixas na parte garagem; parte casa sólida; y
-  CEIL3D+CPA→+0,16) + 6 paredes externas (`matWall`, y +0,16 → +0,16+CEIL3D). Começa
-  oculto. **Laje 2** = grupo `roof` (sólido no V3 — sem vão; o vão fica só na laje 1).
-  `set3DFloor2(v, btn)` mostra/oculta o 2º piso **e** reposiciona a laje 2
+  A visão do 2º piso mostra: 2 lajes (garagem + casa) + **faixa âmbar da junta "isopor
+  3cm"** + 8 paredes externas + **escada + plataforma norte + cotas** (contexto). Consts
+  `F2_GE1j`, `F2_WALLS` (8 centerlines), `F2_SLAB_GAR`/`F2_SLAB_CASA`. Escada e plataforma
+  vêm de **`stair2D()` / `northPlat2D()`** (fonte única — usadas também no térreo V2/V3).
+- **3D:** grupo `floor2` (em `buildBuilding3D`, só `v==='v3'`) = **2 estruturas** (helpers
+  locais `addWall`/`addSlab`): garagem (laje 1 c/ vão recortado + 4 paredes, leste = junta
+  GE1j) e casa (laje 1 sólida + 4 paredes, oeste = junta em 22,40). Gap físico de 3 cm
+  entre elas. **Laje 2** = grupo `roof` (casa + garagem já separados pela junta; sólido no
+  V3). `set3DFloor2(v, btn)` mostra/oculta o 2º piso **e** reposiciona a laje 2
   (`roof.position.y = visível ? CEIL3D+0,16 : 0`) — sobe sobre o 2º piso ou volta ao térreo.
 - **Botões 3D:** `2º piso: oculto/visível` (`set3DFloor2`) + `Laje: oculta/visível`
   (`set3DRoof`, só alterna `roof.visible`). No **V2** a laje da garagem mantém o vão da escada.
