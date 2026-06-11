@@ -1372,7 +1372,9 @@
     // ── Parede grossa centrada na linha (n1,e1)→(n2,e2), espessura t ─────
     function wall(n1, e1, n2, e2, t, opts) {
         e1 += OE; e2 += OE;
-        if (GEO && !(opts && opts.no3d)) GEO.push({ k: 'wall', n1, e1, n2, e2, t });
+        // z0 = base da parede no 3D (padrão 0 = datum/calçada). Use p/ paredes que
+        // assentam num piso elevado (ex.: depósito sobre o piso da garagem, GCPA).
+        if (GEO && !(opts && opts.no3d)) GEO.push({ k: 'wall', n1, e1, n2, e2, t, z0: (opts && opts.z0) || 0 });
         const dn = n2 - n1, de = e2 - e1;
         const len = Math.hypot(dn, de);
         const on = -de / len * (t/2), oe = dn / len * (t/2);
@@ -1746,8 +1748,10 @@
             // ── Depósito (embaixo da escada) — mN 2,0→3,4 × mE 13,5→15,9 ────────
             // Parede leste removida: escada delimita o espaço; porta na parede norte
             const DEP_N1 = 3.4, DEP_E0 = 13.5, DEP_E1 = 15.9;
-            wall(GN0,    DEP_E0, DEP_N1, DEP_E0, 0.20);           // parede oeste (fachada)
-            wall(DEP_N1, DEP_E0, DEP_N1, DEP_E1, 0.10);           // parede norte (segue viga) com porta
+            // z0=0,15 (GCPA): paredes assentam no piso da garagem, não no datum 0
+            // (senão a base atravessa a fundação/baldrame — eram extrudadas de z=0).
+            wall(GN0,    DEP_E0, DEP_N1, DEP_E0, 0.20, { z0: 0.15 }); // parede oeste (fachada)
+            wall(DEP_N1, DEP_E0, DEP_N1, DEP_E1, 0.10, { z0: 0.15 }); // parede norte (segue viga) com porta
             cut(3.35, 14.5, 0.10, 0.9);                            // vão da porta na parede norte
             doorArc(DEP_N1, 14.5, 0.0, 0.9, +1).forEach(l => lys.push(l)); // porta abre p/ norte (garagem)
             lys.push(roomLabel(2.7, 14.7, 'Depósito', '1,4 × 2,4 m', '~3 m²'));
@@ -2488,6 +2492,7 @@
         walls.forEach(w => {
             const horiz = Math.abs(w.n2 - w.n1) < 1e-6;   // corre no eixo E (mN const)
             const t = w.t;
+            const base = w.z0 || 0;   // base da parede (piso elevado, ex.: GCPA)
             // posição fixa transversal e extensão ao longo do eixo da parede
             const fixed = horiz ? w.n1 : w.e1;
             const a0 = horiz ? Math.min(w.e1, w.e2) : Math.min(w.n1, w.n2);
@@ -2516,15 +2521,15 @@
 
             let cur = a0;
             ops.forEach(o => {
-                const oSill = o.sill + CPA, oHead = o.head + CPA;
-                seg(cur, o.s, 0, CEIL3D + CPA, matWall);    // trecho cheio antes do vão
-                seg(o.s, o.e, 0, oSill, matWall);            // base sólida (embasamento + peitoril)
+                const oSill = Math.max(o.sill + CPA, base), oHead = o.head + CPA;
+                seg(cur, o.s, base, CEIL3D + CPA, matWall);  // trecho cheio antes do vão
+                seg(o.s, o.e, base, oSill, matWall);         // base sólida (embasamento + peitoril)
                 if (o.type === 'window') seg(o.s, o.e, oSill, oHead, matGlass); // vidro fixo
                 // glassdoor: abertura vazia — o vidro vem da folha que abre
                 seg(o.s, o.e, oHead, CEIL3D + CPA, matWall); // verga (acima do vão)
                 cur = Math.max(cur, o.e);
             });
-            seg(cur, a1, 0, CEIL3D + CPA, matWall);         // trecho final
+            seg(cur, a1, base, CEIL3D + CPA, matWall);       // trecho final
         });
 
         // ── Móveis / louças / bancadas: volumes de massa ─────────────────────
