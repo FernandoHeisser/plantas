@@ -383,7 +383,7 @@ g.add(box3d(n,       e - 0.10, len,  0.20, GCPA, GLAJE, matWall)); // parede N-S
 `render()` chama `init3D` quando `sec === '3d'`.  
 Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda sem largura.
 
-> **V1 e V2** têm cena 3D ativa (`#scene3d-v1`, `#scene3d-v2`, ambos com botão de laje). V2 renderiza casa + garagem. **V3** ainda é placeholder (`#p-v3-3d`) — para ativar, trocar por `<div id="scene3d-v3" class="scene3d">…</div>` + botão de laje.
+> **V1, V2 e V3** têm cena 3D ativa (`#scene3d-v1`, `#scene3d-v2`, `#scene3d-v3`). V2/V3 renderizam casa + garagem. **V3** tem 2 botões: `2º piso` (`set3DFloor2`) + `Laje` (`set3DRoof`) — ver seção "V3 — Sobrado (pilotis)".
 
 ---
 
@@ -592,7 +592,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 |---|---|---|---|
 | **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro) | ✅ Completo |
 | **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) | ✅ Preenchida (garagem + depósito + escada) |
-| **V3** | ⬜ 2º pavimento a desenhar | ⬜ Placeholder | ⬜ Placeholder |
+| **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 
 ---
 
@@ -606,11 +606,27 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 Depósito sob escada: mN 2,0→3,4 × mE 13,5→15,9 (1,4×2,4 m ≈ 3 m²)  
 Escada: 18 degraus, 1,20 m largura, leste→oeste (mE 20,9→15,9 code)
 
-### V3 — Sobrado
-Adicionar no bloco `if (v === 'v3')`:
-- 2º pavimento sobre a laje do V1
-- Suíte master (leste), quartos filhos (norte), home office (oeste)
-- Escada de acesso (interna a partir da garagem — já modelada em V2)
+### V3 — Sobrado (pilotis)
+
+**Etapa 1 (feita):** 2º pavimento = **só laje + paredes externas**, footprint em **L** =
+união casa (mN 2→7,5 × mE 22,5→31,5) + garagem (mN 2→10,5 × mE 13,5→22,5). NÃO
+extrapola o terreno (o canto NE / pátio fica de fora). Garagem vira **pilotis**
+(aberta embaixo, 2º piso fechado em cima). Sem paredes/divisórias internas ainda.
+
+- **2D:** botão `Piso: térreo ↔ 2º pav.` (`.map-floortoggle`) chama `setV3Floor(btn)`,
+  que troca `map._overlay` entre `buildLayers('v3')` (térreo) e `buildFloor2Layers()`
+  (laje em L + 6 paredes externas + label). Footprint compartilhado em `F2_WALLS`
+  (centerlines) e `F2_SLAB` (polígono do L).
+- **3D:** grupo `floor2` (em `buildBuilding3D`, só `v==='v3'`) = laje intermediária
+  (2 caixas cobrindo o L, y CEIL3D+CPA→+0,16) + 6 paredes externas (`matWall`, y +0,16 →
+  +0,16+CEIL3D). Começa oculto. `set3DFloor2(v, btn)` mostra/oculta o 2º piso **e**
+  reposiciona a laje de cobertura (`roof.position.y = visível ? CEIL3D+0,16 : 0`),
+  de modo que a **mesma laje** cobre o térreo (oculto) ou o 2º piso (sobrado).
+- **Botões 3D:** `2º piso: oculto/visível` (`set3DFloor2`) + `Laje: oculta/visível`
+  (`set3DRoof`, inalterado — só alterna `roof.visible`).
+
+**Próximas etapas:** divisórias internas do 2º (suíte master leste, quartos norte,
+home office oeste); abrir o vão da escada na laje intermediária; ficha de medidas V3.
 
 ---
 
