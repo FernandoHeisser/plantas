@@ -613,20 +613,26 @@ união casa (mN 2→7,5 × mE 22,5→31,5) + garagem (mN 2→10,5 × mE 13,5→2
 extrapola o terreno (o canto NE / pátio fica de fora). Garagem vira **pilotis**
 (aberta embaixo, 2º piso fechado em cima). Sem paredes/divisórias internas ainda.
 
+**Duas lajes (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
+piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, sólida (cobre tudo).
+
 - **2D:** botão `Piso: térreo ↔ 2º pav.` (`.map-floortoggle`) chama `setV3Floor(btn)`,
-  que troca `map._overlay` entre `buildLayers('v3')` (térreo) e `buildFloor2Layers()`
-  (laje em L + 6 paredes externas + label). Footprint compartilhado em `F2_WALLS`
-  (centerlines) e `F2_SLAB` (polígono do L).
-- **3D:** grupo `floor2` (em `buildBuilding3D`, só `v==='v3'`) = laje intermediária
-  (2 caixas cobrindo o L, y CEIL3D+CPA→+0,16) + 6 paredes externas (`matWall`, y +0,16 →
-  +0,16+CEIL3D). Começa oculto. `set3DFloor2(v, btn)` mostra/oculta o 2º piso **e**
-  reposiciona a laje de cobertura (`roof.position.y = visível ? CEIL3D+0,16 : 0`),
-  de modo que a **mesma laje** cobre o térreo (oculto) ou o 2º piso (sobrado).
+  que troca `map._overlay` entre `buildLayers('v3')` (térreo) e `buildFloor2Layers()`.
+  A visão do 2º piso mostra: laje em L + 6 paredes externas + **escada + plataforma
+  norte + cotas de afastamento** (contexto p/ orientação). Footprint compartilhado em
+  `F2_WALLS` (centerlines) e `F2_SLAB` (polígono do L). Escada e plataforma vêm de
+  **`stair2D()` / `northPlat2D()`** (fonte única — usadas também no térreo V2/V3).
+- **3D:** grupo `floor2` (em `buildBuilding3D`, só `v==='v3'`) = **laje 1** (cobre o L,
+  com o vão da escada recortado em 4 faixas na parte garagem; parte casa sólida; y
+  CEIL3D+CPA→+0,16) + 6 paredes externas (`matWall`, y +0,16 → +0,16+CEIL3D). Começa
+  oculto. **Laje 2** = grupo `roof` (sólido no V3 — sem vão; o vão fica só na laje 1).
+  `set3DFloor2(v, btn)` mostra/oculta o 2º piso **e** reposiciona a laje 2
+  (`roof.position.y = visível ? CEIL3D+0,16 : 0`) — sobe sobre o 2º piso ou volta ao térreo.
 - **Botões 3D:** `2º piso: oculto/visível` (`set3DFloor2`) + `Laje: oculta/visível`
-  (`set3DRoof`, inalterado — só alterna `roof.visible`).
+  (`set3DRoof`, só alterna `roof.visible`). No **V2** a laje da garagem mantém o vão da escada.
 
 **Próximas etapas:** divisórias internas do 2º (suíte master leste, quartos norte,
-home office oeste); abrir o vão da escada na laje intermediária; ficha de medidas V3.
+home office oeste); guarda-corpo no vão da escada; ficha de medidas V3.
 
 ---
 
