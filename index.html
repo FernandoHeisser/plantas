@@ -1740,14 +1740,8 @@
 
             lys.push(roomLabel(6.25, 18.0, 'Garagem', '8,5 × 9 m', '76,5 m²'));
 
-            // Plataforma externa (pátio) na porta de vidro norte — alinhada com a face ext. da parede oeste
-            lys.push(rect(7.55, 22.4, 3.0, 3.0, '#e2e8f0',
-                { color: '#64748b', weight: 1.2, no3d: true }));
-            // Degraus leste da plataforma (4 degraus descendo p/ o quintal)
-            for (let i = 1; i <= 4; i++)
-                lys.push(L.polyline(
-                    [rot(7.55, 25.4 + i*0.28 + OE), rot(10.55, 25.4 + i*0.28 + OE)],
-                    { color: '#94a3b8', weight: 1.0, interactive: false }));
+            // Plataforma externa (pátio) na porta de vidro norte + degraus
+            northPlat2D().forEach(l => lys.push(l));
 
             // ── Depósito (embaixo da escada) — mN 2,0→3,4 × mE 13,5→15,9 ────────
             // Parede leste removida: escada delimita o espaço; porta na parede norte
@@ -1758,27 +1752,8 @@
             doorArc(DEP_N1, 14.5, 0.0, 0.9, +1).forEach(l => lys.push(l)); // porta abre p/ norte (garagem)
             lys.push(roomLabel(2.7, 14.7, 'Depósito', '1,4 × 2,4 m', '~3 m²'));
 
-            // Escada p/ 2º pavimento — base junto à porta (leste, mE 21), sobe LONGA p/ oeste
-            const ESC_N0 = 2.20, ESC_DN = 1.20, NST = 18, ESC_COL = 0.20;
-            const ESC_E_base = 20.90, ESC_E_top = 15.90;  // base leste → topo oeste (1,5 m da parede)
-            const ESC_HE1 = 19.80;                         // limite leste do vão na laje
-            const STRD = (ESC_E_base - ESC_E_top) / NST;
-            lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_E_base - ESC_E_top, '#ebebf0',
-                { color: '#475569', weight: 1.2, no3d: true }));
-            for (let i = 1; i < NST; i++)              // nosings dos degraus (linhas N-S)
-                lys.push(L.polyline(
-                    [rot(ESC_N0, ESC_E_base - i*STRD + OE), rot(ESC_N0 + ESC_DN, ESC_E_base - i*STRD + OE)],
-                    { color: '#334155', weight: 1.2, interactive: false }));
-            // Vão (stairwell) na laje — tracejado, sobre o trecho alto (oeste)
-            lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_HE1 - ESC_E_top, 'transparent',
-                { color: '#0ea5e9', weight: 1, dashArray: '4 3', fill: false, no3d: true }));
-            // Pilar novo reapoiando a viga central (mE 17,4) ao norte da escada
-            lys.push(rect(3.40, 18.40, ESC_COL, ESC_COL, '#334155',
-                { color: '#0f172a', weight: 0.5, no3d: true }));
-            lys.push(L.polyline(                        // seta de subida (L→O)
-                [rot(ESC_N0 + ESC_DN/2, ESC_E_base - 0.3 + OE), rot(ESC_N0 + ESC_DN/2, ESC_E_top + 0.3 + OE)],
-                { color: '#475569', weight: 1.2, interactive: false }));
-            lys.push(roomLabel(ESC_N0 + ESC_DN/2, (ESC_E_top + ESC_E_base) / 2, 'Escada', '↑ 2º pav', ''));
+            // Escada p/ 2º pavimento (desenho 2D — fonte única em stair2D)
+            stair2D().forEach(l => lys.push(l));
 
             // Cotas laterais: recuo sul e recuo norte da garagem
             dimLine(0,   15.5, GN0, 15.5, '2,0 m — sul').forEach(l => lys.push(l));
@@ -1812,7 +1787,44 @@
         [7.5, 22.5], [10.5, 22.5], [10.5, 13.5],
     ];
 
-    // Camadas 2D do 2º pavimento (só laje + paredes externas, sem interno)
+    // Escada 2D (só desenho, no3d) — fonte única: térreo V2/V3 + visão 2º piso V3.
+    // O volume 3D da escada é montado à parte (box3d manual na garagem).
+    function stair2D() {
+        const lys = [];
+        const ESC_N0 = 2.20, ESC_DN = 1.20, NST = 18, ESC_COL = 0.20;
+        const ESC_E_base = 20.90, ESC_E_top = 15.90, ESC_HE1 = 19.80;
+        const STRD = (ESC_E_base - ESC_E_top) / NST;
+        lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_E_base - ESC_E_top, '#ebebf0',
+            { color: '#475569', weight: 1.2, no3d: true }));
+        for (let i = 1; i < NST; i++)              // nosings dos degraus (linhas N-S)
+            lys.push(L.polyline(
+                [rot(ESC_N0, ESC_E_base - i*STRD + OE), rot(ESC_N0 + ESC_DN, ESC_E_base - i*STRD + OE)],
+                { color: '#334155', weight: 1.2, interactive: false }));
+        // Vão (stairwell) na laje — tracejado, sobre o trecho alto (oeste)
+        lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_HE1 - ESC_E_top, 'transparent',
+            { color: '#0ea5e9', weight: 1, dashArray: '4 3', fill: false, no3d: true }));
+        // Pilar novo reapoiando a viga central (mE 17,4) ao norte da escada
+        lys.push(rect(3.40, 18.40, ESC_COL, ESC_COL, '#334155',
+            { color: '#0f172a', weight: 0.5, no3d: true }));
+        lys.push(L.polyline(                        // seta de subida (L→O)
+            [rot(ESC_N0 + ESC_DN/2, ESC_E_base - 0.3 + OE), rot(ESC_N0 + ESC_DN/2, ESC_E_top + 0.3 + OE)],
+            { color: '#475569', weight: 1.2, interactive: false }));
+        lys.push(roomLabel(ESC_N0 + ESC_DN/2, (ESC_E_top + ESC_E_base) / 2, 'Escada', '↑ 2º pav', ''));
+        return lys;
+    }
+
+    // Plataforma externa (pátio) na porta de vidro norte + degraus — fonte única.
+    function northPlat2D() {
+        const lys = [];
+        lys.push(rect(7.55, 22.4, 3.0, 3.0, '#e2e8f0', { color: '#64748b', weight: 1.2, no3d: true }));
+        for (let i = 1; i <= 4; i++)               // degraus leste (descem p/ o quintal)
+            lys.push(L.polyline(
+                [rot(7.55, 25.4 + i*0.28 + OE), rot(10.55, 25.4 + i*0.28 + OE)],
+                { color: '#94a3b8', weight: 1.0, interactive: false }));
+        return lys;
+    }
+
+    // Camadas 2D do 2º pavimento (laje + paredes externas + contexto do térreo)
     function buildFloor2Layers() {
         const lys = [];
 
@@ -1830,8 +1842,20 @@
         lys.push(L.polygon(F2_SLAB.map(([n, e]) => rot(n, e + OE)),
             { color: '#94a3b8', weight: 1.5, fillColor: '#fafafa', fillOpacity: 1, interactive: false }));
 
+        // Escada de acesso + plataforma norte (contexto do térreo, p/ orientação)
+        stair2D().forEach(l => lys.push(l));
+        northPlat2D().forEach(l => lys.push(l));
+
         // Paredes externas (20 cm) — GEO null aqui, então não captura p/ 3D
         F2_WALLS.forEach(([n1, e1, n2, e2]) => lys.push(wall(n1, e1, n2, e2, 0.20, { no3d: true })));
+
+        // Cotas de afastamento do edifício às margens do lote (mesmas do térreo)
+        dimLine(4.5, 0, 4.5, 10.0, '10 m — frente').forEach(l => lys.push(l));  // frente garagem
+        dimLine(4.5, 26.5, 4.5, 40, '13,5 m — fundo').forEach(l => lys.push(l)); // fundo casa
+        dimLine(0, 22.5, 2.0, 22.5, '2 m — sul').forEach(l => lys.push(l));      // casa sul
+        dimLine(7.5, 22.5, 12.5, 22.5, '5,0 m — norte').forEach(l => lys.push(l)); // casa norte
+        dimLine(0, 15.5, 2.0, 15.5, '2,0 m — sul').forEach(l => lys.push(l));    // garagem sul
+        dimLine(10.5, 15.5, 12.5, 15.5, '2,0 m — norte').forEach(l => lys.push(l)); // garagem norte
 
         // Cotas totais do lote (referência)
         dimLine(14, 0, 14, 40, '40 m', '#f59e0b').forEach(l => lys.push(l));
@@ -2642,11 +2666,19 @@
             const fz0 = CEIL3D + CPA + 0.16;   // topo da laje intermediária (= piso do 2º)
             const fz1 = fz0 + CEIL3D;           // topo das paredes do 2º piso
             const EW = 0.20, h = EW / 2;
-            // Piso do 2º (laje em L) — 2 caixas até a face externa das paredes
-            F2.add(box3d(2.0 - h, 13.5 + OE - h, (10.5 - 2.0) + EW, (22.5 - 13.5) + h,
-                         CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // garagem (mE 13,5→22,5)
-            F2.add(box3d(2.0 - h, 22.5 + OE,     (7.5 - 2.0) + h,  (31.5 - 22.5) + h,
-                         CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // casa (mE 22,5→31,5)
+            const lz0 = CEIL3D + CPA, lz1 = CEIL3D + CPA + 0.16;  // laje 1 (intermediária)
+            // Laje 1 = teto do térreo + chão do 2º piso. Tem o VÃO DA ESCADA (mesmos
+            // limites do vão 3D da escada: mN 2,20→3,40, mE 15,90→19,80) p/ subir ao 2º.
+            // Parte garagem (mE 13,5→22,5) recortada em 4 faixas ao redor do vão; parte casa sólida.
+            const lgN0 = 2.0 - h, lgN1 = 2.0 - h + (8.5 + EW);    // mN 1,90→10,60
+            const lgE0 = 13.5 + OE - h, lgE1 = 22.5 + OE;         // mE da parte garagem
+            const hN0 = 2.20, hN1 = 3.40, hE0 = 15.90 + OE, hE1 = 19.80 + OE; // vão
+            F2.add(box3d(lgN0, lgE0, hN0 - lgN0, lgE1 - lgE0, lz0, lz1, lajeMat)); // sul do vão
+            F2.add(box3d(hN1,  lgE0, lgN1 - hN1, lgE1 - lgE0, lz0, lz1, lajeMat)); // norte do vão
+            F2.add(box3d(hN0,  lgE0, hN1 - hN0,  hE0 - lgE0,  lz0, lz1, lajeMat)); // oeste do vão
+            F2.add(box3d(hN0,  hE1,  hN1 - hN0,  lgE1 - hE1,  lz0, lz1, lajeMat)); // leste do vão
+            F2.add(box3d(2.0 - h, 22.5 + OE, (7.5 - 2.0) + h, (31.5 - 22.5) + h,
+                         lz0, lz1, lajeMat)); // casa (mE 22,5→31,5) — sólida
             // Paredes externas (perímetro do L). box3d(n, e, dn, de, z0, z1)
             // E-W (mN const): dn=EW; N-S (mE const): de=EW. Cantos sobrepõem ±h.
             F2.add(box3d(2.0 - h,  13.5 + OE - h, EW,            18.0 + EW, fz0, fz1, matWall)); // sul
@@ -2736,11 +2768,17 @@
 
             // Laje + platibanda da garagem — para em GE1j (junta; não encosta na casa)
             const gn0 = GN0 - 0.12, gn1 = GN1 + 0.12, ge0 = GE0 - 0.12; // beiral 12 cm
-            // Laje com vão da escada: 4 faixas ao redor do recorte
-            roof.add(box3d(gn0, ge0,  HN0 - gn0,  GE1j - ge0,  GLAJE, GLAJE+0.16, lajeMat));  // sul do vão
-            roof.add(box3d(HN1, ge0,  gn1 - HN1,  GE1j - ge0,  GLAJE, GLAJE+0.16, lajeMat));  // norte do vão
-            roof.add(box3d(HN0, ge0,  HN1 - HN0,  HE0  - ge0,  GLAJE, GLAJE+0.16, lajeMat));  // oeste do vão
-            roof.add(box3d(HN0, HE1,  HN1 - HN0,  GE1j - HE1,  GLAJE, GLAJE+0.16, lajeMat));  // leste do vão
+            if (v === 'v3') {
+                // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
+                // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
+                roof.add(box3d(gn0, ge0, gn1 - gn0, GE1j - ge0, GLAJE, GLAJE+0.16, lajeMat));
+            } else {
+                // V2: laje com vão da escada (4 faixas ao redor do recorte)
+                roof.add(box3d(gn0, ge0,  HN0 - gn0,  GE1j - ge0,  GLAJE, GLAJE+0.16, lajeMat));  // sul do vão
+                roof.add(box3d(HN1, ge0,  gn1 - HN1,  GE1j - ge0,  GLAJE, GLAJE+0.16, lajeMat));  // norte do vão
+                roof.add(box3d(HN0, ge0,  HN1 - HN0,  HE0  - ge0,  GLAJE, GLAJE+0.16, lajeMat));  // oeste do vão
+                roof.add(box3d(HN0, HE1,  HN1 - HN0,  GE1j - HE1,  GLAJE, GLAJE+0.16, lajeMat));  // leste do vão
+            }
             const gpb = GLAJE + 0.16, gpbTop = gpb + 0.42;
             roof.add(box3d(gn0,       ge0, tt,        GE1j-ge0, gpb, gpbTop, lajeMat)); // sul
             roof.add(box3d(gn1-tt,    ge0, tt,        GE1j-ge0, gpb, gpbTop, lajeMat)); // norte
