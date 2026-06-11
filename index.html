@@ -100,10 +100,11 @@
 
         .content { padding: 0; margin: 0; }
 
-        /* Painéis 2D e 3D real (V1): full-bleed, sem padding */
+        /* Painéis 2D e 3D real (V1/V2/V3): full-bleed, sem padding */
         [id$="-2d"] .card,
         #p-v1-3d .card,
-        #p-v2-3d .card {
+        #p-v2-3d .card,
+        #p-v3-3d .card {
             padding: 0;
             border: none;
             border-radius: 0;
@@ -111,13 +112,6 @@
             box-shadow: none;
             height: calc(100dvh - var(--sticky-h));
             overflow: hidden;
-        }
-        /* Placeholders 3D (V2/V3): altura padronizada, mantém padding */
-        #p-v2-3d .card,
-        #p-v3-3d .card {
-            height: calc(100dvh - var(--sticky-h));
-            display: flex;
-            flex-direction: column;
         }
 
         /* ── CARDS ── */
@@ -403,6 +397,16 @@
             border-radius: 6px; cursor: pointer;
         }
         .scene3d-toolbar button:hover { background: rgba(15,23,42,0.95); }
+
+        /* Botão de alternância de piso no mapa 2D (V3) — top-right, estilo HUD */
+        .map-floortoggle { position: absolute; top: 10px; right: 10px; z-index: 800; display: flex; gap: 6px; }
+        .map-floortoggle button {
+            background: rgba(15,23,42,0.78); color: #e2e8f0; border: 1px solid rgba(148,163,184,0.4);
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 5px 10px;
+            border-radius: 6px; cursor: pointer;
+        }
+        .map-floortoggle button:hover { background: rgba(15,23,42,0.95); }
+        .map-floortoggle button.ativo { background: rgba(245,158,11,0.25); border-color: rgba(245,158,11,0.5); color: #fbbf24; }
 
         /* HUD de horário/mês */
         .scene3d-hud {
@@ -713,6 +717,10 @@
         <div class="card">
             <div class="map-wrap">
                 <div id="map-v3" class="mapa-sat"></div>
+                <!-- Alternância de pavimento: top-right -->
+                <div class="map-floortoggle">
+                    <button type="button" onclick="setV3Floor(this)">Piso: térreo</button>
+                </div>
                 <!-- Bússola: top-left, idêntica ao 3D -->
                 <div class="scene3d-compass">
                     <div class="rose">
@@ -737,16 +745,11 @@
 
     <div class="panel" id="p-v3-3d">
         <div class="card">
-            <h2>Planta 3D — V3: Projeto Ultimate</h2>
-            <div class="ph3d">
-                <svg width="130" height="95" viewBox="0 0 130 95" fill="none" opacity="0.3">
-                    <rect x="5"  y="58" width="120" height="32" stroke="#0f172a" stroke-width="2"/>
-                    <rect x="5"  y="30" width="120" height="28" stroke="#7c3aed" stroke-width="2"/>
-                    <polygon points="5,30 65,8 125,30" stroke="#0f172a" stroke-width="2" fill="none"/>
-                </svg>
-                <div class="ph3d-title">Modelo 3D em desenvolvimento</div>
-                <div class="ph3d-sub">Modelo completo com térreo e 2º pavimento após o projeto executivo final</div>
-                <span class="ph3d-badge">Aguardando projeto executivo V3</span>
+            <div id="scene3d-v3" class="scene3d">
+                <div class="scene3d-toolbar">
+                    <button type="button" onclick="set3DFloor2('v3', this)">2º piso: oculto</button>
+                    <button type="button" onclick="set3DRoof('v3', this)">Laje: oculta</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1786,12 +1789,73 @@
             dimLine(7.5, 22.5, 12.5, 22.5, '5,0 m — norte').forEach(l => lys.push(l));
         }
 
-        // ── V3: 2º pavimento + elementos adicionais ──────────────────────────
-        if (v === 'v3') {
-            // a definir
-        }
+        // ── V3: 2º pavimento — desenhado em camada própria (buildFloor2Layers),
+        //    alternável pelo botão "Piso" do mapa. Aqui o térreo é igual ao V2.
 
         return lys;
+    }
+
+    // ── V3 sobrado (pilotis): footprint do 2º piso = união casa + garagem (L) ──
+    //    NÃO extrapola o térreo — o canto NE (pátio) fica de fora. Coords do lote
+    //    (sem OE); os helpers/box3d aplicam OE. Centerlines das paredes externas.
+    const F2_WALLS = [
+        [2.0,  13.5,  2.0,  31.5],  // sul (casa + garagem alinhadas em mN=2,0)
+        [2.0,  31.5,  7.5,  31.5],  // leste casa (mE=31,5, mN 2,0→7,5)
+        [7.5,  22.5,  7.5,  31.5],  // norte casa (mN=7,5, mE 22,5→31,5)
+        [7.5,  22.5, 10.5,  22.5],  // leste garagem acima da casa (mE=22,5, mN 7,5→10,5)
+        [10.5, 13.5, 10.5,  22.5],  // norte garagem (mN=10,5, mE 13,5→22,5)
+        [2.0,  13.5, 10.5,  13.5],  // oeste (mE=13,5, mN 2,0→10,5)
+    ];
+    // Contorno da laje (polígono em L), vértices [mN, mE] no sentido horário
+    const F2_SLAB = [
+        [2.0, 13.5], [2.0, 31.5], [7.5, 31.5],
+        [7.5, 22.5], [10.5, 22.5], [10.5, 13.5],
+    ];
+
+    // Camadas 2D do 2º pavimento (só laje + paredes externas, sem interno)
+    function buildFloor2Layers() {
+        const lys = [];
+
+        // Véu branco leve
+        lys.push(L.rectangle([[-90,-180],[90,180]],
+            { color: 'white', weight: 0, fillColor: 'white', fillOpacity: 0.35, interactive: false }));
+
+        // Terreno + contorno do lote (orientação)
+        lys.push(L.polygon([rot(0,0), rot(12.5,0), rot(12.5,40), rot(0,40)],
+            { color: '#f59e0b', weight: 2.5, fillColor: LOT_FILL, fillOpacity: 0.82, interactive: false }));
+        lys.push(L.polygon([rot(0,0), rot(12.5,0), rot(12.5,40), rot(0,40)],
+            { color: '#f59e0b', weight: 3, fillOpacity: 0, interactive: false }));
+
+        // Laje do 2º piso (em L) — preenchida
+        lys.push(L.polygon(F2_SLAB.map(([n, e]) => rot(n, e + OE)),
+            { color: '#94a3b8', weight: 1.5, fillColor: '#fafafa', fillOpacity: 1, interactive: false }));
+
+        // Paredes externas (20 cm) — GEO null aqui, então não captura p/ 3D
+        F2_WALLS.forEach(([n1, e1, n2, e2]) => lys.push(wall(n1, e1, n2, e2, 0.20, { no3d: true })));
+
+        // Cotas totais do lote (referência)
+        dimLine(14, 0, 14, 40, '40 m', '#f59e0b').forEach(l => lys.push(l));
+        dimLine(0, 42, 12.5, 42, '12,5 m', '#f59e0b').forEach(l => lys.push(l));
+
+        // Label
+        lys.push(roomLabel(6.25, 22.5, '2º Pavimento', 'laje + paredes ext.', 'sobrado'));
+        lys.push(dimLabel(3, 35, 'Terreno', '12,5 × 40 m', '500 m²', '#fbbf24', '#d97706'));
+
+        return lys;
+    }
+
+    // Alternância de pavimento no mapa 2D do V3 (térreo ↔ 2º piso)
+    let v3floor = 1;
+    function v3Layers() { return v3floor === 2 ? buildFloor2Layers() : buildLayers('v3'); }
+    function setV3Floor(btn) {
+        v3floor = v3floor === 1 ? 2 : 1;
+        btn.textContent = 'Piso: ' + (v3floor === 2 ? '2º pav.' : 'térreo');
+        btn.classList.toggle('ativo', v3floor === 2);
+        const map = maps['v3'];
+        if (map && map._overlay) {
+            map.removeLayer(map._overlay);
+            map._overlay = L.layerGroup(v3Layers()).addTo(map);
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -2567,6 +2631,33 @@
         roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
         g.add(roof);
 
+        // ── V3: 2º pavimento (sobrado pilotis) — laje + paredes externas ─────
+        // Footprint = união casa + garagem (L), sobre a laje do térreo (= piso do
+        // 2º). NÃO extrapola o terreno. Começa oculto; a laje de cobertura (roof)
+        // sobe sobre ele quando visível (set3DFloor2). Sem paredes internas (etapa 1).
+        if (v === 'v3') {
+            const F2 = new THREE.Group();
+            F2.name = 'floor2';
+            F2.visible = false;
+            const fz0 = CEIL3D + CPA + 0.16;   // topo da laje intermediária (= piso do 2º)
+            const fz1 = fz0 + CEIL3D;           // topo das paredes do 2º piso
+            const EW = 0.20, h = EW / 2;
+            // Piso do 2º (laje em L) — 2 caixas até a face externa das paredes
+            F2.add(box3d(2.0 - h, 13.5 + OE - h, (10.5 - 2.0) + EW, (22.5 - 13.5) + h,
+                         CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // garagem (mE 13,5→22,5)
+            F2.add(box3d(2.0 - h, 22.5 + OE,     (7.5 - 2.0) + h,  (31.5 - 22.5) + h,
+                         CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // casa (mE 22,5→31,5)
+            // Paredes externas (perímetro do L). box3d(n, e, dn, de, z0, z1)
+            // E-W (mN const): dn=EW; N-S (mE const): de=EW. Cantos sobrepõem ±h.
+            F2.add(box3d(2.0 - h,  13.5 + OE - h, EW,            18.0 + EW, fz0, fz1, matWall)); // sul
+            F2.add(box3d(2.0 - h,  31.5 + OE - h, 5.5 + EW,      EW,        fz0, fz1, matWall)); // leste casa
+            F2.add(box3d(7.5 - h,  22.5 + OE - h, EW,            9.0 + EW,  fz0, fz1, matWall)); // norte casa
+            F2.add(box3d(7.5 - h,  22.5 + OE - h, 3.0 + EW,      EW,        fz0, fz1, matWall)); // leste garagem (acima da casa)
+            F2.add(box3d(10.5 - h, 13.5 + OE - h, EW,            9.0 + EW,  fz0, fz1, matWall)); // norte garagem
+            F2.add(box3d(2.0 - h,  13.5 + OE - h, 8.5 + EW,      EW,        fz0, fz1, matWall)); // oeste
+            g.add(F2);
+        }
+
         // ── Vigas estruturais da casa (V1+V2+V3) ────────────────────────────────
         // VH=0,45m (p/ suportar V3 — regra L/10: 3m/10=30cm mín, 45cm c/ folga)
         // VW=0,20m (= seção das colunas, NBR 6118). Nível: CPA+CEIL3D−VH → CPA+CEIL3D.
@@ -2907,6 +2998,19 @@
         btn.textContent = 'Laje: ' + (roof.visible ? 'visível' : 'oculta');
     }
 
+    // V3: mostra/oculta o 2º pavimento. Quando visível, a laje de cobertura (roof)
+    // sobe para cobri-lo (sobrado); quando oculto, volta ao topo do térreo.
+    function set3DFloor2(v, btn) {
+        const S = scenes3d[v];
+        if (!S || !S.group) return;
+        const f2 = S.group.getObjectByName('floor2');
+        if (!f2) return;
+        f2.visible = !f2.visible;
+        btn.textContent = '2º piso: ' + (f2.visible ? 'visível' : 'oculto');
+        const roof = S.group.getObjectByName('roof');
+        if (roof) roof.position.y = f2.visible ? (CEIL3D + 0.16) : 0;
+    }
+
     // ── HUD: bússola + slider de horário/mês ────────────────────────────────
     const MESES3D = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     function fmtHour3D(h) {
@@ -2986,8 +3090,9 @@
             maxNativeZoom: 18, maxZoom: 25
         }).addTo(map);
 
-        L.layerGroup(buildLayers(v)).addTo(map);
+        const overlay = L.layerGroup(v === 'v3' ? v3Layers() : buildLayers(v)).addTo(map);
         maps[v] = map;
+        map._overlay = overlay;
 
         // Indicador de zoom no canto do mapa
         const zoomIndicator = L.control({ position: 'bottomleft' });
