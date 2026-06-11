@@ -1750,7 +1750,9 @@
             const DEP_N1 = 3.4, DEP_E0 = 13.5, DEP_E1 = 15.9;
             // z0=0,15 (GCPA): paredes assentam no piso da garagem, não no datum 0
             // (senão a base atravessa a fundação/baldrame — eram extrudadas de z=0).
-            wall(GN0,    DEP_E0, DEP_N1, DEP_E0, 0.20, { z0: 0.15 }); // parede oeste (fachada)
+            // Oeste: centro em DEP_E0+0,10 → face oeste em mE=13,5, FLUSH com as colunas
+            // e a parede sul (antes centrada em 13,5 → face em 13,4, pendurada além do baldrame).
+            wall(GN0,    DEP_E0 + 0.10, DEP_N1, DEP_E0 + 0.10, 0.20, { z0: 0.15 }); // parede oeste (fachada)
             wall(DEP_N1, DEP_E0, DEP_N1, DEP_E1, 0.10, { z0: 0.15 }); // parede norte (segue viga) com porta
             cut(3.35, 14.5, 0.10, 0.9);                            // vão da porta na parede norte
             doorArc(DEP_N1, 14.5, 0.0, 0.9, +1).forEach(l => lys.push(l)); // porta abre p/ norte (garagem)
