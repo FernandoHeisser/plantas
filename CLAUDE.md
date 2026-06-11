@@ -642,9 +642,10 @@ piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, sólida
 
 **Estrutura do 2º piso (no grupo `floor2`, some/aparece com o 2º piso):** espelha o
 térreo, com caminho de carga vertical contínuo e a junta subindo junto. **Garagem** =
-9 colunas (3×3, alinhadas ao pilotis do térreo, mN 2/6,75/10,3 × mE 13,5/~17,8/~22,2)
-da laje 1 (3,01) ao teto do 2º (5,71) + grelha de vigas; **casa** = grelha 3×3 (colunas
-embutidas nas paredes, como no térreo). Vigas no teto do 2º (y 5,26→5,71, **VH=0,45**
+12 colunas (3×3 em mN 2/6,75/10,3 + linha extra em **mN 3,40** junto à escada — todas
+alinhadas ao pilotis do térreo, mE 13,5/~17,8/~22,2) da laje 1 (3,01) ao teto do 2º (5,71)
++ grelha de vigas (viga N-S central só ao NORTE da escada, reapoiada em mN 3,40 — como o
+térreo); **casa** = grelha 3×3 (colunas embutidas nas paredes, como no térreo). Vigas no teto do 2º (y 5,26→5,71, **VH=0,45**
 = casa térreo, VW=0,20), sustentando a laje 2. Pórticos independentes pela junta (vigas
 da garagem param em GE1j, da casa em 22,5). Helpers locais `col2`/`beamEW`/`beamNS`.
 

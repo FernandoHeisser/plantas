@@ -2738,11 +2738,15 @@
             [[22.5,2.0,4.5],[22.5,4.5,7.5],[25.5,2.0,4.5],[25.5,4.5,7.5],
              [28.5,2.0,4.5],[28.5,4.5,7.5],[31.5,2.0,4.5],[31.5,4.5,7.5]].forEach(([e,n0,n1]) => beamNS(e,n0,n1));
 
-            // GARAGEM — 9 colunas (3×3, alinhadas ao pilotis do térreo) + grelha; junta em Egar
+            // GARAGEM — colunas (alinhadas ao pilotis do térreo) + grelha; junta em Egar.
+            // Inclui a linha extra em mN 3,40 (apoio junto à face norte da escada) e a
+            // viga N-S central só ao NORTE da escada — igual ao térreo.
             const GNM2 = 6.75, GEMc2 = (W + Egar)/2 - COL/2, GE1c2 = Egar - COL; // mN 6,75; mE meio/leste
-            [2.0, GNM2, 10.5 - COL].forEach(n => [W, GEMc2, GE1c2].forEach(e => col2(n, e)));
-            [2.0, GNM2, 10.5 - VW].forEach(n => beamEW(n, W, Egar));   // vigas E-O (sul/centro/norte)
-            [W, GEMc2, GE1c2].forEach(e => beamNS(e, 2.0, 10.5));      // vigas N-S (oeste/centro/leste)
+            [2.0, 3.40, GNM2, 10.5 - COL].forEach(n => [W, GEMc2, GE1c2].forEach(e => col2(n, e)));
+            [2.0, 3.40, GNM2, 10.5 - VW].forEach(n => beamEW(n, W, Egar));  // E-O: sul / mN 3,40 / centro / norte
+            beamNS(W,     2.0,  10.5);   // N-S oeste (inteira)
+            beamNS(GE1c2, 2.0,  10.5);   // N-S leste (inteira)
+            beamNS(GEMc2, 3.40, 10.5);   // N-S central — só ao NORTE da escada (reapoiada em mN 3,40)
             g.add(F2);
         }
 
