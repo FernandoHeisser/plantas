@@ -662,9 +662,13 @@ independentes pela junta (vigas da garagem param em GE1j, da casa em 22,5). Help
   recorta vão + verga, base no piso fz0): banheiro 2º pav→acesso (mN 4,5, abre p/ sul);
   closet→quarto (mN 4,5, **dupla**, abre p/ norte); quarto→acesso (mE 25,5, abre p/ leste);
   closet→banh.suíte (mE 28,5, abre p/ leste). Vãos centrados; simples 0,80 m / dupla 2×0,70 m.
+- **Janelas** (`F2_WINDOWS`, compartilhado 2D `win` + 3D helper `winWall`: peitoril+vidro+verga,
+  sill/head rel. a fz0; `matGlass` sem sombra). QUARTO: **panorâmicas** no norte (parede mN 7,5,
+  2 panos entre colunas: mE 25,6–28,4 e 28,6–31,4) e leste (mE 31,5, mN 4,6–7,4), peitoril 0,40
+  → viga 2,25. CLOSET: **normais** no sul (mE 29,4–30,6) e leste (mN 2,65–3,85), sill 1,0 / head 2,1.
 
-**Próximas etapas:** janelas do 2º piso (a definir); ligação acesso↔garagem cruzando a
-junta; guarda-corpo no vão da escada; uso do 2º piso da garagem; ficha de medidas V3.
+**Próximas etapas:** ligação acesso↔garagem cruzando a junta; guarda-corpo no vão da
+escada; uso do 2º piso da garagem; ficha de medidas V3.
 
 ---
 
