@@ -1845,11 +1845,11 @@
         { axis:'NS', pos:22.27,a0:4.7,   a1:5.5,   leaves:[{hn:4.7, he:22.27,dn:0.8, de:0,   sw:+1}], junta:true }, // cruza a junta → acesso da casa
     ];
     const F2G_WINDOWS = [   // janelas externas (norte = sol de inverno; oeste/leste = cruzada)
-        { axis:'EW', line:10.5,  s:13.9, e:15.9, sill:1.0, head:2.1 }, // escritório — norte
-        { axis:'NS', line:13.5,  s:5.5,  e:7.3,  sill:1.0, head:2.1 }, // escritório — oeste (cruzada)
-        { axis:'EW', line:10.5,  s:16.6, e:18.9, sill:1.0, head:2.1 }, // quarto 2 — norte
-        { axis:'EW', line:10.5,  s:19.5, e:21.9, sill:1.0, head:2.1 }, // quarto 1 — norte
-        { axis:'NS', line:22.27, s:7.7,  e:9.5,  sill:1.0, head:2.1 }, // quarto 1 — leste (trecho ao norte da casa = exterior, sol manhã)
+        { axis:'EW', line:10.5,  s:13.9, e:15.9, sill:1.0, head:2.1, side:'N' }, // escritório — norte
+        { axis:'NS', line:13.5,  s:5.5,  e:7.3,  sill:1.0, head:2.1, side:'W' }, // escritório — oeste (cruzada)
+        { axis:'EW', line:10.5,  s:16.6, e:18.9, sill:1.0, head:2.1, side:'N' }, // quarto 2 — norte
+        { axis:'EW', line:10.5,  s:19.5, e:21.9, sill:1.0, head:2.1, side:'N' }, // quarto 1 — norte
+        { axis:'NS', line:22.27, s:7.7,  e:9.5,  sill:1.0, head:2.1, side:'E' }, // quarto 1 — leste (trecho ao norte da casa = exterior, sol manhã)
     ];
 
     // Escada 2D (só desenho, no3d) — fonte única: térreo V2/V3 + visão 2º piso V3.
@@ -2808,15 +2808,20 @@
                 let cur = a0;
                 (wins || []).slice().sort((p, q) => p.s - q.s).forEach(w => {
                     seg(cur, w.s, fz0, fz1, matWall);                       // cheio antes
-                    seg(w.s, w.e, fz0, fz0 + w.sill, matWall);              // peitoril (abaixo)
-                    seg(w.s, w.e, fz0 + w.sill, fz0 + w.head, matGlass);    // vidro
-                    seg(w.s, w.e, fz0 + w.head, fz1, matWall);              // verga (acima)
-                    winGrid(w.s, w.e, fz0 + w.sill, fz0 + w.head);          // grade de madeira
+                    if (w.open) {                                          // vão de porta (cruza a junta)
+                        seg(w.s, w.e, fz0 + w.head, fz1, matWall);          // só verga (abertura vazia)
+                    } else {
+                        seg(w.s, w.e, fz0, fz0 + w.sill, matWall);          // peitoril (abaixo)
+                        seg(w.s, w.e, fz0 + w.sill, fz0 + w.head, matGlass);// vidro
+                        seg(w.s, w.e, fz0 + w.head, fz1, matWall);          // verga (acima)
+                        winGrid(w.s, w.e, fz0 + w.sill, fz0 + w.head);      // grade de madeira
+                    }
                     cur = w.e;
                 });
                 seg(cur, a1, fz0, fz1, matWall);                           // cheio final
             };
-            const winsOn = (axis, line) => F2_WINDOWS.filter(w => w.axis === axis && w.line === line);
+            const winsOn  = (axis, line) => F2_WINDOWS.filter(w => w.axis === axis && w.line === line);
+            const winsG   = side => F2G_WINDOWS.filter(w => w.side === side);  // janelas da garagem por face
 
             // Faces externas (alinhadas à estrutura do térreo). Casa = face das paredes
             // (linha∓EW/2); garagem = face das colunas (na linha). Junta = GE1j do V2.
@@ -2834,16 +2839,18 @@
             addSlab(hN1, W,   Ngar - hN1, Egar - W);   // norte do vão
             addSlab(hN0, W,   hN1 - hN0,  hE0 - W);    // oeste do vão
             addSlab(hN0, hE1, hN1 - hN0,  Egar - hE1); // leste do vão
-            addWall(S,        W,         EW,        Egar - W); // sul
-            addWall(S,        W,         Ngar - S,  EW);       // oeste
-            addWall(Ngar-EW,  W,         EW,        Egar - W); // norte
-            addWall(S,        Egar-EW,   Ngar - S,  EW);       // leste (junta)
+            addWall(S, W, EW, Egar - W);                                 // sul (cega)
+            winWall('NS', W + EW/2,    S, Ngar, EW, winsG('W'));         // oeste — janela do escritório
+            winWall('EW', Ngar - EW/2, W, Egar, EW, winsG('N'));         // norte — janelas dos 3 cômodos (sol de inverno)
+            winWall('NS', Egar - EW/2, S, Ngar, EW,                      // leste/junta — porta de ligação + janela leste do quarto 1
+                [{ s: 4.7, e: 5.5, sill: 0, head: F2_DOORH, open: true }, ...winsG('E')]);
 
             // ── Estrutura CASA (mN S→Ncasa, mE Wcasa→Ecasa) — laje 1 sólida + 4 paredes ──
             // Norte/leste/sul com janelas (winWall); oeste (junta) cega.
             addSlab(S, Wcasa, Ncasa - S, Ecasa - Wcasa);
             winWall('EW', 2.0,  Wcasa, Ecasa, EW, winsOn('EW', 2.0));   // sul  (janela do closet)
-            addWall(S,        Wcasa,      Ncasa - S,  EW);              // oeste (junta) — cega
+            winWall('NS', Wcasa + EW/2, S, Ncasa, EW,                   // oeste (junta) — vão da porta de ligação com a garagem
+                [{ s: 4.7, e: 5.5, sill: 0, head: F2_DOORH, open: true }]);
             winWall('EW', 7.5,  Wcasa, Ecasa, EW, winsOn('EW', 7.5));   // norte (panorâmicas do quarto)
             winWall('NS', 31.5, S,     Ncasa, EW, winsOn('NS', 31.5));  // leste (quarto panorâmica + closet normal)
 
@@ -2869,6 +2876,24 @@
 
             // Folhas de porta (madeira), abertas ~78° — base no piso do 2º (fz0)
             F2_DOORS.forEach(d => d.leaves.forEach(L => {
+                const r = Math.hypot(L.dn, L.de); if (r < 0.05) return;
+                const tOpen = Math.atan2(L.dn, L.de) + 0.78 * (Math.PI/2) * L.sw;
+                const leaf = new THREE.Group();
+                leaf.position.set(L.he + OE, fz0, -L.hn);
+                leaf.rotation.y = tOpen;
+                const panel = new THREE.Mesh(new THREE.BoxGeometry(r, F2_DOORH - 0.05, 0.045), matLeaf);
+                panel.position.set(r/2, (F2_DOORH - 0.05)/2, 0);
+                panel.castShadow = true; panel.receiveShadow = true;
+                leaf.add(panel);
+                F2.add(leaf);
+            }));
+
+            // ── Divisórias internas da GARAGEM + portas (escritório + 2 quartos + corredor) ──
+            intWall('EW', 4.6,  13.5, 19.2,  [[14.5, 15.3], [17.35, 18.15]]); // corredor ↔ escritório + quarto 2
+            intWall('EW', 5.6,  19.2, 22.37, [[20.4, 21.2]]);                 // vestíbulo da junta ↔ quarto 1
+            intWall('NS', 16.3, 4.6,  10.5,  []);                             // escritório ↔ quarto 2
+            intWall('NS', 19.2, 4.6,  10.5,  []);                             // quarto 2 ↔ (vestíbulo + quarto 1)
+            F2G_DOORS.forEach(d => d.leaves.forEach(L => {
                 const r = Math.hypot(L.dn, L.de); if (r < 0.05) return;
                 const tOpen = Math.atan2(L.dn, L.de) + 0.78 * (Math.PI/2) * L.sw;
                 const leaf = new THREE.Group();
