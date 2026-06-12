@@ -1797,6 +1797,22 @@
     const F2_SLAB_GAR  = [2.0, 13.5, 10.5, F2_GE1j];   // garagem (até a junta)
     const F2_SLAB_CASA = [2.0, 22.5, 7.5,  31.5];      // casa
 
+    // Portas internas do 2º piso da casa — compartilhado 2D (arcos) + 3D (vãos+folhas).
+    // axis 'EW' (parede em mN=pos) / 'NS' (parede em mE=pos); vão [a0,a1] ao longo do eixo;
+    // leaves = folhas: hinge (hn,he), folha fechada (dn,de) a partir do hinge, swing ±1.
+    const F2_DOORH = 2.10;   // altura do vão de porta (m, acima do piso do 2º)
+    const F2_DOORS = [
+        // Banheiro 2º pav → acesso (parede mN 4,5, coluna 1) — simples
+        { axis:'EW', pos:4.5,  a0:23.6, a1:24.4, leaves:[ {hn:4.5, he:23.6, dn:0,   de:0.8,  sw:-1} ] },
+        // Closet → quarto (parede mN 4,5, coluna 3) — DUPLA (abre p/ o quarto, norte)
+        { axis:'EW', pos:4.5,  a0:29.3, a1:30.7, leaves:[ {hn:4.5, he:29.3, dn:0,   de:0.7,  sw:+1},
+                                                          {hn:4.5, he:30.7, dn:0,   de:-0.7, sw:-1} ] },
+        // Quarto → acesso (parede mE 25,5, norte) — simples (abre p/ o quarto, leste)
+        { axis:'NS', pos:25.5, a0:5.6,  a1:6.4,  leaves:[ {hn:5.6, he:25.5, dn:0.8, de:0,    sw:-1} ] },
+        // Closet → banheiro da suíte (parede mE 28,5, sul) — simples (abre p/ o closet, leste)
+        { axis:'NS', pos:28.5, a0:2.85, a1:3.65, leaves:[ {hn:2.85,he:28.5, dn:0.8, de:0,    sw:-1} ] },
+    ];
+
     // Escada 2D (só desenho, no3d) — fonte única: térreo V2/V3 + visão 2º piso V3.
     // O volume 3D da escada é montado à parte (box3d manual na garagem).
     function stair2D() {
@@ -1869,10 +1885,17 @@
         // Paredes externas (20 cm) — GEO null aqui, então não captura p/ 3D
         F2_WALLS.forEach(([n1, e1, n2, e2]) => lys.push(wall(n1, e1, n2, e2, 0.20, { no3d: true })));
 
-        // Divisórias internas da casa (10 cm) — só paredes (portas/janelas depois)
+        // Divisórias internas da casa (10 cm)
         lys.push(wall(4.5, 22.5, 4.5, 31.5, 0.10, { no3d: true }));  // E-O mN 4,5 (sul↔norte)
         lys.push(wall(2.0, 25.5, 7.5, 25.5, 0.10, { no3d: true }));  // N-S mE 25,5 (inteira)
         lys.push(wall(2.0, 28.5, 4.5, 28.5, 0.10, { no3d: true }));  // N-S mE 28,5 (só sul)
+
+        // Portas: recorte branco do vão (sobre a parede) + arco/folha de abertura
+        F2_DOORS.forEach(d => {
+            if (d.axis === 'EW') lys.push(rect(d.pos - 0.05, d.a0, 0.10, d.a1 - d.a0, '#fafafa', { color: 'transparent', weight: 0, no3d: true }));
+            else                 lys.push(rect(d.a0, d.pos - 0.05, d.a1 - d.a0, 0.10, '#fafafa', { color: 'transparent', weight: 0, no3d: true }));
+            d.leaves.forEach(L => doorArc(L.hn, L.he, L.dn, L.de, L.sw).forEach(l => lys.push(l)));
+        });
 
         // Cotas de afastamento do edifício às margens do lote (mesmas do térreo)
         dimLine(4.5, 0, 4.5, 10.0, '10 m — frente').forEach(l => lys.push(l));  // frente garagem
@@ -2726,13 +2749,39 @@
             addWall(Ncasa-EW, Wcasa,      EW,         Ecasa - Wcasa); // norte
             addWall(S,        Ecasa-EW,   Ncasa - S,  EW);            // leste
 
-            // ── Divisórias internas da casa (só paredes; portas/janelas depois) ──
-            // Grade 2×3: linha E-O em mN 4,5 (sul↔norte); linhas N-S em mE 25,5
-            // (baia 1↔2, inteira) e mE 28,5 (só sul: banh. suíte↔closet).
+            // ── Divisórias internas da casa + portas (vãos recortados + folhas) ──
+            // Grade 2×3: E-O em mN 4,5 (sul↔norte); N-S em mE 25,5 (inteira) e 28,5 (só sul).
             const IW = 0.10;
-            addWall(4.5 - IW/2, 22.5,        IW,        31.5 - 22.5); // E-O mN 4,5 (sul↔norte)
-            addWall(2.0,        25.5 - IW/2, 7.5 - 2.0, IW);          // N-S mE 25,5 (acesso/quarto + banh.2pav/banh.suíte)
-            addWall(2.0,        28.5 - IW/2, 4.5 - 2.0, IW);          // N-S mE 28,5 (só sul: banh.suíte↔closet)
+            // parede interna com vãos de porta: segmentos cheios + verga sobre cada vão
+            const intWall = (axis, line, a0, a1, gaps) => {
+                let cur = a0;
+                const box = (s0, s1, z0, z1) => (axis === 'EW')
+                    ? F2.add(box3d(line - IW/2, s0 + OE, IW, s1 - s0, z0, z1, matWall))
+                    : F2.add(box3d(s0, line + OE - IW/2, s1 - s0, IW, z0, z1, matWall));
+                (gaps || []).slice().sort((p, q) => p[0] - q[0]).forEach(([d0, d1]) => {
+                    if (d0 > cur) box(cur, d0, fz0, fz1);          // segmento cheio antes do vão
+                    box(d0, d1, fz0 + F2_DOORH, fz1);              // verga sobre o vão
+                    cur = d1;
+                });
+                if (cur < a1) box(cur, a1, fz0, fz1);              // segmento final
+            };
+            intWall('EW', 4.5,  22.5, 31.5, [[23.6, 24.4], [29.3, 30.7]]); // banheiro 2pav + closet (dupla)
+            intWall('NS', 25.5, 2.0,  7.5,  [[5.6, 6.4]]);                 // quarto
+            intWall('NS', 28.5, 2.0,  4.5,  [[2.85, 3.65]]);               // closet→banh.suíte
+
+            // Folhas de porta (madeira), abertas ~78° — base no piso do 2º (fz0)
+            F2_DOORS.forEach(d => d.leaves.forEach(L => {
+                const r = Math.hypot(L.dn, L.de); if (r < 0.05) return;
+                const tOpen = Math.atan2(L.dn, L.de) + 0.78 * (Math.PI/2) * L.sw;
+                const leaf = new THREE.Group();
+                leaf.position.set(L.he + OE, fz0, -L.hn);
+                leaf.rotation.y = tOpen;
+                const panel = new THREE.Mesh(new THREE.BoxGeometry(r, F2_DOORH - 0.05, 0.045), matLeaf);
+                panel.position.set(r/2, (F2_DOORH - 0.05)/2, 0);
+                panel.castShadow = true; panel.receiveShadow = true;
+                leaf.add(panel);
+                F2.add(leaf);
+            }));
 
             // ── Estrutura do 2º piso: colunas (continuam o térreo) + vigas no teto ──
             // Espelha o térreo: GARAGEM = colunas (o pilotis sobe) + grelha; CASA =

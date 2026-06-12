@@ -658,10 +658,13 @@ independentes pela junta (vigas da garagem param em GE1j, da casa em 22,5). Help
   (col 3).
 - Divisórias internas (IW=0,10, no `floor2` 3D + `buildFloor2Layers` 2D): E-O em mN 4,5
   (mE 22,5→31,5); N-S em mE 25,5 (inteira, mN 2→7,5); N-S em mE 28,5 (só sul, mN 2→4,5).
-  **Só paredes** — portas e janelas a definir (locais/formas específicas).
+- **Portas** (`F2_DOORS`, compartilhado 2D arcos + 3D vãos/folhas; helper 3D `intWall`
+  recorta vão + verga, base no piso fz0): banheiro 2º pav→acesso (mN 4,5, abre p/ sul);
+  closet→quarto (mN 4,5, **dupla**, abre p/ norte); quarto→acesso (mE 25,5, abre p/ leste);
+  closet→banh.suíte (mE 28,5, abre p/ leste). Vãos centrados; simples 0,80 m / dupla 2×0,70 m.
 
-**Próximas etapas:** portas e janelas do 2º piso (a definir); guarda-corpo no vão da
-escada; uso do 2º piso da garagem; ficha de medidas V3.
+**Próximas etapas:** janelas do 2º piso (a definir); ligação acesso↔garagem cruzando a
+junta; guarda-corpo no vão da escada; uso do 2º piso da garagem; ficha de medidas V3.
 
 ---
 
