@@ -645,9 +645,11 @@ térreo, com caminho de carga vertical contínuo e a junta subindo junto. **Gara
 12 colunas (3×3 em mN 2/6,75/10,3 + linha extra em **mN 3,40** junto à escada — todas
 alinhadas ao pilotis do térreo, mE 13,5/~17,8/~22,2) da laje 1 (3,01) ao teto do 2º (5,71)
 + grelha de vigas (viga N-S central só ao NORTE da escada, reapoiada em mN 3,40 — como o
-térreo); **casa** = grelha 3×3 (colunas embutidas nas paredes, como no térreo). Vigas no teto do 2º (y 5,26→5,71, **VH=0,45**
-= casa térreo, VW=0,20), sustentando a laje 2. Pórticos independentes pela junta (vigas
-da garagem param em GE1j, da casa em 22,5). Helpers locais `col2`/`beamEW`/`beamNS`.
+térreo); **casa** = 12 colunas nos nós da grade (mE 22,5/25,5/28,5/31,5 × mN 2/4,5/7,5,
+centradas, embutidas nas paredes/divisórias — helper `col2c`) + grelha 3×3. Vigas no teto
+do 2º (y 5,26→5,71, **VH=0,45** = casa térreo, VW=0,20), sustentando a laje 2. Pórticos
+independentes pela junta (vigas da garagem param em GE1j, da casa em 22,5). Helpers locais
+`col2`/`col2c`/`beamEW`/`beamNS`.
 
 **Próximas etapas:** divisórias internas do 2º (suíte master leste, quartos norte,
 home office oeste); guarda-corpo no vão da escada; ficha de medidas V3.
