@@ -2650,18 +2650,13 @@
                 bar(a0, a1, z0, z0 + 0.04, matFrame);   // só a soleira — o vão fica vazio (folhas de vidro abrem)
             } else {
                 bar(a0 - 0.02, a1 + 0.02, z0 - 0.05, z0 + 0.02, matSill);   // peitoril saliente
-                bar((a0+a1)/2 - 0.02, (a0+a1)/2 + 0.02, z0, z1, matFrame);  // montante vertical
+                bar(a0, a1, z0, z0 + FR, matFrame);                         // travessa inferior
+                // Grade do caixilho: montantes + travessas internos (~0,55 m por pano)
+                const nV = Math.max(1, Math.round((a1 - a0) / 0.55));
+                const nH = Math.max(1, Math.round((z1 - z0) / 0.55));
+                for (let i = 1; i < nV; i++) { const a = a0 + (a1 - a0) * i / nV; bar(a - FR/2, a + FR/2, z0, z1, matFrame); }
+                for (let j = 1; j < nH; j++) { const z = z0 + (z1 - z0) * j / nH; bar(a0, a1, z - FR/2, z + FR/2, matFrame); }
             }
-        });
-        // travessa horizontal das janelas (a porta de vidro já tem sua própria grade)
-        openings.filter(o => o.type === 'window').forEach(o => {
-            const horiz = o.de >= o.dn;
-            const D = (horiz ? o.dn : o.de) + 0.05;
-            const a0 = horiz ? o.e : o.n, a1 = horiz ? (o.e + o.de) : (o.n + o.dn);
-            const fix = horiz ? (o.n + o.dn/2) : (o.e + o.de/2);
-            const zm = (o.sill + o.head) / 2 + CPA;
-            if (horiz) g.add(box3d(fix - D/2, a0, D, a1 - a0, zm - 0.02, zm + 0.02, matFrame));
-            else       g.add(box3d(a0, fix - D/2, a1 - a0, D, zm - 0.02, zm + 0.02, matFrame));
         });
 
         // Folhas de porta — abrem conforme hinge/direção/swing do doorArc 2D
@@ -2750,13 +2745,13 @@
                     if (mat === matGlass) m.castShadow = false;   // vidro deixa a luz passar
                     F2.add(m);
                 };
-                // Grade de madeira (caixilho + montantes + travessas) sobre o vidro — estilo padrão.
-                // Barras de seção MT, profundidade MD (proeminentes p/ aparecer sobre o vidro).
+                // Grade do caixilho (montantes + travessas) sobre o vidro — estilo padrão.
+                // Cor original do caixilho (matFrame); barras seção MT, profundidade MD.
                 const winGrid = (s, e, z0, z1) => {
                     const MT = 0.06, MD = 0.10;
                     const bar = (a0, a1, zb0, zb1) => F2.add((axis === 'EW')
-                        ? box3d(line - MD/2, a0 + OE, MD, a1 - a0, zb0, zb1, matLeaf)
-                        : box3d(a0, line + OE - MD/2, a1 - a0, MD, zb0, zb1, matLeaf));
+                        ? box3d(line - MD/2, a0 + OE, MD, a1 - a0, zb0, zb1, matFrame)
+                        : box3d(a0, line + OE - MD/2, a1 - a0, MD, zb0, zb1, matFrame));
                     const nV = Math.max(1, Math.round((e - s) / 0.55));   // ~0,55 m por pano
                     const nH = Math.max(1, Math.round((z1 - z0) / 0.55));
                     for (let i = 0; i <= nV; i++) { const a = s + (e - s) * i / nV; bar(a - MT/2, a + MT/2, z0, z1); } // montantes (c/ bordas)

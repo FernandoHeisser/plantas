@@ -230,7 +230,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 3. `buildBuilding3D(v)` extruda o modelo:
    - **paredes** (`k:'wall'`) → caixas até `CEIL3D=2,70 m`, **recortando vãos** (cheio + peitoril + verga + vidro).
    - **vãos** (`k:'opening'`):
-     - `type:'window'` → vidro fixo entre peitoril e verga (padrão 1,0→2,1; customizável via `opts.sill`/`opts.head` no `win()`) + batente + montante + peitoril saliente.
+     - `type:'window'` → vidro fixo entre peitoril e verga (padrão 1,0→2,1; customizável via `opts.sill`/`opts.head` no `win()`) + batente + peitoril saliente + **grade de caixilho** (montantes + travessas, ~0,55 m por pano, cor `matFrame`). Mesmo formato de grade no 2º piso (`winGrid`) — estilo único em todas as janelas (V1/V2/V3).
      - `type:'door'` → abertura vazia + batente + folha de madeira abrindo pelo swing do `doorArc`.
      - `type:'glassdoor'` → abertura vazia + batente + soleira + **duas folhas de vidro** abertas (grade 2×3 em cada folha). A lateral dupla usa este tipo.
    - **móveis** (`k:'solid'`) → modelo realista por tipo via `FURN3D[m3d]`, ou volume de massa se sem tipo.
@@ -667,9 +667,9 @@ independentes pela junta (vigas da garagem param em GE1j, da casa em 22,5). Help
   2 panos entre colunas: mE 25,6–28,4 e 28,6–31,4) e leste (mE 31,5, mN 4,6–7,4), peitoril 0,40
   → viga 2,25. CLOSET: **normais** no sul (mE 29,4–30,6) e leste (mN 2,65–3,85), sill 1,0 / head 2,1.
   BANHEIROS (sul, mN 2,0): banheiro 2º pav (mE 23,5–24,5) e banheiro da suíte (mE 26,5–27,5),
-  normais. **Estilo padrão** = caixilho de madeira (`matLeaf`) + grade de montantes/travessas
-  (~0,55 m por pano), via `winGrid` dentro do `winWall` (aplicado a TODAS as janelas do 2º piso;
-  térreo V1/V2 ainda no estilo antigo).
+  normais. **Estilo padrão** = grade de caixilho (montantes + travessas, ~0,55 m por pano),
+  via `winGrid` dentro do `winWall`. **Cor `matFrame`** (creme, cor original do caixilho — não
+  madeira). Mesmo formato aplicado às janelas do **térreo V1/V2/V3** (pipeline GEO) — estilo único.
 
 **Próximas etapas:** ligação acesso↔garagem cruzando a junta; guarda-corpo no vão da
 escada; uso do 2º piso da garagem; ficha de medidas V3.
