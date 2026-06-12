@@ -666,6 +666,10 @@ independentes pela junta (vigas da garagem param em GE1j, da casa em 22,5). Help
   sill/head rel. a fz0; `matGlass` sem sombra). QUARTO: **panorâmicas** no norte (parede mN 7,5,
   2 panos entre colunas: mE 25,6–28,4 e 28,6–31,4) e leste (mE 31,5, mN 4,6–7,4), peitoril 0,40
   → viga 2,25. CLOSET: **normais** no sul (mE 29,4–30,6) e leste (mN 2,65–3,85), sill 1,0 / head 2,1.
+  BANHEIROS (sul, mN 2,0): banheiro 2º pav (mE 23,5–24,5) e banheiro da suíte (mE 26,5–27,5),
+  normais. **Estilo padrão** = caixilho de madeira (`matLeaf`) + grade de montantes/travessas
+  (~0,55 m por pano), via `winGrid` dentro do `winWall` (aplicado a TODAS as janelas do 2º piso;
+  térreo V1/V2 ainda no estilo antigo).
 
 **Próximas etapas:** ligação acesso↔garagem cruzando a junta; guarda-corpo no vão da
 escada; uso do 2º piso da garagem; ficha de medidas V3.

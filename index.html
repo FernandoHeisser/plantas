@@ -1823,6 +1823,8 @@
         { axis:'NS', line:31.5, s:4.6,  e:7.4,  sill:0.40, head:2.25 }, // quarto leste — panorâmica
         { axis:'NS', line:31.5, s:2.65, e:3.85, sill:1.0,  head:2.1  }, // closet leste — normal
         { axis:'EW', line:2.0,  s:29.4, e:30.6, sill:1.0,  head:2.1  }, // closet sul — normal
+        { axis:'EW', line:2.0,  s:23.5, e:24.5, sill:1.0,  head:2.1  }, // banheiro 2º pav sul — normal
+        { axis:'EW', line:2.0,  s:26.5, e:27.5, sill:1.0,  head:2.1  }, // banheiro da suíte sul — normal
     ];
 
     // Escada 2D (só desenho, no3d) — fonte única: térreo V2/V3 + visão 2º piso V3.
@@ -2748,12 +2750,25 @@
                     if (mat === matGlass) m.castShadow = false;   // vidro deixa a luz passar
                     F2.add(m);
                 };
+                // Grade de madeira (caixilho + montantes + travessas) sobre o vidro — estilo padrão.
+                // Barras de seção MT, profundidade MD (proeminentes p/ aparecer sobre o vidro).
+                const winGrid = (s, e, z0, z1) => {
+                    const MT = 0.06, MD = 0.10;
+                    const bar = (a0, a1, zb0, zb1) => F2.add((axis === 'EW')
+                        ? box3d(line - MD/2, a0 + OE, MD, a1 - a0, zb0, zb1, matLeaf)
+                        : box3d(a0, line + OE - MD/2, a1 - a0, MD, zb0, zb1, matLeaf));
+                    const nV = Math.max(1, Math.round((e - s) / 0.55));   // ~0,55 m por pano
+                    const nH = Math.max(1, Math.round((z1 - z0) / 0.55));
+                    for (let i = 0; i <= nV; i++) { const a = s + (e - s) * i / nV; bar(a - MT/2, a + MT/2, z0, z1); } // montantes (c/ bordas)
+                    for (let j = 0; j <= nH; j++) { const z = z0 + (z1 - z0) * j / nH; bar(s, e, z - MT/2, z + MT/2); } // travessas (c/ bordas)
+                };
                 let cur = a0;
                 (wins || []).slice().sort((p, q) => p.s - q.s).forEach(w => {
                     seg(cur, w.s, fz0, fz1, matWall);                       // cheio antes
                     seg(w.s, w.e, fz0, fz0 + w.sill, matWall);              // peitoril (abaixo)
                     seg(w.s, w.e, fz0 + w.sill, fz0 + w.head, matGlass);    // vidro
                     seg(w.s, w.e, fz0 + w.head, fz1, matWall);              // verga (acima)
+                    winGrid(w.s, w.e, fz0 + w.sill, fz0 + w.head);          // grade de madeira
                     cur = w.e;
                 });
                 seg(cur, a1, fz0, fz1, matWall);                           // cheio final
