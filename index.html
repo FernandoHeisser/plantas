@@ -1869,6 +1869,11 @@
         // Paredes externas (20 cm) — GEO null aqui, então não captura p/ 3D
         F2_WALLS.forEach(([n1, e1, n2, e2]) => lys.push(wall(n1, e1, n2, e2, 0.20, { no3d: true })));
 
+        // Divisórias internas da casa (10 cm) — só paredes (portas/janelas depois)
+        lys.push(wall(4.5, 22.5, 4.5, 31.5, 0.10, { no3d: true }));  // E-O mN 4,5 (sul↔norte)
+        lys.push(wall(2.0, 25.5, 7.5, 25.5, 0.10, { no3d: true }));  // N-S mE 25,5 (inteira)
+        lys.push(wall(2.0, 28.5, 4.5, 28.5, 0.10, { no3d: true }));  // N-S mE 28,5 (só sul)
+
         // Cotas de afastamento do edifício às margens do lote (mesmas do térreo)
         dimLine(4.5, 0, 4.5, 10.0, '10 m — frente').forEach(l => lys.push(l));  // frente garagem
         dimLine(4.5, 26.5, 4.5, 40, '13,5 m — fundo').forEach(l => lys.push(l)); // fundo casa
@@ -2720,6 +2725,14 @@
             addWall(S,        Wcasa,      Ncasa - S,  EW);            // oeste (junta)
             addWall(Ncasa-EW, Wcasa,      EW,         Ecasa - Wcasa); // norte
             addWall(S,        Ecasa-EW,   Ncasa - S,  EW);            // leste
+
+            // ── Divisórias internas da casa (só paredes; portas/janelas depois) ──
+            // Grade 2×3: linha E-O em mN 4,5 (sul↔norte); linhas N-S em mE 25,5
+            // (baia 1↔2, inteira) e mE 28,5 (só sul: banh. suíte↔closet).
+            const IW = 0.10;
+            addWall(4.5 - IW/2, 22.5,        IW,        31.5 - 22.5); // E-O mN 4,5 (sul↔norte)
+            addWall(2.0,        25.5 - IW/2, 7.5 - 2.0, IW);          // N-S mE 25,5 (acesso/quarto + banh.2pav/banh.suíte)
+            addWall(2.0,        28.5 - IW/2, 4.5 - 2.0, IW);          // N-S mE 28,5 (só sul: banh.suíte↔closet)
 
             // ── Estrutura do 2º piso: colunas (continuam o térreo) + vigas no teto ──
             // Espelha o térreo: GARAGEM = colunas (o pilotis sobe) + grelha; CASA =

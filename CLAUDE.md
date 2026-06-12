@@ -651,8 +651,17 @@ do 2º (y 5,26→5,71, **VH=0,45** = casa térreo, VW=0,20), sustentando a laje 
 independentes pela junta (vigas da garagem param em GE1j, da casa em 22,5). Helpers locais
 `col2`/`col2c`/`beamEW`/`beamNS`.
 
-**Próximas etapas:** divisórias internas do 2º (suíte master leste, quartos norte,
-home office oeste); guarda-corpo no vão da escada; ficha de medidas V3.
+**Cômodos do 2º piso da casa (grade 2×3, divididos por mN 4,5 / mE 25,5 / mE 28,5):**
+- NORTE (mN 4,5→7,5): **acesso** (coluna 1, mE 22,5→25,5) + **quarto da suíte** (colunas
+  2+3, mE 25,5→31,5, vão único).
+- SUL (mN 2→4,5): **banheiro 2º pav** (col 1) · **banheiro da suíte** (col 2) · **closet**
+  (col 3).
+- Divisórias internas (IW=0,10, no `floor2` 3D + `buildFloor2Layers` 2D): E-O em mN 4,5
+  (mE 22,5→31,5); N-S em mE 25,5 (inteira, mN 2→7,5); N-S em mE 28,5 (só sul, mN 2→4,5).
+  **Só paredes** — portas e janelas a definir (locais/formas específicas).
+
+**Próximas etapas:** portas e janelas do 2º piso (a definir); guarda-corpo no vão da
+escada; uso do 2º piso da garagem; ficha de medidas V3.
 
 ---
 
