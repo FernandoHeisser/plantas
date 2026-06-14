@@ -2704,11 +2704,8 @@
             } else {
                 bar(a0 - 0.02, a1 + 0.02, z0 - 0.05, z0 + 0.02, matSill);   // peitoril saliente
                 bar(a0, a1, z0, z0 + FR, matFrame);                         // travessa inferior
-                // Grade do caixilho: montantes + travessas internos (~0,55 m por pano)
-                const nV = Math.max(1, Math.round((a1 - a0) / 0.55));
-                const nH = Math.max(1, Math.round((z1 - z0) / 0.55));
-                for (let i = 1; i < nV; i++) { const a = a0 + (a1 - a0) * i / nV; bar(a - FR/2, a + FR/2, z0, z1, matFrame); }
-                for (let j = 1; j < nH; j++) { const z = z0 + (z1 - z0) * j / nH; bar(a0, a1, z - FR/2, z + FR/2, matFrame); }
+                // Grade: 2 panos horizontais — 1 montante central, sem travessas internas
+                { const a = (a0 + a1) / 2; bar(a - FR/2, a + FR/2, z0, z1, matFrame); }
             }
         });
 
@@ -2808,10 +2805,10 @@
                     const bar = (a0, a1, zb0, zb1) => F2.add((axis === 'EW')
                         ? box3d(line - D/2, a0 + OE, D, a1 - a0, zb0, zb1, matFrame)
                         : box3d(a0, line + OE - D/2, a1 - a0, D, zb0, zb1, matFrame));
-                    const nV = Math.max(1, Math.round((e - s) / 0.55));   // ~0,55 m por pano
-                    const nH = Math.max(1, Math.round((z1 - z0) / 0.55));
-                    for (let i = 0; i <= nV; i++) { const a = s + (e - s) * i / nV; bar(a - MT/2, a + MT/2, z0, z1); } // montantes (c/ bordas)
-                    for (let j = 0; j <= nH; j++) { const z = z0 + (z1 - z0) * j / nH; bar(s, e, z - MT/2, z + MT/2); } // travessas (c/ bordas)
+                    // 2 panos horizontais: bordas (i=0,2) + 1 montante central (i=1); só travessas de borda (j=0,1)
+                    for (let i = 0; i <= 2; i++) { const a = s + (e - s) * i / 2; bar(a - MT/2, a + MT/2, z0, z1); }
+                    bar(s, e, z0 - MT/2, z0 + MT/2);
+                    bar(s, e, z1 - MT/2, z1 + MT/2);
                 };
                 let cur = a0;
                 (wins || []).slice().sort((p, q) => p.s - q.s).forEach(w => {
