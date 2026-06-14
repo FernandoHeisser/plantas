@@ -1402,10 +1402,10 @@
             pts.push(rot(hn + Math.sin(t)*r, he + Math.cos(t)*r));
         }
         const layers = [];
-        layers.push(L.polyline(pts, { color: '#64748b', weight: 1, dashArray: '2 2', interactive: false }));
+        layers.push(L.polyline(pts, { color: '#111827', weight: 1, dashArray: '2 2', interactive: false }));
         layers.push(L.polyline([rot(hn,he), rot(hn+dn, he+de)],
-            { color: '#1e293b', weight: 2.6, interactive: false }));
-        layers.push(circ(hn, he - OE, 0.06, '#1e293b', { color: '#1e293b', weight: 0.5 })); // circ soma OE → cancela p/ não duplicar
+            { color: '#000000', weight: 2.6, interactive: false }));
+        layers.push(circ(hn, he - OE, 0.06, '#000000', { color: '#000000', weight: 0.5 })); // circ soma OE → cancela p/ não duplicar
         return layers;
     }
 
@@ -1418,7 +1418,7 @@
         if (GEO) GEO.push({ k: 'opening', type: 'window', n, e, dn, de, axis, sill, head });
         const layers = [];
         layers.push(rect(n, e - OE, dn, de, '#fafafa', { color: 'transparent', weight: 0, no3d: true })); // rect soma OE → cancela p/ não duplicar
-        const WC = { color: '#334155', weight: 1.5, interactive: false };
+        const WC = { color: '#111827', weight: 1.5, interactive: false };
         const WG = { color: '#bfdbfe', weight: 1.0, interactive: false };
         if (axis === 'N') {
             // Parede horizontal (mN=const): 3 linhas correm E-O
@@ -2676,9 +2676,9 @@
         });
 
         // ── Esquadrias: batentes, montantes, peitoris e folhas de porta ──────
-        const matFrame = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.55, metalness: 0, envMapIntensity: 0.4 });
+        const matFrame = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5, metalness: 0.0, envMapIntensity: 0.3 });
         const matSill  = new THREE.MeshStandardMaterial({ color: 0xd8d2c6, roughness: 0.6, metalness: 0, envMapIntensity: 0.4 });
-        const matLeaf  = new THREE.MeshStandardMaterial({ color: 0xb98a5a, roughness: 0.6, metalness: 0.05, envMapIntensity: 0.4 });
+        const matLeaf  = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5, metalness: 0.0, envMapIntensity: 0.3 });
         const matKnob  = new THREE.MeshStandardMaterial({ color: 0xb8b8bd, roughness: 0.3, metalness: 0.85 });
         const FR = 0.05;   // seção do caixilho
 
@@ -2722,27 +2722,30 @@
             leaf.position.set(o.he, CPA, -o.hn);
             leaf.rotation.y = tOpen;
             if (o.glass) {
-                // Folha de vidro: painel transparente + caixilho perimetral + grade 2×3
-                const glassLeafMat = new THREE.MeshStandardMaterial({ color: 0xaecadf, transparent: true,
-                    opacity: 0.28, roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
-                const panel = new THREE.Mesh(new THREE.BoxGeometry(r, head, th * 0.6), glassLeafMat);
+                // Folha de vidro: painel transparente + caixilho preto
+                const glassLeafMat = new THREE.MeshStandardMaterial({ color: 0xc8dde8, transparent: true,
+                    opacity: 0.22, roughness: 0.02, metalness: 0.05, envMapIntensity: 1.8 });
+                const panel = new THREE.Mesh(new THREE.BoxGeometry(r, head, th * 0.4), glassLeafMat);
                 panel.position.set(r/2, head/2, 0);
-                panel.castShadow = false; panel.receiveShadow = true;
+                panel.castShadow = false; panel.receiveShadow = false;
                 leaf.add(panel);
-                // caixilho: montante lateral perto da dobradiça, outro na ponta, travessas e grade
-                const fm = new THREE.MeshStandardMaterial({ color: 0xd4d0c8, roughness: 0.4, metalness: 0.3 });
-                const FR2 = 0.04;
-                [[0, FR2], [r - FR2, r], [0, r]].forEach(([a, b]) => {         // 2 montantes + verga
-                    const g2 = new THREE.BoxGeometry(b - a, head, th);
-                    const m2 = new THREE.Mesh(g2, fm);
-                    m2.position.set((a + b)/2, head/2, 0); leaf.add(m2);
-                });
-                for (let i = 1; i <= 2; i++) {                                 // 2 travessas → 3 faixas
-                    const z = head * i / 3;
-                    const g2 = new THREE.BoxGeometry(r, FR2, th);
-                    const m2 = new THREE.Mesh(g2, fm);
-                    m2.position.set(r/2, z, 0); leaf.add(m2);
-                }
+                // Caixilho: bordas perimetrais + grade interna (~0,55 m/pano)
+                const FR2 = 0.05, TD = th + 0.01;
+                const bar2 = (x, y, w, h) => {
+                    const m2 = new THREE.Mesh(new THREE.BoxGeometry(w, h, TD), matFrame);
+                    m2.position.set(x + w/2, y + h/2, 0);
+                    m2.castShadow = false;
+                    leaf.add(m2);
+                };
+                bar2(0,        0,          FR2, head);  // montante esq (dobradiça)
+                bar2(r - FR2,  0,          FR2, head);  // montante dir
+                bar2(0,        head - FR2, r,   FR2);   // verga (topo)
+                bar2(0,        0,          r,   FR2);   // soleira (base)
+                // grade interna
+                const nV = Math.max(1, Math.round(r / 0.55));
+                const nH = Math.max(1, Math.round(head / 0.55));
+                for (let i = 1; i < nV; i++) { const x = FR2 + (r - 2*FR2) * i / nV; bar2(x - FR2/2, 0, FR2, head); }
+                for (let j = 1; j < nH; j++) { const y = FR2 + (head - 2*FR2) * j / nH; bar2(0, y - FR2/2, r, FR2); }
             } else {
                 const panel = new THREE.Mesh(new THREE.BoxGeometry(r, head, th), matLeaf);
                 panel.position.set(r/2, head/2, 0);
@@ -2801,10 +2804,10 @@
                 // Grade do caixilho (montantes + travessas) sobre o vidro — estilo padrão.
                 // Cor original do caixilho (matFrame); barras seção MT, profundidade MD.
                 const winGrid = (s, e, z0, z1) => {
-                    const MT = 0.06, MD = 0.10;
+                    const MT = 0.06, D = t + 0.05;   // atravessa a parede toda (igual ao caixilho do térreo)
                     const bar = (a0, a1, zb0, zb1) => F2.add((axis === 'EW')
-                        ? box3d(line - MD/2, a0 + OE, MD, a1 - a0, zb0, zb1, matFrame)
-                        : box3d(a0, line + OE - MD/2, a1 - a0, MD, zb0, zb1, matFrame));
+                        ? box3d(line - D/2, a0 + OE, D, a1 - a0, zb0, zb1, matFrame)
+                        : box3d(a0, line + OE - D/2, a1 - a0, D, zb0, zb1, matFrame));
                     const nV = Math.max(1, Math.round((e - s) / 0.55));   // ~0,55 m por pano
                     const nH = Math.max(1, Math.round((z1 - z0) / 0.55));
                     for (let i = 0; i <= nV; i++) { const a = s + (e - s) * i / nV; bar(a - MT/2, a + MT/2, z0, z1); } // montantes (c/ bordas)
