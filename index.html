@@ -3037,15 +3037,16 @@
         });
 
         // ── Laje de cobertura (plana) — V3 recebe 2º pavimento sobre ela ─────
-        // Concreto + leve beiral + platibanda (mureta) no perímetro. Começa oculta.
+        // Concreto + beiral + platibanda (mureta) no perímetro. Começa oculta.
         const lajeMat = new THREE.MeshStandardMaterial({ color: 0xc8c4bc, roughness: 0.9, metalness: 0, envMapIntensity: 0.2,
                                                          polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
         const roof = new THREE.Group();
         roof.name = 'roof';
         roof.visible = false;
-        // Laje retângulo perfeito (mN 2,0→7,5 × mE 22,5→31,5) + beiral 12 cm
-        const n0 = 2 - 0.12, n1 = 7.5 + 0.12;
-        const e0 = 22.5 + OE - 0.12, e1 = 31.5 + OE + 0.12; // leste agora em mE=31,5
+        // Beiral: norte 0,90 m (autoregulador solar lat−30°), sul/leste/oeste 0,50 m (proteção chuva)
+        const BN_N = 0.90, BN_S = 0.50, BN_EW = 0.50;
+        const n0 = 2 - BN_S, n1 = 7.5 + BN_N;
+        const e0 = 22.5 + OE - BN_EW, e1 = 31.5 + OE + BN_EW;
         roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab
         const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12; // platibanda
         roof.add(box3d(n0,      e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // sul
@@ -3313,7 +3314,7 @@
             const HN0 = ESC_N0, HN1 = ESC_N0 + ESC_DN, HE0 = ESC_E_top, HE1 = 19.80 + OE;
 
             // Laje + platibanda da garagem — para em GE1j (junta; não encosta na casa)
-            const gn0 = GN0 - 0.12, gn1 = GN1 + 0.12, ge0 = GE0 - 0.12; // beiral 12 cm
+            const gn0 = GN0 - BN_S, gn1 = GN1 + BN_S, ge0 = GE0 - BN_EW; // beiral: sul/norte 0,50 m, oeste 0,50 m; leste = junta (sem beiral)
             if (v === 'v3') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
                 // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
