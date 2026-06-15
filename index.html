@@ -3111,32 +3111,56 @@
         //   ótimo de geração anual; a água vira o norte, painéis deitam rentes.
         //   Telha metálica termoacústica (galvalume claro) + módulos FV.
         const SOLAR = (v === 'v31');
-        const PITCH = 28 * Math.PI / 180;
-        const matMetalRoof = new THREE.MeshStandardMaterial({ color: 0xc2c6ca, roughness: 0.42, metalness: 0.55, envMapIntensity: 0.5,
+        const PITCH = 12 * Math.PI / 180;   // inclinação realista de telha metálica (~21%)
+        const tanP = Math.tan(PITCH);
+        const matMetalRoof = new THREE.MeshStandardMaterial({ color: 0xc2c6ca, roughness: 0.42, metalness: 0.55, envMapIntensity: 0.5, side: THREE.DoubleSide,
                                                               polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
         const matPanel      = new THREE.MeshStandardMaterial({ color: 0x111b30, roughness: 0.28, metalness: 0.25, envMapIntensity: 0.7 });
-        const matPanelFrame = new THREE.MeshStandardMaterial({ color: 0x9aa0a6, roughness: 0.5,  metalness: 0.7,  envMapIntensity: 0.5 });
-        // Laje/telha inclinada (box girado em torno do eixo L-O). n0/n1 = mN sul→norte,
-        // e0/e1 = mE de cena (já com OE). yEaveN = beiral norte (lado baixo).
+        const matGable      = matWall.clone(); matGable.side = THREE.DoubleSide;   // empena (frontão)
+        // Empena (frontão) — parede triangular fina no plano mE=cte, fechando o vão
+        // entre o topo da parede (yBot, plano) e a água do telhado (segue a inclinação).
+        const gableEnd = (mE, wn0, wn1, yBot, yTopN0, yTopN1, thk, mat) => {
+            const x0 = mE - thk/2, x1 = mE + thk/2;
+            // perfil (mN,y) no plano vertical: SW, NW(baixo), NW(alto telhado), SW(alto telhado)
+            const prof = [[wn0, yBot], [wn1, yBot], [wn1, yTopN1], [wn0, yTopN0]];
+            const f = [], b = [], pos = [];
+            prof.forEach(([n,y]) => { f.push([x1,y,-n]); b.push([x0,y,-n]); });
+            const tri = (a,b2,c) => pos.push(...a, ...b2, ...c);
+            for (let i = 1; i < prof.length - 1; i++) { tri(f[0], f[i], f[i+1]); tri(b[0], b[i+1], b[i]); }
+            for (let i = 0; i < prof.length; i++) { const j = (i+1)%prof.length; tri(f[i], f[j], b[j]); tri(f[i], b[j], b[i]); }
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+            geo.computeVertexNormals();
+            const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true;
+            return m;
+        };
+        // Água (plano de telha) inclinada — box fino girado em torno do eixo L-O.
+        // n0/n1 = mN sul→norte (com beiral), e0/e1 = mE de cena (com OE). yEaveN = beiral norte (baixo).
         const tiltedSlab = (mat, n0, e0, n1, e1, yEaveN, t) => {
-            const D = n1 - n0, W = e1 - e0, yS = yEaveN + D * Math.tan(PITCH);
+            const D = n1 - n0, W = e1 - e0, yS = yEaveN + D * tanP;
             const m = new THREE.Mesh(new THREE.BoxGeometry(W, t, D / Math.cos(PITCH)), mat);
             m.rotation.x = -PITCH;
             m.position.set((e0 + e1) / 2, (yEaveN + yS) / 2, -(n0 + n1) / 2);
             m.castShadow = true; m.receiveShadow = true;
             return m;
         };
-        const addShed = (grp, n0, e0, n1, e1, yEaveN) => {
+        // Telhado de uma água REAL: água de telha + 2 empenas (frontões O/L) apoiadas nas
+        //   paredes (wn0/wn1 = mN da parede; we0/we1 = mE dos planos das paredes O/L) + usina FV.
+        const addShed = (grp, n0, e0, n1, e1, yEaveN, wn0, wn1, we0, we1) => {
+            const yRoof = n => yEaveN + (n1 - n) * tanP;   // cota da água (plano central) no mN n
+            const yBot  = yEaveN - 0.16;                   // topo da parede (= laje do 2º piso)
             grp.add(tiltedSlab(matMetalRoof, n0, e0, n1, e1, yEaveN, 0.10));
+            grp.add(gableEnd(we0, wn0, wn1, yBot, yRoof(wn0), yRoof(wn1), 0.15, matGable)); // empena oeste
+            grp.add(gableEnd(we1, wn0, wn1, yBot, yRoof(wn0), yRoof(wn1), 0.15, matGable)); // empena leste
             // Módulos FV em grade na água norte, insetados das bordas/beiral.
-            const mIn = 0.55, pw = 1.0, pl = 1.65, gap = 0.04, pth = 0.04, tanP = Math.tan(PITCH);
+            const mIn = 0.55, pw = 1.0, pl = 1.65, gap = 0.04, pth = 0.04;
             const a0 = e0 + mIn, a1 = e1 - mIn, b0 = n0 + mIn, b1 = n1 - mIn;
             for (let ec = a0; ec + pw <= a1 + 1e-6; ec += pw + gap)
                 for (let nc = b0; nc + pl <= b1 + 1e-6; nc += pl + gap) {
-                    const cn = nc + pl / 2, ytop = yEaveN + (n1 - cn) * tanP;
+                    const cn = nc + pl / 2;
                     const pm = new THREE.Mesh(new THREE.BoxGeometry(pw, pth, pl / Math.cos(PITCH)), matPanel);
                     pm.rotation.x = -PITCH;
-                    pm.position.set(ec + pw / 2, ytop + 0.10, -cn);
+                    pm.position.set(ec + pw / 2, yRoof(cn) + 0.10, -cn);
                     pm.castShadow = true; pm.receiveShadow = true;
                     grp.add(pm);
                 }
@@ -3151,7 +3175,7 @@
         const e0 = 22.5 + OE - BN_EW, e1 = 31.5 + OE + BN_EW;
         const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12; // platibanda
         if (SOLAR) {
-            addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16);
+            addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16, 2.0, 7.5, 22.5 + OE, 31.5 + OE);
         } else {
             roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab
             roof.add(box3d(n0,      e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // sul
@@ -3442,7 +3466,7 @@
             if (SOLAR) {
                 // V3.1: shed independente da garagem caindo p/ norte + painéis FV.
                 // Leste para na junta (GE1j); não encosta na casa.
-                addShed(roof, gn0, ge0, gn1, GE1j, GLAJE + 0.16);
+                addShed(roof, gn0, ge0, gn1, GE1j, GLAJE + 0.16, GN0, GN1, GE0, GE1j);
             } else if (v === 'v3' || v === 'v31') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
                 // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
