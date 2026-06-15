@@ -2002,6 +2002,11 @@
                     { color: '#1e293b', weight: 0.5, fillColor: '#64748b', fillOpacity: 1, interactive: false }
                 ));
             }
+            // Cerca sul: mN 0→0,10, mE 0→40
+            lys.push(L.polygon(
+                [rot(0, 0), rot(0.10, 0), rot(0.10, 40), rot(0, 40)],
+                { color: '#5c3a1e', weight: 1, fillColor: '#8B5E3C', fillOpacity: 1, interactive: false }
+            ));
             // Cerca de madeira nos fundos: mE=40, mN 0→12,5
             lys.push(L.polygon(
                 [rot(0, 39.90), rot(12.5, 39.90), rot(12.5, 40), rot(0, 40)],
@@ -3456,6 +3461,24 @@
                 const pw  = bL / nP;
                 for (let j = 0; j < nP; j++) {
                     g.add(box3d(bS + j * pw, CE, pw, FT, fz0c - 0.02, fz0c + FH, matRipado));
+                }
+            }
+            // ── Cerca sul: mN=0, mE 0→40 (32 vãos de 1,25m) ────────────────
+            const PS_S = 1.25, N_BAYS_S = 32;   // 32 × 1,25 = 40 m exato
+            for (let i = 0; i <= N_BAYS_S; i++) {
+                const pe  = i * PS_S;
+                const fzs = grade(pe) - 0.10;
+                g.add(box3d(0, pe - PT/2, PT, PT, fzs, grade(pe) + PH, matMourao));
+            }
+            for (let i = 0; i < N_BAYS_S; i++) {
+                const bS  = i * PS_S + PT/2;
+                const bE  = (i + 1) * PS_S - PT/2;
+                const bL  = bE - bS;
+                const nP  = Math.round(bL / 0.125);
+                const pw  = bL / nP;
+                for (let j = 0; j < nP; j++) {
+                    const ce = bS + j * pw + pw / 2;   // centro do ripado (mE)
+                    g.add(box3d(0, bS + j * pw, FT, pw, grade(ce) - 0.02, grade(ce) + FH, matRipado));
                 }
             }
         }
