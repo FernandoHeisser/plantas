@@ -72,6 +72,7 @@
         .vtab[data-v="v11"].active { background: rgba(16,185,129,0.2);  border-color: rgba(16,185,129,0.45);  color: #6ee7b7; }
         .vtab[data-v="v2"].active  { background: rgba(245,158,11,0.2);  border-color: rgba(245,158,11,0.45);  color: #fbbf24; }
         .vtab[data-v="v3"].active  { background: rgba(139,92,246,0.2);  border-color: rgba(139,92,246,0.45);  color: #c4b5fd; }
+        .vtab[data-v="v31"].active { background: rgba(20,184,166,0.2);  border-color: rgba(20,184,166,0.45);  color: #5eead4; }
 
         /* ── SECTION NAV — dark secondary, pills ── */
         .section-nav {
@@ -106,7 +107,8 @@
         #p-v1-3d .card,
         #p-v11-3d .card,
         #p-v2-3d .card,
-        #p-v3-3d .card {
+        #p-v3-3d .card,
+        #p-v31-3d .card {
             padding: 0;
             border: none;
             border-radius: 0;
@@ -454,7 +456,8 @@
         #p-v1-med,
         #p-v11-med,
         #p-v2-med,
-        #p-v3-med {
+        #p-v3-med,
+        #p-v31-med {
             min-height: calc(100dvh - var(--sticky-h));
             overflow-y: auto;
         }
@@ -640,6 +643,7 @@
             <button class="vtab"        data-v="v11" onclick="setVersion('v11')">V1.1</button>
             <button class="vtab"        data-v="v2"  onclick="setVersion('v2')">V2 · Garagem</button>
             <button class="vtab"        data-v="v3"  onclick="setVersion('v3')">V3 · Sobrado</button>
+            <button class="vtab"        data-v="v31" onclick="setVersion('v31')">V3.1 · Telhado solar</button>
         </div>
     </div>
 </header>
@@ -803,6 +807,56 @@
                     <button type="button" onclick="set3DFloor2('v3', this)">2º piso: oculto</button>
                     <button type="button" onclick="set3DRoof('v3', this)">Laje: oculta</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ V3.1 · TELHADO SOLAR (sobrado + dois sheds norte) ══════════ -->
+    <div class="panel" id="p-v31-2d">
+        <div class="card">
+            <div class="map-wrap">
+                <div id="map-v31" class="mapa-sat"></div>
+                <div class="map-floortoggle">
+                    <button type="button" onclick="setV3Floor(this)">Piso: térreo</button>
+                </div>
+                <div class="scene3d-compass">
+                    <div class="rose">
+                        <div class="pt n" style="left:29px;top:9px">N</div>
+                        <div class="pt"   style="left:47px;top:29px;color:#4ade80">L</div>
+                        <div class="pt"   style="left:29px;top:47px;color:#64748b">S</div>
+                        <div class="pt"   style="left:11px;top:29px;color:#f59e0b">O</div>
+                    </div>
+                </div>
+                <div class="map-legend-ov">
+                    <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
+                    <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v31-3d">
+        <div class="card">
+            <div id="scene3d-v31" class="scene3d">
+                <div class="scene3d-toolbar">
+                    <button type="button" onclick="set3DFloor2('v31', this)">2º piso: oculto</button>
+                    <button type="button" onclick="set3DRoof('v31', this)">Telhado: oculto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v31-med">
+        <div class="med-page">
+            <div class="med-summary">
+                <div class="med-sum-item"><span class="med-sum-label">Versão</span><span class="med-sum-value">V3.1 — Sobrado + telhado solar</span></div>
+                <div class="med-sum-item"><span class="med-sum-label">Telhado</span><span class="med-sum-value">2 águas independentes (casa + garagem) caindo p/ norte</span></div>
+                <div class="med-sum-item"><span class="med-sum-label">Inclinação</span><span class="med-sum-value">~28° (ótimo solar, lat −29,96°)</span></div>
+                <div class="med-sum-item"><span class="med-sum-label">Cobertura</span><span class="med-sum-value">Telha metálica termoacústica + placas fotovoltaicas (água norte)</span></div>
             </div>
         </div>
     </div>
@@ -1303,12 +1357,14 @@
         const p = location.pathname.replace(/\/+$/, '').toLowerCase();
         if (p === '/v1.1') return 'v11';
         if (p === '/v2')   return 'v2';
+        if (p === '/v3.1') return 'v31';
         if (p === '/v3')   return 'v3';
         return 'v1';
     }
     function pathFromVersion(v) {
         if (v === 'v1')  return '/';
         if (v === 'v11') return '/v1.1';
+        if (v === 'v31') return '/v3.1';
         return '/' + v;
     }
 
@@ -1883,7 +1939,7 @@
         }
 
         // ── V2: garagem (laje aberta — fundação + colunas + laje, sem paredes) ──
-        if (v === 'v2' || v === 'v3') {
+        if (v === 'v2' || v === 'v3' || v === 'v31') {
             const GN0 = 2.0,  GN1 = 10.5;  // 8,5 m de largura (2 m de cada muro lateral)
             const GE0 = 13.5, GE1 = 22.5; // extremidade nominal leste (= parede oeste da casa)
             const EW = 0.20;               // espessura parede externa (reutilizada aqui)
@@ -1969,7 +2025,7 @@
         //    alternável pelo botão "Piso" do mapa. Aqui o térreo é igual ao V2.
 
         // ── V1.1+: muro frontal (mE=0) + portão norte + cercas ──────────────
-        if (v === 'v11' || v === 'v2' || v === 'v3') {
+        if (v === 'v11' || v === 'v2' || v === 'v3' || v === 'v31') {
             // Muro sólido: mN 0→9,0, espessura 0,15 m p/ dentro do lote
             // Muro sul: mN 0→8,0
             lys.push(L.polygon(
@@ -2242,7 +2298,7 @@
         v3floor = v3floor === 1 ? 2 : 1;
         btn.textContent = 'Piso: ' + (v3floor === 2 ? '2º pav.' : 'térreo');
         btn.classList.toggle('ativo', v3floor === 2);
-        const map = maps['v3'];
+        const map = maps[ver];
         if (map && map._overlay) {
             map.removeLayer(map._overlay);
             map._overlay = L.layerGroup(v3Layers()).addTo(map);
@@ -3068,7 +3124,7 @@
         // Footprint = união casa + garagem (L), sobre a laje do térreo (= piso do
         // 2º). NÃO extrapola o terreno. Começa oculto; a laje de cobertura (roof)
         // sobe sobre ele quando visível (set3DFloor2). Sem paredes internas (etapa 1).
-        if (v === 'v3') {
+        if (v === 'v3' || v === 'v31') {
             // 2º pavimento = DUAS estruturas independentes, como no térreo: garagem e
             // casa separadas pela MESMA junta de dilatação do V2 (GE1j, isopor 3 cm).
             const F2 = new THREE.Group();
@@ -3282,7 +3338,7 @@
         }
 
         // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
-        if (v === 'v2' || v === 'v3') {
+        if (v === 'v2' || v === 'v3' || v === 'v31') {
             const GN0 = 2.0, GN1 = 10.5, GE0 = 13.5 + OE, GE1 = 22.5 + OE;
             const GAP  = 0.03;            // junta estrutural: 3 cm de isopor
             const GE1j = GE1 - 0.10 - GAP; // face leste da garagem (para antes da face ext. da casa)
@@ -3342,7 +3398,7 @@
 
             // Laje + platibanda da garagem — para em GE1j (junta; não encosta na casa)
             const gn0 = GN0 - BN_S, gn1 = GN1 + BN_N, ge0 = GE0 - BN_EW; // beiral: sul 0,50 m, norte 0,90 m, oeste 0,50 m; leste = junta (sem beiral)
-            if (v === 'v3') {
+            if (v === 'v3' || v === 'v31') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
                 // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
                 roof.add(box3d(gn0, ge0, gn1 - gn0, GE1j - ge0, GLAJE, GLAJE+0.16, lajeMat));
@@ -3398,7 +3454,7 @@
         }
 
         // ── V1.1+: muro frontal + postes do portão + cercas ─────────────────
-        if (v === 'v11' || v === 'v2' || v === 'v3') {
+        if (v === 'v11' || v === 'v2' || v === 'v3' || v === 'v31') {
             const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
             // Muro sul: mN 0→8,0
@@ -3800,7 +3856,7 @@
             maxNativeZoom: 18, maxZoom: 25
         }).addTo(map);
 
-        const overlay = L.layerGroup(v === 'v3' ? v3Layers() : buildLayers(v)).addTo(map);
+        const overlay = L.layerGroup((v === 'v3' || v === 'v31') ? v3Layers() : buildLayers(v)).addTo(map);
         maps[v] = map;
         map._overlay = overlay;
 
