@@ -8,12 +8,43 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Esta é a forma de trabalho que produziu resultados aprovados pelo cliente. Replicar.
 
-### 1. Incremental, com commits granulares
-- Trabalhar em **feature branch** (`git checkout -b <nome>`), nunca direto na `main`.
+### 1. Incremental, com commits granulares e fluxo de deploy
+
+#### A. Início de cada conversa — criar feature branch
+**Regra obrigatória:** ao iniciar qualquer mudança no código, criar uma feature branch **antes** do primeiro commit:
+```bash
+git checkout -b <nome-descritivo>   # ex: feat/janela-quarto, fix/zfight-laje
+```
+Nunca commitar direto na `main`.
+
+#### B. Durante o trabalho
 - **Uma mudança lógica = um commit separado**, mensagem descritiva em pt-BR + `Co-Authored-By`.
   Isso dá **rollback granular**: o cliente reverte só o que não gostou sem perder o resto.
 - O cliente pediu explicitamente "faz um de cada vez" — não empacotar mudanças não relacionadas.
-- Merge na `main` (`--no-ff`), push e deletar a branch **só quando o cliente pedir**.
+
+#### C. Quando o cliente disser "concluído" — merge, deploy e limpeza
+Executar **exatamente nesta sequência**, sem pular etapas:
+
+```bash
+# 1. Merge na main (--no-ff preserva o histórico da branch)
+git checkout main
+git merge --no-ff <nome-da-branch> -m "merge: <descrição>"
+
+# 2. Push para origin/main → dispara deploy automático no Vercel
+git push origin main
+
+# 3. Apagar branch local
+git branch -d <nome-da-branch>
+
+# 4. Apagar branch remota (se tiver sido publicada)
+git push origin --delete <nome-da-branch>
+
+# 5. Apagar TODAS as outras feature branches locais e remotas que sobraram
+git branch | grep -v "main" | xargs -r git branch -d
+git fetch --prune   # limpa referências remotas mortas no local
+```
+
+**Confirmar ao cliente:** "Branch `<nome>` mergeada na `main`, push feito (Vercel vai fazer deploy), branches apagadas."
 
 ### 2. Discutir antes de implementar (decisões subjetivas/de layout)
 - **Propor com números concretos e o porquê**; confirmar a direção antes de codar.
