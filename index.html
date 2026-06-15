@@ -1895,6 +1895,13 @@
             };
             const COL = 0.20;             // seção das colunas (20 × 20 cm)
 
+            // Acesso pavimentado: rua (mE=0) → entrada da garagem (mE=GE0+OE no lote)
+            // Norte vai até mN=11,5 (poste norte do portão) para cobrir todo o vão de entrada do carro
+            lys.push(L.polygon(
+                [rot(GN0, 0), rot(11.5, 0), rot(11.5, GE0+OE), rot(GN0, GE0+OE)],
+                { color: '#94a3b8', weight: 1, fillColor: '#d1d5db', fillOpacity: 0.90, interactive: false }
+            ));
+
             // Contorno da laje — tracejado; para antes da junta (garagem independente)
             lys.push(L.polygon(
                 [rot(GN0, GE0+OE), rot(GN1, GE0+OE), rot(GN1, GE1j+OE), rot(GN0, GE1j+OE)],
@@ -3289,6 +3296,11 @@
             const GEMc = GEM;                           // coluna intermédia E-O
             const GCPA  = 0.15;   // piso garagem — 15 cm acima da calçada (entrada quase plana p/ carro)
             const GEM_P = 0.03;
+
+            // Acesso pavimentado: rua (mE=0) → entrada da garagem (mE=GE0)
+            // Norte: 11,5 (poste norte do portão); base desce até baseBot p/ não ficar oco
+            const matDrive = new THREE.MeshStandardMaterial({ color: 0xd0ccc4, roughness: 0.88, metalness: 0, envMapIntensity: 0.2, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
+            g.add(box3d(GN0, 0, 11.5 - GN0, GE0, baseBot(0, GE0), GCPA, matDrive));
 
             // 9 colunas (3×3): frente / meio / fundo × sul / centro / norte.
             // Base desce até a cota natural (baseBot) — casa com o declive, sem flutuar.
