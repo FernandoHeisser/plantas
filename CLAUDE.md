@@ -97,7 +97,7 @@ Acesso: http://localhost:3131
 Config em `.claude/launch.json`.
 
 > **`--single` é obrigatório:** o app usa rotas resolvidas no cliente (`/v2` → V2,
-> `/v3` → V3, `/v3.1` → V3.1, `/v1.1` → V1.1, `/` ou qualquer outra → V1). Sem o modo SPA, o `serve` devolve **404**
+> `/v3` → V3, `/v3.1` → V3.1, `/v3.2` → V3.2, `/v1.1` → V1.1, `/` ou qualquer outra → V1). Sem o modo SPA, o `serve` devolve **404**
 > em `/v2` e `/v3` (só `/` funciona). Na Vercel isso é tratado pelo rewrite catch-all
 > do `vercel.json`.
 
@@ -647,6 +647,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) | ✅ Preenchida (garagem + depósito + escada) |
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 | **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
+| **V3.2** | 🔶 Herda o 2D do V3.1 | ✅ Herda o V3.1 + **pintura da casa em marrom** (`WALL_TINT` tinge o `matWall` só p/ `v32`) | 🔶 Placeholder com resumo |
 
 ---
 
@@ -757,6 +758,17 @@ dilatação** — não há cobertura emendada entre os blocos.
 
 **Próximas etapas V3.1:** cotas do telhado/altura de cumeeira; calha/condutores na borda norte;
 ficha de medidas (área de telhado, kWp estimado); opcional realce dos módulos no 2D.
+
+### V3.2 — Pintura da casa (marrom)
+
+Variante do V3.1: **herda tudo** (sobrado + telhado solar) e só **pinta as paredes de marrom**.
+Mesmo padrão de aba/rota/painéis (`data-v="v32"`, `/v3.2`, `p-v32-2d/3d/med`); todo gate que
+aceita `v31` também aceita `v32` (incl. `SOLAR` e o `noun` do botão "Telhado").
+
+- **Cor (3D):** `const WALL_TINT = (v==='v32') ? 0x7a5230 : 0xffffff;` aplicado no `color` do
+  `matWall` (multiplica a textura de reboco `texWall()`). Como `matGable = matWall.clone()`, as
+  empenas/fechamentos do telhado também ficam marrom. Embasamento/baldrame/laje mantêm a cor própria.
+  Só afeta o `v32` — `matWall` é recriado por versão em `buildBuilding3D(v)`.
 
 ---
 
