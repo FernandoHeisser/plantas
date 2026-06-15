@@ -3408,7 +3408,7 @@
 
         // ── V1.1: muro frontal + postes do portão ────────────────────────────
         if (v === 'v11') {
-            const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02 });
+            const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
             // Muro sul: mN 0→8,0
             g.add(box3d(0, 0, 8.0, 0.15, grade(0) - 0.02, grade(0) + 2.0, matMuro));
@@ -3418,7 +3418,7 @@
             g.add(box3d(7.85, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
             g.add(box3d(11.35, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
             // Muro norte: mN 12,35→12,5, mE 0→40, segmentado p/ seguir o declive
-            const matNMuro  = fmat(0x64748b, { roughness: 0.85, metalness: 0.02 });
+            const matNMuro  = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matPilar  = fmat(0x8c8478, { roughness: 0.88, metalness: 0.02 });
             const CS = 0.22;  // seção quadrada da coluna
             for (let i = 0; i < 8; i++) {
@@ -3434,7 +3434,7 @@
             }
             // ── Cerca de madeira nos fundos: mourões + ripados ──────────────
             const matMourao = fmat(0x7B3E28, { roughness: 0.92, metalness: 0 });
-            const matRipado = fmat(0xC8823C, { roughness: 0.88, metalness: 0 });
+            const matRipado = fmat(0xC8823C, { roughness: 0.88, metalness: 0, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const CE  = 39.90;  // face interior da cerca (mE)
             const PT  = 0.12;   // seção do mourão (quadrado)
             const PH  = 2.20;   // altura do mourão (sobe acima do ripado)
