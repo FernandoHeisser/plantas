@@ -3152,6 +3152,10 @@
             grp.add(tiltedSlab(matMetalRoof, n0, e0, n1, e1, yEaveN, 0.10));
             grp.add(gableEnd(we0, wn0, wn1, yBot, yRoof(wn0), yRoof(wn1), 0.15, matGable)); // empena oeste
             grp.add(gableEnd(we1, wn0, wn1, yBot, yRoof(wn0), yRoof(wn1), 0.15, matGable)); // empena leste
+            // Fechamento sul (lado alto) e norte (lado baixo): parede do topo da laje até a água.
+            // Largura constante em mE → parede retangular vertical (box3d).
+            grp.add(box3d(wn0 - 0.075, we0, 0.15, we1 - we0, yBot, yRoof(wn0), matGable)); // sul (alto)
+            grp.add(box3d(wn1 - 0.075, we0, 0.15, we1 - we0, yBot, yRoof(wn1), matGable)); // norte (baixo)
             // Módulos FV em grade na água norte, insetados das bordas/beiral.
             const mIn = 0.55, pw = 1.0, pl = 1.65, gap = 0.04, pth = 0.04;
             const a0 = e0 + mIn, a1 = e1 - mIn, b0 = n0 + mIn, b1 = n1 - mIn;
