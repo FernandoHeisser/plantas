@@ -3132,10 +3132,11 @@
             const hN0 = 2.20, hN1 = 3.40, hE0 = 15.90, hE1 = 19.80;  // vão da escada (garagem)
 
             // ── Estrutura GARAGEM (mN S→Ngar, mE W→Egar) — laje 1 c/ vão + 4 paredes ──
-            addSlab(S,   W,   hN0 - S,    Egar - W);   // sul do vão
-            addSlab(hN1, W,   Ngar - hN1, Egar - W);   // norte do vão
-            addSlab(hN0, W,   hN1 - hN0,  hE0 - W);    // oeste do vão
-            addSlab(hN0, hE1, hN1 - hN0,  Egar - hE1); // leste do vão
+            // Beiral: sul/norte/oeste estendem conforme BN_*; leste = junta (sem beiral externo)
+            addSlab(S-BN_S,  W-BN_EW, hN0-(S-BN_S),         Egar-(W-BN_EW));  // sul + beiral sul/oeste
+            addSlab(hN1,     W-BN_EW, (Ngar+BN_N)-hN1,      Egar-(W-BN_EW));  // norte + beiral norte/oeste
+            addSlab(hN0,     W-BN_EW, hN1-hN0,              hE0-(W-BN_EW));   // oeste do vão + beiral oeste
+            addSlab(hN0,     hE1,     hN1-hN0,              Egar-hE1);         // leste do vão (junta — sem beiral)
             winWall('EW', 2.0, W, Egar, EW, winsG('S'));                 // sul (corredor/escada) — janelas grandes
             winWall('NS', W + EW/2,    S, Ngar, EW, winsG('W'));         // oeste — janela do escritório
             winWall('EW', Ngar - EW/2, W, Egar, EW, winsG('N'));         // norte — janelas dos 3 cômodos (sol de inverno)
@@ -3144,7 +3145,19 @@
 
             // ── Estrutura CASA (mN S→Ncasa, mE Wcasa→Ecasa) — laje 1 sólida + 4 paredes ──
             // Norte/leste/sul com janelas (winWall); oeste (junta) cega.
-            addSlab(S, Wcasa, Ncasa - S, Ecasa - Wcasa);
+            addSlab(S-BN_S, Wcasa-BN_EW, (Ncasa+BN_N)-(S-BN_S), (Ecasa+BN_EW)-(Wcasa-BN_EW));
+            // Borda visível do beiral da laje 1 — fascia de 25 cm nas faces externas (sem junta)
+            const addBorda = (n, e, dn, de) => F2.add(box3d(n, e + OE, dn, de, lz0 - 0.25, lz1, lajeMat));
+            const BT = 0.08;  // espessura da face da borda
+            const cn0 = S-BN_S, cn1 = Ncasa+BN_N, ce0 = Wcasa-BN_EW, ce1 = Ecasa+BN_EW;
+            addBorda(cn0,    ce0, BT,       ce1-ce0); // face sul
+            addBorda(cn1-BT, ce0, BT,       ce1-ce0); // face norte
+            addBorda(cn0,    ce1-BT, cn1-cn0, BT);    // face leste (junta oeste = sem borda)
+            // Garagem: faces sul, norte, oeste (leste = junta)
+            const gn0b = S-BN_S, gn1b = Ngar+BN_N, ge0b = W-BN_EW;
+            addBorda(gn0b,      ge0b, BT,        Egar-ge0b); // face sul
+            addBorda(gn1b-BT,   ge0b, BT,        Egar-ge0b); // face norte
+            addBorda(gn0b,      ge0b, gn1b-gn0b, BT);        // face oeste
             winWall('EW', 2.0,  Wcasa, Ecasa, EW, winsOn('EW', 2.0));   // sul  (janela do closet)
             winWall('NS', Wcasa + EW/2, S, Ncasa, EW,                   // oeste (junta) — vão da porta de ligação com a garagem
                 [{ s: 4.7, e: 5.5, sill: 0, head: F2_DOORH, open: true }]);
@@ -3314,7 +3327,7 @@
             const HN0 = ESC_N0, HN1 = ESC_N0 + ESC_DN, HE0 = ESC_E_top, HE1 = 19.80 + OE;
 
             // Laje + platibanda da garagem — para em GE1j (junta; não encosta na casa)
-            const gn0 = GN0 - BN_S, gn1 = GN1 + BN_S, ge0 = GE0 - BN_EW; // beiral: sul/norte 0,50 m, oeste 0,50 m; leste = junta (sem beiral)
+            const gn0 = GN0 - BN_S, gn1 = GN1 + BN_N, ge0 = GE0 - BN_EW; // beiral: sul 0,50 m, norte 0,90 m, oeste 0,50 m; leste = junta (sem beiral)
             if (v === 'v3') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
                 // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
