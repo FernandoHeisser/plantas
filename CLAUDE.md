@@ -80,6 +80,8 @@ git fetch --prune   # limpa referências remotas mortas no local
 ### 6. Regras de código (detalhes nas seções abaixo)
 - **Fonte única 2D→3D:** mexeu no `buildLayers` (2D) → o 3D acompanha ao reabrir. **Base comum
   propaga V1/V2/V3.** Mudou cota/posição/novo tipo `FURN3D`? **Atualizar este CLAUDE.md junto.**
+- **Herança de versões:** mudança no V2 (garagem etc.) → aplicar no bloco `v2 || v3`. Mudança
+  só do V3 → bloco `v3`. Nunca aplicar em só uma versão quando a funcionalidade existe em versões superiores.
 - Após editar JS: **Ctrl+Shift+R** (Leaflet e Three cacheiam).
 - Z-fight: hierarquia de `polygonOffset` — `matEmbase` (sem offset) > `matWall` (factor:1/units:4) > `lajeMat` (factor:2/units:8). Colunas sempre vencem paredes, paredes sempre vencem vigas/laje.
 
@@ -246,6 +248,23 @@ function buildLayers(v) {
 ```
 
 V1, V2 e V3 compartilham a mesma planta baixa detalhada do térreo. Diferenças são adicionadas nos blocos `if`.
+
+### Regra de herança entre versões
+
+**Toda alteração deve ser aplicada na versão alvo e em todas as versões superiores:**
+
+| Alteração em | Deve refletir em |
+|---|---|
+| Base comum (térreo) | V1, V2 e V3 (automático — é o mesmo bloco) |
+| `if (v === 'v2' \|\| v === 'v3')` | V2 e V3 |
+| `if (v === 'v3')` | só V3 |
+
+**Exemplos práticos:**
+- Mudança na garagem (introduzida no V2) → aplicar no bloco `v2 || v3`, não só em `v2`.
+- Nova janela no 2º piso → só no bloco `v3`.
+- Correção de parede do térreo → base comum, já propaga para todos.
+
+**Antes de commitar:** abrir as 3 versões e conferir se a mudança aparece/não aparece onde deveria.
 
 ---
 
