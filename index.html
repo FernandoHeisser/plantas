@@ -2357,7 +2357,8 @@
     }
     function getSatGroundMat() {
         if (satGroundMat) return satGroundMat;
-        satGroundMat = new THREE.MeshStandardMaterial({ color: LOT_FILL_N, roughness: 1, metalness: 0, envMapIntensity: 0.15 });
+        satGroundMat = new THREE.MeshStandardMaterial({ color: LOT_FILL_N, roughness: 1, metalness: 0, envMapIntensity: 0.15,
+                                                       polygonOffset: true, polygonOffsetFactor: 4, polygonOffsetUnits: 4 });
         loadSatelliteTexture((tex, ok) => {   // CORS pode falhar → mantém verde (fallback)
             if (ok > 0) { satGroundMat.map = tex; satGroundMat.color.set(0xffffff); satGroundMat.needsUpdate = true; }
         });
@@ -2738,7 +2739,8 @@
         });
         const veilPlane = new THREE.Mesh(new THREE.PlaneGeometry(spec.meters, spec.meters), veilMat);
         veilPlane.rotation.x = -Math.PI / 2;
-        veilPlane.position.y = 0.002;   // logo acima do satPlane (y=-0.03 → world y=-0.028)
+        veilPlane.position.y = 0.02;    // acima do satPlane; polygonOffset no satMat garante sem z-fight
+        veilPlane.renderOrder = 1;      // render após satPlane (reforça ordem quando transparente)
         satGroup.add(veilPlane);
 
         g.add(satGroup);
