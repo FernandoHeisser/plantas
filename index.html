@@ -68,9 +68,10 @@
             letter-spacing: 0.4px;
         }
         .vtab:hover { background: rgba(255,255,255,0.1); color: #94a3b8; }
-        .vtab[data-v="v1"].active { background: rgba(59,130,246,0.2);  border-color: rgba(59,130,246,0.45); color: #93c5fd; }
-        .vtab[data-v="v2"].active { background: rgba(245,158,11,0.2);  border-color: rgba(245,158,11,0.45); color: #fbbf24; }
-        .vtab[data-v="v3"].active { background: rgba(139,92,246,0.2);  border-color: rgba(139,92,246,0.45); color: #c4b5fd; }
+        .vtab[data-v="v1"].active  { background: rgba(59,130,246,0.2);  border-color: rgba(59,130,246,0.45);  color: #93c5fd; }
+        .vtab[data-v="v11"].active { background: rgba(16,185,129,0.2);  border-color: rgba(16,185,129,0.45);  color: #6ee7b7; }
+        .vtab[data-v="v2"].active  { background: rgba(245,158,11,0.2);  border-color: rgba(245,158,11,0.45);  color: #fbbf24; }
+        .vtab[data-v="v3"].active  { background: rgba(139,92,246,0.2);  border-color: rgba(139,92,246,0.45);  color: #c4b5fd; }
 
         /* ── SECTION NAV — dark secondary, pills ── */
         .section-nav {
@@ -103,6 +104,7 @@
         /* Painéis 2D e 3D real (V1/V2/V3): full-bleed, sem padding */
         [id$="-2d"] .card,
         #p-v1-3d .card,
+        #p-v11-3d .card,
         #p-v2-3d .card,
         #p-v3-3d .card {
             padding: 0;
@@ -450,6 +452,7 @@
 
         /* ── MEDIDAS PAGE ── */
         #p-v1-med,
+        #p-v11-med,
         #p-v2-med,
         #p-v3-med {
             min-height: calc(100dvh - var(--sticky-h));
@@ -633,9 +636,10 @@
             <div class="header-meta">12,50m × 40,00m · Charqueadas, RS · Lote 500m²</div>
         </div>
         <div class="version-tabs">
-            <button class="vtab active" data-v="v1" onclick="setVersion('v1')">V1 · MVP</button>
-            <button class="vtab" data-v="v2" onclick="setVersion('v2')">V2 · Garagem</button>
-            <button class="vtab" data-v="v3" onclick="setVersion('v3')">V3 · Sobrado</button>
+            <button class="vtab active" data-v="v1"  onclick="setVersion('v1')">V1 · MVP</button>
+            <button class="vtab"        data-v="v11" onclick="setVersion('v11')">V1.1</button>
+            <button class="vtab"        data-v="v2"  onclick="setVersion('v2')">V2 · Garagem</button>
+            <button class="vtab"        data-v="v3"  onclick="setVersion('v3')">V3 · Sobrado</button>
         </div>
     </div>
 </header>
@@ -685,6 +689,42 @@
             </div>
         </div>
     </div>
+    <!-- ══════════ V1.1 ══════════ -->
+
+    <div class="panel" id="p-v11-2d">
+        <div class="card">
+            <div class="map-wrap">
+                <div id="map-v11" class="mapa-sat"></div>
+                <div class="scene3d-compass">
+                    <div class="rose">
+                        <div class="pt n" style="left:29px;top:9px">N</div>
+                        <div class="pt"   style="left:47px;top:29px;color:#4ade80">L</div>
+                        <div class="pt"   style="left:29px;top:47px;color:#64748b">S</div>
+                        <div class="pt"   style="left:11px;top:29px;color:#f59e0b">O</div>
+                    </div>
+                </div>
+                <div class="map-legend-ov">
+                    <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
+                    <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v11-3d">
+        <div class="card">
+            <div id="scene3d-v11" class="scene3d">
+                <div class="scene3d-toolbar">
+                    <button type="button" onclick="set3DRoof('v11', this)">Laje: oculta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ══════════ V2 ══════════ -->
 
     <div class="panel" id="p-v2-2d">
@@ -852,8 +892,8 @@
 
           <div class="med-room-card col-orange">
             <div class="med-room-name">Cozinha</div>
-            <div class="med-room-dims">3,0 × 3,0 m</div>
-            <div class="med-room-area">~9,0 m²</div>
+            <div class="med-room-dims">4,0 × 3,0 m</div>
+            <div class="med-room-area">~12,0 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte<br>Bancada em U + canto alemão</div>
           </div>
 
@@ -895,9 +935,9 @@
                   <td><span class="td-tag">madeira</span></td>
                 </tr>
                 <tr>
-                  <td class="td-name">Sala (dupla)</td>
-                  <td class="td-dims">2× 1,00 × 2,10 m</td>
-                  <td><span class="td-tag glass">vidro</span></td>
+                  <td class="td-name">Sala (norte)</td>
+                  <td class="td-dims">2,00 × 2,10 m</td>
+                  <td><span class="td-tag glass">correr 4p.</span></td>
                 </tr>
                 <tr>
                   <td class="td-name">Fundos</td>
@@ -931,12 +971,12 @@
                   <td><span class="td-tag">Sul</span></td>
                 </tr>
                 <tr>
-                  <td class="td-name">Quarto</td>
+                  <td class="td-name">Quarto (cruzada)</td>
                   <td class="td-dims">1,20 × 1,10 m</td>
                   <td><span class="td-tag">Sul</span></td>
                 </tr>
                 <tr>
-                  <td class="td-name">Quarto (cruzada)</td>
+                  <td class="td-name">Quarto (sol manhã)</td>
                   <td class="td-dims">1,20 × 1,10 m</td>
                   <td><span class="td-tag">Leste</span></td>
                 </tr>
@@ -959,6 +999,119 @@
             </table>
           </div>
 
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ MEDIDAS V1.1 ══════════ -->
+    <div class="panel" id="p-v11-med">
+      <div class="med-page">
+        <div class="med-summary">
+          <div class="med-sum-item">
+            <span class="med-sum-label">Lote</span>
+            <span class="med-sum-value">500 m²</span>
+            <span class="med-sum-sub">12,5 × 40 m</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Área construída</span>
+            <span class="med-sum-value">~44 m²</span>
+            <span class="med-sum-sub">térreo V1.1</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Pé-direito</span>
+            <span class="med-sum-value">2,70 m</span>
+            <span class="med-sum-sub">laje plana</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Recuo frente</span>
+            <span class="med-sum-value">19,0 m</span>
+            <span class="med-sum-sub">da rua (oeste)</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Recuo sul</span>
+            <span class="med-sum-value">2,0 m</span>
+            <span class="med-sum-sub">limite sul</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Recuo norte</span>
+            <span class="med-sum-value">5,0 m</span>
+            <span class="med-sum-sub">limite norte</span>
+          </div>
+          <div class="med-sum-item">
+            <span class="med-sum-label">Recuo fundos</span>
+            <span class="med-sum-value">13,5 m</span>
+            <span class="med-sum-sub">leste (quintal)</span>
+          </div>
+        </div>
+        <div class="med-section-title">Cômodos</div>
+        <div class="med-rooms-grid">
+          <div class="med-room-card col-slate">
+            <div class="med-room-name">Hall / Entrada</div>
+            <div class="med-room-dims">3,0 m (frente)</div>
+            <div class="med-room-area">aberto p/ sala</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul + Oeste<br>Acesso direto à rua</div>
+          </div>
+          <div class="med-room-card col-amber">
+            <div class="med-room-name">Sala</div>
+            <div class="med-room-dims">5,0 × 3,0 m</div>
+            <div class="med-room-area">~14,5 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Sul<br>Porta de vidro ao norte</div>
+          </div>
+          <div class="med-room-card col-blue">
+            <div class="med-room-name">Banheiro</div>
+            <div class="med-room-dims">1,5 × 2,5 m</div>
+            <div class="med-room-area">3,75 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Box 1,0×1,0 m</div>
+          </div>
+          <div class="med-room-card col-teal">
+            <div class="med-room-name">Área de Serviço</div>
+            <div class="med-room-dims">1,5 × 2,5 m</div>
+            <div class="med-room-area">3,75 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Tanque + máquina + despensa</div>
+          </div>
+          <div class="med-room-card col-green">
+            <div class="med-room-name">Quarto</div>
+            <div class="med-room-dims">3,0 × 2,5 m</div>
+            <div class="med-room-area">7,5 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul + Leste<br>Dim. menor: 2,50 m ≥ 2,40 ✓</div>
+          </div>
+          <div class="med-room-card col-orange">
+            <div class="med-room-name">Cozinha</div>
+            <div class="med-room-dims">4,0 × 3,0 m</div>
+            <div class="med-room-area">~12,0 m²</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte<br>Bancada em U + canto alemão</div>
+          </div>
+        </div>
+        <div class="med-openings-grid">
+          <div>
+            <div class="med-section-title">Portas</div>
+            <table class="med-table">
+              <thead><tr><th>Local</th><th>Larg. × Alt.</th><th>Tipo</th></tr></thead>
+              <tbody>
+                <tr><td class="td-name">Principal</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
+                <tr><td class="td-name">Banheiro</td><td class="td-dims">0,80 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
+                <tr><td class="td-name">Área de Serviço</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
+                <tr><td class="td-name">Quarto</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
+                <tr><td class="td-name">Sala (norte)</td><td class="td-dims">2,00 × 2,10 m</td><td><span class="td-tag glass">correr 4p.</span></td></tr>
+                <tr><td class="td-name">Fundos</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <div class="med-section-title">Janelas</div>
+            <table class="med-table">
+              <thead><tr><th>Local</th><th>Larg. × Alt.</th><th>Parede</th></tr></thead>
+              <tbody>
+                <tr><td class="td-name">Banheiro</td><td class="td-dims">0,80 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
+                <tr><td class="td-name">Á. Serviço</td><td class="td-dims">0,80 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
+                <tr><td class="td-name">Quarto (cruzada)</td><td class="td-dims">1,20 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
+                <tr><td class="td-name">Quarto (sol manhã)</td><td class="td-dims">1,20 × 1,10 m</td><td><span class="td-tag">Leste</span></td></tr>
+                <tr><td class="td-name">Sala / Hall</td><td class="td-dims">1,20 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
+                <tr><td class="td-name">Sala</td><td class="td-dims">1,80 × 1,10 m</td><td><span class="td-tag">Norte</span></td></tr>
+                <tr><td class="td-name">Cozinha (fita)</td><td class="td-dims">1,60 × 0,60 m</td><td><span class="td-tag">Norte</span></td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -1052,8 +1205,8 @@
 
           <div class="med-room-card col-orange">
             <div class="med-room-name">Cozinha</div>
-            <div class="med-room-dims">3,0 × 3,0 m</div>
-            <div class="med-room-area">~9,0 m²</div>
+            <div class="med-room-dims">4,0 × 3,0 m</div>
+            <div class="med-room-area">~12,0 m²</div>
             <div class="med-room-meta">Bancada em U + canto alemão</div>
           </div>
 
@@ -1074,7 +1227,7 @@
             <div class="med-room-name">Depósito</div>
             <div class="med-room-dims">1,4 × 2,4 m</div>
             <div class="med-room-area">~3 m²</div>
-            <div class="med-room-meta">Sob a escada (noroeste)<br>Porta 0,90 m ao norte</div>
+            <div class="med-room-meta">Sob a escada (sudoeste)<br>Porta 0,90 m ao norte</div>
           </div>
 
           <div class="med-room-card col-slate">
@@ -1101,7 +1254,7 @@
                 <tr><td class="td-name">Banheiro</td><td class="td-dims">0,80 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Área de Serviço</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Quarto</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
-                <tr><td class="td-name">Sala (dupla)</td><td class="td-dims">2× 1,00 × 2,10 m</td><td><span class="td-tag glass">vidro</span></td></tr>
+                <tr><td class="td-name">Sala (norte)</td><td class="td-dims">2,00 × 2,10 m</td><td><span class="td-tag glass">correr 4p.</span></td></tr>
                 <tr><td class="td-name">Fundos (casa)</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Depósito</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Portão garagem</td><td class="td-dims">— a definir</td><td><span class="td-tag">—</span></td></tr>
@@ -1119,8 +1272,8 @@
               <tbody>
                 <tr><td class="td-name">Banheiro</td><td class="td-dims">0,80 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
                 <tr><td class="td-name">Á. Serviço</td><td class="td-dims">0,80 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
-                <tr><td class="td-name">Quarto</td><td class="td-dims">1,20 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
-                <tr><td class="td-name">Quarto (cruzada)</td><td class="td-dims">1,20 × 1,10 m</td><td><span class="td-tag">Leste</span></td></tr>
+                <tr><td class="td-name">Quarto (cruzada)</td><td class="td-dims">1,20 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
+                <tr><td class="td-name">Quarto (sol manhã)</td><td class="td-dims">1,20 × 1,10 m</td><td><span class="td-tag">Leste</span></td></tr>
                 <tr><td class="td-name">Sala / Hall</td><td class="td-dims">1,20 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
                 <tr><td class="td-name">Sala</td><td class="td-dims">1,80 × 1,10 m</td><td><span class="td-tag">Norte</span></td></tr>
                 <tr><td class="td-name">Cozinha (fita)</td><td class="td-dims">1,60 × 0,60 m</td><td><span class="td-tag">Norte</span></td></tr>
@@ -1148,11 +1301,16 @@
     // ── Roteamento por URL: / → v1, /v2 → v2, /v3 → v3, qualquer outro → v1 ──
     function versionFromPath() {
         const p = location.pathname.replace(/\/+$/, '').toLowerCase();
-        if (p === '/v2') return 'v2';
-        if (p === '/v3') return 'v3';
+        if (p === '/v1.1') return 'v11';
+        if (p === '/v2')   return 'v2';
+        if (p === '/v3')   return 'v3';
         return 'v1';
     }
-    function pathFromVersion(v) { return v === 'v1' ? '/' : '/' + v; }
+    function pathFromVersion(v) {
+        if (v === 'v1')  return '/';
+        if (v === 'v11') return '/v1.1';
+        return '/' + v;
+    }
 
     // V1 sempre visível; V2/V3 só aparecem na aba quando você está na rota delas
     function syncTabs() {
@@ -1462,6 +1620,7 @@
     }
 
     function buildLayers(v) {
+        const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
         const lys = [];
 
         // Véu branco leve — satélite ainda visível ao redor
@@ -1499,7 +1658,7 @@
             // Laterais correm ao longo de mE=25,5 (centro E-O da casa, mE 21–29,5).
 
             // Frente: V1 → casa (22 m); V2/V3 → frente da garagem (10 m)
-            if (v === 'v1') {
+            if (bv === 'v1') {
                 dimLine(4.5, 0, 4.5, 19.0, '19 m — frente').forEach(l => lys.push(l));
             } else {
                 dimLine(4.5, 0, 4.5, 10.0, '10 m — frente').forEach(l => lys.push(l));
@@ -1546,7 +1705,7 @@
             };
             cut(2.30, 22.35, 0.9, 0.30); // Principal (parede oeste mE=22,5) — alinhada com a escada da garagem
             // Degraus externos — só V1 (no V2/V3 a garagem cobre essa área)
-            if (v === 'v1') {
+            if (bv === 'v1') {
                 lys.push(rect(2.15, 21.90, 1.20, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));
                 lys.push(rect(2.15, 22.20, 1.20, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
             }
@@ -1583,7 +1742,7 @@
                 { color: '#1f2937', weight: 1, interactive: false }
             )));
             // Degraus porta grande (parede norte) — só V1; no V2/V3 o piso é nivelado à garagem
-            if (v === 'v1') {
+            if (bv === 'v1') {
                 lys.push(rect(7.60, 23.00, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
                 lys.push(rect(7.90, 23.00, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
             }
@@ -1808,6 +1967,52 @@
 
         // ── V3: 2º pavimento — desenhado em camada própria (buildFloor2Layers),
         //    alternável pelo botão "Piso" do mapa. Aqui o térreo é igual ao V2.
+
+        // ── V1.1: muro frontal (mE=0) + portão norte ─────────────────────────
+        if (v === 'v11') {
+            // Muro sólido: mN 0→9,0, espessura 0,15 m p/ dentro do lote
+            // Muro sul: mN 0→8,0
+            lys.push(L.polygon(
+                [rot(0, 0), rot(8.0, 0), rot(8.0, 0.15), rot(0, 0.15)],
+                { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }
+            ));
+            // Muro norte: mN 11,5→12,5 (1 m de recuo do vizinho norte)
+            lys.push(L.polygon(
+                [rot(11.5, 0), rot(12.5, 0), rot(12.5, 0.15), rot(11.5, 0.15)],
+                { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }
+            ));
+            // Portão (3,5 m): tracejado indicando abertura
+            lys.push(L.polyline([rot(8.0, 0.075), rot(11.5, 0.075)],
+                { color: '#94a3b8', weight: 1.5, dashArray: '6 4', interactive: false }));
+            // Folhas do portão abertas 90° (1,75 m p/ dentro do lote)
+            lys.push(L.polyline([rot(8.0, 0), rot(8.0, 1.75)],
+                { color: '#64748b', weight: 1.5, interactive: false }));
+            lys.push(L.polyline([rot(11.5, 0), rot(11.5, 1.75)],
+                { color: '#64748b', weight: 1.5, interactive: false }));
+            // Muro norte: mN 12,35→12,5, mE 0→40
+            lys.push(L.polygon(
+                [rot(12.35, 0), rot(12.5, 0), rot(12.5, 40), rot(12.35, 40)],
+                { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }
+            ));
+            // Colunas de divisa: canto mE=0 + emendas a cada 5m + canto mE=40
+            for (let i = 0; i <= 8; i++) {
+                const ce = i * 5;
+                lys.push(L.polygon(
+                    [rot(12.28, ce-0.11), rot(12.5, ce-0.11), rot(12.5, ce+0.11), rot(12.28, ce+0.11)],
+                    { color: '#1e293b', weight: 0.5, fillColor: '#64748b', fillOpacity: 1, interactive: false }
+                ));
+            }
+            // Cerca sul: mN 0→0,10, mE 0→40
+            lys.push(L.polygon(
+                [rot(0, 0), rot(0.10, 0), rot(0.10, 40), rot(0, 40)],
+                { color: '#5c3a1e', weight: 1, fillColor: '#8B5E3C', fillOpacity: 1, interactive: false }
+            ));
+            // Cerca de madeira nos fundos: mE=40, mN 0→12,5
+            lys.push(L.polygon(
+                [rot(0, 39.90), rot(12.5, 39.90), rot(12.5, 40), rot(0, 40)],
+                { color: '#5c3a1e', weight: 1, fillColor: '#8B5E3C', fillOpacity: 1, interactive: false }
+            ));
+        }
 
         return lys;
     }
@@ -2516,6 +2721,7 @@
 
     // Constrói o grupo 3D do prédio a partir do modelo (paredes c/ vãos + móveis + lajes)
     function buildBuilding3D(v) {
+        const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
         const model = captureModel(v);
         const g = new THREE.Group();
 
@@ -2648,9 +2854,9 @@
             }
         };
         // Porta principal (oeste) — só V1 (no V2/V3 a garagem ocupa a frente; acesso pela garagem)
-        if (v === 'v1') extStairs(2.15, EE0, 1.20, 'W');
+        if (bv === 'v1') extStairs(2.15, EE0, 1.20, 'W');
         // Porta de vidro (norte, lado da sala)
-        if (v === 'v1') {
+        if (bv === 'v1') {
             extStairs(7.55, 23.00 + OE, 2.00, 'N'); // V1: escada desce p/ o jardim
         } else {
             // V2/V3: plataforma 3×3 m nivelada à garagem (GCPA=0,15) + escada norte e leste
@@ -3203,6 +3409,78 @@
                 g.add(m);
             });
 
+        }
+
+        // ── V1.1: muro frontal + postes do portão ────────────────────────────
+        if (v === 'v11') {
+            const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
+            const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
+            // Muro sul: mN 0→8,0
+            g.add(box3d(0, 0, 8.0, 0.15, grade(0) - 0.02, grade(0) + 2.0, matMuro));
+            // Muro norte: mN 11,5→12,5 (1 m de recuo do vizinho norte)
+            g.add(box3d(11.5, 0, 1.0, 0.15, grade(0) - 0.02, grade(0) + 2.0, matMuro));
+            // Postes do portão em mN=8,0 e mN=11,5
+            g.add(box3d(7.85, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
+            g.add(box3d(11.35, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
+            // Muro norte: mN 12,35→12,5, mE 0→40, segmentado p/ seguir o declive
+            const matNMuro  = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
+            const matPilar  = fmat(0x8c8478, { roughness: 0.88, metalness: 0.02 });
+            const CS = 0.22;  // seção quadrada da coluna
+            for (let i = 0; i < 8; i++) {
+                const e0 = i * 5, e1 = e0 + 5;
+                const bot = grade(e1);
+                g.add(box3d(12.35, e0, 0.15, 5, bot - 0.02, bot + 2.0, matNMuro));
+            }
+            // Colunas: face norte = mN 12,50 (alinhada ao muro); saliente p/ dentro do lote
+            for (let i = 0; i <= 8; i++) {
+                const ce  = i * 5;
+                const bot = grade(ce) - 0.02;
+                g.add(box3d(12.5 - CS, ce - CS/2, CS, CS, bot, bot + 2.15, matPilar));
+            }
+            // ── Cerca de madeira nos fundos: mourões + ripados ──────────────
+            const matMourao = fmat(0x7B3E28, { roughness: 0.92, metalness: 0 });
+            const matRipado = fmat(0xC8823C, { roughness: 0.88, metalness: 0, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
+            const CE  = 39.90;  // face interior da cerca (mE)
+            const PT  = 0.12;   // seção do mourão (quadrado)
+            const PH  = 2.20;   // altura do mourão (sobe acima do ripado)
+            const FH  = 2.00;   // altura do ripado
+            const FT  = 0.025;  // espessura do ripado
+            const PS  = 1.25;   // espaçamento entre mourões (10 vãos = 12,5 m exato)
+            const fz0c = grade(40);
+            // Mourões (11 postes: mN 0, 1.25, 2.5, ..., 12.5)
+            for (let i = 0; i <= 10; i++) {
+                const pn = i * PS;
+                g.add(box3d(pn - PT/2, CE, PT, PT, fz0c - 0.10, fz0c + PH, matMourao));
+            }
+            // Ripados verticais entre cada par de mourões
+            for (let i = 0; i < 10; i++) {
+                const bS  = i * PS + PT/2;             // início do vão
+                const bE  = (i + 1) * PS - PT/2;       // fim do vão
+                const bL  = bE - bS;
+                const nP  = Math.round(bL / 0.125);    // ~9 ripados por vão
+                const pw  = bL / nP;
+                for (let j = 0; j < nP; j++) {
+                    g.add(box3d(bS + j * pw, CE, pw, FT, fz0c - 0.02, fz0c + FH, matRipado));
+                }
+            }
+            // ── Cerca sul: mN=0, mE 0→40 (32 vãos de 1,25m) ────────────────
+            const PS_S = 1.25, N_BAYS_S = 32;   // 32 × 1,25 = 40 m exato
+            for (let i = 0; i <= N_BAYS_S; i++) {
+                const pe  = i * PS_S;
+                const fzs = grade(pe) - 0.10;
+                g.add(box3d(0, pe - PT/2, PT, PT, fzs, grade(pe) + PH, matMourao));
+            }
+            for (let i = 0; i < N_BAYS_S; i++) {
+                const bS  = i * PS_S + PT/2;
+                const bE  = (i + 1) * PS_S - PT/2;
+                const bL  = bE - bS;
+                const nP  = Math.round(bL / 0.125);
+                const pw  = bL / nP;
+                for (let j = 0; j < nP; j++) {
+                    const ce = bS + j * pw + pw / 2;   // centro do ripado (mE)
+                    g.add(box3d(0, bS + j * pw, FT, pw, grade(ce) - 0.02, grade(ce) + FH, matRipado));
+                }
+            }
         }
 
         buildDims3D(g);
