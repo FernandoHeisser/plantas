@@ -1715,22 +1715,15 @@
             cut(4.40, 28.90, 0.20, 0.9); // Quarto (interna) — pela cozinha
             cut(4.40, 27.30, 0.20, 0.9); // Á. serviço (interna) — pela cozinha (recentrada no cômodo 1,5 m)
 
-            // Janelas (J1–J7 = identificadores temporários visíveis no zoom 22+)
+            // Janelas
             win(1.90, 25.85, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Banheiro — sul, centrada no cômodo (mE 25,5→27,0)
-            lys.push(winLabel(2.55, 25.85 + OE + 0.40, 'J1')); // Banheiro Sul
             win(1.90, 27.35, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Á. serviço — sul, centrada (mE 27,0→28,5); ventila a umidade
-            lys.push(winLabel(2.55, 27.35 + OE + 0.40, 'J2')); // Á. Serviço Sul
             win(2.65, 31.40, 1.20, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — leste, centrada (mN 2→4,5) — sol da manhã
-            lys.push(winLabel(3.25, 31.40 + OE - 0.35, 'J3')); // Quarto Leste
             win(1.90, 29.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 28,5→31,5) — ventilação cruzada com a leste
-            lys.push(winLabel(2.55, 29.40 + OE + 0.60, 'J4')); // Quarto Sul
             win(1.90, 23.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall (mE 22,5→25,5)
-            lys.push(winLabel(2.55, 23.40 + OE + 0.60, 'J5')); // Sala/Hall Sul
             win(7.40, 26.10, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, centrada no vão N2(25,5)→N3(28,5): 26,1→27,9
-            lys.push(winLabel(6.75, 26.10 + OE + 0.90, 'J6')); // Sala Norte
             // Cozinha — janela-fita (peitoril 1,00 / verga 1,60); centrada no vão N3→N4 (col. mE 28,5 / 31,5; faces internas 28,6→31,4 = 2,8 m; margem 0,6 m)
             win(7.40, 29.20, 0.20, 1.60, 'N', { sill: 1.00, head: 1.60 }).forEach(l => lys.push(l)); // cozinha — fita norte: mE 29,2→30,8
-            lys.push(winLabel(6.75, 29.20 + OE + 0.80, 'J7')); // Cozinha Norte
 
             // Portas — folha + arco de abertura + pivô
             doorArc(2.30, 22.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
@@ -2189,9 +2182,6 @@
             const o = { sill: w.sill, head: w.head };
             if (w.axis === 'EW') win(w.line - 0.10, w.s, 0.20, w.e - w.s, 'N', o).forEach(l => lys.push(l));
             else                 win(w.s, w.line - 0.10, w.e - w.s, 0.20, 'E', o).forEach(l => lys.push(l));
-            const lN = w.axis === 'EW' ? (w.line > 5 ? w.line - 0.75 : w.line + 0.65) : (w.s + w.e) / 2;
-            const lE = w.axis === 'EW' ? (w.s + w.e) / 2 + OE : w.line + OE + (w.line > 25 ? -0.35 : 0.35);
-            lys.push(winLabel(lN, lE, F2_WIN_IDS[i]));
         });
 
         // ── 2º piso da GARAGEM: divisórias + portas + janelas + rótulos ──────
@@ -2212,13 +2202,6 @@
             const o = { sill: w.sill, head: w.head };
             if (w.axis === 'EW') win(w.line - 0.10, w.s, 0.20, w.e - w.s, 'N', o).forEach(l => lys.push(l));
             else                 win(w.s, w.line - 0.10, w.e - w.s, 0.20, 'E', o).forEach(l => lys.push(l));
-            const lN = w.axis === 'EW'
-                ? (w.side === 'N' ? w.line - 0.75 : w.line + 0.65)
-                : (w.s + w.e) / 2;
-            const lE = w.axis === 'EW'
-                ? (w.s + w.e) / 2 + OE
-                : w.line + OE + (w.side === 'E' ? -0.35 : 0.35);
-            lys.push(winLabel(lN, lE, F2G_WIN_IDS[i]));
         });
         lys.push(roomLabel(5.96, 15.7, 'Escritório', '4,4 × 2,72 m', '~12,0 m²'));
         lys.push(roomLabel(8.91, 15.7, 'Quarto 2',   '4,4 × 3,18 m', '~14,0 m²'));
@@ -3250,31 +3233,6 @@
             beamNS(GE1c2, 2.0,  10.5);   // N-S leste (inteira)
             beamNS(GEMc2, 3.40, 10.5);   // N-S central — só ao NORTE da escada (reapoiada em mN 3,40)
 
-            // Identificadores de janelas do 2º piso — ficam dentro de F2 (ocultam junto com o piso)
-            const fz0v = CEIL3D + CPA + 0.16;  // chão do 2º piso
-            const Yp = fz0v + 1.325;            // mid-height panorâmicas (sill 0,40 / head 2,25)
-            const Yn = fz0v + 1.55;             // mid-height normais (sill 1,0 / head 2,1)
-            const ZSf = -1.60, ZNc = -7.90, ZNg = -10.90;
-            // Casa (J8–J14 + J24 baia 1)
-            wlbl3D(F2, 20.50, Yp, ZNc, 'J24');   // quarto norte pano (baia 1, nova)
-            wlbl3D(F2, 23.50, Yp, ZNc, 'J8');    // quarto norte pano (baia 2)
-            wlbl3D(F2, 26.50, Yp, ZNc, 'J9');    // quarto norte pano (baia 3)
-            wlbl3D(F2, 28.40, Yp, -6.00, 'J10'); // quarto leste pano
-            wlbl3D(F2, 28.40, Yn, -3.25, 'J11'); // closet leste normal
-            wlbl3D(F2, 26.50, Yn, ZSf, 'J12');   // closet sul normal
-            wlbl3D(F2, 20.50, Yn, ZSf, 'J13');   // banheiro 2º pav sul (1,2 m)
-            wlbl3D(F2, 23.50, Yn, ZSf, 'J14');   // banheiro suíte sul (1,2 m)
-            // Garagem (J15–J22 + J23 corredor SW)
-            wlbl3D(F2, 12.20, Yp, ZNg, 'J15');   // quarto 2 norte pano
-            wlbl3D(F2, 15.00, Yp, ZNg, 'J16');   // corredor norte (2 panos verticais)
-            wlbl3D(F2,  9.60, Yp, -8.91, 'J17'); // quarto 2 oeste pano
-            wlbl3D(F2,  9.60, Yp, -5.625, 'J18'); // escritório oeste pano (movida sul)
-            wlbl3D(F2,  9.60, Yp, -2.70, 'J23'); // corredor SW oeste (nova, 2 panos verticais)
-            wlbl3D(F2, 17.24, Yp, ZNg, 'J19');   // quarto 1 norte pano
-            wlbl3D(F2, 19.17, Yp, -9.05, 'J20'); // quarto 1 leste pano
-            wlbl3D(F2, 12.27, Yn, ZSf, 'J21');   // sul corredor/escada vão oeste
-            wlbl3D(F2, 16.61, Yn, ZSf, 'J22');   // sul corredor/escada vão leste
-
             g.add(F2);
         }
 
@@ -3592,17 +3550,6 @@
             g.add(lbl);
         })();
 
-        // Identificadores de janelas do térreo (J1–J7) — exterior de cada parede
-        const Y0 = CPA + 1.55;   // mid-height janelas normais (sill 1,0 / head 2,1)
-        const ZS = -1.60;        // face sul exterior (parede centro mN=2,0, offset 0,4 m)
-        const ZN = -7.90;        // face norte exterior (parede centro mN=7,5, offset 0,4 m)
-        wlbl3D(g, 22.75, Y0, ZS, 'J1');  // banheiro sul
-        wlbl3D(g, 24.25, Y0, ZS, 'J2');  // á. serviço sul
-        wlbl3D(g, 28.40, Y0, -3.25, 'J3'); // quarto leste (face leste)
-        wlbl3D(g, 26.50, Y0, ZS, 'J4');  // quarto sul
-        wlbl3D(g, 20.50, Y0, ZS, 'J5');  // sala/hall sul
-        wlbl3D(g, 23.50, Y0, ZN, 'J6');  // sala norte
-        wlbl3D(g, 26.50, CPA + 1.30, ZN, 'J7'); // cozinha norte (sill 1,0 / head 1,6)
     }
 
     // Posição solar REAL para a latitude do lote (−29,96°, hemisfério sul).
