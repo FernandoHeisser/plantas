@@ -3404,9 +3404,32 @@
             // Postes do portão em mN=8,0 e mN=11,5
             g.add(box3d(7.85, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
             g.add(box3d(11.35, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
-            // Cerca de madeira nos fundos: mN 0→12,5, mE 39,9→40
-            const matCerca = fmat(0x7a4f2a, { roughness: 0.95, metalness: 0.0 });
-            g.add(box3d(0, 39.90, 12.5, 0.10, grade(40), grade(40) + 2.0, matCerca));
+            // ── Cerca de madeira nos fundos: mourões + ripados ──────────────
+            const matMourao = fmat(0x7B3E28, { roughness: 0.92, metalness: 0 });
+            const matRipado = fmat(0xC8823C, { roughness: 0.88, metalness: 0 });
+            const CE  = 39.90;  // face interior da cerca (mE)
+            const PT  = 0.12;   // seção do mourão (quadrado)
+            const PH  = 2.20;   // altura do mourão (sobe acima do ripado)
+            const FH  = 2.00;   // altura do ripado
+            const FT  = 0.025;  // espessura do ripado
+            const PS  = 1.25;   // espaçamento entre mourões (10 vãos = 12,5 m exato)
+            const fz0c = grade(40);
+            // Mourões (11 postes: mN 0, 1.25, 2.5, ..., 12.5)
+            for (let i = 0; i <= 10; i++) {
+                const pn = i * PS;
+                g.add(box3d(pn - PT/2, CE, PT, PT, fz0c - 0.10, fz0c + PH, matMourao));
+            }
+            // Ripados verticais entre cada par de mourões
+            for (let i = 0; i < 10; i++) {
+                const bS  = i * PS + PT/2;             // início do vão
+                const bE  = (i + 1) * PS - PT/2;       // fim do vão
+                const bL  = bE - bS;
+                const nP  = Math.round(bL / 0.125);    // ~9 ripados por vão
+                const pw  = bL / nP;
+                for (let j = 0; j < nP; j++) {
+                    g.add(box3d(bS + j * pw, CE, pw, FT, fz0c, fz0c + FH, matRipado));
+                }
+            }
         }
 
         buildDims3D(g);
