@@ -646,7 +646,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro) | ✅ Completo |
 | **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) | ✅ Preenchida (garagem + depósito + escada) |
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
-| **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água (norte ~28°) com usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
+| **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
 
 ---
 
@@ -734,14 +734,22 @@ dilatação** — não há cobertura emendada entre os blocos.
   mapa `maps['v31']` (genéricos por versão; nada hard-coded).
 - **Herança:** todo gate `v === 'v3'` (e `v2||v3`, `v11||v2||v3`) também aceita `v === 'v31'`.
   `initMap` e `setV3Floor` usam `v3Layers()`/`maps[ver]` para o V3.1. O 2D é idêntico ao V3.
-- **Bioclimática solar (lat −29,96°, hemisfério sul):** água voltada ao **NORTE** (sol),
-  inclinação **~28° ≈ latitude** = ótimo de geração anual. Módulos deitam rentes.
-- **3D (`buildBuilding3D`, flag `const SOLAR = (v==='v31')`):**
-  - `tiltedSlab(mat, n0,e0,n1,e1, yEaveN, t)` — telha como **box girado** `rotation.x = −PITCH`
+- **Bioclimática solar (lat −29,96°, hemisfério sul):** água voltada ao **NORTE** (sol).
+  Inclinação **~12°** (`PITCH`) — realista para telha metálica (~21%); o ótimo solar seria
+  ~28° (≈ latitude), mas 28° fica surreal numa casa, então prioriza-se o realismo (12°
+  ainda colhe ~92–95% e auto-limpa com a chuva). Módulos deitam rentes.
+- **3D (`buildBuilding3D`, flag `const SOLAR = (v==='v31')`):** telhado de uma água REAL
+  (não é a laje plana inclinada): água de telha + 2 empenas apoiadas nas paredes.
+  - `tiltedSlab(mat, n0,e0,n1,e1, yEaveN, t)` — água como **box girado** `rotation.x = −PITCH`
     em torno do eixo L-O; `yEaveN` = altura do **beiral norte** (lado baixo); sul sobe `D·tan(PITCH)`.
-  - `addShed(grp, n0,e0,n1,e1, yEaveN)` — telha (`matMetalRoof`, galvalume claro) + **grade de
-    módulos FV** (`matPanel`) insetada das bordas/beiral, cada módulo também girado `−PITCH`.
-  - Casa: `addShed(roof, n0,e0,n1,e1, CEIL3D+CPA+0.16)`. Garagem: `addShed(roof, gn0,ge0,gn1,GE1j, GLAJE+0.16)`
+  - `gableEnd(mE, wn0,wn1, yBot, yTopN0,yTopN1, thk, mat)` — **empena/frontão**: parede fina
+    trapezoidal (BufferGeometry) no plano `mE=cte`, do topo da parede (`yBot=yEaveN−0,16`) até a
+    água (segue `PITCH`). Material `matGable` = `matWall.clone()` com `side:DoubleSide`.
+  - `addShed(grp, n0,e0,n1,e1, yEaveN, wn0,wn1, we0,we1)` — água (`matMetalRoof`, galvalume,
+    `DoubleSide`) + 2 empenas (planos das paredes O/L `we0`/`we1`, mN `wn0..wn1`) + **grade de
+    módulos FV** (`matPanel`) insetada, cada módulo girado `−PITCH`.
+  - Casa: `addShed(roof, n0,e0,n1,e1, CEIL3D+CPA+0.16, 2.0,7.5, 22.5+OE,31.5+OE)`.
+    Garagem: `addShed(roof, gn0,ge0,gn1,GE1j, GLAJE+0.16, GN0,GN1, GE0,GE1j)`
     (leste para na junta GE1j; **sem platibanda** quando `SOLAR`).
   - Os sheds ficam no **grupo `roof`** → `set3DFloor2` os ergue sobre o 2º piso (mesmo mecanismo
     da laje) e `set3DRoof` os alterna (botão diz **"Telhado"** quando `v==='v31'`).
