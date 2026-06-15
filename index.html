@@ -3403,9 +3403,9 @@
             const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02 });
             const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
             // Muro sul: mN 0→8,0
-            g.add(box3d(0, 0, 8.0, 0.15, grade(0), grade(0) + 2.0, matMuro));
+            g.add(box3d(0, 0, 8.0, 0.15, grade(0) - 0.02, grade(0) + 2.0, matMuro));
             // Muro norte: mN 11,5→12,5 (1 m de recuo do vizinho norte)
-            g.add(box3d(11.5, 0, 1.0, 0.15, grade(0), grade(0) + 2.0, matMuro));
+            g.add(box3d(11.5, 0, 1.0, 0.15, grade(0) - 0.02, grade(0) + 2.0, matMuro));
             // Postes do portão em mN=8,0 e mN=11,5
             g.add(box3d(7.85, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
             g.add(box3d(11.35, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
@@ -3414,7 +3414,7 @@
             for (let i = 0; i < 8; i++) {
                 const e0 = i * 5, e1 = e0 + 5;
                 const bot = grade(e1);
-                g.add(box3d(12.35, e0, 0.15, 5, bot, bot + 2.0, matNMuro));
+                g.add(box3d(12.35, e0, 0.15, 5, bot - 0.02, bot + 2.0, matNMuro));
             }
             // ── Cerca de madeira nos fundos: mourões + ripados ──────────────
             const matMourao = fmat(0x7B3E28, { roughness: 0.92, metalness: 0 });
@@ -3439,7 +3439,7 @@
                 const nP  = Math.round(bL / 0.125);    // ~9 ripados por vão
                 const pw  = bL / nP;
                 for (let j = 0; j < nP; j++) {
-                    g.add(box3d(bS + j * pw, CE, pw, FT, fz0c, fz0c + FH, matRipado));
+                    g.add(box3d(bS + j * pw, CE, pw, FT, fz0c - 0.02, fz0c + FH, matRipado));
                 }
             }
         }
