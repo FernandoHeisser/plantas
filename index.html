@@ -1971,23 +1971,23 @@
         // ── V1.1: muro frontal (mE=0) + portão norte ─────────────────────────
         if (v === 'v11') {
             // Muro sólido: mN 0→9,0, espessura 0,15 m p/ dentro do lote
-            // Muro sul: mN 0→8,5
+            // Muro sul: mN 0→8,0
             lys.push(L.polygon(
-                [rot(0, 0), rot(8.5, 0), rot(8.5, 0.15), rot(0, 0.15)],
+                [rot(0, 0), rot(8.0, 0), rot(8.0, 0.15), rot(0, 0.15)],
                 { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }
             ));
-            // Muro norte: mN 12,0→12,5 (fecha o canto norte)
+            // Muro norte: mN 11,5→12,5 (1 m de recuo do vizinho norte)
             lys.push(L.polygon(
-                [rot(12.0, 0), rot(12.5, 0), rot(12.5, 0.15), rot(12.0, 0.15)],
+                [rot(11.5, 0), rot(12.5, 0), rot(12.5, 0.15), rot(11.5, 0.15)],
                 { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }
             ));
             // Portão (3,5 m): tracejado indicando abertura
-            lys.push(L.polyline([rot(8.5, 0.075), rot(12.0, 0.075)],
+            lys.push(L.polyline([rot(8.0, 0.075), rot(11.5, 0.075)],
                 { color: '#94a3b8', weight: 1.5, dashArray: '6 4', interactive: false }));
             // Folhas do portão abertas 90° (1,75 m p/ dentro do lote)
-            lys.push(L.polyline([rot(8.5, 0), rot(8.5, 1.75)],
+            lys.push(L.polyline([rot(8.0, 0), rot(8.0, 1.75)],
                 { color: '#64748b', weight: 1.5, interactive: false }));
-            lys.push(L.polyline([rot(12.0, 0), rot(12.0, 1.75)],
+            lys.push(L.polyline([rot(11.5, 0), rot(11.5, 1.75)],
                 { color: '#64748b', weight: 1.5, interactive: false }));
         }
 
@@ -3392,13 +3392,13 @@
         if (v === 'v11') {
             const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02 });
             const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
-            // Muro sul: mN 0→8,5
-            g.add(box3d(0, 0, 8.5, 0.15, grade(0), grade(0) + 2.0, matMuro));
-            // Muro norte: mN 12,0→12,5 (fecha o canto norte)
-            g.add(box3d(12.0, 0, 0.5, 0.15, grade(0), grade(0) + 2.0, matMuro));
-            // Postes do portão em mN=8,5 e mN=12,0 (levemente mais altos que o muro)
-            g.add(box3d(8.35, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
-            g.add(box3d(11.85, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
+            // Muro sul: mN 0→8,0
+            g.add(box3d(0, 0, 8.0, 0.15, grade(0), grade(0) + 2.0, matMuro));
+            // Muro norte: mN 11,5→12,5 (1 m de recuo do vizinho norte)
+            g.add(box3d(11.5, 0, 1.0, 0.15, grade(0), grade(0) + 2.0, matMuro));
+            // Postes do portão em mN=8,0 e mN=11,5
+            g.add(box3d(7.85, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
+            g.add(box3d(11.35, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
         }
 
         buildDims3D(g);
