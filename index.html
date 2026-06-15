@@ -2835,7 +2835,9 @@
         const matFloor  = new THREE.MeshStandardMaterial({ map: floor, roughness: 0.55, metalness: 0, envMapIntensity: 0.35 });
         const matGlass  = new THREE.MeshStandardMaterial({ color: 0xaecadf, transparent: true, opacity: 0.3,
                                                            roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
-        const matEmbase = new THREE.MeshStandardMaterial({ color: 0xb8b0a0, roughness: 0.92, metalness: 0,   envMapIntensity: 0.12 });
+        // V3.2: colunas/baldrame também pintadas de marrom (matEmbase é cor sólida, sem map).
+        const EMBASE_COL = (v === 'v32') ? 0x6e4a2c : 0xb8b0a0;
+        const matEmbase = new THREE.MeshStandardMaterial({ color: EMBASE_COL, roughness: 0.92, metalness: 0,   envMapIntensity: 0.12 });
         const matWP     = new THREE.MeshStandardMaterial({ color: 0x1e1e2a, roughness: 0.60, metalness: 0.28, envMapIntensity: 0.35 });
 
         // ── Chão = imagem de satélite cobrindo o entorno, alinhada ao lote ───
