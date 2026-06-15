@@ -1961,8 +1961,8 @@
         // ── V3: 2º pavimento — desenhado em camada própria (buildFloor2Layers),
         //    alternável pelo botão "Piso" do mapa. Aqui o térreo é igual ao V2.
 
-        // ── V1.1: muro frontal (mE=0) + portão norte ─────────────────────────
-        if (v === 'v11') {
+        // ── V1.1+: muro frontal (mE=0) + portão norte + cercas ──────────────
+        if (v === 'v11' || v === 'v2' || v === 'v3') {
             // Muro sólido: mN 0→9,0, espessura 0,15 m p/ dentro do lote
             // Muro sul: mN 0→8,0
             lys.push(L.polygon(
@@ -3369,8 +3369,8 @@
 
         }
 
-        // ── V1.1: muro frontal + postes do portão ────────────────────────────
-        if (v === 'v11') {
+        // ── V1.1+: muro frontal + postes do portão + cercas ─────────────────
+        if (v === 'v11' || v === 'v2' || v === 'v3') {
             const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
             // Muro sul: mN 0→8,0
