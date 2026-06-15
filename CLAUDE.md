@@ -97,7 +97,7 @@ Acesso: http://localhost:3131
 Config em `.claude/launch.json`.
 
 > **`--single` é obrigatório:** o app usa rotas resolvidas no cliente (`/v2` → V2,
-> `/v3` → V3, `/` ou qualquer outra → V1). Sem o modo SPA, o `serve` devolve **404**
+> `/v3` → V3, `/v3.1` → V3.1, `/v1.1` → V1.1, `/` ou qualquer outra → V1). Sem o modo SPA, o `serve` devolve **404**
 > em `/v2` e `/v3` (só `/` funciona). Na Vercel isso é tratado pelo rewrite catch-all
 > do `vercel.json`.
 
@@ -646,6 +646,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro) | ✅ Completo |
 | **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) | ✅ Preenchida (garagem + depósito + escada) |
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
+| **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água (norte ~28°) com usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
 
 ---
 
@@ -722,6 +723,32 @@ independentes pela junta (vigas da garagem param em GE1j, da casa em 22,5). Help
 
 **Próximas etapas:** ligação acesso↔garagem cruzando a junta; guarda-corpo no vão da
 escada; uso do 2º piso da garagem; ficha de medidas V3.
+
+### V3.1 — Sobrado com telhado solar (usina FV)
+
+Variante do V3: **herda todo o sobrado** (2D e 3D) e **troca a laje plana por dois
+telhados de uma água independentes** (casa + garagem), respeitando a **mesma junta de
+dilatação** — não há cobertura emendada entre os blocos.
+
+- **Aba/rota:** `data-v="v31"`, rota `/v3.1`, painéis `p-v31-2d/3d/med`. Cena `scenes3d['v31']`,
+  mapa `maps['v31']` (genéricos por versão; nada hard-coded).
+- **Herança:** todo gate `v === 'v3'` (e `v2||v3`, `v11||v2||v3`) também aceita `v === 'v31'`.
+  `initMap` e `setV3Floor` usam `v3Layers()`/`maps[ver]` para o V3.1. O 2D é idêntico ao V3.
+- **Bioclimática solar (lat −29,96°, hemisfério sul):** água voltada ao **NORTE** (sol),
+  inclinação **~28° ≈ latitude** = ótimo de geração anual. Módulos deitam rentes.
+- **3D (`buildBuilding3D`, flag `const SOLAR = (v==='v31')`):**
+  - `tiltedSlab(mat, n0,e0,n1,e1, yEaveN, t)` — telha como **box girado** `rotation.x = −PITCH`
+    em torno do eixo L-O; `yEaveN` = altura do **beiral norte** (lado baixo); sul sobe `D·tan(PITCH)`.
+  - `addShed(grp, n0,e0,n1,e1, yEaveN)` — telha (`matMetalRoof`, galvalume claro) + **grade de
+    módulos FV** (`matPanel`) insetada das bordas/beiral, cada módulo também girado `−PITCH`.
+  - Casa: `addShed(roof, n0,e0,n1,e1, CEIL3D+CPA+0.16)`. Garagem: `addShed(roof, gn0,ge0,gn1,GE1j, GLAJE+0.16)`
+    (leste para na junta GE1j; **sem platibanda** quando `SOLAR`).
+  - Os sheds ficam no **grupo `roof`** → `set3DFloor2` os ergue sobre o 2º piso (mesmo mecanismo
+    da laje) e `set3DRoof` os alterna (botão diz **"Telhado"** quando `v==='v31'`).
+  - Beiral norte 0,90 m preservado. V1/V2/V3 inalterados (laje plana nos blocos não-`SOLAR`).
+
+**Próximas etapas V3.1:** cotas do telhado/altura de cumeeira; calha/condutores na borda norte;
+ficha de medidas (área de telhado, kWp estimado); opcional realce dos módulos no 2D.
 
 ---
 
