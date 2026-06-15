@@ -1968,6 +1968,23 @@
         // ── V3: 2º pavimento — desenhado em camada própria (buildFloor2Layers),
         //    alternável pelo botão "Piso" do mapa. Aqui o térreo é igual ao V2.
 
+        // ── V1.1: muro frontal (mE=0) + portão norte ─────────────────────────
+        if (v === 'v11') {
+            // Muro sólido: mN 0→9,0, espessura 0,15 m p/ dentro do lote
+            lys.push(L.polygon(
+                [rot(0, 0), rot(9.0, 0), rot(9.0, 0.15), rot(0, 0.15)],
+                { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }
+            ));
+            // Portão (3,5 m): tracejado indicando abertura
+            lys.push(L.polyline([rot(9.0, 0.075), rot(12.5, 0.075)],
+                { color: '#94a3b8', weight: 1.5, dashArray: '6 4', interactive: false }));
+            // Folhas do portão abertas 90° (1,75 m p/ dentro do lote)
+            lys.push(L.polyline([rot(9.0, 0), rot(9.0, 1.75)],
+                { color: '#64748b', weight: 1.5, interactive: false }));
+            lys.push(L.polyline([rot(12.5, 0), rot(12.5, 1.75)],
+                { color: '#64748b', weight: 1.5, interactive: false }));
+        }
+
         return lys;
     }
 
@@ -3363,6 +3380,17 @@
                 g.add(m);
             });
 
+        }
+
+        // ── V1.1: muro frontal + postes do portão ────────────────────────────
+        if (v === 'v11') {
+            const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02 });
+            const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
+            // Muro: mN 0→9,0, mE 0→0,15, base = grade(0)=0, topo = 2,0 m
+            g.add(box3d(0, 0, 9.0, 0.15, grade(0), grade(0) + 2.0, matMuro));
+            // Postes do portão em mN=9,0 e mN=12,5 (levemente mais altos que o muro)
+            g.add(box3d(8.85, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
+            g.add(box3d(12.20, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
         }
 
         buildDims3D(g);
