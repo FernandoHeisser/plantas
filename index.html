@@ -1994,6 +1994,14 @@
                 [rot(12.35, 0), rot(12.5, 0), rot(12.5, 40), rot(12.35, 40)],
                 { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }
             ));
+            // Colunas de divisa: canto mE=0 + emendas a cada 5m + canto mE=40
+            for (let i = 0; i <= 8; i++) {
+                const ce = i * 5;
+                lys.push(L.polygon(
+                    [rot(12.39, ce-0.11), rot(12.5, ce-0.11), rot(12.5, ce+0.11), rot(12.39, ce+0.11)],
+                    { color: '#1e293b', weight: 0.5, fillColor: '#64748b', fillOpacity: 1, interactive: false }
+                ));
+            }
             // Cerca de madeira nos fundos: mE=40, mN 0→12,5
             lys.push(L.polygon(
                 [rot(0, 39.90), rot(12.5, 39.90), rot(12.5, 40), rot(0, 40)],
@@ -3410,11 +3418,19 @@
             g.add(box3d(7.85, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
             g.add(box3d(11.35, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
             // Muro norte: mN 12,35→12,5, mE 0→40, segmentado p/ seguir o declive
-            const matNMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02 });
+            const matNMuro  = fmat(0x64748b, { roughness: 0.85, metalness: 0.02 });
+            const matPilar  = fmat(0x8c8478, { roughness: 0.88, metalness: 0.02 });
+            const CS = 0.22;  // seção quadrada da coluna
             for (let i = 0; i < 8; i++) {
                 const e0 = i * 5, e1 = e0 + 5;
                 const bot = grade(e1);
                 g.add(box3d(12.35, e0, 0.15, 5, bot - 0.02, bot + 2.0, matNMuro));
+            }
+            // Colunas: canto mE=0 + emendas a cada 5m + canto mE=40
+            for (let i = 0; i <= 8; i++) {
+                const ce  = i * 5;
+                const bot = grade(ce) - 0.02;
+                g.add(box3d(12.5 - CS/2, ce - CS/2, CS, CS, bot, bot + 2.15, matPilar));
             }
             // ── Cerca de madeira nos fundos: mourões + ripados ──────────────
             const matMourao = fmat(0x7B3E28, { roughness: 0.92, metalness: 0 });
