@@ -254,6 +254,19 @@
                      color: #64748b; white-space: nowrap; }
         .rlbl-area { font-family: 'JetBrains Mono', monospace; font-size: 9px;
                      font-weight: 600; color: #334155; white-space: nowrap; }
+        /* ── Identificadores temporários de janela ── */
+        .win-id {
+            display: inline-block;
+            background: rgba(15,23,42,0.92);
+            color: #fbbf24;
+            font: bold 8px 'JetBrains Mono', monospace;
+            padding: 2px 5px;
+            border-radius: 3px;
+            border: 1px solid #f59e0b;
+            white-space: nowrap;
+            pointer-events: none;
+            line-height: 12px;
+        }
         /* ── Indicador de zoom ── */
         .zoom-indicator {
             background: rgba(0,0,0,0.65);
@@ -1239,6 +1252,18 @@
         });
     }
 
+    // ── Identificador temporário de janela — mN, mE em coordenadas do lote (já com OE) ─
+    function winLabel(mN, mE, txt) {
+        return L.marker(rot(mN, mE), {
+            icon: L.divIcon({
+                className: '',
+                html: `<span class="win-id zlvl-near">${txt}</span>`,
+                iconSize: null, iconAnchor: [14, 8]
+            }),
+            interactive: false, zIndexOffset: 900
+        });
+    }
+
     // ── Label de cômodo centrado no ponto (mN, mE) ───────────────────────
     function roomLabel(mN, mE, nome, dims, area) {
         mE += OE;
@@ -1415,7 +1440,7 @@
         e += OE;
         const sill = (opts && opts.sill != null) ? opts.sill : 1.0;
         const head = (opts && opts.head != null) ? opts.head : 2.1;
-        if (GEO) GEO.push({ k: 'opening', type: 'window', n, e, dn, de, axis, sill, head });
+        if (GEO) GEO.push({ k: 'opening', type: 'window', n, e, dn, de, axis, sill, head, vpanes: !!(opts && opts.vpanes) });
         const layers = [];
         layers.push(rect(n, e - OE, dn, de, '#fafafa', { color: 'transparent', weight: 0, no3d: true })); // rect soma OE → cancela p/ não duplicar
         const WC = { color: '#111827', weight: 1.5, interactive: false };
@@ -1531,21 +1556,32 @@
             cut(4.40, 28.90, 0.20, 0.9); // Quarto (interna) — pela cozinha
             cut(4.40, 27.30, 0.20, 0.9); // Á. serviço (interna) — pela cozinha (recentrada no cômodo 1,5 m)
 
-            // Janelas
-            win(1.90, 25.85, 0.20, 0.80, 'N').forEach(l => lys.push(l)); // Banheiro — sul, centrada no cômodo (mE 25,5→27,0)
-            win(1.90, 27.35, 0.20, 0.80, 'N').forEach(l => lys.push(l)); // Á. serviço — sul, centrada (mE 27,0→28,5); ventila a umidade
+            // Janelas (J1–J7 = identificadores temporários visíveis no zoom 22+)
+            win(1.90, 25.85, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Banheiro — sul, centrada no cômodo (mE 25,5→27,0)
+            lys.push(winLabel(2.55, 25.85 + OE + 0.40, 'J1')); // Banheiro Sul
+            win(1.90, 27.35, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Á. serviço — sul, centrada (mE 27,0→28,5); ventila a umidade
+            lys.push(winLabel(2.55, 27.35 + OE + 0.40, 'J2')); // Á. Serviço Sul
             win(2.65, 31.40, 1.20, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — leste, centrada (mN 2→4,5) — sol da manhã
+            lys.push(winLabel(3.25, 31.40 + OE - 0.35, 'J3')); // Quarto Leste
             win(1.90, 29.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 28,5→31,5) — ventilação cruzada com a leste
+            lys.push(winLabel(2.55, 29.40 + OE + 0.60, 'J4')); // Quarto Sul
             win(1.90, 23.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall (mE 22,5→25,5)
+            lys.push(winLabel(2.55, 23.40 + OE + 0.60, 'J5')); // Sala/Hall Sul
             win(7.40, 26.10, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, centrada no vão N2(25,5)→N3(28,5): 26,1→27,9
-            // Cozinha — janela-fita (peitoril 0,90 / verga 1,50); centrada no vão N3→N4 (col. mE 28,5 / 31,5; faces internas 28,6→31,4 = 2,8 m; margem 0,6 m)
-            win(7.40, 29.20, 0.20, 1.60, 'N', { sill: 0.90, head: 1.50 }).forEach(l => lys.push(l)); // cozinha — fita norte: mE 29,2→30,8
+            lys.push(winLabel(6.75, 26.10 + OE + 0.90, 'J6')); // Sala Norte
+            // Cozinha — janela-fita (peitoril 1,00 / verga 1,60); centrada no vão N3→N4 (col. mE 28,5 / 31,5; faces internas 28,6→31,4 = 2,8 m; margem 0,6 m)
+            win(7.40, 29.20, 0.20, 1.60, 'N', { sill: 1.00, head: 1.60 }).forEach(l => lys.push(l)); // cozinha — fita norte: mE 29,2→30,8
+            lys.push(winLabel(6.75, 29.20 + OE + 0.80, 'J7')); // Cozinha Norte
 
             // Portas — folha + arco de abertura + pivô
             doorArc(2.30, 22.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
             doorArc(2.90, 25.50,  0.8,  0.0, -1).forEach(l => lys.push(l)); // Banheiro → folha aberta protege o box (privacidade) e olha p/ a pia
-            doorArc(7.50, 23.00,  0.0,  1.0, +1, { glass: true }).forEach(l => lys.push(l)); // Folha esq (1,0m) — vidro aberta
-            doorArc(7.50, 25.00,  0.0, -1.0, -1, { glass: true }).forEach(l => lys.push(l)); // Folha dir (1,0m) — vidro aberta
+            // Porta de correr 4 painéis — 2D: retângulo azul-claro + 3 divisórias verticais
+            lys.push(rect(7.35, 23.00, 0.30, 2.00, '#dce8f5', { color: '#1f2937', weight: 1.5, m3d: 'slidingdoor4', h3d: 2.10 }));
+            [23.50, 24.00, 24.50].forEach(me => lys.push(L.polyline(
+                [rot(7.35, me + OE), rot(7.65, me + OE)],
+                { color: '#1f2937', weight: 1, interactive: false }
+            )));
             // Degraus porta grande (parede norte) — só V1; no V2/V3 o piso é nivelado à garagem
             if (v === 'v1') {
                 lys.push(rect(7.60, 23.00, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
@@ -1605,39 +1641,39 @@
 
             // ─── COZINHA — retângulo perfeito (mN 4,5→7,5 × mE 27,5→31,5) ──────
             // Bancada norte (parede norte mN=7,5, inner face 7,40) — mE 27,75→30,85
-            lys.push(rect(6.85, 27.75, 0.55, 3.10, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            lys.push(rect(6.85, 27.75, 0.55, 3.10, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 1.00, m3d: 'counter' }));
             // Península oeste — mN 5,80→6,85, mE 27,75→28,50
-            lys.push(rect(5.80, 27.75, 1.05, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            lys.push(rect(5.80, 27.75, 1.05, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 1.00, m3d: 'counter' }));
             // Balcão NE — fecha o canto entre bancada norte e parede leste (mN 6,85→7,40, mE 30,85→31,40)
-            lys.push(rect(6.85, 30.85, 0.55, 0.55, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' }));
+            lys.push(rect(6.85, 30.85, 0.55, 0.55, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 1.00, m3d: 'counter' }));
             // Despensa leste — entre porta dos fundos (mN≈5,60) e geladeira (mN=6,20), parede leste
-            lys.push(rect(5.65, 30.85, 0.55, 0.55, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, no3d: true }));
+            lys.push(rect(5.65, 30.85, 0.55, 0.55, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 1.00, no3d: true }));
             // Geladeira — nova parede leste (mE=31,5), frente alinhada à bancada
             lys.push(rect(6.20, 30.85, 0.65, 0.55, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' }));
             lys.push(L.polyline([rot(6.52, 30.92+OE), rot(6.52, 31.25+OE)],
                 { color: '#334155', weight: 0.6, interactive: false }));
             // Fogão — 4 bocas — central na bancada norte
-            lys.push(rect(6.85, 28.60, 0.55, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 0.90, m3d: 'stove' }));
-            lys.push(circ(7.05, 28.75, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(7.05, 29.00, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(7.22, 28.75, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
-            lys.push(circ(7.22, 29.00, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.91, h3d: 0.03 }));
+            lys.push(rect(6.85, 28.60, 0.55, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 1.00, m3d: 'stove' }));
+            lys.push(circ(7.05, 28.75, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.01, h3d: 0.03 }));
+            lys.push(circ(7.05, 29.00, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.01, h3d: 0.03 }));
+            lys.push(circ(7.22, 28.75, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.01, h3d: 0.03 }));
+            lys.push(circ(7.22, 29.00, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.01, h3d: 0.03 }));
             // Pia — 2 cubas — na bancada norte (mE 29,35→29,90)
-            lys.push(rect(6.85, 29.35, 0.55, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'sink' }));
+            lys.push(rect(6.85, 29.35, 0.55, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 1.00, m3d: 'sink' }));
             lys.push(rect(7.18, 29.42, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(rect(7.18, 29.67, 0.17, 0.20, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             // ─── COIFA + ARMÁRIOS AÉREOS ─────────────────────────────────────
             lys.push(rect(6.95, 28.50, 0.45, 0.75, '#cbd5e1',
-                { color: '#475569', weight: 0.7, dashArray: '4 3', fillOpacity: 0.4, z3d: 1.55, h3d: 1.15, m3d: 'hood' }));
+                { color: '#475569', weight: 0.7, dashArray: '4 3', fillOpacity: 0.4, z3d: 1.65, h3d: 1.05, m3d: 'hood' }));
             lys.push(rect(7.07, 27.80, 0.33, 0.70, '#e5e7eb',
-                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // sobre parede sólida (oeste)
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.60, h3d: 0.80, m3d: 'wallcab' })); // sobre parede sólida (oeste)
             lys.push(rect(7.07, 29.30, 0.33, 0.60, '#e5e7eb',
-                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // leste da coifa / sobre janela
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.60, h3d: 0.80, m3d: 'wallcab' })); // leste da coifa / sobre janela
             lys.push(rect(7.07, 29.95, 0.33, 0.90, '#e5e7eb',
-                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcab' })); // pia→canto NE (fecha o gap)
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.60, h3d: 0.80, m3d: 'wallcab' })); // pia→canto NE (fecha o gap)
             // Coluna de armários da geladeira — costas na parede leste (mE=31,5)
             lys.push(rect(6.85, 30.85, 0.55, 0.55, '#e5e7eb',
-                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.50, h3d: 0.80, m3d: 'wallcabW' })); // aéreo acima da bancada
+                { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.60, h3d: 0.80, m3d: 'wallcabW' })); // aéreo acima da bancada
             lys.push(rect(6.20, 30.85, 0.65, 0.55, '#e5e7eb',
                 { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.70, h3d: 0.60, m3d: 'wallcabW' })); // sobre a geladeira
 
@@ -1818,13 +1854,14 @@
     // sill/head relativos ao piso do 2º (fz0). Panorâmicas vão de coluna a coluna, peitoril
     // baixo (0,40) até a viga (~2,25); normais peitoril 1,0 / verga 2,1.
     const F2_WINDOWS = [
+        { axis:'EW', line:7.5,  s:22.6, e:25.4, sill:0.40, head:2.25 }, // quarto norte — panorâmica (baia 1, nova J24)
         { axis:'EW', line:7.5,  s:25.6, e:28.4, sill:0.40, head:2.25 }, // quarto norte — panorâmica (baia 2)
         { axis:'EW', line:7.5,  s:28.6, e:31.4, sill:0.40, head:2.25 }, // quarto norte — panorâmica (baia 3)
         { axis:'NS', line:31.5, s:4.6,  e:7.4,  sill:0.40, head:2.25 }, // quarto leste — panorâmica
         { axis:'NS', line:31.5, s:2.65, e:3.85, sill:1.0,  head:2.1  }, // closet leste — normal
         { axis:'EW', line:2.0,  s:29.4, e:30.6, sill:1.0,  head:2.1  }, // closet sul — normal
-        { axis:'EW', line:2.0,  s:23.5, e:24.5, sill:1.0,  head:2.1  }, // banheiro 2º pav sul — normal
-        { axis:'EW', line:2.0,  s:26.5, e:27.5, sill:1.0,  head:2.1  }, // banheiro da suíte sul — normal
+        { axis:'EW', line:2.0,  s:23.4, e:24.6, sill:1.0,  head:2.1  }, // banheiro 2º pav sul — 1,2 m (=J5)
+        { axis:'EW', line:2.0,  s:26.4, e:27.6, sill:1.0,  head:2.1  }, // banheiro da suíte sul — 1,2 m (=J4)
     ];
 
     // ── 2º piso da GARAGEM: 3 cômodos equilibrados (~15–17 m² cada) + corredor/escada
@@ -1847,9 +1884,10 @@
     ];
     const F2G_WINDOWS = [   // quartos e escritório PANORÂMICAS (peitoril 0,40 → verga 2,25); corredor normal
         { axis:'EW', line:10.5,  s:13.9,  e:17.5,  sill:0.40, head:2.25, side:'N' }, // quarto 2 — norte (panorâmica, centrada)
-        { axis:'EW', line:10.5,  s:18.1,  e:18.91, sill:0.40, head:2.25, side:'N' }, // corredor — norte (panorâmica, centrada)
+        { axis:'EW', line:10.5,  s:18.1,  e:18.91, sill:0.40, head:2.25, side:'N', vpanes:true }, // corredor — norte (2 panos verticais)
         { axis:'NS', line:13.5,  s:7.72,  e:10.1,  sill:0.40, head:2.25, side:'W' }, // quarto 2 — oeste (panorâmica, centrada)
-        { axis:'NS', line:13.5,  s:5.0,   e:6.92,  sill:0.40, head:2.25, side:'W' }, // escritório — oeste (panorâmica, centrada)
+        { axis:'NS', line:13.5,  s:4.70,  e:6.55,  sill:0.40, head:2.25, side:'W' }, // escritório — oeste (movida p/ sul, clara da coluna mN 6,75)
+        { axis:'NS', line:13.5,  s:2.30,  e:3.10,  sill:0.40, head:2.25, side:'W', vpanes:true }, // corredor SW — oeste (nova, 2 panos verticais)
         { axis:'EW', line:10.5,  s:19.51, e:21.97, sill:0.40, head:2.25, side:'N' }, // quarto 1 — norte (panorâmica, centrada)
         { axis:'NS', line:22.27, s:8.0,   e:10.1,  sill:0.40, head:2.25, side:'E' }, // quarto 1 — leste (panorâmica, centrada no trecho exterior)
         { axis:'EW', line:2.0,   s:14.3,  e:17.24, sill:0.90, head:2.20, side:'S' }, // sul corredor/escada — grande (vão oeste, entre colunas)
@@ -1941,10 +1979,14 @@
         });
 
         // Janelas externas da casa (quarto panorâmicas norte/leste; closet sul/leste)
-        F2_WINDOWS.forEach(w => {
+        const F2_WIN_IDS = ['J24','J8','J9','J10','J11','J12','J13','J14']; // J24=baia1 (nova)
+        F2_WINDOWS.forEach((w, i) => {
             const o = { sill: w.sill, head: w.head };
             if (w.axis === 'EW') win(w.line - 0.10, w.s, 0.20, w.e - w.s, 'N', o).forEach(l => lys.push(l));
             else                 win(w.s, w.line - 0.10, w.e - w.s, 0.20, 'E', o).forEach(l => lys.push(l));
+            const lN = w.axis === 'EW' ? (w.line > 5 ? w.line - 0.75 : w.line + 0.65) : (w.s + w.e) / 2;
+            const lE = w.axis === 'EW' ? (w.s + w.e) / 2 + OE : w.line + OE + (w.line > 25 ? -0.35 : 0.35);
+            lys.push(winLabel(lN, lE, F2_WIN_IDS[i]));
         });
 
         // ── 2º piso da GARAGEM: divisórias + portas + janelas + rótulos ──────
@@ -1960,10 +2002,18 @@
             }
             d.leaves.forEach(L => doorArc(L.hn, L.he, L.dn, L.de, L.sw).forEach(l => lys.push(l)));
         });
-        F2G_WINDOWS.forEach(w => {
+        const F2G_WIN_IDS = ['J15','J16','J17','J18','J23','J19','J20','J21','J22']; // J23=corredor SW (nova)
+        F2G_WINDOWS.forEach((w, i) => {
             const o = { sill: w.sill, head: w.head };
             if (w.axis === 'EW') win(w.line - 0.10, w.s, 0.20, w.e - w.s, 'N', o).forEach(l => lys.push(l));
             else                 win(w.s, w.line - 0.10, w.e - w.s, 0.20, 'E', o).forEach(l => lys.push(l));
+            const lN = w.axis === 'EW'
+                ? (w.side === 'N' ? w.line - 0.75 : w.line + 0.65)
+                : (w.s + w.e) / 2;
+            const lE = w.axis === 'EW'
+                ? (w.s + w.e) / 2 + OE
+                : w.line + OE + (w.side === 'E' ? -0.35 : 0.35);
+            lys.push(winLabel(lN, lE, F2G_WIN_IDS[i]));
         });
         lys.push(roomLabel(5.96, 15.7, 'Escritório', '4,4 × 2,72 m', '~12,0 m²'));
         lys.push(roomLabel(8.91, 15.7, 'Quarto 2',   '4,4 × 3,18 m', '~14,0 m²'));
@@ -2426,6 +2476,41 @@
                 books(0.47, bL + 0.02, bR);
                 plant(h, aM + 0.10);          // vaso no topo
             }
+        },
+        // Porta de correr 4 painéis — posição fechada; frame preto + vidro translúcido + trilho horizontal
+        slidingdoor4(g, s) {
+            const fr   = 0.04;                              // espessura das barras do caixilho
+            const th   = 0.06;                             // espessura real da porta de correr (~6 cm)
+            const panW = s.de / 4;                         // largura de cada painel (0,5m p/ 2,0m)
+            const panH = s.h || 2.10;                      // altura da porta
+            const midH = panH * 0.50;                      // divisória horizontal no meio
+            const z0   = 0;                                // relativo ao grupo (fg.position.y = CPA)
+            const z1   = panH;                             // topo da porta
+            const gMat = fmat('#c8dde8', { transparent:true, opacity:0.28, roughness:0.02, metalness:0.05, envMapIntensity:1.8 });
+
+            // Caixilho externo (4 barras perimetrais, cor matFrame ≈ preto)
+            fbox(g, s.n,              s.e,              th, fr,    z0, z1, '#111827');  // esquerda
+            fbox(g, s.n, s.e + s.de - fr,               th, fr,    z0, z1, '#111827');  // direita
+            fbox(g, s.n,              s.e,              th, s.de,  z1 - fr, z1, '#111827');  // topo
+            fbox(g, s.n,              s.e,              th, s.de,  z0, z0 + fr, '#111827');  // trilho inferior
+
+            // 3 divisórias verticais internas (4 painéis iguais)
+            for (let i = 1; i < 4; i++) {
+                fbox(g, s.n, s.e + i * panW - fr / 2, th, fr, z0, z1, '#111827');
+            }
+
+            // Trilho horizontal central
+            fbox(g, s.n, s.e, th, s.de, z0 + midH - fr / 2, z0 + midH + fr / 2, '#111827');
+
+            // Vidros: 4 colunas × 2 linhas (superior e inferior)
+            for (let col = 0; col < 4; col++) {
+                const eL = s.e + col * panW + fr;
+                const eW = panW - 2 * fr;
+                const gN = s.n + fr * 0.4;
+                const gD = th - fr * 0.8;
+                fbox(g, gN, eL, gD, eW, z0 + midH + fr / 2, z1 - fr, gMat).castShadow = false;  // pano superior
+                fbox(g, gN, eL, gD, eW, z0 + fr, z0 + midH - fr / 2, gMat).castShadow = false;  // pano inferior
+            }
         }
     };
 
@@ -2704,8 +2789,15 @@
             } else {
                 bar(a0 - 0.02, a1 + 0.02, z0 - 0.05, z0 + 0.02, matSill);   // peitoril saliente
                 bar(a0, a1, z0, z0 + FR, matFrame);                         // travessa inferior
-                // Grade: 2 panos horizontais — 1 montante central, sem travessas internas
-                { const a = (a0 + a1) / 2; bar(a - FR/2, a + FR/2, z0, z1, matFrame); }
+                if (o.vpanes) {
+                    // 2 panos verticais: 1 travessa horizontal no centro
+                    const mz = (z0 + z1) / 2;
+                    bar(a0, a1, mz - FR/2, mz + FR/2, matFrame);
+                } else {
+                    // 2 panos horizontais: 1 montante vertical central
+                    const a = (a0 + a1) / 2;
+                    bar(a - FR/2, a + FR/2, z0, z1, matFrame);
+                }
             }
         });
 
@@ -2800,15 +2892,25 @@
                 };
                 // Grade do caixilho (montantes + travessas) sobre o vidro — estilo padrão.
                 // Cor original do caixilho (matFrame); barras seção MT, profundidade MD.
-                const winGrid = (s, e, z0, z1) => {
+                const winGrid = (s, e, z0, z1, vp) => {
                     const MT = 0.06, D = t + 0.05;   // atravessa a parede toda (igual ao caixilho do térreo)
                     const bar = (a0, a1, zb0, zb1) => F2.add((axis === 'EW')
                         ? box3d(line - D/2, a0 + OE, D, a1 - a0, zb0, zb1, matFrame)
                         : box3d(a0, line + OE - D/2, a1 - a0, D, zb0, zb1, matFrame));
-                    // 2 panos horizontais: bordas (i=0,2) + 1 montante central (i=1); só travessas de borda (j=0,1)
-                    for (let i = 0; i <= 2; i++) { const a = s + (e - s) * i / 2; bar(a - MT/2, a + MT/2, z0, z1); }
-                    bar(s, e, z0 - MT/2, z0 + MT/2);
-                    bar(s, e, z1 - MT/2, z1 + MT/2);
+                    if (vp) {
+                        // 2 panos verticais: 1 travessa horizontal central + montantes e travessas de borda
+                        bar(s - MT/2, s + MT/2, z0, z1);              // montante esq
+                        bar(e - MT/2, e + MT/2, z0, z1);              // montante dir
+                        bar(s, e, z0 - MT/2, z0 + MT/2);              // travessa inferior
+                        bar(s, e, z1 - MT/2, z1 + MT/2);              // travessa superior
+                        const mz = (z0 + z1) / 2;
+                        bar(s, e, mz - MT/2, mz + MT/2);              // travessa central
+                    } else {
+                        // 2 panos horizontais: bordas (i=0,2) + 1 montante central (i=1); só travessas de borda
+                        for (let i = 0; i <= 2; i++) { const a = s + (e - s) * i / 2; bar(a - MT/2, a + MT/2, z0, z1); }
+                        bar(s, e, z0 - MT/2, z0 + MT/2);
+                        bar(s, e, z1 - MT/2, z1 + MT/2);
+                    }
                 };
                 let cur = a0;
                 (wins || []).slice().sort((p, q) => p.s - q.s).forEach(w => {
@@ -2819,7 +2921,7 @@
                         seg(w.s, w.e, fz0, fz0 + w.sill, matWall);          // peitoril (abaixo)
                         seg(w.s, w.e, fz0 + w.sill, fz0 + w.head, matGlass);// vidro
                         seg(w.s, w.e, fz0 + w.head, fz1, matWall);          // verga (acima)
-                        winGrid(w.s, w.e, fz0 + w.sill, fz0 + w.head);      // grade de madeira
+                        winGrid(w.s, w.e, fz0 + w.sill, fz0 + w.head, w.vpanes);  // grade de madeira
                     }
                     cur = w.e;
                 });
@@ -2941,6 +3043,32 @@
             beamNS(W,     2.0,  10.5);   // N-S oeste (inteira)
             beamNS(GE1c2, 2.0,  10.5);   // N-S leste (inteira)
             beamNS(GEMc2, 3.40, 10.5);   // N-S central — só ao NORTE da escada (reapoiada em mN 3,40)
+
+            // Identificadores de janelas do 2º piso — ficam dentro de F2 (ocultam junto com o piso)
+            const fz0v = CEIL3D + CPA + 0.16;  // chão do 2º piso
+            const Yp = fz0v + 1.325;            // mid-height panorâmicas (sill 0,40 / head 2,25)
+            const Yn = fz0v + 1.55;             // mid-height normais (sill 1,0 / head 2,1)
+            const ZSf = -1.60, ZNc = -7.90, ZNg = -10.90;
+            // Casa (J8–J14 + J24 baia 1)
+            wlbl3D(F2, 20.50, Yp, ZNc, 'J24');   // quarto norte pano (baia 1, nova)
+            wlbl3D(F2, 23.50, Yp, ZNc, 'J8');    // quarto norte pano (baia 2)
+            wlbl3D(F2, 26.50, Yp, ZNc, 'J9');    // quarto norte pano (baia 3)
+            wlbl3D(F2, 28.40, Yp, -6.00, 'J10'); // quarto leste pano
+            wlbl3D(F2, 28.40, Yn, -3.25, 'J11'); // closet leste normal
+            wlbl3D(F2, 26.50, Yn, ZSf, 'J12');   // closet sul normal
+            wlbl3D(F2, 20.50, Yn, ZSf, 'J13');   // banheiro 2º pav sul (1,2 m)
+            wlbl3D(F2, 23.50, Yn, ZSf, 'J14');   // banheiro suíte sul (1,2 m)
+            // Garagem (J15–J22 + J23 corredor SW)
+            wlbl3D(F2, 12.20, Yp, ZNg, 'J15');   // quarto 2 norte pano
+            wlbl3D(F2, 15.00, Yp, ZNg, 'J16');   // corredor norte (2 panos verticais)
+            wlbl3D(F2,  9.60, Yp, -8.91, 'J17'); // quarto 2 oeste pano
+            wlbl3D(F2,  9.60, Yp, -5.625, 'J18'); // escritório oeste pano (movida sul)
+            wlbl3D(F2,  9.60, Yp, -2.70, 'J23'); // corredor SW oeste (nova, 2 panos verticais)
+            wlbl3D(F2, 17.24, Yp, ZNg, 'J19');   // quarto 1 norte pano
+            wlbl3D(F2, 19.17, Yp, -9.05, 'J20'); // quarto 1 leste pano
+            wlbl3D(F2, 12.27, Yn, ZSf, 'J21');   // sul corredor/escada vão oeste
+            wlbl3D(F2, 16.61, Yn, ZSf, 'J22');   // sul corredor/escada vão leste
+
             g.add(F2);
         }
 
@@ -3083,6 +3211,31 @@
 
     // ── Cotas 3D — réplica das dimLine do 2D ────────────────────────────────
     // Sprite de texto usando canvas texture (sempre virado para a câmera).
+
+    // Identificador de janela em 3D (mesmo estilo âmbar do 2D).
+    function wlbl3D(parent, x, y, z, txt) {
+        const W = 96, H = 40;
+        const cv = document.createElement('canvas');
+        cv.width = W; cv.height = H;
+        const ctx = cv.getContext('2d');
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(1.5, 1.5, W - 3, H - 3);
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = 'bold 24px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(txt, W / 2, H / 2);
+        const tex = new THREE.CanvasTexture(cv);
+        const mat = new THREE.SpriteMaterial({ map: tex, depthTest: false, sizeAttenuation: true });
+        const sp = new THREE.Sprite(mat);
+        sp.scale.set(0.55, 0.23, 1);
+        sp.position.set(x, y, z);
+        parent.add(sp);
+    }
+
     function _makeLabel3D(txt, hexColor, cw) {
         const W = cw || 320, H = 64;
         const cv = document.createElement('canvas');
@@ -3160,6 +3313,18 @@
             lbl.position.set(x + 1.7, (yTop + yBot) / 2, z);
             g.add(lbl);
         })();
+
+        // Identificadores de janelas do térreo (J1–J7) — exterior de cada parede
+        const Y0 = CPA + 1.55;   // mid-height janelas normais (sill 1,0 / head 2,1)
+        const ZS = -1.60;        // face sul exterior (parede centro mN=2,0, offset 0,4 m)
+        const ZN = -7.90;        // face norte exterior (parede centro mN=7,5, offset 0,4 m)
+        wlbl3D(g, 22.75, Y0, ZS, 'J1');  // banheiro sul
+        wlbl3D(g, 24.25, Y0, ZS, 'J2');  // á. serviço sul
+        wlbl3D(g, 28.40, Y0, -3.25, 'J3'); // quarto leste (face leste)
+        wlbl3D(g, 26.50, Y0, ZS, 'J4');  // quarto sul
+        wlbl3D(g, 20.50, Y0, ZS, 'J5');  // sala/hall sul
+        wlbl3D(g, 23.50, Y0, ZN, 'J6');  // sala norte
+        wlbl3D(g, 26.50, CPA + 1.30, ZN, 'J7'); // cozinha norte (sill 1,0 / head 1,6)
     }
 
     // Posição solar REAL para a latitude do lote (−29,96°, hemisfério sul).

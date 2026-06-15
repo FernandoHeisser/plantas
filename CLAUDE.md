@@ -232,7 +232,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
    - **vãos** (`k:'opening'`):
      - `type:'window'` → vidro fixo entre peitoril e verga (padrão 1,0→2,1; customizável via `opts.sill`/`opts.head` no `win()`) + batente + peitoril saliente + **grade de caixilho** (montantes + travessas, ~0,55 m por pano, cor `matFrame`). Mesmo formato de grade no 2º piso (`winGrid`) — estilo único em todas as janelas (V1/V2/V3).
      - `type:'door'` → abertura vazia + batente + folha de madeira abrindo pelo swing do `doorArc`.
-     - `type:'glassdoor'` → abertura vazia + batente + soleira + **duas folhas de vidro** abertas (grade 2×3 em cada folha). A lateral dupla usa este tipo.
+     - `type:'glassdoor'` → abertura vazia + batente + soleira. O vão é preenchido por um `rect{m3d:'slidingdoor4'}` (porta de correr 4 painéis, frame preto, divisória horizontal) ou por `doorArc{glass:true}` (folhas de vidro abatíveis — não usado na sala norte desde a troca para correr).
    - **móveis** (`k:'solid'`) → modelo realista por tipo via `FURN3D[m3d]`, ou volume de massa se sem tipo.
 
 ### Tags nos `opts` da chamada 2D
@@ -469,8 +469,7 @@ Banco em **L** maior (cozinha cresceu 0,5 m p/ leste, liberando espaço). Passag
 | Banheiro | madeira | mN=2,90, mE=25,5 | −1 (leste) |
 | Á. Serviço | madeira | mN=4,50, mE=28,20 | +1 (sul) |
 | Quarto | madeira | mN=4,50, mE=28,90 | +1 (sul) |
-| Porta grande sala esq | **vidro** (glassdoor, 1,0 m) | mE=22,70, mN=7,5 | +1 (norte) |
-| Porta grande sala dir | **vidro** (glassdoor, 1,0 m) | mE=24,70, mN=7,5 | −1 (norte) |
+| Porta sala norte | **correr 4 painéis** (`slidingdoor4`, 2,0 m) | mE 23,00→25,00, mN=7,5 | fechada; frame preto; divisória horizontal no meio |
 | Fundos | madeira | mN=4,70, mE=30,5 | +1 (oeste) |
 
 ### Janelas (centradas e proporcionais ao ambiente)
@@ -483,7 +482,7 @@ Banco em **L** maior (cozinha cresceu 0,5 m p/ leste, liberando espaço). Passag
 | Quarto (cruzada) | Sul (mN=2,0) | mE 29,40→30,60 | 1,20 m |
 | Sala/hall | Sul (mN=2,0) | mE 23,40→24,60 | 1,20 m |
 | Sala | Norte (mN=7,5) | mE 25,20→27,00 | 1,80 m |
-| Cozinha (fita) | Norte (mN=7,5) | mE 29,20→30,80 | 1,60 m — peitoril 0,90 / verga 1,50 — centrada no vão N3→N4 (margem 0,60 m) |
+| Cozinha (fita) | Norte (mN=7,5) | mE 29,20→30,80 | 1,60 m — peitoril 1,00 / verga 1,60 — alinhado com a sala (sill=1,0) |
 
 > **Ventilação cruzada:** quarto (sul + leste) · sala/living (sul + norte/porta de vidro) · cozinha (fita norte + abertura p/ sala).
 
