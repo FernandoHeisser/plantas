@@ -3113,7 +3113,7 @@
         const SOLAR = (v === 'v31');
         const PITCH = 12 * Math.PI / 180;   // inclinação realista de telha metálica (~21%)
         const tanP = Math.tan(PITCH);
-        const matMetalRoof = new THREE.MeshStandardMaterial({ color: 0xc2c6ca, roughness: 0.42, metalness: 0.55, envMapIntensity: 0.5, side: THREE.DoubleSide,
+        const matMetalRoof = new THREE.MeshStandardMaterial({ color: 0x6b7177, roughness: 0.55, metalness: 0.5, envMapIntensity: 0.35, side: THREE.DoubleSide,
                                                               polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
         const matPanel      = new THREE.MeshStandardMaterial({ color: 0x111b30, roughness: 0.28, metalness: 0.25, envMapIntensity: 0.7 });
         const matGable      = matWall.clone(); matGable.side = THREE.DoubleSide;   // empena (frontão)
