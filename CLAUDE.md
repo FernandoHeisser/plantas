@@ -690,10 +690,18 @@ antes de `buildDims3D`** (cotas ficam sem carimbo → sempre visíveis).
 
 ### Esperas (arranques do sobrado V3) — V1/V2
 
-Para o V3 (sobrado) ser possível, os 12 pilares do térreo deixam **ferros de espera**
+Para o V3 (sobrado) ser possível, os pilares do térreo deixam **ferros de espera**
 (arranques) projetados acima da laje, dando continuidade estrutural ao pilar do 2º pav.
-(`col2c`, que começa em `fz0=3,01`). Construídos só no **V1/V2** (`bv` v1/v2, `!SOLAR`);
-no **V3** não existem — ficam **embutidos** no pilar de cima.
+(`col2c`/`col2`, que começam em `fz0=3,01`). Construídos só no **V1/V2**; no **V3** não
+existem — ficam **embutidos** no pilar de cima.
+
+- **Casa:** 12 pilares, no **V1 e V2** (`bv` v1/v2, `!SOLAR`).
+- **Garagem:** 12 pilares, **só no V2** (no V3 a garagem vira pilotis e os arranques ficam
+  embutidos no `col2`). Total no V2 = **24 esperas** (96 grupos de barra + 24 bonecas).
+- **Helper único** `addEspera(cn, e3)` (`cn`=centro mN, `e3`=centro mE já com OE): a casa
+  chama no bloco do `roof`; a garagem chama no bloco `if (v==='v2'||…)` (consts `GE0/GEMc/
+  GE1c/GN0/GNM/GN1/COL` em escopo). `box3d` dos pilares da garagem é por **canto** → centro
+  = `n+COL/2, e+COL/2`. `null` quando a versão não tem esperas.
 
 - **Restrição Caixa:** o V1 é financiado e a Caixa **não aceita ferro de obra aparente**.
   Solução real: o ferro fica embutido numa **boneca de concreto** (`esperasCaps`) sobre a
