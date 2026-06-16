@@ -1409,14 +1409,14 @@
 <script>
     let ver = 'v1', sec = '2d';
     // Fase da obra (timeline construtiva — só V1). 6 = casa pronta (= V1 default).
-    const PHASE_LABELS = ['Fundação', 'Colunas', 'Laje', 'Paredes', 'Esquadrias', 'Acabamento'];
-    let buildPhase = 6;
+    const PHASE_LABELS = ['Fundação', 'Colunas', 'Vigas', 'Laje', 'Paredes', 'Esquadrias', 'Acabamento'];
+    let buildPhase = 7;
 
     // ── Roteamento por URL: / → v1, /v2 → v2, /v3 → v3, qualquer outro → v1 ──
     // Rotas de fase da obra (/v0.1.../v0.5) → V1 numa fase construtiva (3D).
-    const PHASE_ROUTES = { '/v0.1': 1, '/v0.2': 2, '/v0.3': 3, '/v0.4': 4, '/v0.5': 5 };
+    const PHASE_ROUTES = { '/v0.1': 1, '/v0.2': 2, '/v0.3': 3, '/v0.4': 4, '/v0.5': 5, '/v0.6': 6 };
     function phaseFromPath() {
-        return PHASE_ROUTES[location.pathname.replace(/\/+$/, '').toLowerCase()] || 6;
+        return PHASE_ROUTES[location.pathname.replace(/\/+$/, '').toLowerCase()] || 7;
     }
     function versionFromPath() {
         const p = location.pathname.replace(/\/+$/, '').toLowerCase();
@@ -1449,7 +1449,7 @@
         ver = v;
         // Navegação explícita por aba volta à casa completa (push=false vem do
         // popstate/boot, que já ajustou buildPhase pela rota /v0.x).
-        if (push) { history.pushState({ v }, '', pathFromVersion(v)); buildPhase = 6; }
+        if (push) { history.pushState({ v }, '', pathFromVersion(v)); buildPhase = 7; }
         syncTabs();
         render();
     }
@@ -2847,7 +2847,8 @@
         // a fase em que "existiria" na obra. applyBuildPhase() depois oculta o que
         // tem ph > fase atual. 0 = sempre visível (terreno/entorno). Restaurado
         // antes das cotas (buildDims3D) p/ elas nunca sumirem.
-        // 1 fundação · 2 colunas · 3 laje/vigas · 4 paredes · 5 esquadrias · 6 acabamento
+        // 1 fundação · 2 colunas · 3 vigas · 4 laje · 5 paredes · 6 esquadrias · 7 acabamento
+        // (a laje/fase 4 é o grupo `roof`, tratado por nome em applyBuildPhase — sem _ph próprio)
         let _ph = 0;
         const _origAdd = g.add.bind(g);
         g.add = (...objs) => { objs.forEach(o => { if (o && o.userData) o.userData.ph = _ph; }); return _origAdd(...objs); };
@@ -3034,7 +3035,7 @@
         const solids   = model.filter(o => o.k === 'solid');
 
         // ── Paredes: extrudadas até o teto, recortando portas e janelas ──────
-        _ph = 4; // ── fase 4: alvenaria (paredes) ──
+        _ph = 5; // ── fase 5: alvenaria (paredes) ──
         walls.forEach(w => {
             const horiz = Math.abs(w.n2 - w.n1) < 1e-6;   // corre no eixo E (mN const)
             const t = w.t;
@@ -3081,7 +3082,7 @@
         // ── Móveis / louças / bancadas: volumes de massa ─────────────────────
         // Cada móvel sobe à cota do piso (CPA) via Group; os builders FURN3D
         // são construídos relativos ao piso 0 e o grupo aplica a elevação base.
-        _ph = 6; // ── fase 6: acabamento (mobiliário, louças, bancadas) ──
+        _ph = 7; // ── fase 7: acabamento (mobiliário, louças, bancadas) ──
         solids.forEach(s => {
             const base = (s.extZ3d != null ? s.extZ3d : (s.ext3d ? 0 : CPA));
             if (s.m3d && FURN3D[s.m3d]) {                 // móvel realista por tipo
@@ -3111,7 +3112,7 @@
         const matKnob  = new THREE.MeshStandardMaterial({ color: 0xb8b8bd, roughness: 0.3, metalness: 0.85 });
         const FR = 0.05;   // seção do caixilho
 
-        _ph = 5; // ── fase 5: esquadrias (batentes, peitoris, vidros, folhas) ──
+        _ph = 6; // ── fase 6: esquadrias (batentes, peitoris, vidros, folhas) ──
         openings.forEach(o => {
             const z0 = (o.type === 'window' ? o.sill : 0) + CPA, z1 = o.head + CPA;
             const horiz = o.de >= o.dn;                  // parede corre no eixo E?
@@ -3478,7 +3479,7 @@
         // ── Vigas estruturais da casa (V1+V2+V3) ────────────────────────────────
         // VH=0,45m (p/ suportar V3 — regra L/10: 3m/10=30cm mín, 45cm c/ folga)
         // VW=0,20m (= seção das colunas, NBR 6118). Nível: CPA+CEIL3D−VH → CPA+CEIL3D.
-        _ph = 3; // ── fase 3: laje/vigas (estrutura horizontal) ──
+        _ph = 3; // ── fase 3: vigas (grade horizontal; a laje plana é a fase 4) ──
         { const VH = 0.45, VW = 0.20;
           const BZ0 = CPA + CEIL3D - VH, BZ1 = CPA + CEIL3D; // y 2,50→2,85
           // Vigas E-O — grid do retângulo perfeito (3 linhas × 3 vãos de 3m)
@@ -3925,12 +3926,12 @@
     }
 
     // Fase da obra: oculta tudo que tem userData.ph > fase. Só V1; outras versões
-    // sempre completas. A laje (roof) aparece nas fases 3–5 e some no acabamento (6),
-    // espelhando o default do V1 (laje oculta p/ ver o interior).
+    // sempre completas. A laje (roof) aparece da fase 4 (Laje) até 6 (Esquadrias) e
+    // some no acabamento (7), espelhando o default do V1 (laje oculta p/ ver o interior).
     function applyBuildPhase(v) {
         const S = scenes3d[v];
         if (!S || !S.group) return;
-        const ph = (v === 'v1') ? buildPhase : 6;
+        const ph = (v === 'v1') ? buildPhase : 7;
         S.group.children.forEach(o => {
             if (o.name === 'roof' || o.name === 'floor2') return; // tratados à parte
             const p = o.userData ? o.userData.ph : null;
@@ -3938,11 +3939,11 @@
             o.visible = p <= ph;
         });
         const roof = S.group.getObjectByName('roof');
-        if (roof) roof.visible = (v === 'v1') ? (ph >= 3 && ph <= 5) : roof.visible;
+        if (roof) roof.visible = (v === 'v1') ? (ph >= 4 && ph <= 6) : roof.visible;
         // Mantém o slider em sincronia quando a fase muda por URL (popstate/boot)
         if (v === 'v1' && S.phaseRange) {
             S.phaseRange.value = String(ph);
-            S.phaseLabel.textContent = ph + '/6 ' + PHASE_LABELS[ph - 1];
+            S.phaseLabel.textContent = ph + '/7 ' + PHASE_LABELS[ph - 1];
         }
     }
 
@@ -4022,12 +4023,12 @@
             const phud = document.createElement('div');
             phud.className = 'scene3d-hud phase-hud';
             const prng = document.createElement('input');
-            prng.type = 'range'; prng.min = '1'; prng.max = '6'; prng.step = '1'; prng.value = String(buildPhase);
+            prng.type = 'range'; prng.min = '1'; prng.max = '7'; prng.step = '1'; prng.value = String(buildPhase);
             const plabel = document.createElement('span');
             plabel.className = 'hud-clock';
             const papply = () => {
                 buildPhase = parseInt(prng.value, 10);
-                plabel.textContent = buildPhase + '/6 ' + PHASE_LABELS[buildPhase - 1];
+                plabel.textContent = buildPhase + '/7 ' + PHASE_LABELS[buildPhase - 1];
                 applyBuildPhase(v);
             };
             prng.addEventListener('input', papply);
@@ -4111,7 +4112,7 @@
     window.addEventListener('load', () => {
         ver = versionFromPath();
         buildPhase = phaseFromPath();
-        const isPhase = buildPhase < 6;          // rota /v0.x → V1 numa fase, abre em 3D
+        const isPhase = buildPhase < 7;          // rota /v0.x → V1 numa fase, abre em 3D
         if (isPhase) {
             sec = '3d';
             document.querySelectorAll('.stab').forEach(t => t.classList.toggle('active', t.dataset.s === '3d'));

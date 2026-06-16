@@ -649,11 +649,11 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 | **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
 | **V3.2** | 🔶 Herda o 2D do V3.1 | ✅ Herda o V3.1 + **pintura da casa em marrom** (`WALL_TINT` tinge o `matWall` só p/ `v32`) | 🔶 Placeholder com resumo |
-| **V0.1–V0.5** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
+| **V0.1–V0.6** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
 
 ---
 
-## Fases da obra (V0.1–V0.5) — timeline construtiva do V1
+## Fases da obra (V0.1–V0.6) — timeline construtiva do V1
 
 Não são casas novas: é **o V1 (default) revelado fase a fase**, terminando exatamente
 no V1 completo. Tudo é o mesmo `buildBuilding3D('v1')` — só muda **o que fica visível**.
@@ -668,19 +668,20 @@ antes de `buildDims3D`** (cotas ficam sem carimbo → sempre visíveis).
 | 0 | entorno (sempre visível) | satélite, grama, saia de terra, contorno do lote |
 | 1 | **Fundação** | baldrame (`emSides`), manta, contrapiso, escadas externas |
 | 2 | **Colunas** | 12 pilares 15×15 (`matEmbase`) |
-| 3 | **Laje** | vigas (`lajeMat`, bloco `VH/VW`) + laje plana (grupo `roof`) |
-| 4 | **Paredes** | `walls.forEach` (alvenaria com vãos recortados) |
-| 5 | **Esquadrias** | batentes, peitoris, vidros, folhas de porta |
-| 6 | **Acabamento** | mobiliário (`solids`/`FURN3D`) = **V1 completo** |
+| 3 | **Vigas** | grade de vigas (`lajeMat`, bloco `VH/VW`) — **sem** a laje plana |
+| 4 | **Laje** | laje plana (grupo `roof`) cobrindo as vigas — sem geometria com `_ph` próprio |
+| 5 | **Paredes** | `walls.forEach` (alvenaria com vãos recortados) |
+| 6 | **Esquadrias** | batentes, peitoris, vidros, folhas de porta |
+| 7 | **Acabamento** | mobiliário (`solids`/`FURN3D`) = **V1 completo** |
 | `null` | cotas (`buildDims3D`) | sempre visíveis |
 
-- **`applyBuildPhase(v)`** (estado `buildPhase`, default 6): oculta o que tem `ph > buildPhase`.
+- **`applyBuildPhase(v)`** (estado `buildPhase`, default 7): oculta o que tem `ph > buildPhase`.
   Só age no **V1**; outras versões sempre completas (ignoram o carimbo). A **laje** (`roof`)
-  aparece nas fases **3–5** e some no acabamento (6) — espelha o default do V1 (laje oculta
-  p/ ver o interior). Chamado em `init3D` após `buildBuilding3D`.
-- **Slider 🏗 no HUD 3D** (só V1, em `buildHud3D`): `.phase-hud`, range 1–6, empilhado acima
+  aparece da fase **4 (Laje) até 6 (Esquadrias)** e some no acabamento (7) — espelha o default
+  do V1 (laje oculta p/ ver o interior). Chamado em `init3D` após `buildBuilding3D`.
+- **Slider 🏗 no HUD 3D** (só V1, em `buildHud3D`): `.phase-hud`, range 1–7, empilhado acima
   do HUD de horário. Arrastar = `buildPhase = valor` + `applyBuildPhase`.
-- **Rotas `/v0.1`…`/v0.5`** (`PHASE_ROUTES`, `phaseFromPath`): `versionFromPath` devolve `'v1'`;
+- **Rotas `/v0.1`…`/v0.6`** (`PHASE_ROUTES`, `phaseFromPath`): `versionFromPath` devolve `'v1'`;
   o boot abre direto em **Planta 3D**, mantém `/v0.x` na barra e seta `buildPhase`. Clicar numa
   **aba** (`setVersion` com `push=true`) volta à casa completa (`buildPhase=6`); **popstate**
   respeita a fase da rota. `applyBuildPhase` re-sincroniza o slider quando a fase muda por URL.
