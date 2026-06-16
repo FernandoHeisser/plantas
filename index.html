@@ -441,6 +441,10 @@
             border-radius: 5px; padding: 3px 6px; font-family: inherit; font-size: 11px;
         }
         .scene3d-hud .hud-clock { font-weight: 600; color: #fbbf24; min-width: 86px; }
+        /* HUD da fase da obra (V1) — empilhado acima do HUD de horário */
+        .scene3d-hud.phase-hud { bottom: 58px; }
+        .scene3d-hud.phase-hud input[type=range] { accent-color: #f97316; }
+        .scene3d-hud.phase-hud .hud-clock { color: #fb923c; min-width: 92px; }
         /* Bússola */
         .scene3d-compass {
             position: absolute; top: 10px; left: 10px; z-index: 5;
@@ -3999,6 +4003,26 @@
         hud.append('🕑', rng, clock, '📅', sel);
         host.appendChild(hud);
         S.hudRange = rng; S.hudSel = sel; S.hudClock = clock;
+
+        // ── Slider da fase da obra (timeline construtiva) — só V1 ────────────
+        if (v === 'v1') {
+            const phud = document.createElement('div');
+            phud.className = 'scene3d-hud phase-hud';
+            const prng = document.createElement('input');
+            prng.type = 'range'; prng.min = '1'; prng.max = '6'; prng.step = '1'; prng.value = String(buildPhase);
+            const plabel = document.createElement('span');
+            plabel.className = 'hud-clock';
+            const papply = () => {
+                buildPhase = parseInt(prng.value, 10);
+                plabel.textContent = buildPhase + '/6 ' + PHASE_LABELS[buildPhase - 1];
+                applyBuildPhase(v);
+            };
+            prng.addEventListener('input', papply);
+            phud.append('🏗', prng, plabel);
+            host.appendChild(phud);
+            S.phaseRange = prng; S.phaseLabel = plabel;
+            papply();
+        }
     }
 
     function syncHud3D(S) {
