@@ -3290,6 +3290,10 @@
         // o ferro (esperasBars) p/ dar continuidade ao pilar do 2º pav. Filhos de
         // `roof` → herdam a visibilidade da laje. Visíveis crus nas fases de obra;
         // capeados no acabamento (V1 Caixa). No V3 não existem (ficam embutidos no col2c).
+        // `addEspera(cn, e3)` cria a espera de UM pilar (centro mN=cn, mE já com OE=e3).
+        // Reutilizado pela casa (aqui) e pela garagem (bloco V2, mais abaixo). null se
+        // a versão não tem esperas (V3+ embute no col2c).
+        let addEspera = null;
         if ((bv === 'v1' || bv === 'v2') && !SOLAR) {
             const espBars = new THREE.Group(); espBars.name = 'esperasBars';
             const espCaps = new THREE.Group(); espCaps.name = 'esperasCaps';
@@ -3305,17 +3309,19 @@
                 hb.rotation.z = Math.PI / 2; hb.position.set(x + 0.05, ETOP + BAR_H, z); hb.castShadow = true;
                 gp.add(vb, hb); return gp;
             };
-            [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
-             [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
-             [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
-            ].forEach(([cn, ce]) => {
-                const e3 = ce + OE, z = -cn;
+            addEspera = (cn, e3) => {               // cn = centro mN; e3 = centro mE (com OE)
+                const z = -cn;
                 [[-OFF,-OFF],[OFF,-OFF],[-OFF,OFF],[OFF,OFF]].forEach(([dx, dz]) => espBars.add(mkBar(e3 + dx, z + dz)));
                 // Boneca de proteção: stub de concreto rebocado sobre a laje, escondendo o ferro
                 espCaps.add(box3d(cn - 0.12, e3 - 0.12, 0.24, 0.24, LTOP, ETOP + BAR_H + 0.05, matEmbase));
-            });
+            };
             roof.add(espBars);
             roof.add(espCaps);
+            // Esperas dos 12 pilares da CASA
+            [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
+             [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
+             [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
+            ].forEach(([cn, ce]) => addEspera(cn, ce + OE));
         }
         g.add(roof);
 
@@ -3582,6 +3588,14 @@
             g.add(box3d(3.40, GE1c, COL, COL, baseBot(GE1c, COL), GLAJE, matEmbase));   // coluna leste (mE 21,7)
             // Viga E-O (mN 3,4) ao NORTE da escada — encosta na face norte da escada, sem sobreposição
             g.add(box3d(3.40, GE0, VW, (GE1c + COL) - GE0, GLAJE - VH, GLAJE, lajeMat));
+
+            // Esperas dos 12 pilares da GARAGEM — só V2 (no V3 a garagem vira pilotis e
+            // os arranques ficam embutidos no col2 do 2º piso). box3d das colunas é por
+            // canto → centro = n+COL/2, e+COL/2 (e já tem OE). GLAJE = topo do pilar = 2,85.
+            if (v === 'v2' && addEspera) {
+                [GN0, 3.40, GNM, GN1 - COL].forEach(n =>
+                    [GE0, GEMc, GE1c].forEach(e => addEspera(n + COL/2, e + COL/2)));
+            }
 
             // Escada p/ 2º pavimento — base junto à porta (leste, mE 21), sobe LONGA p/ oeste.
             // 18 degraus (espelho ~0,17 m, piso ~0,28 m) → rampa suave; run de 5,0 m até mE 16.
