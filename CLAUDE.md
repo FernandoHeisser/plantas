@@ -644,8 +644,8 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 
 | Versão | 2D | 3D | Medidas |
 |---|---|---|---|
-| **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro) | ✅ Completo |
-| **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) | ✅ Preenchida (garagem + depósito + escada) |
+| **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro + **esperas p/ V3**, botão revelar) | ✅ Completo |
+| **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) + **esperas p/ V3** | ✅ Preenchida (garagem + depósito + escada) |
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 | **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
 | **V3.2** | 🔶 Herda o 2D do V3.1 | ✅ Herda o V3.1 + **pintura da casa em marrom** (`WALL_TINT` tinge o `matWall` só p/ `v32`) | 🔶 Placeholder com resumo |
@@ -683,10 +683,31 @@ antes de `buildDims3D`** (cotas ficam sem carimbo → sempre visíveis).
   do HUD de horário. Arrastar = `buildPhase = valor` + `applyBuildPhase`.
 - **Rotas `/v0.1`…`/v0.6`** (`PHASE_ROUTES`, `phaseFromPath`): `versionFromPath` devolve `'v1'`;
   o boot abre direto em **Planta 3D**, mantém `/v0.x` na barra e seta `buildPhase`. Clicar numa
-  **aba** (`setVersion` com `push=true`) volta à casa completa (`buildPhase=6`); **popstate**
+  **aba** (`setVersion` com `push=true`) volta à casa completa (`buildPhase=7`); **popstate**
   respeita a fase da rota. `applyBuildPhase` re-sincroniza o slider quando a fase muda por URL.
 - **Ao adicionar nova geometria 3D ao V1:** setar `_ph` antes da seção (ou ela herda a fase
   anterior). Geometria de garagem/V2+/floor2 não precisa — fora do escopo do filtro de fase.
+
+### Esperas (arranques do sobrado V3) — V1/V2
+
+Para o V3 (sobrado) ser possível, os 12 pilares do térreo deixam **ferros de espera**
+(arranques) projetados acima da laje, dando continuidade estrutural ao pilar do 2º pav.
+(`col2c`, que começa em `fz0=3,01`). Construídos só no **V1/V2** (`bv` v1/v2, `!SOLAR`);
+no **V3** não existem — ficam **embutidos** no pilar de cima.
+
+- **Restrição Caixa:** o V1 é financiado e a Caixa **não aceita ferro de obra aparente**.
+  Solução real: o ferro fica embutido numa **boneca de concreto** (`esperasCaps`) sobre a
+  laje (casa com cara de pronta); o botão **"Esperas: revelar"** "demole" a proteção e expõe
+  o ferro (`esperasBars`) — "na hora certa" de puxar o andar.
+- **Geometria** (no grupo `roof`, após o slab; herdam a visibilidade da laje): por pilar,
+  4 barras nos cantos (±0,07, Ø~24, sobem 0,45 m do topo do pilar `CEIL3D+CPA=2,85`) com
+  dobra no topo + 1 boneca `box3d` 0,24×0,24 (`matEmbase`) cobrindo. Posições = mesmo grid
+  das colunas (mE 22,5/25,5/28,5/31,5 × mN 2/4,5/7,5, `+OE`).
+- **Visibilidade** (`applyBuildPhase`): ferro cru nas **fases de obra** (`ph<7`) ou quando
+  **revelado**; **capeado** (boneca) no **acabamento** (`ph≥7`) e não-revelado. Como são
+  filhos de `roof`, só aparecem com a **laje visível** — por isso `roof.visible` no V1 passa
+  a incluir `(ph≥7 && espRevealed)`, e `set3DEsperas` força a laje ligada + sincroniza o
+  rótulo do botão Laje. Flag `S.espRevealed` (por cena). Botão em V1/V11/V2.
 
 ---
 
