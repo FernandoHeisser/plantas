@@ -1413,8 +1413,14 @@
     let buildPhase = 6;
 
     // ── Roteamento por URL: / → v1, /v2 → v2, /v3 → v3, qualquer outro → v1 ──
+    // Rotas de fase da obra (/v0.1.../v0.5) → V1 numa fase construtiva (3D).
+    const PHASE_ROUTES = { '/v0.1': 1, '/v0.2': 2, '/v0.3': 3, '/v0.4': 4, '/v0.5': 5 };
+    function phaseFromPath() {
+        return PHASE_ROUTES[location.pathname.replace(/\/+$/, '').toLowerCase()] || 6;
+    }
     function versionFromPath() {
         const p = location.pathname.replace(/\/+$/, '').toLowerCase();
+        if (PHASE_ROUTES[p]) return 'v1';   // /v0.x = V1 numa fase
         if (p === '/v1.1') return 'v11';
         if (p === '/v2')   return 'v2';
         if (p === '/v3.2') return 'v32';
@@ -1441,7 +1447,9 @@
 
     function setVersion(v, push = true) {
         ver = v;
-        if (push) history.pushState({ v }, '', pathFromVersion(v));
+        // Navegação explícita por aba volta à casa completa (push=false vem do
+        // popstate/boot, que já ajustou buildPhase pela rota /v0.x).
+        if (push) { history.pushState({ v }, '', pathFromVersion(v)); buildPhase = 6; }
         syncTabs();
         render();
     }
@@ -3931,6 +3939,11 @@
         });
         const roof = S.group.getObjectByName('roof');
         if (roof) roof.visible = (v === 'v1') ? (ph >= 3 && ph <= 5) : roof.visible;
+        // Mantém o slider em sincronia quando a fase muda por URL (popstate/boot)
+        if (v === 'v1' && S.phaseRange) {
+            S.phaseRange.value = String(ph);
+            S.phaseLabel.textContent = ph + '/6 ' + PHASE_LABELS[ph - 1];
+        }
     }
 
     function set3DRoof(v, btn) {
@@ -4097,13 +4110,21 @@
     // Inicializa o mapa do painel inicial
     window.addEventListener('load', () => {
         ver = versionFromPath();
-        history.replaceState({ v: ver }, '', pathFromVersion(ver));
+        buildPhase = phaseFromPath();
+        const isPhase = buildPhase < 6;          // rota /v0.x → V1 numa fase, abre em 3D
+        if (isPhase) {
+            sec = '3d';
+            document.querySelectorAll('.stab').forEach(t => t.classList.toggle('active', t.dataset.s === '3d'));
+            history.replaceState({ v: ver }, '', location.pathname);  // mantém /v0.x na barra
+        } else {
+            history.replaceState({ v: ver }, '', pathFromVersion(ver));
+        }
         syncTabs();
         setViewHeight();
         setTimeout(() => render(), 150);
     });
-    // Botões voltar/avançar do navegador respeitam a rota
-    window.addEventListener('popstate', () => setVersion(versionFromPath(), false));
+    // Botões voltar/avançar do navegador respeitam a rota (versão + fase)
+    window.addEventListener('popstate', () => { buildPhase = phaseFromPath(); setVersion(versionFromPath(), false); });
 </script>
 
 </body>
