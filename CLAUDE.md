@@ -884,6 +884,12 @@ Aba `data-v="v4"`, rota `/v4`, painéis `p-v4-2d/3d/med`.
   (0,42 m, = `/v1`) em **todo o perímetro** da casa, na laje 1 (`F2.add`, `_ph = PH.laje1`). Some
   quando o sobrado sobe via **`userData.phEnd = PH.colS`** (o 2º pav a substitui). `applyBuildPhase`
   trata `phEnd`: objeto visível só na janela `[ph, phEnd)`.
+  - **Face oeste simétrica:** a laje oeste do V4 para na junta (`Egar = 22,37`), então a mureta
+    oeste ficaria sem o beiral de 0,5 m das outras faces (desproporcional). Enquanto a casa é
+    **standalone** (`[laje1, gFound)`) o oeste recebe o beiral cheio (mE **22,0** = `/v1`): mureta +
+    stubs sul/norte (22,0→junta) + um pedaço de **laje** que a sustenta. Quando a **garagem anexa**
+    (`gFound`) esse trecho some e o oeste vira a **junta** (mureta em `Egar`, vive `[gFound, colS)`) —
+    sem laje sobreposta com a garagem.
 - **Pivô da porta:** o marcador de dobradiça do `doorArc` (`circ` preto) leva `no3d:true` — senão o
   pipeline o extruda numa **massa preta de 0,45 m** flutuando (corrigido em todas as versões).
 - **Muro = V1.1, não V1:** muro frontal + portão + cercas só aparecem **depois do V1 pronto**, na
