@@ -3636,9 +3636,10 @@
                 roof.add(box3d(HN0, ge0,  HN1 - HN0,  HE0  - ge0,  GLAJE, GLAJE+0.16, lajeMat));  // oeste do vão
                 roof.add(box3d(HN0, HE1,  HN1 - HN0,  GE1j - HE1,  GLAJE, GLAJE+0.16, lajeMat));  // leste do vão
             }
-            // V3: laje 2 (teto do 2º piso) leva platibanda no perímetro da garagem.
-            // V2: a garagem será construída à parte (não financiada) → SEM platibanda.
-            if (!SOLAR && v !== 'v2') {
+            // Garagem (V2 e V3): platibanda no perímetro EXPOSTO (sul/norte/oeste).
+            // Leste = junta de dilatação com a casa → sem platibanda no trecho que
+            // encosta (mN ≤ n1, lajes rente); só o trecho norte além da casa leva.
+            if (!SOLAR) {
                 const gpb = GLAJE + 0.16, gpbTop = gpb + 0.42;
                 roof.add(box3d(gn0,       ge0, tt,        GE1j-ge0, gpb, gpbTop, lajeMat)); // sul
                 roof.add(box3d(gn1-tt,    ge0, tt,        GE1j-ge0, gpb, gpbTop, lajeMat)); // norte
