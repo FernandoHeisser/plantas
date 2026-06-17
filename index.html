@@ -3581,16 +3581,31 @@
             addBorda(cn1-BT, ce0, BT,       ce1-ce0); // face norte
             addBorda(cn0,    ce1-BT, cn1-cn0, BT);    // face leste (junta oeste = sem borda)
             // V4: platibanda (mureta) em TODO o perímetro da casa, igual ao V1 original
-            // (/v1): dá a cara de "casa quadrada com telhado embutido". Nasce com a laje
-            // (fase 4) e SOME quando o sobrado sobe (phEnd = colS), pois o 2º pav a substitui.
+            // (/v1, 0,42 m): cara de "casa quadrada com telhado embutido". Nasce com a laje
+            // (fase 4) e some quando o sobrado sobe (phEnd = colS).
+            // A face OESTE precisa do MESMO beiral (0,5 m → mE 22,0) das outras p/ não ficar
+            // desproporcional. Mas no V4 a laje oeste para na junta (Egar = 22,37). Então o
+            // trecho simétrico do oeste (beiral 22,0→junta + mureta + stubs sul/norte) vive só
+            // enquanto a casa é standalone [laje1, gFound); quando a garagem anexa, o oeste vira
+            // a junta (mureta em Egar), que vive [gFound, colS).
             if (v === 'v4') {
+                const PBb = lz1, PBt = lz1 + 0.42, ptt = 0.12, ceW = 22.5 - BN_EW;  // 22,0 = beiral 0,5 (= leste/sul/norte)
+                const pbAdd = (n, e, dn, de, ph0, phEnd) => {
+                    _ph = ph0; const m = box3d(n, e + OE, dn, de, PBb, PBt, lajeMat); F2.add(m); m.userData.phEnd = phEnd;
+                };
+                // Sul / norte / leste (oeste = junta) — do V1 ao sobrado
+                pbAdd(cn0,     ce0,     ptt,     ce1-ce0, PH.laje1,  PH.colS);  // sul
+                pbAdd(cn1-ptt, ce0,     ptt,     ce1-ce0, PH.laje1,  PH.colS);  // norte
+                pbAdd(cn0,     ce1-ptt, cn1-cn0, ptt,     PH.laje1,  PH.colS);  // leste
+                pbAdd(cn0,     ce0,     cn1-cn0, ptt,     PH.gFound, PH.colS);  // oeste JUNTA (V2+)
+                // Trecho simétrico do oeste (V1 standalone) — some quando a garagem anexa
+                pbAdd(cn0,     ceW,     ptt,     ce0-ceW, PH.laje1,  PH.gFound); // stub sul (22,0→junta)
+                pbAdd(cn1-ptt, ceW,     ptt,     ce0-ceW, PH.laje1,  PH.gFound); // stub norte
+                pbAdd(cn0,     ceW,     cn1-cn0, ptt,     PH.laje1,  PH.gFound); // mureta oeste simétrica (22,0)
+                // Beiral oeste da laje (22,0→junta) que sustenta a mureta simétrica
                 _ph = PH.laje1;
-                const PBb = lz1, PBt = lz1 + 0.42, ptt = 0.12;   // 0,42 m de altura = V1 original
-                const pbAdd = (n,e,dn,de) => { const m = box3d(n, e + OE, dn, de, PBb, PBt, lajeMat); F2.add(m); m.userData.phEnd = PH.colS; };
-                pbAdd(cn0,      ce0,     ptt,      ce1-ce0);   // sul
-                pbAdd(cn1-ptt,  ce0,     ptt,      ce1-ce0);   // norte
-                pbAdd(cn0,      ce0,     cn1-cn0,  ptt);       // oeste
-                pbAdd(cn0,      ce1-ptt, cn1-cn0,  ptt);       // leste
+                const wb = box3d(cn0, ceW + OE, cn1-cn0, ce0-ceW, lz0, lz1, lajeMat);
+                F2.add(wb); wb.userData.phEnd = PH.gFound;
             }
             // Garagem: faces sul, norte, oeste (leste = junta) — borda da laje da garagem → bloco V2
             _ph = PH.gLaje;
