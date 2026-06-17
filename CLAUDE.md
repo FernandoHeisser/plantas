@@ -365,16 +365,20 @@ Laje plana de concreto (não telhado de duas águas) — **V3 recebe 2º pavimen
 Grupo `roof` = laje (y 2,70→2,86) + platibanda em 4 lados (y 2,86→3,28). Começa oculta.  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
+**Platibanda da garagem:**
+- **V2:** a garagem é construída por conta do cliente (não financiada) → **sem platibanda
+  nenhuma** (gate `if (!SOLAR && v !== 'v2')`). Laje plana da garagem com a borda nua.
+- **V3:** a laje da garagem é o teto do 2º piso → **mantém platibanda** no perímetro
+  (sul/norte/oeste + trecho leste-norte além da casa). Na junta com a casa (mN ≤ `n1`=8,4)
+  fica rente; o trecho norte exposto (mN `n1`→`gn1`) leva platibanda parando na boneca da
+  coluna NE (`ePN = GN1 − COL/2 − 0,12`).
+
 **Junta casa↔garagem (V2/V3):** as duas lajes ficam no mesmo nível e se encontram **rente
-na junta de dilatação, sem mureta entre elas** (uma platibanda ali teria de ser quebrada
-na obra). Logo, **nenhum dos dois lados tem platibanda na junta**:
+na junta de dilatação, sem mureta entre elas**:
 - **Casa:** quando há garagem (`hasGarageW = !SOLAR && (v2||v3)`), a fachada oeste encosta
   na junta → laje **sem beiral oeste** (`e0 = 22,4 + OE`, face da parede) e **sem platibanda
   oeste**. Senão a laje/platibanda da casa cavalgavam a laje da garagem (`GE1j = 22,37 + OE`)
   e as platibandas ficavam **transpostas**.
-- **Garagem:** **sem platibanda leste no trecho que encosta na casa** (mN ≤ `n1`=8,4 →
-  rente). O **trecho norte que ultrapassa a casa** (mN `n1`→`gn1`, 8,4→11,4) é borda
-  exposta → **mantém platibanda**. Sul/norte/oeste inteiras.
 - **V1:** mantém beiral + platibanda no perímetro inteiro (não há garagem).
 
 ### Bugs resolvidos / armadilhas conhecidas
