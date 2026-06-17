@@ -372,7 +372,9 @@ na obra). Logo, **nenhum dos dois lados tem platibanda na junta**:
   na junta → laje **sem beiral oeste** (`e0 = 22,4 + OE`, face da parede) e **sem platibanda
   oeste**. Senão a laje/platibanda da casa cavalgavam a laje da garagem (`GE1j = 22,37 + OE`)
   e as platibandas ficavam **transpostas**.
-- **Garagem:** **sem platibanda leste** (lado da junta). Mantém platibanda sul/norte/oeste.
+- **Garagem:** **sem platibanda leste no trecho que encosta na casa** (mN ≤ `n1`=8,4 →
+  rente). O **trecho norte que ultrapassa a casa** (mN `n1`→`gn1`, 8,4→11,4) é borda
+  exposta → **mantém platibanda**. Sul/norte/oeste inteiras.
 - **V1:** mantém beiral + platibanda no perímetro inteiro (não há garagem).
 
 ### Bugs resolvidos / armadilhas conhecidas
