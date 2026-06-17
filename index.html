@@ -1474,8 +1474,10 @@
         'Fundação (garagem)', 'Pilares (garagem)', 'Vigas (garagem)', 'Laje — V2 pronto',
         // Bloco 3 — sobrado (V3) até ficar pronto
         'Pilares 2º pav', 'Vigas 2º pav', 'Laje de cobertura', 'Alvenaria 2º pav',
-        'Telhado solar', 'Esquadrias 2º pav'];
-    let buildPhase4 = PHASE_LABELS_V4.length;   // abre completo (17)
+        'Telhado solar', 'Esquadrias 2º pav',
+        // Acabamento final do conjunto
+        'Pintura (marrom)'];
+    let buildPhase4 = PHASE_LABELS_V4.length;   // abre completo (18)
 
     // ── Roteamento por URL: / → v1, /v2 → v2, /v3 → v3, qualquer outro → v1 ──
     // Rotas de fase da obra (/v0.1.../v0.5) → V1 numa fase construtiva (3D).
@@ -2927,9 +2929,11 @@
         const PH = (v === 'v4')
             ? { found:1, colT:2, vigaT:3, laje1:4, alven:5, esquad:6, acab:7,           // casa térreo (V1)
                 gFound:8, gColT:9, gVigaT:10, gLaje:11,                                 // garagem (V2)
-                colS:12, vigaS:13, laje2:14, alvenS:15, telhado:16, esquadS:17 }        // sobrado (V3)
+                colS:12, vigaS:13, laje2:14, alvenS:15, telhado:16, esquadS:17,         // sobrado (V3)
+                paint:18 }                                                              // pintura final
             : { found:1, colT:2, vigaT:3, laje1:4, alven:5, esquad:6, acab:7,
-                gFound:1, gColT:2, gVigaT:3, gLaje:4, colS:5, vigaS:6, laje2:4, alvenS:5, telhado:4, esquadS:6 };
+                gFound:1, gColT:2, gVigaT:3, gLaje:4, colS:5, vigaS:6, laje2:4, alvenS:5, telhado:4, esquadS:6, paint:7 };
+        const PAINT_PHASE = 18;   // fase em que a casa é pintada de marrom (só V4)
         let _ph = 0;
         // Carimba qualquer grupo (g, roof, floor2) com o _ph corrente. roof/floor2 têm
         // seu próprio .add → embrulhados também p/ o V4 revelar seus filhos por fase.
@@ -2939,16 +2943,39 @@
 
         const floor = texFloor(); floor.repeat.set(8, 5);
         // V3.2 = pintura da casa em marrom: tinge a textura de reboco (color multiplica o map).
-        const WALL_TINT = (rv === 'v32') ? 0x7a5230 : 0xffffff;   // marrom terroso / branco (padrão)
+        // V4: nasce NATURAL (reboco branco / concreto cinza) e só pinta na última fase
+        // (PAINT_PHASE) — applyBuildPhase troca as cores. Por isso o V4 usa o tom natural aqui.
+        const WALL_BROWN = 0x7a5230, WALL_NAT = 0xffffff, EMBASE_BROWN = 0x6e4a2c, EMBASE_NAT = 0xb8b0a0;
+        const bornBrown = (rv === 'v32' && v !== 'v4');   // V3.2 nasce pintado; V4 pinta no fim
+        const WALL_TINT = bornBrown ? WALL_BROWN : WALL_NAT;   // marrom terroso / branco (padrão)
         const matWall   = new THREE.MeshStandardMaterial({ map: texWall(), color: WALL_TINT, roughness: 0.95, metalness: 0, envMapIntensity: 0.25,
                                                            polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
         const matFloor  = new THREE.MeshStandardMaterial({ map: floor, roughness: 0.55, metalness: 0, envMapIntensity: 0.35 });
         const matGlass  = new THREE.MeshStandardMaterial({ color: 0xaecadf, transparent: true, opacity: 0.3,
                                                            roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
         // V3.2: colunas/baldrame também pintadas de marrom (matEmbase é cor sólida, sem map).
-        const EMBASE_COL = (rv === 'v32') ? 0x6e4a2c : 0xb8b0a0;
+        const EMBASE_COL = bornBrown ? EMBASE_BROWN : EMBASE_NAT;
         const matEmbase = new THREE.MeshStandardMaterial({ color: EMBASE_COL, roughness: 0.92, metalness: 0,   envMapIntensity: 0.12 });
         const matWP     = new THREE.MeshStandardMaterial({ color: 0x1e1e2a, roughness: 0.60, metalness: 0.28, envMapIntensity: 0.35 });
+        // V4: refs dos materiais que a "pintura" final tinge (matGable é empilhado depois de criado).
+        if (v === 'v4') g.userData.paint = { walls: [matWall], embases: [matEmbase],
+            brownW: WALL_BROWN, natW: WALL_NAT, brownE: EMBASE_BROWN, natE: EMBASE_NAT };
+
+        // Esperas (arranques) dos pilares: 4 ferros saindo da laje p/ dar continuidade ao
+        // pilar do andar de cima. No V4 aparecem na fase da laje (carimbo = _ph corrente) e
+        // ficam embutidos (ocultos pelo pilar opaco) quando o andar de cima sobe.
+        const matRebar = new THREE.MeshStandardMaterial({ color: 0x8a5a3a, roughness: 0.75, metalness: 0.45, envMapIntensity: 0.4 });
+        const mkEsperas = (cMN, cME, topZ) => {   // cME já com OE
+            const g4 = new THREE.Group();
+            const BAR_H = 0.45, BR = 0.012, OFF = 0.07;
+            [[-OFF,-OFF],[OFF,-OFF],[-OFF,OFF],[OFF,OFF]].forEach(([dx, dz]) => {
+                const vb = new THREE.Mesh(new THREE.CylinderGeometry(BR, BR, BAR_H, 6), matRebar);
+                vb.position.set(cME + dx, topZ + BAR_H/2, -cMN + dz); vb.castShadow = true; g4.add(vb);
+                const hb = new THREE.Mesh(new THREE.CylinderGeometry(BR, BR, 0.10, 6), matRebar);  // dobra no topo
+                hb.rotation.z = Math.PI/2; hb.position.set(cME + dx + 0.05, topZ + BAR_H, -cMN + dz); hb.castShadow = true; g4.add(hb);
+            });
+            g.add(g4);   // o grupo recebe o carimbo de fase; os filhos herdam a visibilidade dele
+        };
 
         // ── Chão = imagem de satélite cobrindo o entorno, alinhada ao lote ───
         const spec = satGroundSpec();
@@ -3077,7 +3104,10 @@
         if (bv === 'v1') {
             extStairs(7.55, 23.00 + OE, 2.00, 'N'); // V1: escada desce p/ o jardim
         } else {
-            // V2/V3: plataforma 3×3 m nivelada à garagem (GCPA=0,15) + escada norte e leste
+            // V2/V3: plataforma 3×3 m nivelada à garagem (GCPA=0,15) + escada norte e leste.
+            // É acesso ligado à GARAGEM (nível GCPA) → no V4 entra no bloco V2 (gFound),
+            // não na fundação da casa (senão aparece um "piso norte" antes da garagem existir).
+            _ph = PH.gFound;
             const GCPA_V2 = 0.15;
             const pN0 = 7.55, pN1 = 10.55;                    // 3 m em N (mN 7,55→10,55)
             const pE0 = 22.5 - 0.10 + OE, pE1 = 25.4 + OE; // alinha face ext. da parede (pE0) com a fachada oeste
@@ -3085,6 +3115,7 @@
             g.add(box3d(pN0, pE0, pN1-pN0, pE1-pE0, grade(pE1) - 0.02, GCPA_V2, matEmbase));
             // Escada leste — 4 degraus descendo p/ o quintal (e=0,175 m; p=0,28 m; Blondel ✓)
             extStairs(pN0, pE1, pN1-pN0, 'E');
+            _ph = PH.found;   // restaura p/ as seções seguintes da casa
         }
         // ── Colunas estruturais da casa — 15×15 cm, matEmbase (V1+V2+V3) ──────
         // Mesmo grid marcado em vermelho no 2D; embedded nas paredes (Z-fight
@@ -3099,6 +3130,14 @@
               const e3 = ce + OE;
               g.add(box3d(cn-CS, e3-CS, 2*CS, 2*CS, baseBot(e3, 2*CS), CEIL3D+CPA, matEmbase));
           });
+          // V4: esperas dos 12 pilares da casa — aparecem com a laje da casa (laje 1)
+          if (v === 'v4') {
+              _ph = PH.laje1;
+              [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
+               [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
+               [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
+              ].forEach(([cn,ce]) => mkEsperas(cn, ce + OE, CEIL3D + CPA + 0.16));
+          }
         }
 
         // Porta dos fundos (leste) — 5 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
@@ -3121,6 +3160,9 @@
         // ── Paredes: extrudadas até o teto, recortando portas e janelas ──────
         _ph = PH.alven; // ── alvenaria (paredes do térreo) ──
         walls.forEach(w => {
+            // As únicas paredes do GEO a OESTE da junta (mE<16, c/ OE) são as do depósito
+            // sob a escada da garagem → entram no bloco V2 (não na alvenaria da casa).
+            _ph = (Math.min(w.e1, w.e2) < 16) ? PH.gLaje : PH.alven;
             const horiz = Math.abs(w.n2 - w.n1) < 1e-6;   // corre no eixo E (mN const)
             const t = w.t;
             const base = w.z0 || 0;   // base da parede (piso elevado, ex.: GCPA)
@@ -3198,6 +3240,8 @@
 
         _ph = PH.esquad; // ── esquadrias (batentes, peitoris, vidros, folhas) ──
         openings.forEach(o => {
+            // Porta do depósito da garagem (mE<16 c/ OE) → bloco V2, não esquadrias da casa.
+            _ph = (o.e < 16) ? PH.gLaje : PH.esquad;
             const z0 = (o.type === 'window' ? o.sill : 0) + CPA, z1 = o.head + CPA;
             const horiz = o.de >= o.dn;                  // parede corre no eixo E?
             const D = (horiz ? o.dn : o.de) + 0.05;      // profundidade do caixilho (atravessa a parede)
@@ -3293,6 +3337,7 @@
                                                               polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
         const matPanel      = new THREE.MeshStandardMaterial({ color: 0x111b30, roughness: 0.28, metalness: 0.25, envMapIntensity: 0.7 });
         const matGable      = matWall.clone(); matGable.side = THREE.DoubleSide;   // empena (frontão)
+        if (g.userData.paint) g.userData.paint.walls.push(matGable);   // pintar a empena junto na fase final
         // Empena (frontão) — parede triangular fina no plano mE=cte, fechando o vão
         // entre o topo da parede (yBot, plano) e a água do telhado (segue a inclinação).
         const gableEnd = (mE, wn0, wn1, yBot, yTopN0, yTopN1, thk, mat) => {
@@ -3441,14 +3486,16 @@
                                               : box3d(s0, line + OE - t/2, s1 - s0, t, z0, z1, mat);
                     if (mat === matGlass) m.castShadow = false;   // vidro deixa a luz passar
                     F2.add(m);
+                    if (mat === matGlass) m.userData.ph = PH.esquadS;   // V4: vidro entra nas esquadrias, não na alvenaria
                 };
                 // Grade do caixilho (montantes + travessas) sobre o vidro — estilo padrão.
                 // Cor original do caixilho (matFrame); barras seção MT, profundidade MD.
                 const winGrid = (s, e, z0, z1, vp) => {
                     const MT = 0.06, D = t + 0.05;   // atravessa a parede toda (igual ao caixilho do térreo)
-                    const bar = (a0, a1, zb0, zb1) => F2.add((axis === 'EW')
+                    const bar = (a0, a1, zb0, zb1) => { const mb = (axis === 'EW')
                         ? box3d(line - D/2, a0 + OE, D, a1 - a0, zb0, zb1, matFrame)
-                        : box3d(a0, line + OE - D/2, a1 - a0, D, zb0, zb1, matFrame));
+                        : box3d(a0, line + OE - D/2, a1 - a0, D, zb0, zb1, matFrame);
+                        F2.add(mb); mb.userData.ph = PH.esquadS; };   // V4: caixilho = esquadrias
                     if (vp) {
                         // 2 panos verticais: 1 travessa horizontal central + montantes e travessas de borda
                         bar(s - MT/2, s + MT/2, z0, z1);              // montante esq
@@ -3716,6 +3763,12 @@
             if (v === 'v2' && addEspera) {
                 [GN0, 3.40, GNM, GN1 - COL].forEach(n =>
                     [GE0, GEMc, GE1c].forEach(e => addEspera(n + COL/2, e + COL/2)));
+            }
+            // V4: esperas dos 12 pilares da garagem — aparecem com a laje da garagem (V2 pronto)
+            if (v === 'v4') {
+                _ph = PH.gLaje;
+                [GN0, 3.40, GNM, GN1 - COL].forEach(n =>
+                    [GE0, GEMc, GE1c].forEach(e => mkEsperas(n + COL/2, e + COL/2, GLAJE + 0.16)));
             }
 
             // Escada p/ 2º pavimento — base junto à porta (leste, mE 21), sobe LONGA p/ oeste.
@@ -4133,6 +4186,13 @@
             if (f2) f2.visible = true;
             const roof = S.group.getObjectByName('roof');
             if (roof) { roof.visible = true; roof.position.y = CEIL3D + 0.16; }
+            // Pintura: só na última fase as paredes/colunas/empenas viram marrom.
+            const pt = S.group.userData.paint;
+            if (pt) {
+                const on = ph >= PHASE_LABELS_V4.length;   // fase final = Pintura
+                pt.walls.forEach(m => m.color.setHex(on ? pt.brownW : pt.natW));
+                pt.embases.forEach(m => m.color.setHex(on ? pt.brownE : pt.natE));
+            }
             if (S.phaseRange) {
                 S.phaseRange.value = String(ph);
                 S.phaseLabel.textContent = ph + '/' + PHASE_LABELS_V4.length + ' ' + PHASE_LABELS_V4[ph - 1];
