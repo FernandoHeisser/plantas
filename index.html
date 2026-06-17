@@ -1470,6 +1470,8 @@
         // Bloco 1 — casa térreo (V1) até ficar pronta
         'Fundação (casa)', 'Pilares (casa)', 'Vigas (casa)', 'Laje (casa)',
         'Alvenaria (casa)', 'Esquadrias (casa)', 'Acabamento — V1 pronto',
+        // V1.1 — muro frontal + portão + cercas (só depois do V1 pronto)
+        'Muro e cercas — V1.1',
         // Bloco 2 — garagem (V2) até ficar pronta
         'Fundação (garagem)', 'Pilares (garagem)', 'Vigas (garagem)', 'Laje — V2 pronto',
         // Bloco 3 — sobrado (V3) até ficar pronto
@@ -1477,7 +1479,7 @@
         'Telhado solar', 'Esquadrias 2º pav',
         // Acabamento final do conjunto
         'Pintura (marrom)'];
-    let buildPhase4 = PHASE_LABELS_V4.length;   // abre completo (18)
+    let buildPhase4 = PHASE_LABELS_V4.length;   // abre completo (19)
 
     // ── Roteamento por URL: / → v1, /v2 → v2, /v3 → v3, qualquer outro → v1 ──
     // Rotas de fase da obra (/v0.1.../v0.5) → V1 numa fase construtiva (3D).
@@ -2928,12 +2930,12 @@
         //   7 fases do V1; o resto não é usado (V1 não tem garagem/2º piso).
         const PH = (v === 'v4')
             ? { found:1, colT:2, vigaT:3, laje1:4, alven:5, esquad:6, acab:7,           // casa térreo (V1)
-                gFound:8, gColT:9, gVigaT:10, gLaje:11,                                 // garagem (V2)
-                colS:12, vigaS:13, laje2:14, alvenS:15, telhado:16, esquadS:17,         // sobrado (V3)
-                paint:18 }                                                              // pintura final
-            : { found:1, colT:2, vigaT:3, laje1:4, alven:5, esquad:6, acab:7,
+                muro:8,                                                                 // muro/cercas (V1.1)
+                gFound:9, gColT:10, gVigaT:11, gLaje:12,                                // garagem (V2)
+                colS:13, vigaS:14, laje2:15, alvenS:16, telhado:17, esquadS:18,         // sobrado (V3)
+                paint:19 }                                                              // pintura final
+            : { found:1, colT:2, vigaT:3, laje1:4, alven:5, esquad:6, acab:7, muro:7,
                 gFound:1, gColT:2, gVigaT:3, gLaje:4, colS:5, vigaS:6, laje2:4, alvenS:5, telhado:4, esquadS:6, paint:7 };
-        const PAINT_PHASE = 18;   // fase em que a casa é pintada de marrom (só V4)
         let _ph = 0;
         // Carimba qualquer grupo (g, roof, floor2) com o _ph corrente. roof/floor2 têm
         // seu próprio .add → embrulhados também p/ o V4 revelar seus filhos por fase.
@@ -3130,13 +3132,15 @@
               const e3 = ce + OE;
               g.add(box3d(cn-CS, e3-CS, 2*CS, 2*CS, baseBot(e3, 2*CS), CEIL3D+CPA, matEmbase));
           });
-          // V4: esperas dos 12 pilares da casa — aparecem com a laje da casa (laje 1)
+          // V4: esperas dos 12 pilares da casa — são a PONTA do pilar (mesma fase das colunas).
+          // Saem do topo do pilar (CEIL3D+CPA); a laje depois envolve a base e elas seguem
+          // espetadas até o pilar do 2º pav cobri-las.
           if (v === 'v4') {
-              _ph = PH.laje1;
+              _ph = PH.colT;
               [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
                [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
                [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
-              ].forEach(([cn,ce]) => mkEsperas(cn, ce + OE, CEIL3D + CPA + 0.16));
+              ].forEach(([cn,ce]) => mkEsperas(cn, ce + OE, CEIL3D + CPA));
           }
         }
 
@@ -3764,11 +3768,12 @@
                 [GN0, 3.40, GNM, GN1 - COL].forEach(n =>
                     [GE0, GEMc, GE1c].forEach(e => addEspera(n + COL/2, e + COL/2)));
             }
-            // V4: esperas dos 12 pilares da garagem — aparecem com a laje da garagem (V2 pronto)
+            // V4: esperas dos 12 pilares da garagem — são a PONTA do pilar (mesma fase das
+            // colunas da garagem). Saem do topo do pilar (GLAJE); a laje depois envolve a base.
             if (v === 'v4') {
-                _ph = PH.gLaje;
+                _ph = PH.gColT;
                 [GN0, 3.40, GNM, GN1 - COL].forEach(n =>
-                    [GE0, GEMc, GE1c].forEach(e => mkEsperas(n + COL/2, e + COL/2, GLAJE + 0.16)));
+                    [GE0, GEMc, GE1c].forEach(e => mkEsperas(n + COL/2, e + COL/2, GLAJE)));
             }
 
             // Escada p/ 2º pavimento — base junto à porta (leste, mE 21), sobe LONGA p/ oeste.
@@ -3863,7 +3868,8 @@
         // ── V1.1+: muro frontal + postes do portão + cercas ─────────────────
         // (set fora do bloco: a cerca declara um `const PH` local — altura do mourão —
         //  que sombrearia o PH das fases se o acesso fosse feito aqui dentro)
-        _ph = PH.found;   // muros/cercas de divisa = infra do lote (aparecem com a fundação)
+        // Muro frontal + portão + cercas = V1.1 → só aparecem DEPOIS do V1 pronto.
+        _ph = PH.muro;
         if (rv === 'v11' || rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32') {
             const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
