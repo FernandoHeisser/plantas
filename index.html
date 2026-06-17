@@ -1470,6 +1470,8 @@
         // Bloco 1 — casa térreo (V1) até ficar pronta
         'Fundação (casa)', 'Pilares (casa)', 'Vigas (casa)', 'Laje (casa)',
         'Alvenaria (casa)', 'Esquadrias (casa)', 'Acabamento — V1 pronto',
+        // Caixa não aceita ferro de espera aparente → cobre as esperas com bonecas de concreto
+        'Cobertura das esperas (Caixa)',
         // V1.1 — muro frontal + portão + cercas (só depois do V1 pronto)
         'Muro e cercas — V1.1',
         // Bloco 2 — garagem (V2) até ficar pronta
@@ -1784,7 +1786,7 @@
         layers.push(L.polyline(pts, { color: '#111827', weight: 1, dashArray: '2 2', interactive: false }));
         layers.push(L.polyline([rot(hn,he), rot(hn+dn, he+de)],
             { color: '#000000', weight: 2.6, interactive: false }));
-        layers.push(circ(hn, he - OE, 0.06, '#000000', { color: '#000000', weight: 0.5 })); // circ soma OE → cancela p/ não duplicar
+        layers.push(circ(hn, he - OE, 0.06, '#000000', { color: '#000000', weight: 0.5, no3d: true })); // pivô = só marcador 2D (no3d: senão vira massa preta flutuante no 3D)
         return layers;
     }
 
@@ -2930,11 +2932,12 @@
         //   7 fases do V1; o resto não é usado (V1 não tem garagem/2º piso).
         const PH = (v === 'v4')
             ? { found:1, colT:2, vigaT:3, laje1:4, alven:5, esquad:6, acab:7,           // casa térreo (V1)
-                muro:8,                                                                 // muro/cercas (V1.1)
-                gFound:9, gColT:10, gVigaT:11, gLaje:12,                                // garagem (V2)
-                colS:13, vigaS:14, laje2:15, alvenS:16, telhado:17, esquadS:18,         // sobrado (V3)
-                paint:19 }                                                              // pintura final
-            : { found:1, colT:2, vigaT:3, laje1:4, alven:5, esquad:6, acab:7, muro:7,
+                cap:8,                                                                  // cobre as esperas (Caixa)
+                muro:9,                                                                 // muro/cercas (V1.1)
+                gFound:10, gColT:11, gVigaT:12, gLaje:13,                               // garagem (V2)
+                colS:14, vigaS:15, laje2:16, alvenS:17, telhado:18, esquadS:19,         // sobrado (V3)
+                paint:20 }                                                              // pintura final
+            : { found:1, colT:2, vigaT:3, laje1:4, alven:5, esquad:6, acab:7, cap:7, muro:7,
                 gFound:1, gColT:2, gVigaT:3, gLaje:4, colS:5, vigaS:6, laje2:4, alvenS:5, telhado:4, esquadS:6, paint:7 };
         let _ph = 0;
         // Carimba qualquer grupo (g, roof, floor2) com o _ph corrente. roof/floor2 têm
@@ -3136,11 +3139,17 @@
           // Saem do topo do pilar (CEIL3D+CPA); a laje depois envolve a base e elas seguem
           // espetadas até o pilar do 2º pav cobri-las.
           if (v === 'v4') {
+              const CASA_COLS = [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
+                                 [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
+                                 [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]];
               _ph = PH.colT;
-              [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
-               [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
-               [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
-              ].forEach(([cn,ce]) => mkEsperas(cn, ce + OE, CEIL3D + CPA));
+              CASA_COLS.forEach(([cn,ce]) => mkEsperas(cn, ce + OE, CEIL3D + CPA));
+              // Bonecas de concreto que CAPEIAM o ferro (Caixa não aceita espera aparente na
+              // obra concluída). Boneca 0,19 < pilar 0,20 → some embutida no pilar do 2º pav.
+              _ph = PH.cap;
+              const LZ1 = CEIL3D + CPA + 0.16;   // topo da laje 1
+              CASA_COLS.forEach(([cn,ce]) =>
+                  g.add(box3d(cn - 0.095, ce + OE - 0.095, 0.19, 0.19, LZ1, LZ1 + 0.34, matEmbase)));
           }
         }
 
