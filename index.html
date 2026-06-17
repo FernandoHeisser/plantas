@@ -2972,12 +2972,12 @@
         const matRebar = new THREE.MeshStandardMaterial({ color: 0x8a5a3a, roughness: 0.75, metalness: 0.45, envMapIntensity: 0.4 });
         const mkEsperas = (cMN, cME, topZ) => {   // cME já com OE
             const g4 = new THREE.Group();
-            const BAR_H = 0.45, BR = 0.012, OFF = 0.07;
+            const BAR_H = 0.45, BR = 0.012, OFF = 0.06;   // ±0,06: tudo fica dentro da boneca 0,19 e do pilar 0,20
             [[-OFF,-OFF],[OFF,-OFF],[-OFF,OFF],[OFF,OFF]].forEach(([dx, dz]) => {
                 const vb = new THREE.Mesh(new THREE.CylinderGeometry(BR, BR, BAR_H, 6), matRebar);
                 vb.position.set(cME + dx, topZ + BAR_H/2, -cMN + dz); vb.castShadow = true; g4.add(vb);
-                const hb = new THREE.Mesh(new THREE.CylinderGeometry(BR, BR, 0.10, 6), matRebar);  // dobra no topo
-                hb.rotation.z = Math.PI/2; hb.position.set(cME + dx + 0.05, topZ + BAR_H, -cMN + dz); hb.castShadow = true; g4.add(hb);
+                const hb = new THREE.Mesh(new THREE.CylinderGeometry(BR, BR, 0.08, 6), matRebar);  // dobra no topo, p/ DENTRO
+                hb.rotation.z = Math.PI/2; hb.position.set(cME + dx - Math.sign(dx)*0.04, topZ + BAR_H, -cMN + dz); hb.castShadow = true; g4.add(hb);
             });
             g.add(g4);   // o grupo recebe o carimbo de fase; os filhos herdam a visibilidade dele
         };
@@ -3580,6 +3580,18 @@
             addBorda(cn0,    ce0, BT,       ce1-ce0); // face sul
             addBorda(cn1-BT, ce0, BT,       ce1-ce0); // face norte
             addBorda(cn0,    ce1-BT, cn1-cn0, BT);    // face leste (junta oeste = sem borda)
+            // V4: platibanda (mureta) em TODO o perímetro da casa, igual ao V1 original
+            // (/v1): dá a cara de "casa quadrada com telhado embutido". Nasce com a laje
+            // (fase 4) e SOME quando o sobrado sobe (phEnd = colS), pois o 2º pav a substitui.
+            if (v === 'v4') {
+                _ph = PH.laje1;
+                const PBb = lz1, PBt = lz1 + 0.42, ptt = 0.12;   // 0,42 m de altura = V1 original
+                const pbAdd = (n,e,dn,de) => { const m = box3d(n, e + OE, dn, de, PBb, PBt, lajeMat); F2.add(m); m.userData.phEnd = PH.colS; };
+                pbAdd(cn0,      ce0,     ptt,      ce1-ce0);   // sul
+                pbAdd(cn1-ptt,  ce0,     ptt,      ce1-ce0);   // norte
+                pbAdd(cn0,      ce0,     cn1-cn0,  ptt);       // oeste
+                pbAdd(cn0,      ce1-ptt, cn1-cn0,  ptt);       // leste
+            }
             // Garagem: faces sul, norte, oeste (leste = junta) — borda da laje da garagem → bloco V2
             _ph = PH.gLaje;
             const gn0b = S-BN_S, gn1b = Ngar+BN_N, ge0b = W-BN_EW;
@@ -4195,7 +4207,11 @@
         if (v === 'v4') {
             const ph = buildPhase4;
             S.group.traverse(o => {
-                if (o.userData && o.userData.ph != null) o.visible = o.userData.ph <= ph;
+                if (o.userData && o.userData.ph != null) {
+                    // phEnd: objeto só existe numa JANELA de fases (ex.: platibanda do V1
+                    // some quando o sobrado sobe). Sem phEnd, vale o padrão (ph ≤ atual).
+                    o.visible = (o.userData.ph <= ph) && (o.userData.phEnd == null || ph < o.userData.phEnd);
+                }
             });
             const f2 = S.group.getObjectByName('floor2');
             if (f2) f2.visible = true;
