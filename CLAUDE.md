@@ -877,9 +877,13 @@ Aba `data-v="v4"`, rota `/v4`, painéis `p-v4-2d/3d/med`.
 - **Cobertura das esperas (Caixa):** a Caixa não aceita ferro de espera aparente numa obra
   concluída → a **fase 8** (entre o V1 pronto e o muro) capeia o ferro dos 12 pilares da casa com
   **bonecas de concreto** (`box3d` 0,19×0,19, `matEmbase`, `_ph = PH.cap`). Boneca **0,19 < pilar
-  0,20** → some embutida quando o pilar do 2º pav sobe (fase 14). É a mesma solução que o V1
-  standalone usa (`esperasCaps`). Platibanda **não** resolveria (as esperas são internas, espalhadas
-  pela laje).
+  0,20** → some embutida quando o pilar do 2º pav sobe (fase 14). Para o ferro caber **inteiro**
+  dentro da boneca (e do pilar), `mkEsperas` usa `OFF=0,06` e a **dobra do topo bende p/ dentro**
+  (senão a ponta saía ±0,17, além da boneca). É a mesma ideia do `esperasCaps` do V1 standalone.
+- **Platibanda do V1 (cara de "casa quadrada com telhado embutido"):** o V4 ganha uma mureta
+  (0,42 m, = `/v1`) em **todo o perímetro** da casa, na laje 1 (`F2.add`, `_ph = PH.laje1`). Some
+  quando o sobrado sobe via **`userData.phEnd = PH.colS`** (o 2º pav a substitui). `applyBuildPhase`
+  trata `phEnd`: objeto visível só na janela `[ph, phEnd)`.
 - **Pivô da porta:** o marcador de dobradiça do `doorArc` (`circ` preto) leva `no3d:true` — senão o
   pipeline o extruda numa **massa preta de 0,45 m** flutuando (corrigido em todas as versões).
 - **Muro = V1.1, não V1:** muro frontal + portão + cercas só aparecem **depois do V1 pronto**, na
