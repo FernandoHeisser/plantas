@@ -666,7 +666,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 | **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
 | **V3.2** | 🔶 Herda o 2D do V3.1 | ✅ Herda o V3.1 + **pintura da casa em marrom** (`WALL_TINT` tinge o `matWall` só p/ `v32`) | 🔶 Placeholder com resumo |
-| **V4** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **slider 🏗 de obra com 18 fases na ordem cronológica real** (casa V1 inteira → garagem V2 → sobrado V3 → pintura) | 🔶 Placeholder com resumo |
+| **V4** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **slider 🏗 de obra com 19 fases na ordem cronológica real** (V1 → V1.1 muro → V2 garagem → V3 sobrado → pintura) | 🔶 Placeholder com resumo |
 | **V0.1–V0.6** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
 
 ---
@@ -856,7 +856,7 @@ aceita `v31` também aceita `v32` (incl. `SOLAR` e o `noun` do botão "Telhado")
   empenas/fechamentos do telhado também ficam marrom. Embasamento/baldrame/laje mantêm a cor própria.
   Só afeta o `v32` — `matWall` é recriado por versão em `buildBuilding3D(v)`.
 
-### V4 — Evolução cronológica real da obra (18 fases: V1 → V2 → V3 → pintura)
+### V4 — Evolução cronológica real da obra (19 fases: V1 → V1.1 → V2 → V3 → pintura)
 
 Variante do V3.2: **renderiza idêntico ao V3.2** (sobrado + telhado solar + pintura marrom) e
 adiciona o **slider 🏗 de fases da obra**, contando a **evolução cronológica REAL** do projeto em
@@ -869,9 +869,13 @@ Aba `data-v="v4"`, rota `/v4`, painéis `p-v4-2d/3d/med`.
   reboco natural** (`WALL_NAT`/`EMBASE_NAT`) e só viram marrom na fase 18. `buildBuilding3D` guarda
   os materiais em `g.userData.paint`; `applyBuildPhase` troca `m.color` p/ marrom quando
   `buildPhase4 ≥ PAINT_PHASE`. (V3.2 segue nascendo marrom — `bornBrown = rv==='v32' && v!=='v4'`.)
-- **Esperas nas lajes:** `mkEsperas(cMN, cME, topZ)` cria 4 arranques de ferro por pilar saindo da
-  laje. Casa: 12 pilares na **fase 4** (laje da casa); garagem: 12 na **fase 11**. Embutem-se
-  (ocultos pelo pilar opaco) quando o pilar do 2º pav sobe (fase 12).
+- **Esperas = ponta do pilar:** na vida real pilar e espera são a mesma peça (a espera é só a ponta
+  do ferro do pilar). `mkEsperas(cMN, cME, topZ)` cria 4 arranques saindo do **topo do pilar**
+  (`CEIL3D+CPA` na casa / `GLAJE` na garagem) → aparecem **na fase das colunas** (casa **2**, garagem
+  **10**), não depois da laje. A laje depois envolve a base; seguem espetadas até o pilar do 2º pav
+  cobri-las (fase 13, ocultos pelo pilar opaco).
+- **Muro = V1.1, não V1:** muro frontal + portão + cercas só aparecem **depois do V1 pronto**, na
+  **fase 8** (`PH.muro`). Durante a obra do V1 (fases 1–7) o lote fica sem muro.
 - **Plataforma de acesso (nível garagem)** sai da fundação da casa e entra no **bloco V2** (`gFound`):
   senão aparecia um "piso norte" antes da garagem existir.
 - **Depósito sob a escada** (paredes no GEO a oeste da junta, `mE<16`, + sua porta) é detectado por
@@ -891,31 +895,32 @@ Aba `data-v="v4"`, rota `/v4`, painéis `p-v4-2d/3d/med`.
 - **`stampAdd(grp)`:** carimba `userData.ph` também nos grupos `roof` (telhado) e `floor2`
   (2º pav), que têm `.add` próprio. Cada subseção da garagem/`floor2`/`roof` seta `_ph` antes
   dos `add`. **Cuidado:** a cerca dos fundos declara um `const PH = 2,20` (altura do mourão) que
-  sombrearia o `PH` das fases — por isso o `_ph = PH.found` do muro é setado **fora** do bloco.
-- **`applyBuildPhase('v4')`** (estado `buildPhase4`, default **18**): percorre **toda** a árvore
+  sombrearia o `PH` das fases — por isso o `_ph = PH.muro` do muro é setado **fora** do bloco.
+- **`applyBuildPhase('v4')`** (estado `buildPhase4`, default **19**): percorre **toda** a árvore
   (`traverse`), oculta `userData.ph > buildPhase4`, **ergue o telhado** (`roof.position.y =
   CEIL3D+0.16`), força `roof`/`floor2` **sempre visíveis** (quem some é o filho, pelo `ph`) e
-  aplica a **pintura** na última fase. V4 **não tem** os botões "2º piso/Telhado" — o slider é o
-  controle único.
-- **Slider:** `buildHud3D` monta o `.phase-hud` para `v1` (7) **e** `v4` (18), usando
+  aplica a **pintura** na última fase (gatilho dinâmico `ph >= PHASE_LABELS_V4.length`). V4 **não
+  tem** os botões "2º piso/Telhado" — o slider é o controle único.
+- **Slider:** `buildHud3D` monta o `.phase-hud` para `v1` (7) **e** `v4` (19), usando
   `PHASE_LABELS_V4`/`buildPhase4`.
 - **Laje de cobertura (forro):** no sobrado solar **não há laje plana** no `roof` (o telhado a
-  substitui). Para dar conteúdo à fase 14, o V4 adiciona uma **laje de forro** plana (2 boxes,
+  substitui). Para dar conteúdo à fase 15, o V4 adiciona uma **laje de forro** plana (2 boxes,
   casa + garagem) em `fz1`, **oculta sob as águas** — não muda a aparência final vs. V3.2.
 - **A casa do V4 não tem a laje plana + platibanda do V1 standalone:** seu "telhado" no bloco 1 é
   a **laje 1** (intermediária, com fascia `addBorda`), que vira o chão do 2º piso no bloco 3. No
   fim do bloco 1 (fase 7) ela lê como um térreo de telhado plano acabado.
-- **Mapeamento das 18 fases → geometria:**
-  - **Bloco 1 — casa (V1):** 1 fundação casa (+muros/cercas) · 2 pilares casa · 3 vigas casa ·
-    4 laje casa (laje 1 + fascia + **esperas da casa**) · 5 alvenaria casa (paredes térreo) ·
+- **Mapeamento das 19 fases → geometria:**
+  - **Bloco 1 — casa (V1):** 1 fundação casa · 2 pilares casa (**+ esperas = ponta dos pilares**) ·
+    3 vigas casa · 4 laje casa (laje 1 + fascia) · 5 alvenaria casa (paredes térreo) ·
     6 esquadrias casa · 7 acabamento casa (mobiliário) = **V1 pronto**.
-  - **Bloco 2 — garagem (V2):** 8 fundação garagem (acesso, baldrame, piso, **plataforma**) ·
-    9 pilares (pilotis) · 10 vigas · 11 laje da garagem (+ parede sul + **depósito** + escada p/ o 2º
-    + **esperas da garagem**) = **V2 pronto**.
-  - **Bloco 3 — sobrado (V3):** 12 pilares 2º pav · 13 vigas 2º pav · 14 laje de forro ·
-    15 alvenaria 2º pav (paredes + divisórias) · 16 telhado solar (águas + empenas + FV) ·
-    17 esquadrias 2º pav (vidros + caixilhos + folhas de porta) = **V3 pronto**.
-  - **Acabamento final:** 18 **pintura** marrom de toda a casa = **V3.2**.
+  - **V1.1:** 8 **muro frontal + portão + cercas**.
+  - **Bloco 2 — garagem (V2):** 9 fundação garagem (acesso, baldrame, piso, **plataforma**) ·
+    10 pilares (pilotis) (**+ esperas da garagem**) · 11 vigas · 12 laje da garagem (+ parede sul +
+    **depósito** + escada p/ o 2º) = **V2 pronto**.
+  - **Bloco 3 — sobrado (V3):** 13 pilares 2º pav · 14 vigas 2º pav · 15 laje de forro ·
+    16 alvenaria 2º pav (paredes + divisórias) · 17 telhado solar (águas + empenas + FV) ·
+    18 esquadrias 2º pav (vidros + caixilhos + folhas de porta) = **V3 pronto**.
+  - **Acabamento final:** 19 **pintura** marrom de toda a casa = **V3.2**.
 
 ---
 
