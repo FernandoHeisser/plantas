@@ -666,6 +666,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 | **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
 | **V3.2** | 🔶 Herda o 2D do V3.1 | ✅ Herda o V3.1 + **pintura da casa em marrom** (`WALL_TINT` tinge o `matWall` só p/ `v32`) | 🔶 Placeholder com resumo |
+| **V4** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **slider 🏗 de obra com 11 fases** (sobrado: térreo, 2º pav e telhado separados) | 🔶 Placeholder com resumo |
 | **V0.1–V0.6** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
 
 ---
@@ -854,6 +855,39 @@ aceita `v31` também aceita `v32` (incl. `SOLAR` e o `noun` do botão "Telhado")
   `matWall` (multiplica a textura de reboco `texWall()`). Como `matGable = matWall.clone()`, as
   empenas/fechamentos do telhado também ficam marrom. Embasamento/baldrame/laje mantêm a cor própria.
   Só afeta o `v32` — `matWall` é recriado por versão em `buildBuilding3D(v)`.
+
+### V4 — Sobrado solar com timeline de obra (11 fases)
+
+Variante do V3.2: **renderiza idêntico ao V3.2** (sobrado + telhado solar + pintura marrom) e
+adiciona o **slider 🏗 de fases da obra** do V1 — agora com **11 etapas**, separando os 2
+pavimentos e o telhado. Aba `data-v="v4"`, rota `/v4`, painéis `p-v4-2d/3d/med`.
+
+- **Clone do V3.2 sem repetir gates:** `buildBuilding3D(v)` define `const rv = v==='v4'?'v32':v;`
+  — todos os gates de **renderização** passam a usar `rv` (SOLAR, `WALL_TINT`, `EMBASE_COL`,
+  garagem, `floor2`, telhado, muro). `v` continua sendo `'v4'` só para a **identidade** (chave da
+  cena, sistema de fases). No 2D, `buildLayers` faz `if (v==='v4') v='v32'` (2D = o do V3.2) e
+  `initMap`/`v3Layers` tratam `v4` junto com `v3/v31/v32`.
+- **Números de fase por versão (`PH`):** o mesmo código compartilhado (casa) carimba o número
+  certo conforme a versão. `const PH = (v==='v4') ? {found:1,colT:2,vigaT:3,laje1:4,colS:5,vigaS:6,
+  laje2:7,alven:8,telhado:9,esquad:10,acab:11} : {…7 fases do V1…}`. As seções usam `_ph = PH.alven`
+  etc. — V1 mantém os números antigos; demais versões ignoram o carimbo.
+- **`stampAdd(grp)`:** carimba `userData.ph` também nos grupos `roof` (telhado) e `floor2`
+  (2º pav), que têm `.add` próprio (antes só o grupo principal `g` era carimbado). Cada
+  subseção da garagem/`floor2`/`roof` seta `_ph` antes dos `add`.
+- **`applyBuildPhase('v4')`** (estado `buildPhase4`, default **11**): percorre **toda** a árvore
+  (`traverse`), oculta `userData.ph > buildPhase4`, **ergue o telhado** (`roof.position.y =
+  CEIL3D+0.16`) e força `roof`/`floor2` **sempre visíveis** (quem some é o filho, pelo `ph`).
+  V4 **não tem** os botões "2º piso/Telhado" — o slider é o controle único.
+- **Slider:** `buildHud3D` monta o `.phase-hud` para `v1` (7) **e** `v4` (11), usando
+  `PHASE_LABELS_V4` e `buildPhase4`.
+- **Laje de cobertura (forro):** no sobrado solar **não há laje plana** no `roof` (o telhado a
+  substitui). Para dar conteúdo à **fase 7**, o V4 adiciona uma **laje de forro** plana (2 boxes,
+  casa + garagem) em `fz1`, **oculta sob as águas** — não muda a aparência final vs. V3.2.
+- **Mapeamento das 11 fases → geometria:** 1 fundação (baldrames, manta, piso, escadas, acesso,
+  muros) · 2 pilares térreo (casa+garagem) · 3 vigas térreo · 4 laje 1 (intermediária) + escada
+  p/ 2º · 5 pilares 2º pav · 6 vigas 2º pav · 7 laje de forro · 8 alvenaria (paredes + divisórias
+  dos 2 pisos; janelas do 2º saem junto) · 9 telhado solar (águas + empenas + FV) · 10 esquadrias
+  (térreo) · 11 acabamento (mobiliário).
 
 ---
 
