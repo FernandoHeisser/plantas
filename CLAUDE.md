@@ -365,6 +365,12 @@ Laje plana de concreto (não telhado de duas águas) — **V3 recebe 2º pavimen
 Grupo `roof` = laje (y 2,70→2,86) + platibanda em 4 lados (y 2,86→3,28). Começa oculta.  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
+**Junta casa↔garagem (V2/V3):** quando há garagem (`hasGarageW = !SOLAR && (v2||v3)`),
+a fachada **oeste** da casa encosta na junta de dilatação → a laje da casa **não tem
+beiral oeste** (`e0 = 22,4 + OE`, face da parede) e **não tem platibanda oeste**. Senão
+a laje/platibanda da casa cavalgam a laje da garagem (que termina em `GE1j = 22,37 + OE`)
+e as platibandas ficam **transpostas**. V1 mantém beiral + platibanda no perímetro inteiro.
+
 ### Bugs resolvidos / armadilhas conhecidas
 
 | Bug | Causa | Solução |
