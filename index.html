@@ -3276,7 +3276,9 @@
         // 22,4) e SEM platibanda oeste. Senão a laje/platibanda da casa cavalgam a laje
         // da garagem (que termina em GE1j=22,37) e as platibandas ficam transpostas.
         const hasGarageW = !SOLAR && (v === 'v2' || v === 'v3');
-        const e0 = (hasGarageW ? 22.5 - 0.10 : 22.5 - BN_EW) + OE, e1 = 31.5 + OE + BN_EW;
+        // Com garagem: a borda oeste vai até a linha da junta (GE1j = 22,5 − EW/2 − GAP =
+        // 22,37) p/ encostar RENTE na laje da garagem, sem deixar fresta/vão entre as duas.
+        const e0 = (hasGarageW ? 22.5 - 0.10 - 0.03 : 22.5 - BN_EW) + OE, e1 = 31.5 + OE + BN_EW;
         const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12; // platibanda
         if (SOLAR) {
             addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16, 2.0, 7.5, 22.5 + OE, 31.5 + OE);
@@ -3419,12 +3421,14 @@
                 [{ s: 4.7, e: 5.5, sill: 0, head: F2_DOORH, open: true }, ...winsG('E')]);
 
             // ── Estrutura CASA (mN S→Ncasa, mE Wcasa→Ecasa) — laje 1 sólida + 4 paredes ──
-            // Norte/leste/sul com janelas (winWall); oeste (junta) cega.
-            addSlab(S-BN_S, Wcasa-BN_EW, (Ncasa+BN_N)-(S-BN_S), (Ecasa+BN_EW)-(Wcasa-BN_EW));
+            // Norte/leste/sul com janelas (winWall); oeste (junta) cega. A laje começa na
+            // junta (Egar) — SEM beiral oeste — p/ encostar rente na laje da garagem (sem
+            // sobreposição nem vão entre as duas).
+            addSlab(S-BN_S, Egar, (Ncasa+BN_N)-(S-BN_S), (Ecasa+BN_EW)-Egar);
             // Borda visível do beiral da laje 1 — fascia de 25 cm nas faces externas (sem junta)
             const addBorda = (n, e, dn, de) => F2.add(box3d(n, e + OE, dn, de, lz0 - 0.25, lz1, lajeMat));
             const BT = 0.08;  // espessura da face da borda
-            const cn0 = S-BN_S, cn1 = Ncasa+BN_N, ce0 = Wcasa-BN_EW, ce1 = Ecasa+BN_EW;
+            const cn0 = S-BN_S, cn1 = Ncasa+BN_N, ce0 = Egar, ce1 = Ecasa+BN_EW;
             addBorda(cn0,    ce0, BT,       ce1-ce0); // face sul
             addBorda(cn1-BT, ce0, BT,       ce1-ce0); // face norte
             addBorda(cn0,    ce1-BT, cn1-cn0, BT);    // face leste (junta oeste = sem borda)
