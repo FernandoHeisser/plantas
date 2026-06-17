@@ -441,6 +441,10 @@
             border-radius: 5px; padding: 3px 6px; font-family: inherit; font-size: 11px;
         }
         .scene3d-hud .hud-clock { font-weight: 600; color: #fbbf24; min-width: 86px; }
+        /* HUD da fase da obra (V1) — empilhado acima do HUD de horário */
+        .scene3d-hud.phase-hud { bottom: 58px; }
+        .scene3d-hud.phase-hud input[type=range] { accent-color: #f97316; }
+        .scene3d-hud.phase-hud .hud-clock { color: #fb923c; min-width: 92px; }
         /* Bússola */
         .scene3d-compass {
             position: absolute; top: 10px; left: 10px; z-index: 5;
@@ -693,6 +697,7 @@
             <div id="scene3d-v1" class="scene3d">
                 <div class="scene3d-toolbar">
                     <button type="button" onclick="set3DRoof('v1', this)">Laje: oculta</button>
+                    <button type="button" onclick="set3DEsperas('v1', this)">Esperas: ocultas</button>
                 </div>
             </div>
         </div>
@@ -728,6 +733,7 @@
             <div id="scene3d-v11" class="scene3d">
                 <div class="scene3d-toolbar">
                     <button type="button" onclick="set3DRoof('v11', this)">Laje: oculta</button>
+                    <button type="button" onclick="set3DEsperas('v11', this)">Esperas: ocultas</button>
                 </div>
             </div>
         </div>
@@ -766,6 +772,7 @@
             <div id="scene3d-v2" class="scene3d">
                 <div class="scene3d-toolbar">
                     <button type="button" onclick="set3DRoof('v2', this)">Laje: oculta</button>
+                    <button type="button" onclick="set3DEsperas('v2', this)">Esperas: ocultas</button>
                 </div>
             </div>
         </div>
@@ -1404,10 +1411,19 @@
 
 <script>
     let ver = 'v1', sec = '2d';
+    // Fase da obra (timeline construtiva — só V1). 6 = casa pronta (= V1 default).
+    const PHASE_LABELS = ['Fundação', 'Colunas', 'Vigas', 'Laje', 'Paredes', 'Esquadrias', 'Acabamento'];
+    let buildPhase = 7;
 
     // ── Roteamento por URL: / → v1, /v2 → v2, /v3 → v3, qualquer outro → v1 ──
+    // Rotas de fase da obra (/v0.1.../v0.5) → V1 numa fase construtiva (3D).
+    const PHASE_ROUTES = { '/v0.1': 1, '/v0.2': 2, '/v0.3': 3, '/v0.4': 4, '/v0.5': 5, '/v0.6': 6 };
+    function phaseFromPath() {
+        return PHASE_ROUTES[location.pathname.replace(/\/+$/, '').toLowerCase()] || 7;
+    }
     function versionFromPath() {
         const p = location.pathname.replace(/\/+$/, '').toLowerCase();
+        if (PHASE_ROUTES[p]) return 'v1';   // /v0.x = V1 numa fase
         if (p === '/v1.1') return 'v11';
         if (p === '/v2')   return 'v2';
         if (p === '/v3.2') return 'v32';
@@ -1434,7 +1450,9 @@
 
     function setVersion(v, push = true) {
         ver = v;
-        if (push) history.pushState({ v }, '', pathFromVersion(v));
+        // Navegação explícita por aba volta à casa completa (push=false vem do
+        // popstate/boot, que já ajustou buildPhase pela rota /v0.x).
+        if (push) { history.pushState({ v }, '', pathFromVersion(v)); buildPhase = 7; }
         syncTabs();
         render();
     }
@@ -2827,6 +2845,17 @@
         const model = captureModel(v);
         const g = new THREE.Group();
 
+        // ── Fases da obra (timeline construtiva — só V1) ─────────────────────
+        // Cada objeto adicionado a `g` é carimbado com userData.ph (0..6) conforme
+        // a fase em que "existiria" na obra. applyBuildPhase() depois oculta o que
+        // tem ph > fase atual. 0 = sempre visível (terreno/entorno). Restaurado
+        // antes das cotas (buildDims3D) p/ elas nunca sumirem.
+        // 1 fundação · 2 colunas · 3 vigas · 4 laje · 5 paredes · 6 esquadrias · 7 acabamento
+        // (a laje/fase 4 é o grupo `roof`, tratado por nome em applyBuildPhase — sem _ph próprio)
+        let _ph = 0;
+        const _origAdd = g.add.bind(g);
+        g.add = (...objs) => { objs.forEach(o => { if (o && o.userData) o.userData.ph = _ph; }); return _origAdd(...objs); };
+
         const floor = texFloor(); floor.repeat.set(8, 5);
         // V3.2 = pintura da casa em marrom: tinge a textura de reboco (color multiplica o map).
         const WALL_TINT = (v === 'v32') ? 0x7a5230 : 0xffffff;   // marrom terroso / branco (padrão)
@@ -2916,6 +2945,7 @@
         const baseBot = (e, de) => grade(e + de);
         const EN0 = 2 - 0.20 - EM_P, EN1 = 7.5 + 0.20 + EM_P;
         const EE0 = 22.5 + OE - 0.20 - EM_P, EE1 = 31.5 + OE + 0.20 + EM_P; // retângulo perfeito: leste agora em mE=31,5
+        _ph = 1; // ── fase 1: fundação (baldrame, manta, contrapiso, escadas) ──
         const emSides = [
             [EN0,                EE0, 0.20 + EM_P, EE1 - EE0],  // sul
             [EN1 - 0.20 - EM_P, EE0, 0.20 + EM_P, EE1 - EE0],  // norte (mN=7,5, retângulo completo)
@@ -2978,6 +3008,7 @@
         // ── Colunas estruturais da casa — 15×15 cm, matEmbase (V1+V2+V3) ──────
         // Mesmo grid marcado em vermelho no 2D; embedded nas paredes (Z-fight
         // evitado: seção 0,15 m fica 2,5 cm atrás das faces da parede 0,20 m).
+        _ph = 2; // ── fase 2: colunas/pilares ──
         { const CS = 0.10; // meia-seção 20×20 cm (NBR 6118 mín.)
           // Grid perfeito 4×3: mE=22,5/25,5/28,5/31,5 × mN=2,0/4,5/7,5
           [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
@@ -2990,7 +3021,9 @@
         }
 
         // Porta dos fundos (leste) — 5 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
+        _ph = 1; // escada dos fundos = fundação
         extStairs(4.70, 31.6 + OE, 0.90, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
+        _ph = 0; // contorno do lote = entorno (sempre visível)
 
         // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
         // fundos em y≈−0,98 (grade(mE) + 2 cm)
@@ -3005,6 +3038,7 @@
         const solids   = model.filter(o => o.k === 'solid');
 
         // ── Paredes: extrudadas até o teto, recortando portas e janelas ──────
+        _ph = 5; // ── fase 5: alvenaria (paredes) ──
         walls.forEach(w => {
             const horiz = Math.abs(w.n2 - w.n1) < 1e-6;   // corre no eixo E (mN const)
             const t = w.t;
@@ -3051,6 +3085,7 @@
         // ── Móveis / louças / bancadas: volumes de massa ─────────────────────
         // Cada móvel sobe à cota do piso (CPA) via Group; os builders FURN3D
         // são construídos relativos ao piso 0 e o grupo aplica a elevação base.
+        _ph = 7; // ── fase 7: acabamento (mobiliário, louças, bancadas) ──
         solids.forEach(s => {
             const base = (s.extZ3d != null ? s.extZ3d : (s.ext3d ? 0 : CPA));
             if (s.m3d && FURN3D[s.m3d]) {                 // móvel realista por tipo
@@ -3080,6 +3115,7 @@
         const matKnob  = new THREE.MeshStandardMaterial({ color: 0xb8b8bd, roughness: 0.3, metalness: 0.85 });
         const FR = 0.05;   // seção do caixilho
 
+        _ph = 6; // ── fase 6: esquadrias (batentes, peitoris, vidros, folhas) ──
         openings.forEach(o => {
             const z0 = (o.type === 'window' ? o.sill : 0) + CPA, z1 = o.head + CPA;
             const horiz = o.de >= o.dn;                  // parede corre no eixo E?
@@ -3235,7 +3271,14 @@
         // Beiral: norte 0,90 m (autoregulador solar lat−30°), sul/leste/oeste 0,50 m (proteção chuva)
         const BN_N = 0.90, BN_S = 0.50, BN_EW = 0.50;
         const n0 = 2 - BN_S, n1 = 7.5 + BN_N;
-        const e0 = 22.5 + OE - BN_EW, e1 = 31.5 + OE + BN_EW;
+        // Oeste: no V1 a casa tem beiral 0,50 m. No V2/V3 a fachada oeste encosta na
+        // garagem (junta de dilatação) → laje sem beiral oeste (para na face da parede,
+        // 22,4) e SEM platibanda oeste. Senão a laje/platibanda da casa cavalgam a laje
+        // da garagem (que termina em GE1j=22,37) e as platibandas ficam transpostas.
+        const hasGarageW = !SOLAR && (v === 'v2' || v === 'v3');
+        // Com garagem: a borda oeste vai até a linha da junta (GE1j = 22,5 − EW/2 − GAP =
+        // 22,37) p/ encostar RENTE na laje da garagem, sem deixar fresta/vão entre as duas.
+        const e0 = (hasGarageW ? 22.5 - 0.10 - 0.03 : 22.5 - BN_EW) + OE, e1 = 31.5 + OE + BN_EW;
         const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12; // platibanda
         if (SOLAR) {
             addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16, 2.0, 7.5, 22.5 + OE, 31.5 + OE);
@@ -3243,8 +3286,49 @@
             roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab
             roof.add(box3d(n0,      e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // sul
             roof.add(box3d(n1 - tt, e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // norte (uniform)
-            roof.add(box3d(n0,      e0, n1 - n0, tt,       pb, pbTop, lajeMat)); // oeste
+            if (!hasGarageW) roof.add(box3d(n0, e0, n1 - n0, tt, pb, pbTop, lajeMat)); // oeste (só V1; V2/V3 = junta)
             roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
+        }
+
+        // ── Esperas (arranques p/ o sobrado V3) — só V1/V2 (sem 2º piso ainda) ──
+        // Ferros de espera no topo dos 12 pilares, atravessando a laje. A Caixa exige
+        // a casa com cara de pronta → ficam embutidos numa "boneca" de concreto
+        // rebocada (esperasCaps); o botão "Esperas: revelar" demole a proteção e expõe
+        // o ferro (esperasBars) p/ dar continuidade ao pilar do 2º pav. Filhos de
+        // `roof` → herdam a visibilidade da laje. Visíveis crus nas fases de obra;
+        // capeados no acabamento (V1 Caixa). No V3 não existem (ficam embutidos no col2c).
+        // `addEspera(cn, e3)` cria a espera de UM pilar (centro mN=cn, mE já com OE=e3).
+        // Reutilizado pela casa (aqui) e pela garagem (bloco V2, mais abaixo). null se
+        // a versão não tem esperas (V3+ embute no col2c).
+        let addEspera = null;
+        if ((bv === 'v1' || bv === 'v2') && !SOLAR) {
+            const espBars = new THREE.Group(); espBars.name = 'esperasBars';
+            const espCaps = new THREE.Group(); espCaps.name = 'esperasCaps';
+            const matRebar = new THREE.MeshStandardMaterial({ color: 0x8a5a3a, roughness: 0.75, metalness: 0.45, envMapIntensity: 0.4 });
+            const ETOP = CEIL3D + CPA;              // topo do pilar = base do baldrame da laje (2,85)
+            const LTOP = CEIL3D + CPA + 0.16;       // topo da laje (3,01)
+            const BAR_H = 0.45, BR = 0.012, OFF = 0.07; // sobe 0,45 m; barras Ø~24, ±7 cm (canto da seção)
+            const mkBar = (x, z) => {               // barra vertical + dobra (pé) no topo
+                const gp = new THREE.Group();
+                const vb = new THREE.Mesh(new THREE.CylinderGeometry(BR, BR, BAR_H, 6), matRebar);
+                vb.position.set(x, ETOP + BAR_H / 2, z); vb.castShadow = true;
+                const hb = new THREE.Mesh(new THREE.CylinderGeometry(BR, BR, 0.10, 6), matRebar);
+                hb.rotation.z = Math.PI / 2; hb.position.set(x + 0.05, ETOP + BAR_H, z); hb.castShadow = true;
+                gp.add(vb, hb); return gp;
+            };
+            addEspera = (cn, e3) => {               // cn = centro mN; e3 = centro mE (com OE)
+                const z = -cn;
+                [[-OFF,-OFF],[OFF,-OFF],[-OFF,OFF],[OFF,OFF]].forEach(([dx, dz]) => espBars.add(mkBar(e3 + dx, z + dz)));
+                // Boneca de proteção: stub de concreto rebocado sobre a laje, escondendo o ferro
+                espCaps.add(box3d(cn - 0.12, e3 - 0.12, 0.24, 0.24, LTOP, ETOP + BAR_H + 0.05, matEmbase));
+            };
+            roof.add(espBars);
+            roof.add(espCaps);
+            // Esperas dos 12 pilares da CASA
+            [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
+             [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
+             [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
+            ].forEach(([cn, ce]) => addEspera(cn, ce + OE));
         }
         g.add(roof);
 
@@ -3337,12 +3421,14 @@
                 [{ s: 4.7, e: 5.5, sill: 0, head: F2_DOORH, open: true }, ...winsG('E')]);
 
             // ── Estrutura CASA (mN S→Ncasa, mE Wcasa→Ecasa) — laje 1 sólida + 4 paredes ──
-            // Norte/leste/sul com janelas (winWall); oeste (junta) cega.
-            addSlab(S-BN_S, Wcasa-BN_EW, (Ncasa+BN_N)-(S-BN_S), (Ecasa+BN_EW)-(Wcasa-BN_EW));
+            // Norte/leste/sul com janelas (winWall); oeste (junta) cega. A laje começa na
+            // junta (Egar) — SEM beiral oeste — p/ encostar rente na laje da garagem (sem
+            // sobreposição nem vão entre as duas).
+            addSlab(S-BN_S, Egar, (Ncasa+BN_N)-(S-BN_S), (Ecasa+BN_EW)-Egar);
             // Borda visível do beiral da laje 1 — fascia de 25 cm nas faces externas (sem junta)
             const addBorda = (n, e, dn, de) => F2.add(box3d(n, e + OE, dn, de, lz0 - 0.25, lz1, lajeMat));
             const BT = 0.08;  // espessura da face da borda
-            const cn0 = S-BN_S, cn1 = Ncasa+BN_N, ce0 = Wcasa-BN_EW, ce1 = Ecasa+BN_EW;
+            const cn0 = S-BN_S, cn1 = Ncasa+BN_N, ce0 = Egar, ce1 = Ecasa+BN_EW;
             addBorda(cn0,    ce0, BT,       ce1-ce0); // face sul
             addBorda(cn1-BT, ce0, BT,       ce1-ce0); // face norte
             addBorda(cn0,    ce1-BT, cn1-cn0, BT);    // face leste (junta oeste = sem borda)
@@ -3446,6 +3532,7 @@
         // ── Vigas estruturais da casa (V1+V2+V3) ────────────────────────────────
         // VH=0,45m (p/ suportar V3 — regra L/10: 3m/10=30cm mín, 45cm c/ folga)
         // VW=0,20m (= seção das colunas, NBR 6118). Nível: CPA+CEIL3D−VH → CPA+CEIL3D.
+        _ph = 3; // ── fase 3: vigas (grade horizontal; a laje plana é a fase 4) ──
         { const VH = 0.45, VW = 0.20;
           const BZ0 = CPA + CEIL3D - VH, BZ1 = CPA + CEIL3D; // y 2,50→2,85
           // Vigas E-O — grid do retângulo perfeito (3 linhas × 3 vãos de 3m)
@@ -3511,6 +3598,14 @@
             // Viga E-O (mN 3,4) ao NORTE da escada — encosta na face norte da escada, sem sobreposição
             g.add(box3d(3.40, GE0, VW, (GE1c + COL) - GE0, GLAJE - VH, GLAJE, lajeMat));
 
+            // Esperas dos 12 pilares da GARAGEM — só V2 (no V3 a garagem vira pilotis e
+            // os arranques ficam embutidos no col2 do 2º piso). box3d das colunas é por
+            // canto → centro = n+COL/2, e+COL/2 (e já tem OE). GLAJE = topo do pilar = 2,85.
+            if (v === 'v2' && addEspera) {
+                [GN0, 3.40, GNM, GN1 - COL].forEach(n =>
+                    [GE0, GEMc, GE1c].forEach(e => addEspera(n + COL/2, e + COL/2)));
+            }
+
             // Escada p/ 2º pavimento — base junto à porta (leste, mE 21), sobe LONGA p/ oeste.
             // 18 degraus (espelho ~0,17 m, piso ~0,28 m) → rampa suave; run de 5,0 m até mE 16.
             // Sobe livre: a viga central que cruzava foi removida no trecho sul.
@@ -3541,12 +3636,21 @@
                 roof.add(box3d(HN0, ge0,  HN1 - HN0,  HE0  - ge0,  GLAJE, GLAJE+0.16, lajeMat));  // oeste do vão
                 roof.add(box3d(HN0, HE1,  HN1 - HN0,  GE1j - HE1,  GLAJE, GLAJE+0.16, lajeMat));  // leste do vão
             }
+            // Garagem (V2 e V3): platibanda no perímetro EXPOSTO (sul/norte/oeste).
+            // Leste = junta de dilatação com a casa → sem platibanda no trecho que
+            // encosta (mN ≤ n1, lajes rente); só o trecho norte além da casa leva.
             if (!SOLAR) {
                 const gpb = GLAJE + 0.16, gpbTop = gpb + 0.42;
                 roof.add(box3d(gn0,       ge0, tt,        GE1j-ge0, gpb, gpbTop, lajeMat)); // sul
                 roof.add(box3d(gn1-tt,    ge0, tt,        GE1j-ge0, gpb, gpbTop, lajeMat)); // norte
                 roof.add(box3d(gn0,       ge0, gn1-gn0,  tt,        gpb, gpbTop, lajeMat)); // oeste
-                roof.add(box3d(gn0, GE1j-tt,  gn1-gn0,  tt,        gpb, gpbTop, lajeMat)); // leste
+                // Leste = junta de dilatação: SEM platibanda no trecho que encosta na casa
+                // (mN ≤ n1; a casa também não tem platibanda oeste → lajes rente). MAS o
+                // trecho NORTE da garagem que ultrapassa a casa (mN n1→) é borda exposta →
+                // leva platibanda. Para na face sul da boneca da coluna NE (mN ePN), cuja
+                // espera sobe na junta — senão a platibanda sobrepõe o ferro/boneca.
+                const ePN = GN1 - COL/2 - 0.12;   // face sul da boneca da coluna NE (~10,28)
+                roof.add(box3d(n1, GE1j-tt, ePN - n1, tt, gpb, gpbTop, lajeMat)); // leste (casa → coluna NE)
             }
 
             // Paredes da garagem — assentam no baldrame (GCPA), sobem até GLAJE
@@ -3659,6 +3763,7 @@
             }
         }
 
+        g.add = _origAdd; // cotas (buildDims3D) e qualquer add posterior sem carimbo → sempre visíveis
         buildDims3D(g);
         return g;
     }
@@ -3877,6 +3982,7 @@
         if (S.group) S.scene.remove(S.group);
         S.group = buildBuilding3D(v);
         S.scene.add(S.group);
+        applyBuildPhase(v);
         resize3D(v);
     }
 
@@ -3887,6 +3993,59 @@
         S.camera.aspect = host.clientWidth / host.clientHeight;
         S.camera.updateProjectionMatrix();
         S.renderer.setSize(host.clientWidth, host.clientHeight);
+    }
+
+    // Fase da obra: oculta tudo que tem userData.ph > fase. Só V1; outras versões
+    // sempre completas. A laje (roof) aparece da fase 4 (Laje) até 6 (Esquadrias) e
+    // some no acabamento (7), espelhando o default do V1 (laje oculta p/ ver o interior).
+    function applyBuildPhase(v) {
+        const S = scenes3d[v];
+        if (!S || !S.group) return;
+        const ph = (v === 'v1') ? buildPhase : 7;
+        S.group.children.forEach(o => {
+            if (o.name === 'roof' || o.name === 'floor2') return; // tratados à parte
+            const p = o.userData ? o.userData.ph : null;
+            if (p == null) return;                                // entorno/cotas → sempre visível
+            o.visible = p <= ph;
+        });
+        const roof = S.group.getObjectByName('roof');
+        if (roof) {
+            // V1: a laje segue a fase (4–6) e some no acabamento — exceto se as esperas
+            // foram reveladas (precisam da laje p/ serem vistas). V2+: estado do botão Laje.
+            if (v === 'v1') roof.visible = (ph >= 4 && ph <= 6) || (ph >= 7 && !!S.espRevealed);
+            else if (S.espRevealed) roof.visible = true;
+        }
+        // Esperas (V1/V2): ferro cru durante a obra (fases <7) ou quando revelado;
+        // capeado (boneca) no acabamento e não-revelado. Herdam roof.visible.
+        const espB = S.group.getObjectByName('esperasBars');
+        const espC = S.group.getObjectByName('esperasCaps');
+        if (espB && espC) {
+            const revealed = !!S.espRevealed;
+            espB.visible = (ph < 7) || revealed;
+            espC.visible = (ph >= 7) && !revealed;
+        }
+        // Mantém o slider em sincronia quando a fase muda por URL (popstate/boot)
+        if (v === 'v1' && S.phaseRange) {
+            S.phaseRange.value = String(ph);
+            S.phaseLabel.textContent = ph + '/7 ' + PHASE_LABELS[ph - 1];
+        }
+    }
+
+    // Revela/oculta os ferros de espera (arranques do sobrado V3). Revelar = "demolir"
+    // a boneca de proteção e mostrar o ferro; força a laje visível p/ enxergá-los.
+    function set3DEsperas(v, btn) {
+        const S = scenes3d[v];
+        if (!S || !S.group) return;
+        S.espRevealed = !S.espRevealed;
+        applyBuildPhase(v);
+        btn.textContent = 'Esperas: ' + (S.espRevealed ? 'reveladas' : 'ocultas');
+        // Sincroniza o rótulo do botão Laje (applyBuildPhase pode tê-la ligado)
+        const roof = S.group.getObjectByName('roof');
+        const lajeBtn = btn.parentElement.querySelector('button');
+        if (roof && lajeBtn) {
+            const noun = (v === 'v31' || v === 'v32') ? 'Telhado' : 'Laje';
+            lajeBtn.textContent = noun + ': ' + (roof.visible ? 'visível' : 'oculto');
+        }
     }
 
     function set3DRoof(v, btn) {
@@ -3959,6 +4118,26 @@
         hud.append('🕑', rng, clock, '📅', sel);
         host.appendChild(hud);
         S.hudRange = rng; S.hudSel = sel; S.hudClock = clock;
+
+        // ── Slider da fase da obra (timeline construtiva) — só V1 ────────────
+        if (v === 'v1') {
+            const phud = document.createElement('div');
+            phud.className = 'scene3d-hud phase-hud';
+            const prng = document.createElement('input');
+            prng.type = 'range'; prng.min = '1'; prng.max = '7'; prng.step = '1'; prng.value = String(buildPhase);
+            const plabel = document.createElement('span');
+            plabel.className = 'hud-clock';
+            const papply = () => {
+                buildPhase = parseInt(prng.value, 10);
+                plabel.textContent = buildPhase + '/7 ' + PHASE_LABELS[buildPhase - 1];
+                applyBuildPhase(v);
+            };
+            prng.addEventListener('input', papply);
+            phud.append('🏗', prng, plabel);
+            host.appendChild(phud);
+            S.phaseRange = prng; S.phaseLabel = plabel;
+            papply();
+        }
     }
 
     function syncHud3D(S) {
@@ -4033,13 +4212,21 @@
     // Inicializa o mapa do painel inicial
     window.addEventListener('load', () => {
         ver = versionFromPath();
-        history.replaceState({ v: ver }, '', pathFromVersion(ver));
+        buildPhase = phaseFromPath();
+        const isPhase = buildPhase < 7;          // rota /v0.x → V1 numa fase, abre em 3D
+        if (isPhase) {
+            sec = '3d';
+            document.querySelectorAll('.stab').forEach(t => t.classList.toggle('active', t.dataset.s === '3d'));
+            history.replaceState({ v: ver }, '', location.pathname);  // mantém /v0.x na barra
+        } else {
+            history.replaceState({ v: ver }, '', pathFromVersion(ver));
+        }
         syncTabs();
         setViewHeight();
         setTimeout(() => render(), 150);
     });
-    // Botões voltar/avançar do navegador respeitam a rota
-    window.addEventListener('popstate', () => setVersion(versionFromPath(), false));
+    // Botões voltar/avançar do navegador respeitam a rota (versão + fase)
+    window.addEventListener('popstate', () => { buildPhase = phaseFromPath(); setVersion(versionFromPath(), false); });
 </script>
 
 </body>

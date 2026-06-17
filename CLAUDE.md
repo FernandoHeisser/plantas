@@ -97,7 +97,8 @@ Acesso: http://localhost:3131
 Config em `.claude/launch.json`.
 
 > **`--single` é obrigatório:** o app usa rotas resolvidas no cliente (`/v2` → V2,
-> `/v3` → V3, `/v3.1` → V3.1, `/v3.2` → V3.2, `/v1.1` → V1.1, `/` ou qualquer outra → V1). Sem o modo SPA, o `serve` devolve **404**
+> `/v3` → V3, `/v3.1` → V3.1, `/v3.2` → V3.2, `/v1.1` → V1.1, `/v0.1`…`/v0.5` → V1 numa
+> **fase da obra** (3D), `/` ou qualquer outra → V1). Sem o modo SPA, o `serve` devolve **404**
 > em `/v2` e `/v3` (só `/` funciona). Na Vercel isso é tratado pelo rewrite catch-all
 > do `vercel.json`.
 
@@ -363,6 +364,23 @@ const grade = mE => -mE * SLOPE;   // cota natural do solo (m), datum 0 = calça
 Laje plana de concreto (não telhado de duas águas) — **V3 recebe 2º pavimento sobre ela**.  
 Grupo `roof` = laje (y 2,70→2,86) + platibanda em 4 lados (y 2,86→3,28). Começa oculta.  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
+
+**Platibanda da garagem (V2 e V3):** gate `if (!SOLAR)` → platibanda no perímetro
+**exposto** (sul/norte/oeste) + trecho leste-norte além da casa. Na junta com a casa
+(leste, mN ≤ `n1`=7,5) fica **rente, sem platibanda** (lajes encostadas); só o trecho
+norte exposto (mN `n1`→`gn1`) leva platibanda na leste, parando na boneca da coluna NE
+(`ePN = GN1 − COL/2 − 0,12`). No **V3** a mesma laje é o teto do 2º piso.
+
+**Junta casa↔garagem (V2/V3):** as duas lajes ficam no mesmo nível e se encontram **rente
+na junta de dilatação, sem mureta e sem vão entre elas**. A borda oeste da casa vai até a
+**linha da junta `GE1j = 22,5 − EW/2 − GAP = 22,37 + OE`** (= face leste da garagem) em
+**todas as lajes**, encostando rente — sem beiral oeste, sem fresta, sem sobreposição:
+- **Teto** (V2 + laje 2 do V3): `hasGarageW = !SOLAR && (v2||v3)` → `e0 = 22,37 + OE` e
+  **sem platibanda oeste**. (Antes `e0=22,0` cavalgava a garagem → platibandas transpostas;
+  depois `e0=22,4` deixou 3 cm de vão; agora `22,37` encosta rente.)
+- **Laje 1** (intermediária, `floor2` V3/V3.1/V3.2): a laje da casa começa em `Egar` (= junta)
+  em vez de `Wcasa−BN_EW` (que dava 0,5 m de beiral cavalgando a garagem).
+- **V1:** mantém beiral + platibanda no perímetro inteiro (não há garagem).
 
 ### Bugs resolvidos / armadilhas conhecidas
 
@@ -643,11 +661,78 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 
 | Versão | 2D | 3D | Medidas |
 |---|---|---|---|
-| **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro) | ✅ Completo |
-| **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) | ✅ Preenchida (garagem + depósito + escada) |
+| **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro + **esperas p/ V3**, botão revelar) | ✅ Completo |
+| **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) + **esperas p/ V3** | ✅ Preenchida (garagem + depósito + escada) |
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 | **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
 | **V3.2** | 🔶 Herda o 2D do V3.1 | ✅ Herda o V3.1 + **pintura da casa em marrom** (`WALL_TINT` tinge o `matWall` só p/ `v32`) | 🔶 Placeholder com resumo |
+| **V0.1–V0.6** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
+
+---
+
+## Fases da obra (V0.1–V0.6) — timeline construtiva do V1
+
+Não são casas novas: é **o V1 (default) revelado fase a fase**, terminando exatamente
+no V1 completo. Tudo é o mesmo `buildBuilding3D('v1')` — só muda **o que fica visível**.
+
+**Mecânica (fonte única):** dentro de `buildBuilding3D`, `g.add` é envolto por um override
+que **carimba cada objeto com `userData.ph`** (a fase em que ele "existiria" na obra),
+lido de uma variável `_ph` setada antes de cada seção. `g.add` é **restaurado ao original
+antes de `buildDims3D`** (cotas ficam sem carimbo → sempre visíveis).
+
+| `ph` | Fase | O que entra |
+|---|---|---|
+| 0 | entorno (sempre visível) | satélite, grama, saia de terra, contorno do lote |
+| 1 | **Fundação** | baldrame (`emSides`), manta, contrapiso, escadas externas |
+| 2 | **Colunas** | 12 pilares 15×15 (`matEmbase`) |
+| 3 | **Vigas** | grade de vigas (`lajeMat`, bloco `VH/VW`) — **sem** a laje plana |
+| 4 | **Laje** | laje plana (grupo `roof`) cobrindo as vigas — sem geometria com `_ph` próprio |
+| 5 | **Paredes** | `walls.forEach` (alvenaria com vãos recortados) |
+| 6 | **Esquadrias** | batentes, peitoris, vidros, folhas de porta |
+| 7 | **Acabamento** | mobiliário (`solids`/`FURN3D`) = **V1 completo** |
+| `null` | cotas (`buildDims3D`) | sempre visíveis |
+
+- **`applyBuildPhase(v)`** (estado `buildPhase`, default 7): oculta o que tem `ph > buildPhase`.
+  Só age no **V1**; outras versões sempre completas (ignoram o carimbo). A **laje** (`roof`)
+  aparece da fase **4 (Laje) até 6 (Esquadrias)** e some no acabamento (7) — espelha o default
+  do V1 (laje oculta p/ ver o interior). Chamado em `init3D` após `buildBuilding3D`.
+- **Slider 🏗 no HUD 3D** (só V1, em `buildHud3D`): `.phase-hud`, range 1–7, empilhado acima
+  do HUD de horário. Arrastar = `buildPhase = valor` + `applyBuildPhase`.
+- **Rotas `/v0.1`…`/v0.6`** (`PHASE_ROUTES`, `phaseFromPath`): `versionFromPath` devolve `'v1'`;
+  o boot abre direto em **Planta 3D**, mantém `/v0.x` na barra e seta `buildPhase`. Clicar numa
+  **aba** (`setVersion` com `push=true`) volta à casa completa (`buildPhase=7`); **popstate**
+  respeita a fase da rota. `applyBuildPhase` re-sincroniza o slider quando a fase muda por URL.
+- **Ao adicionar nova geometria 3D ao V1:** setar `_ph` antes da seção (ou ela herda a fase
+  anterior). Geometria de garagem/V2+/floor2 não precisa — fora do escopo do filtro de fase.
+
+### Esperas (arranques do sobrado V3) — V1/V2
+
+Para o V3 (sobrado) ser possível, os pilares do térreo deixam **ferros de espera**
+(arranques) projetados acima da laje, dando continuidade estrutural ao pilar do 2º pav.
+(`col2c`/`col2`, que começam em `fz0=3,01`). Construídos só no **V1/V2**; no **V3** não
+existem — ficam **embutidos** no pilar de cima.
+
+- **Casa:** 12 pilares, no **V1 e V2** (`bv` v1/v2, `!SOLAR`).
+- **Garagem:** 12 pilares, **só no V2** (no V3 a garagem vira pilotis e os arranques ficam
+  embutidos no `col2`). Total no V2 = **24 esperas** (96 grupos de barra + 24 bonecas).
+- **Helper único** `addEspera(cn, e3)` (`cn`=centro mN, `e3`=centro mE já com OE): a casa
+  chama no bloco do `roof`; a garagem chama no bloco `if (v==='v2'||…)` (consts `GE0/GEMc/
+  GE1c/GN0/GNM/GN1/COL` em escopo). `box3d` dos pilares da garagem é por **canto** → centro
+  = `n+COL/2, e+COL/2`. `null` quando a versão não tem esperas.
+
+- **Restrição Caixa:** o V1 é financiado e a Caixa **não aceita ferro de obra aparente**.
+  Solução real: o ferro fica embutido numa **boneca de concreto** (`esperasCaps`) sobre a
+  laje (casa com cara de pronta); o botão **"Esperas: revelar"** "demole" a proteção e expõe
+  o ferro (`esperasBars`) — "na hora certa" de puxar o andar.
+- **Geometria** (no grupo `roof`, após o slab; herdam a visibilidade da laje): por pilar,
+  4 barras nos cantos (±0,07, Ø~24, sobem 0,45 m do topo do pilar `CEIL3D+CPA=2,85`) com
+  dobra no topo + 1 boneca `box3d` 0,24×0,24 (`matEmbase`) cobrindo. Posições = mesmo grid
+  das colunas (mE 22,5/25,5/28,5/31,5 × mN 2/4,5/7,5, `+OE`).
+- **Visibilidade** (`applyBuildPhase`): ferro cru nas **fases de obra** (`ph<7`) ou quando
+  **revelado**; **capeado** (boneca) no **acabamento** (`ph≥7`) e não-revelado. Como são
+  filhos de `roof`, só aparecem com a **laje visível** — por isso `roof.visible` no V1 passa
+  a incluir `(ph≥7 && espRevealed)`, e `set3DEsperas` força a laje ligada + sincroniza o
+  rótulo do botão Laje. Flag `S.espRevealed` (por cena). Botão em V1/V11/V2.
 
 ---
 
