@@ -3271,7 +3271,12 @@
         // Beiral: norte 0,90 m (autoregulador solar lat−30°), sul/leste/oeste 0,50 m (proteção chuva)
         const BN_N = 0.90, BN_S = 0.50, BN_EW = 0.50;
         const n0 = 2 - BN_S, n1 = 7.5 + BN_N;
-        const e0 = 22.5 + OE - BN_EW, e1 = 31.5 + OE + BN_EW;
+        // Oeste: no V1 a casa tem beiral 0,50 m. No V2/V3 a fachada oeste encosta na
+        // garagem (junta de dilatação) → laje sem beiral oeste (para na face da parede,
+        // 22,4) e SEM platibanda oeste. Senão a laje/platibanda da casa cavalgam a laje
+        // da garagem (que termina em GE1j=22,37) e as platibandas ficam transpostas.
+        const hasGarageW = !SOLAR && (v === 'v2' || v === 'v3');
+        const e0 = (hasGarageW ? 22.5 - 0.10 : 22.5 - BN_EW) + OE, e1 = 31.5 + OE + BN_EW;
         const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12; // platibanda
         if (SOLAR) {
             addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16, 2.0, 7.5, 22.5 + OE, 31.5 + OE);
@@ -3279,7 +3284,7 @@
             roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab
             roof.add(box3d(n0,      e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // sul
             roof.add(box3d(n1 - tt, e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // norte (uniform)
-            roof.add(box3d(n0,      e0, n1 - n0, tt,       pb, pbTop, lajeMat)); // oeste
+            if (!hasGarageW) roof.add(box3d(n0, e0, n1 - n0, tt, pb, pbTop, lajeMat)); // oeste (só V1; V2/V3 = junta)
             roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
         }
 
