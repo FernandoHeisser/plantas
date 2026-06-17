@@ -3637,7 +3637,8 @@
                 roof.add(box3d(gn0,       ge0, tt,        GE1j-ge0, gpb, gpbTop, lajeMat)); // sul
                 roof.add(box3d(gn1-tt,    ge0, tt,        GE1j-ge0, gpb, gpbTop, lajeMat)); // norte
                 roof.add(box3d(gn0,       ge0, gn1-gn0,  tt,        gpb, gpbTop, lajeMat)); // oeste
-                roof.add(box3d(gn0, GE1j-tt,  gn1-gn0,  tt,        gpb, gpbTop, lajeMat)); // leste
+                // SEM platibanda leste: é a junta de dilatação com a casa (que também não
+                // tem platibanda oeste) → as duas lajes se encontram rente, sem mureta entre elas.
             }
 
             // Paredes da garagem — assentam no baldrame (GCPA), sobem até GLAJE
