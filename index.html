@@ -74,6 +74,7 @@
         .vtab[data-v="v3"].active  { background: rgba(139,92,246,0.2);  border-color: rgba(139,92,246,0.45);  color: #c4b5fd; }
         .vtab[data-v="v31"].active { background: rgba(20,184,166,0.2);  border-color: rgba(20,184,166,0.45);  color: #5eead4; }
         .vtab[data-v="v32"].active { background: rgba(146,64,14,0.25);  border-color: rgba(180,83,9,0.5);     color: #d6a06a; }
+        .vtab[data-v="v4"].active  { background: rgba(249,115,22,0.2);  border-color: rgba(249,115,22,0.45);  color: #fdba74; }
 
         /* ── SECTION NAV — dark secondary, pills ── */
         .section-nav {
@@ -110,7 +111,8 @@
         #p-v2-3d .card,
         #p-v3-3d .card,
         #p-v31-3d .card,
-        #p-v32-3d .card {
+        #p-v32-3d .card,
+        #p-v4-3d .card {
             padding: 0;
             border: none;
             border-radius: 0;
@@ -464,7 +466,8 @@
         #p-v2-med,
         #p-v3-med,
         #p-v31-med,
-        #p-v32-med {
+        #p-v32-med,
+        #p-v4-med {
             min-height: calc(100dvh - var(--sticky-h));
             overflow-y: auto;
         }
@@ -652,6 +655,7 @@
             <button class="vtab"        data-v="v3"  onclick="setVersion('v3')">V3 · Sobrado</button>
             <button class="vtab"        data-v="v31" onclick="setVersion('v31')">V3.1 · Telhado solar</button>
             <button class="vtab"        data-v="v32" onclick="setVersion('v32')">V3.2 · Pintura marrom</button>
+            <button class="vtab"        data-v="v4"  onclick="setVersion('v4')">V4 · Obra fase a fase</button>
         </div>
     </div>
 </header>
@@ -917,6 +921,52 @@
                 <div class="med-sum-item"><span class="med-sum-label">Versão</span><span class="med-sum-value">V3.2 — Sobrado + telhado solar + pintura marrom</span></div>
                 <div class="med-sum-item"><span class="med-sum-label">Pintura</span><span class="med-sum-value">Fachada marrom terroso sobre reboco</span></div>
                 <div class="med-sum-item"><span class="med-sum-label">Herda</span><span class="med-sum-value">Tudo do V3.1 (2 telhados de uma água norte ~12° + usina FV)</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ V4 — sobrado solar com timeline de obra ══════════ -->
+    <div class="panel" id="p-v4-2d">
+        <div class="card">
+            <div class="map-wrap">
+                <div id="map-v4" class="mapa-sat"></div>
+                <div class="map-floortoggle">
+                    <button type="button" onclick="setV3Floor(this)">Piso: térreo</button>
+                </div>
+                <div class="scene3d-compass">
+                    <div class="rose">
+                        <div class="pt n" style="left:29px;top:9px">N</div>
+                        <div class="pt"   style="left:47px;top:29px;color:#4ade80">L</div>
+                        <div class="pt"   style="left:29px;top:47px;color:#64748b">S</div>
+                        <div class="pt"   style="left:11px;top:29px;color:#f59e0b">O</div>
+                    </div>
+                </div>
+                <div class="map-legend-ov">
+                    <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
+                    <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v4-3d">
+        <div class="card">
+            <div id="scene3d-v4" class="scene3d">
+                <div class="scene3d-toolbar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v4-med">
+        <div class="med-page">
+            <div class="med-summary">
+                <div class="med-sum-item"><span class="med-sum-label">Versão</span><span class="med-sum-value">V4 — Sobrado solar com obra fase a fase</span></div>
+                <div class="med-sum-item"><span class="med-sum-label">Herda</span><span class="med-sum-value">Tudo do V3.2 (sobrado + telhado solar + pintura marrom)</span></div>
+                <div class="med-sum-item"><span class="med-sum-label">Timeline</span><span class="med-sum-value">Slider 🏗 de 11 fases — da fundação à casa pronta (3D)</span></div>
             </div>
         </div>
     </div>
@@ -1414,6 +1464,11 @@
     // Fase da obra (timeline construtiva — só V1). 6 = casa pronta (= V1 default).
     const PHASE_LABELS = ['Fundação', 'Colunas', 'Vigas', 'Laje', 'Paredes', 'Esquadrias', 'Acabamento'];
     let buildPhase = 7;
+    // V4 (sobrado solar) tem 11 fases — separa térreo, 2º pavimento e telhado.
+    const PHASE_LABELS_V4 = ['Fundação', 'Pilares térreo', 'Vigas térreo', 'Laje 1 (entre pisos)',
+                             'Pilares 2º pav', 'Vigas 2º pav', 'Laje de cobertura', 'Alvenaria',
+                             'Telhado solar', 'Esquadrias', 'Acabamento'];
+    let buildPhase4 = 11;
 
     // ── Roteamento por URL: / → v1, /v2 → v2, /v3 → v3, qualquer outro → v1 ──
     // Rotas de fase da obra (/v0.1.../v0.5) → V1 numa fase construtiva (3D).
@@ -1424,6 +1479,7 @@
     function versionFromPath() {
         const p = location.pathname.replace(/\/+$/, '').toLowerCase();
         if (PHASE_ROUTES[p]) return 'v1';   // /v0.x = V1 numa fase
+        if (p === '/v4')   return 'v4';
         if (p === '/v1.1') return 'v11';
         if (p === '/v2')   return 'v2';
         if (p === '/v3.2') return 'v32';
@@ -1749,6 +1805,7 @@
     }
 
     function buildLayers(v) {
+        if (v === 'v4') v = 'v32';          // V4 (timeline de obra) = mesmo 2D do V3.2
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
         const lys = [];
 
@@ -2842,6 +2899,7 @@
     // Constrói o grupo 3D do prédio a partir do modelo (paredes c/ vãos + móveis + lajes)
     function buildBuilding3D(v) {
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
+        const rv = v === 'v4'  ? 'v32' : v; // V4 renderiza igual ao V3.2 (rv); `v` guarda a identidade p/ as fases da obra
         const model = captureModel(v);
         const g = new THREE.Group();
 
@@ -2850,22 +2908,32 @@
         // a fase em que "existiria" na obra. applyBuildPhase() depois oculta o que
         // tem ph > fase atual. 0 = sempre visível (terreno/entorno). Restaurado
         // antes das cotas (buildDims3D) p/ elas nunca sumirem.
-        // 1 fundação · 2 colunas · 3 vigas · 4 laje · 5 paredes · 6 esquadrias · 7 acabamento
-        // (a laje/fase 4 é o grupo `roof`, tratado por nome em applyBuildPhase — sem _ph próprio)
+        // V1 (7 fases): 1 fundação · 2 colunas · 3 vigas · 4 laje · 5 paredes · 6 esquadrias · 7 acabamento
+        //   (a laje/fase 4 = grupo `roof`, tratado por nome em applyBuildPhase).
+        // V4 (11 fases, sobrado solar): números maiores, separando os 2 pavimentos +
+        //   telhado. Os blocos compartilhados (casa) usam as chaves PH.* — assim o
+        //   MESMO código carimba o número certo conforme a versão (V1 vs V4). As demais
+        //   versões ignoram o carimbo (applyBuildPhase só age em V1/V4).
+        const PH = (v === 'v4')
+            ? { found:1, colT:2, vigaT:3, laje1:4, colS:5, vigaS:6, laje2:7, alven:8, telhado:9, esquad:10, acab:11 }
+            : { found:1, colT:2, vigaT:3, laje1:4, colS:5, vigaS:6, laje2:4, alven:5, telhado:4, esquad:6, acab:7 };
         let _ph = 0;
-        const _origAdd = g.add.bind(g);
-        g.add = (...objs) => { objs.forEach(o => { if (o && o.userData) o.userData.ph = _ph; }); return _origAdd(...objs); };
+        // Carimba qualquer grupo (g, roof, floor2) com o _ph corrente. roof/floor2 têm
+        // seu próprio .add → embrulhados também p/ o V4 revelar seus filhos por fase.
+        const stampAdd = grp => { const orig = grp.add.bind(grp);
+            grp.add = (...objs) => { objs.forEach(o => { if (o && o.userData) o.userData.ph = _ph; }); return orig(...objs); }; return orig; };
+        const _origAdd = stampAdd(g);
 
         const floor = texFloor(); floor.repeat.set(8, 5);
         // V3.2 = pintura da casa em marrom: tinge a textura de reboco (color multiplica o map).
-        const WALL_TINT = (v === 'v32') ? 0x7a5230 : 0xffffff;   // marrom terroso / branco (padrão)
+        const WALL_TINT = (rv === 'v32') ? 0x7a5230 : 0xffffff;   // marrom terroso / branco (padrão)
         const matWall   = new THREE.MeshStandardMaterial({ map: texWall(), color: WALL_TINT, roughness: 0.95, metalness: 0, envMapIntensity: 0.25,
                                                            polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
         const matFloor  = new THREE.MeshStandardMaterial({ map: floor, roughness: 0.55, metalness: 0, envMapIntensity: 0.35 });
         const matGlass  = new THREE.MeshStandardMaterial({ color: 0xaecadf, transparent: true, opacity: 0.3,
                                                            roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
         // V3.2: colunas/baldrame também pintadas de marrom (matEmbase é cor sólida, sem map).
-        const EMBASE_COL = (v === 'v32') ? 0x6e4a2c : 0xb8b0a0;
+        const EMBASE_COL = (rv === 'v32') ? 0x6e4a2c : 0xb8b0a0;
         const matEmbase = new THREE.MeshStandardMaterial({ color: EMBASE_COL, roughness: 0.92, metalness: 0,   envMapIntensity: 0.12 });
         const matWP     = new THREE.MeshStandardMaterial({ color: 0x1e1e2a, roughness: 0.60, metalness: 0.28, envMapIntensity: 0.35 });
 
@@ -2945,7 +3013,7 @@
         const baseBot = (e, de) => grade(e + de);
         const EN0 = 2 - 0.20 - EM_P, EN1 = 7.5 + 0.20 + EM_P;
         const EE0 = 22.5 + OE - 0.20 - EM_P, EE1 = 31.5 + OE + 0.20 + EM_P; // retângulo perfeito: leste agora em mE=31,5
-        _ph = 1; // ── fase 1: fundação (baldrame, manta, contrapiso, escadas) ──
+        _ph = PH.found; // ── fundação (baldrame, manta, contrapiso, escadas) ──
         const emSides = [
             [EN0,                EE0, 0.20 + EM_P, EE1 - EE0],  // sul
             [EN1 - 0.20 - EM_P, EE0, 0.20 + EM_P, EE1 - EE0],  // norte (mN=7,5, retângulo completo)
@@ -3008,7 +3076,7 @@
         // ── Colunas estruturais da casa — 15×15 cm, matEmbase (V1+V2+V3) ──────
         // Mesmo grid marcado em vermelho no 2D; embedded nas paredes (Z-fight
         // evitado: seção 0,15 m fica 2,5 cm atrás das faces da parede 0,20 m).
-        _ph = 2; // ── fase 2: colunas/pilares ──
+        _ph = PH.colT; // ── colunas/pilares do térreo ──
         { const CS = 0.10; // meia-seção 20×20 cm (NBR 6118 mín.)
           // Grid perfeito 4×3: mE=22,5/25,5/28,5/31,5 × mN=2,0/4,5/7,5
           [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
@@ -3021,7 +3089,7 @@
         }
 
         // Porta dos fundos (leste) — 5 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
-        _ph = 1; // escada dos fundos = fundação
+        _ph = PH.found; // escada dos fundos = fundação
         extStairs(4.70, 31.6 + OE, 0.90, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
         _ph = 0; // contorno do lote = entorno (sempre visível)
 
@@ -3038,7 +3106,7 @@
         const solids   = model.filter(o => o.k === 'solid');
 
         // ── Paredes: extrudadas até o teto, recortando portas e janelas ──────
-        _ph = 5; // ── fase 5: alvenaria (paredes) ──
+        _ph = PH.alven; // ── alvenaria (paredes do térreo) ──
         walls.forEach(w => {
             const horiz = Math.abs(w.n2 - w.n1) < 1e-6;   // corre no eixo E (mN const)
             const t = w.t;
@@ -3085,7 +3153,7 @@
         // ── Móveis / louças / bancadas: volumes de massa ─────────────────────
         // Cada móvel sobe à cota do piso (CPA) via Group; os builders FURN3D
         // são construídos relativos ao piso 0 e o grupo aplica a elevação base.
-        _ph = 7; // ── fase 7: acabamento (mobiliário, louças, bancadas) ──
+        _ph = PH.acab; // ── acabamento (mobiliário, louças, bancadas) ──
         solids.forEach(s => {
             const base = (s.extZ3d != null ? s.extZ3d : (s.ext3d ? 0 : CPA));
             if (s.m3d && FURN3D[s.m3d]) {                 // móvel realista por tipo
@@ -3115,7 +3183,7 @@
         const matKnob  = new THREE.MeshStandardMaterial({ color: 0xb8b8bd, roughness: 0.3, metalness: 0.85 });
         const FR = 0.05;   // seção do caixilho
 
-        _ph = 6; // ── fase 6: esquadrias (batentes, peitoris, vidros, folhas) ──
+        _ph = PH.esquad; // ── esquadrias (batentes, peitoris, vidros, folhas) ──
         openings.forEach(o => {
             const z0 = (o.type === 'window' ? o.sill : 0) + CPA, z1 = o.head + CPA;
             const horiz = o.de >= o.dn;                  // parede corre no eixo E?
@@ -3205,7 +3273,7 @@
         //   dilatação — nada é emendado. Inclinação ~28° ≈ latitude (−29,96°):
         //   ótimo de geração anual; a água vira o norte, painéis deitam rentes.
         //   Telha metálica termoacústica (galvalume claro) + módulos FV.
-        const SOLAR = (v === 'v31' || v === 'v32');
+        const SOLAR = (rv === 'v31' || rv === 'v32');
         const PITCH = 12 * Math.PI / 180;   // inclinação realista de telha metálica (~21%)
         const tanP = Math.tan(PITCH);
         const matMetalRoof = new THREE.MeshStandardMaterial({ color: 0x6b7177, roughness: 0.55, metalness: 0.5, envMapIntensity: 0.35, side: THREE.DoubleSide,
@@ -3268,6 +3336,9 @@
         const roof = new THREE.Group();
         roof.name = 'roof';
         roof.visible = false;
+        stampAdd(roof);   // V4: carimba os filhos do telhado (revelados por fase)
+        // No V1 a laje (roof) é a fase 4; no V4 o telhado solar é a fase 9.
+        _ph = SOLAR ? PH.telhado : PH.laje2;
         // Beiral: norte 0,90 m (autoregulador solar lat−30°), sul/leste/oeste 0,50 m (proteção chuva)
         const BN_N = 0.90, BN_S = 0.50, BN_EW = 0.50;
         const n0 = 2 - BN_S, n1 = 7.5 + BN_N;
@@ -3275,7 +3346,7 @@
         // garagem (junta de dilatação) → laje sem beiral oeste (para na face da parede,
         // 22,4) e SEM platibanda oeste. Senão a laje/platibanda da casa cavalgam a laje
         // da garagem (que termina em GE1j=22,37) e as platibandas ficam transpostas.
-        const hasGarageW = !SOLAR && (v === 'v2' || v === 'v3');
+        const hasGarageW = !SOLAR && (rv === 'v2' || rv === 'v3');
         // Com garagem: a borda oeste vai até a linha da junta (GE1j = 22,5 − EW/2 − GAP =
         // 22,37) p/ encostar RENTE na laje da garagem, sem deixar fresta/vão entre as duas.
         const e0 = (hasGarageW ? 22.5 - 0.10 - 0.03 : 22.5 - BN_EW) + OE, e1 = 31.5 + OE + BN_EW;
@@ -3336,12 +3407,13 @@
         // Footprint = união casa + garagem (L), sobre a laje do térreo (= piso do
         // 2º). NÃO extrapola o terreno. Começa oculto; a laje de cobertura (roof)
         // sobe sobre ele quando visível (set3DFloor2). Sem paredes internas (etapa 1).
-        if (v === 'v3' || v === 'v31' || v === 'v32') {
+        if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
             // 2º pavimento = DUAS estruturas independentes, como no térreo: garagem e
             // casa separadas pela MESMA junta de dilatação do V2 (GE1j, isopor 3 cm).
             const F2 = new THREE.Group();
             F2.name = 'floor2';
             F2.visible = false;
+            stampAdd(F2);   // V4: carimba os filhos do 2º pav (revelados por fase)
             const EW = 0.20, GAP = 0.03;
             const fz0 = CEIL3D + CPA + 0.16;   // topo da laje 1 (= chão do 2º piso)
             const fz1 = fz0 + CEIL3D;           // topo das paredes do 2º piso
@@ -3410,10 +3482,12 @@
 
             // ── Estrutura GARAGEM (mN S→Ngar, mE W→Egar) — laje 1 c/ vão + 4 paredes ──
             // Beiral: sul/norte/oeste estendem conforme BN_*; leste = junta (sem beiral externo)
+            _ph = PH.laje1;   // laje 1 intermediária (chão do 2º pav)
             addSlab(S-BN_S,  W-BN_EW, hN0-(S-BN_S),         Egar-(W-BN_EW));  // sul + beiral sul/oeste
             addSlab(hN1,     W-BN_EW, (Ngar+BN_N)-hN1,      Egar-(W-BN_EW));  // norte + beiral norte/oeste
             addSlab(hN0,     W-BN_EW, hN1-hN0,              hE0-(W-BN_EW));   // oeste do vão + beiral oeste
             addSlab(hN0,     hE1,     hN1-hN0,              Egar-hE1);         // leste do vão (junta — sem beiral)
+            _ph = PH.alven;   // paredes externas do 2º pav (com janelas)
             winWall('EW', 2.0, W, Egar, EW, winsG('S'));                 // sul (corredor/escada) — janelas grandes
             winWall('NS', W + EW/2,    S, Ngar, EW, winsG('W'));         // oeste — janela do escritório
             winWall('EW', Ngar - EW/2, W, Egar, EW, winsG('N'));         // norte — janelas dos 3 cômodos (sol de inverno)
@@ -3424,6 +3498,7 @@
             // Norte/leste/sul com janelas (winWall); oeste (junta) cega. A laje começa na
             // junta (Egar) — SEM beiral oeste — p/ encostar rente na laje da garagem (sem
             // sobreposição nem vão entre as duas).
+            _ph = PH.laje1;
             addSlab(S-BN_S, Egar, (Ncasa+BN_N)-(S-BN_S), (Ecasa+BN_EW)-Egar);
             // Borda visível do beiral da laje 1 — fascia de 25 cm nas faces externas (sem junta)
             const addBorda = (n, e, dn, de) => F2.add(box3d(n, e + OE, dn, de, lz0 - 0.25, lz1, lajeMat));
@@ -3437,6 +3512,7 @@
             addBorda(gn0b,      ge0b, BT,        Egar-ge0b); // face sul
             addBorda(gn1b-BT,   ge0b, BT,        Egar-ge0b); // face norte
             addBorda(gn0b,      ge0b, gn1b-gn0b, BT);        // face oeste
+            _ph = PH.alven;
             winWall('EW', 2.0,  Wcasa, Ecasa, EW, winsOn('EW', 2.0));   // sul  (janela do closet)
             winWall('NS', Wcasa + EW/2, S, Ncasa, EW,                   // oeste (junta) — vão da porta de ligação com a garagem
                 [{ s: 4.7, e: 5.5, sill: 0, head: F2_DOORH, open: true }]);
@@ -3459,11 +3535,13 @@
                 });
                 if (cur < a1) box(cur, a1, fz0, fz1);              // segmento final
             };
+            _ph = PH.alven;   // divisórias internas do 2º pav (casa)
             intWall('EW', 4.5,  22.5, 31.5, [[23.6, 24.4], [29.3, 30.7]]); // banheiro 2pav + closet (dupla)
             intWall('NS', 25.5, 2.0,  7.5,  [[5.6, 6.4]]);                 // quarto
             intWall('NS', 28.5, 2.0,  4.5,  [[2.85, 3.65]]);               // closet→banh.suíte
 
             // Folhas de porta (madeira), abertas ~78° — base no piso do 2º (fz0)
+            _ph = PH.esquad;   // folhas de porta = esquadrias
             F2_DOORS.forEach(d => d.leaves.forEach(L => {
                 const r = Math.hypot(L.dn, L.de); if (r < 0.05) return;
                 const tOpen = Math.atan2(L.dn, L.de) + 0.78 * (Math.PI/2) * L.sw;
@@ -3478,11 +3556,13 @@
             }));
 
             // ── Divisórias internas da GARAGEM + portas (escritório + 2 quartos + corredor) ──
+            _ph = PH.alven;
             intWall('EW', 4.6,   13.5,  17.9,  []);                           // parede sul do escritório (cega; porta foi p/ o corredor)
             intWall('EW', 7.32,  13.5,  17.9,  []);                           // parede norte do escritório = sul do quarto 2 (mN 7,32 → quarto 2 = 14 m²)
             intWall('EW', 6.2,   19.11, 22.37, []);                           // parede sul do quarto 1 (cega; porta foi p/ o corredor)
             intWall('NS', 17.9,  4.6,   10.5,  [[5.85, 6.65], [9.3, 10.1]]);   // parede oeste do corredor — portas do escritório (sob a coluna) e do quarto 2
             intWall('NS', 19.11, 6.2,   10.5,  [[9.3, 10.1]]);                // parede leste do corredor — porta do quarto 1
+            _ph = PH.esquad;
             F2G_DOORS.forEach(d => d.leaves.forEach(L => {
                 const r = Math.hypot(L.dn, L.de); if (r < 0.05) return;
                 const tOpen = Math.atan2(L.dn, L.de) + 0.78 * (Math.PI/2) * L.sw;
@@ -3509,7 +3589,9 @@
             // CASA — 12 colunas nos nós da grade (3 linhas mN × 4 linhas mE),
             // centradas (embutem nas paredes/divisórias) + grelha 3×3 de vigas.
             const col2c = (n, e) => F2.add(box3d(n - COL/2, e + OE - COL/2, COL, COL, fz0, fz1, matEmbase));
+            _ph = PH.colS;   // pilares do 2º pavimento
             [2.0, 4.5, 7.5].forEach(n => [22.5, 25.5, 28.5, 31.5].forEach(e => col2c(n, e)));
+            _ph = PH.vigaS;  // vigas do 2º pavimento (teto)
             [[2.0,22.5,25.5],[2.0,25.5,28.5],[2.0,28.5,31.5],
              [4.5,22.5,25.5],[4.5,25.5,28.5],[4.5,28.5,31.5],
              [7.5,22.5,25.5],[7.5,25.5,28.5],[7.5,28.5,31.5]].forEach(([n,e0,e1]) => beamEW(n,e0,e1));
@@ -3520,11 +3602,22 @@
             // Inclui a linha extra em mN 3,40 (apoio junto à face norte da escada) e a
             // viga N-S central só ao NORTE da escada — igual ao térreo.
             const GNM2 = 6.75, GEMc2 = (W + Egar)/2 - COL/2, GE1c2 = Egar - COL; // mN 6,75; mE meio/leste
+            _ph = PH.colS;
             [2.0, 3.40, GNM2, 10.5 - COL].forEach(n => [W, GEMc2, GE1c2].forEach(e => col2(n, e)));
+            _ph = PH.vigaS;
             [2.0, 3.40, GNM2, 10.5 - VW].forEach(n => beamEW(n, W, Egar));  // E-O: sul / mN 3,40 / centro / norte
             beamNS(W,     2.0,  10.5);   // N-S oeste (inteira)
             beamNS(GE1c2, 2.0,  10.5);   // N-S leste (inteira)
             beamNS(GEMc2, 3.40, 10.5);   // N-S central — só ao NORTE da escada (reapoiada em mN 3,40)
+
+            // Laje de cobertura (forro de concreto sob o telhado) — fase própria no V4.
+            // No sobrado solar não há laje plana de cobertura no `roof` (o telhado a
+            // substitui); este forro dá conteúdo à fase 7 e fica oculto sob as águas.
+            if (v === 'v4') {
+                _ph = PH.laje2;
+                F2.add(box3d(2.0, 22.5 + OE, 5.5, 9.0,            fz1 - 0.16, fz1, lajeMat)); // casa
+                F2.add(box3d(2.0, 13.5 + OE, 8.5, Egar - 13.5,   fz1 - 0.16, fz1, lajeMat)); // garagem
+            }
 
             g.add(F2);
         }
@@ -3532,7 +3625,7 @@
         // ── Vigas estruturais da casa (V1+V2+V3) ────────────────────────────────
         // VH=0,45m (p/ suportar V3 — regra L/10: 3m/10=30cm mín, 45cm c/ folga)
         // VW=0,20m (= seção das colunas, NBR 6118). Nível: CPA+CEIL3D−VH → CPA+CEIL3D.
-        _ph = 3; // ── fase 3: vigas (grade horizontal; a laje plana é a fase 4) ──
+        _ph = PH.vigaT; // ── vigas do térreo (grade horizontal) ──
         { const VH = 0.45, VW = 0.20;
           const BZ0 = CPA + CEIL3D - VH, BZ1 = CPA + CEIL3D; // y 2,50→2,85
           // Vigas E-O — grid do retângulo perfeito (3 linhas × 3 vãos de 3m)
@@ -3553,7 +3646,7 @@
         }
 
         // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
-        if (v === 'v2' || v === 'v3' || v === 'v31' || v === 'v32') {
+        if (rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32') {
             const GN0 = 2.0, GN1 = 10.5, GE0 = 13.5 + OE, GE1 = 22.5 + OE;
             const GAP  = 0.03;            // junta estrutural: 3 cm de isopor
             const GE1j = GE1 - 0.10 - GAP; // face leste da garagem (para antes da face ext. da casa)
@@ -3571,10 +3664,12 @@
             // Acesso pavimentado: rua (mE=0) → entrada da garagem (mE=GE0)
             // Norte: 11,5 (poste norte do portão); base desce até baseBot p/ não ficar oco
             const matDrive = new THREE.MeshStandardMaterial({ color: 0xd0ccc4, roughness: 0.88, metalness: 0, envMapIntensity: 0.2, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
+            _ph = PH.found;   // acesso pavimentado = fundação/infra
             g.add(box3d(GN0, 0, 11.5 - GN0, GE0, baseBot(0, GE0), GCPA, matDrive));
 
             // 9 colunas (3×3): frente / meio / fundo × sul / centro / norte.
             // Base desce até a cota natural (baseBot) — casa com o declive, sem flutuar.
+            _ph = PH.colT;   // pilares (pilotis) da garagem
             [GN0, GNM, GN1 - COL].forEach(n => {
                 g.add(box3d(n, GE0,  COL, COL, baseBot(GE0, COL),  GLAJE, matEmbase)); // frente
                 g.add(box3d(n, GEMc, COL, COL, baseBot(GEMc, COL), GLAJE, matEmbase)); // meio
@@ -3583,6 +3678,7 @@
 
             // Vigas E-O (sul, centro, norte) — frente até face ext. da parede
             const vigaLen = GE1c + COL - GE0;
+            _ph = PH.vigaT;   // vigas da garagem (térreo)
             [GN0, GNM, GN1 - VW].forEach(n =>
                 g.add(box3d(n, GE0, VW, vigaLen, GLAJE - VH, GLAJE, lajeMat)));
             // Vigas N-S (frente, fundo) inteiras
@@ -3592,10 +3688,12 @@
             // cruzava o caminho da escada, é removido; reapoiada por um pilar em mN 3,4.
             g.add(box3d(3.40, GEMc, GN1 - 3.40, VW, GLAJE - VH, GLAJE, lajeMat));
             // Colunas + pilar de reapoio da viga E-O de suporte da escada (mN 3,4 = ESC_N0+ESC_DN)
+            _ph = PH.colT;
             g.add(box3d(3.40, GE0,  COL, COL, baseBot(GE0, COL),  GLAJE, matEmbase));   // coluna oeste (mE 13)
             g.add(box3d(3.40, GEMc, COL, COL, baseBot(GEMc, COL), GLAJE, matEmbase));   // pilar centro (mE 17,4)
             g.add(box3d(3.40, GE1c, COL, COL, baseBot(GE1c, COL), GLAJE, matEmbase));   // coluna leste (mE 21,7)
             // Viga E-O (mN 3,4) ao NORTE da escada — encosta na face norte da escada, sem sobreposição
+            _ph = PH.vigaT;
             g.add(box3d(3.40, GE0, VW, (GE1c + COL) - GE0, GLAJE - VH, GLAJE, lajeMat));
 
             // Esperas dos 12 pilares da GARAGEM — só V2 (no V3 a garagem vira pilotis e
@@ -3614,6 +3712,7 @@
             const STREAD = (ESC_E_base - ESC_E_top) / NST;   // ~0,278 m
             const SRISE  = (GLAJE + 0.16 - GCPA) / NST;      // ~0,170 m
             const matStair = new THREE.MeshStandardMaterial({ color: 0xd4d0c8, roughness: 0.85, metalness: 0, envMapIntensity: 0.2 });
+            _ph = PH.laje1;   // escada p/ o 2º pav — aparece junto com a laje intermediária
             for (let i = 1; i <= NST; i++)
                 g.add(box3d(ESC_N0, ESC_E_base - i*STREAD, ESC_DN, STREAD, GCPA, GCPA + i*SRISE, matStair));
             // Vão (stairwell) na laje — sobre o trecho alto (oeste), onde a cabeça passaria
@@ -3621,11 +3720,12 @@
 
             // Laje + platibanda da garagem — para em GE1j (junta; não encosta na casa)
             const gn0 = GN0 - BN_S, gn1 = GN1 + BN_N, ge0 = GE0 - BN_EW; // beiral: sul 0,50 m, norte 0,90 m, oeste 0,50 m; leste = junta (sem beiral)
+            _ph = SOLAR ? PH.telhado : PH.laje2;   // V4: telhado solar da garagem = fase 9
             if (SOLAR) {
                 // V3.1: shed independente da garagem caindo p/ norte + painéis FV.
                 // Leste para na junta (GE1j); não encosta na casa.
                 addShed(roof, gn0, ge0, gn1, GE1j, GLAJE + 0.16, GN0, GN1, GE0, GE1j);
-            } else if (v === 'v3' || v === 'v31' || v === 'v32') {
+            } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
                 // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
                 roof.add(box3d(gn0, ge0, gn1 - gn0, GE1j - ge0, GLAJE, GLAJE+0.16, lajeMat));
@@ -3655,12 +3755,14 @@
 
             // Paredes da garagem — assentam no baldrame (GCPA), sobem até GLAJE
             // Padrão: box3d manual porque pipeline GEO inicia em z=0 (afundaria no baldrame)
+            _ph = PH.alven;   // parede sul da garagem
             g.add(box3d(GN0 - 0.10, GE0,        0.20,       GE1j - GE0, GCPA, GLAJE, matWall)); // sul
             // Norte e leste superior removidas (garagem é estrutura aberta; foram
             // adicionadas por engano numa sessão anterior).
 
             // Piso de concreto da garagem — no topo do baldrame (GCPA = 0,20 m)
             const matGFloor = new THREE.MeshStandardMaterial({ color: 0xd0ccc4, roughness: 0.88, metalness: 0, envMapIntensity: 0.2 });
+            _ph = PH.found;   // piso + degraus + baldrame = fundação
             g.add(box3d(GN0, GE0, GN1 - GN0, vigaLen, GCPA - 0.025, GCPA, matGFloor));
 
             // Degraus da porta principal: garagem (GCPA=0,20) → casa (CPA=0,50).
@@ -3692,7 +3794,7 @@
         }
 
         // ── V1.1+: muro frontal + postes do portão + cercas ─────────────────
-        if (v === 'v11' || v === 'v2' || v === 'v3' || v === 'v31' || v === 'v32') {
+        if (rv === 'v11' || rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32') {
             const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
             // Muro sul: mN 0→8,0
@@ -4001,6 +4103,25 @@
     function applyBuildPhase(v) {
         const S = scenes3d[v];
         if (!S || !S.group) return;
+        // V4: sobrado solar com timeline de 11 fases. Tudo (inclusive os grupos
+        // roof = telhado e floor2 = 2º pav) é carimbado com userData.ph; o slider
+        // revela progressivamente. Os 2 grupos sobem para a posição de sobrado e
+        // ficam sempre "visíveis" — quem controla é o ph de cada filho.
+        if (v === 'v4') {
+            const ph = buildPhase4;
+            S.group.traverse(o => {
+                if (o.userData && o.userData.ph != null) o.visible = o.userData.ph <= ph;
+            });
+            const f2 = S.group.getObjectByName('floor2');
+            if (f2) f2.visible = true;
+            const roof = S.group.getObjectByName('roof');
+            if (roof) { roof.visible = true; roof.position.y = CEIL3D + 0.16; }
+            if (S.phaseRange) {
+                S.phaseRange.value = String(ph);
+                S.phaseLabel.textContent = ph + '/11 ' + PHASE_LABELS_V4[ph - 1];
+            }
+            return;
+        }
         const ph = (v === 'v1') ? buildPhase : 7;
         S.group.children.forEach(o => {
             if (o.name === 'roof' || o.name === 'floor2') return; // tratados à parte
@@ -4119,17 +4240,22 @@
         host.appendChild(hud);
         S.hudRange = rng; S.hudSel = sel; S.hudClock = clock;
 
-        // ── Slider da fase da obra (timeline construtiva) — só V1 ────────────
-        if (v === 'v1') {
+        // ── Slider da fase da obra (timeline construtiva) — V1 (7 fases) e V4 (11 fases) ──
+        if (v === 'v1' || v === 'v4') {
+            const isV4 = (v === 'v4');
+            const labels = isV4 ? PHASE_LABELS_V4 : PHASE_LABELS;
+            const nMax = labels.length;
             const phud = document.createElement('div');
             phud.className = 'scene3d-hud phase-hud';
             const prng = document.createElement('input');
-            prng.type = 'range'; prng.min = '1'; prng.max = '7'; prng.step = '1'; prng.value = String(buildPhase);
+            prng.type = 'range'; prng.min = '1'; prng.max = String(nMax); prng.step = '1';
+            prng.value = String(isV4 ? buildPhase4 : buildPhase);
             const plabel = document.createElement('span');
             plabel.className = 'hud-clock';
             const papply = () => {
-                buildPhase = parseInt(prng.value, 10);
-                plabel.textContent = buildPhase + '/7 ' + PHASE_LABELS[buildPhase - 1];
+                const val = parseInt(prng.value, 10);
+                if (isV4) buildPhase4 = val; else buildPhase = val;
+                plabel.textContent = val + '/' + nMax + ' ' + labels[val - 1];
                 applyBuildPhase(v);
             };
             prng.addEventListener('input', papply);
@@ -4170,7 +4296,7 @@
             maxNativeZoom: 18, maxZoom: 25
         }).addTo(map);
 
-        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32') ? v3Layers() : buildLayers(v)).addTo(map);
+        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32' || v === 'v4') ? v3Layers() : buildLayers(v)).addTo(map);
         maps[v] = map;
         map._overlay = overlay;
 
