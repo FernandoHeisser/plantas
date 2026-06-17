@@ -374,11 +374,14 @@ Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
   coluna NE (`ePN = GN1 − COL/2 − 0,12`).
 
 **Junta casa↔garagem (V2/V3):** as duas lajes ficam no mesmo nível e se encontram **rente
-na junta de dilatação, sem mureta entre elas**:
-- **Casa:** quando há garagem (`hasGarageW = !SOLAR && (v2||v3)`), a fachada oeste encosta
-  na junta → laje **sem beiral oeste** (`e0 = 22,4 + OE`, face da parede) e **sem platibanda
-  oeste**. Senão a laje/platibanda da casa cavalgavam a laje da garagem (`GE1j = 22,37 + OE`)
-  e as platibandas ficavam **transpostas**.
+na junta de dilatação, sem mureta e sem vão entre elas**. A borda oeste da casa vai até a
+**linha da junta `GE1j = 22,5 − EW/2 − GAP = 22,37 + OE`** (= face leste da garagem) em
+**todas as lajes**, encostando rente — sem beiral oeste, sem fresta, sem sobreposição:
+- **Teto** (V2 + laje 2 do V3): `hasGarageW = !SOLAR && (v2||v3)` → `e0 = 22,37 + OE` e
+  **sem platibanda oeste**. (Antes `e0=22,0` cavalgava a garagem → platibandas transpostas;
+  depois `e0=22,4` deixou 3 cm de vão; agora `22,37` encosta rente.)
+- **Laje 1** (intermediária, `floor2` V3/V3.1/V3.2): a laje da casa começa em `Egar` (= junta)
+  em vez de `Wcasa−BN_EW` (que dava 0,5 m de beiral cavalgando a garagem).
 - **V1:** mantém beiral + platibanda no perímetro inteiro (não há garagem).
 
 ### Bugs resolvidos / armadilhas conhecidas
