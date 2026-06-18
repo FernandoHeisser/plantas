@@ -3456,7 +3456,12 @@
             // em eW−tt, 12 cm além da fascia → degrau/desnível no canto. A sobreposição com
             // as bonecas/esperas dos pilares oeste (22,38→22,62) é resolvida pelo
             // polygonOffset (matEmbase da boneca vence o lajeMat da mureta).
-            roof.add(box3d(n0,  eW,      n1 - n0, tt,      pb, pbTop, lajeMat)); // oeste (junta)
+            // SÓ no V1 standalone: quando a garagem está anexada (V2+), o oeste deixa de
+            // ser borda exposta — a laje da casa encontra a laje da garagem na junta e as
+            // duas devem ler como uma superfície CONTÍNUA (sem mureta entre elas).
+            const hasGarage = (rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32');
+            if (!hasGarage)
+                roof.add(box3d(n0,  eW,      n1 - n0, tt,      pb, pbTop, lajeMat)); // oeste (junta)
         }
 
         // ── Esperas (arranques p/ o sobrado V3) — só V1/V2 (sem 2º piso ainda) ──
