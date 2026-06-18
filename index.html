@@ -1481,7 +1481,7 @@
         'Telhado solar', 'Esquadrias 2º pav',
         // Acabamento final do conjunto
         'Pintura (marrom)'];
-    let buildPhase4 = PHASE_LABELS_V4.length;   // abre completo (19)
+    let buildPhase4 = 1;   // V4 abre na 1ª fase (Fundação) — assiste a obra do começo
 
     // ── Roteamento por URL: / → v1, /v2 → v2, /v3 → v3, qualquer outro → v1 ──
     // Rotas de fase da obra (/v0.1.../v0.5) → V1 numa fase construtiva (3D).
@@ -1521,7 +1521,7 @@
         ver = v;
         // Navegação explícita por aba volta à casa completa (push=false vem do
         // popstate/boot, que já ajustou buildPhase pela rota /v0.x).
-        if (push) { history.pushState({ v }, '', pathFromVersion(v)); buildPhase = 7; }
+        if (push) { history.pushState({ v }, '', pathFromVersion(v)); buildPhase = 7; buildPhase4 = 1; }
         syncTabs();
         render();
     }
