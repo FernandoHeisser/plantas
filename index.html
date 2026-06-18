@@ -1836,10 +1836,10 @@
                 { color: '#f59e0b', weight: 2.5, fillColor: LOT_FILL, fillOpacity: 0.82, interactive: false }
             ));
 
-            // Casa MVP — forma em L: mN 2.0→7.5 × mE 22.0→29.5 + bump-out cozinha mN 7.5→8.0 × mE 26.5→29.5
+            // Casa MVP — retângulo (mN 2.0→7.5 × mE 22.0→29.5); parede norte reta em mN 7.5
             // (deslocada 0,5 m p/ oeste em relação ao lote — ver OE; fachada oeste recuada 1 m p/ leste)
             lys.push(L.polygon(
-                [rot(2.0,19.0), rot(7.5,19.0), rot(7.5,23.5), rot(8.0,23.5), rot(8.0,26.5), rot(2.0,26.5)],
+                [rot(2.0,19.0), rot(7.5,19.0), rot(7.5,26.5), rot(2.0,26.5)],
                 { color: 'transparent', weight: 0, fillColor: '#fafafa', fillOpacity: 1, interactive: false }
             ));
             // Chão retângulo leste completo (mN 2→7,5 × mE 30→31,5) — retângulo perfeito
