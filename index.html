@@ -3122,11 +3122,12 @@
             extStairs(pN0, pE1, pN1-pN0, 'E');
             _ph = PH.found;   // restaura p/ as seções seguintes da casa
         }
-        // V4: enquanto a casa é standalone (V1), a porta norte (sala) tem a MESMA escada do
-        // V1 descendo p/ o jardim. Some quando a plataforma/garagem chega (phEnd = gFound).
+        // V4: enquanto a casa é standalone (V1), as portas da frente têm as MESMAS escadas do
+        // V1 (principal oeste + sala norte). Somem quando a plataforma/garagem chega (phEnd = gFound).
         if (v === 'v4') {
             _ph = PH.found; _phEnd = PH.gFound;
-            extStairs(7.55, 23.00 + OE, 2.00, 'N');
+            extStairs(2.15, EE0, 1.20, 'W');         // porta principal (oeste / frente)
+            extStairs(7.55, 23.00 + OE, 2.00, 'N');  // porta de vidro (norte / sala)
             _phEnd = null;
         }
         // ── Colunas estruturais da casa — 15×15 cm, matEmbase (V1+V2+V3) ──────
@@ -3613,6 +3614,10 @@
                 _ph = PH.laje1;
                 const wb = box3d(cn0, ceW + OE, cn1-cn0, ce0-ceW, lz0, lz1, lajeMat);
                 F2.add(wb); wb.userData.phEnd = PH.gFound;
+                // Fascia oeste (mesma borda de 0,25 m de sul/norte/leste) — senão a beirada
+                // oeste fica 0,25 m mais rasa que as outras → "degrau" na platibanda.
+                const wf = box3d(cn0, ceW + OE, cn1-cn0, BT, lz0 - 0.25, lz1, lajeMat);
+                F2.add(wf); wf.userData.phEnd = PH.gFound;
             }
             // Garagem: faces sul, norte, oeste (leste = junta) — borda da laje da garagem → bloco V2
             _ph = PH.gLaje;
