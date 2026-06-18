@@ -3616,8 +3616,12 @@
                 F2.add(wb); wb.userData.phEnd = PH.gFound;
                 // Fascia oeste (mesma borda de 0,25 m de sul/norte/leste) — senão a beirada
                 // oeste fica 0,25 m mais rasa que as outras → "degrau" na platibanda.
-                const wf = box3d(cn0, ceW + OE, cn1-cn0, BT, lz0 - 0.25, lz1, lajeMat);
-                F2.add(wf); wf.userData.phEnd = PH.gFound;
+                // + stubs sul/norte (ceW→junta): a borda sul/norte começa só em Egar, então
+                // sem os stubs sobra um vão/degrau na fascia no canto oeste (sob a mureta-stub).
+                const wfAdd = (n, e, dn, de) => { const m = box3d(n, e + OE, dn, de, lz0 - 0.25, lz1, lajeMat); F2.add(m); m.userData.phEnd = PH.gFound; };
+                wfAdd(cn0,     ceW, cn1-cn0, BT);       // fascia oeste
+                wfAdd(cn0,     ceW, BT,      ce0-ceW);  // fascia stub sul  (ceW→junta)
+                wfAdd(cn1-BT,  ceW, BT,      ce0-ceW);  // fascia stub norte
             }
             // Garagem: faces sul, norte, oeste (leste = junta) — borda da laje da garagem → bloco V2
             _ph = PH.gLaje;
