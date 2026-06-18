@@ -375,12 +375,16 @@ norte exposto (mN `n1`→`gn1`) leva platibanda na leste, parando na boneca da c
 na junta de dilatação, sem mureta e sem vão entre elas**. A borda oeste da casa vai até a
 **linha da junta `GE1j = 22,5 − EW/2 − GAP = 22,37 + OE`** (= face leste da garagem) em
 **todas as lajes**, encostando rente — sem beiral oeste, sem fresta, sem sobreposição:
-- **Teto** (V2 + laje 2 do V3): `hasGarageW = !SOLAR && (v2||v3)` → `e0 = 22,37 + OE` e
-  **sem platibanda oeste**. (Antes `e0=22,0` cavalgava a garagem → platibandas transpostas;
-  depois `e0=22,4` deixou 3 cm de vão; agora `22,37` encosta rente.)
-- **Laje 1** (intermediária, `floor2` V3/V3.1/V3.2): a laje da casa começa em `Egar` (= junta)
-  em vez de `Wcasa−BN_EW` (que dava 0,5 m de beiral cavalgando a garagem).
-- **V1:** mantém beiral + platibanda no perímetro inteiro (não há garagem).
+- **Teto** (laje plana não-SOLAR, **inclusive V1**): a borda oeste vai SEMPRE até a junta
+  (`eW = 22,37 + OE`), **sem beiral nem platibanda oeste**. (Antes `e0=22,0` cavalgava a
+  garagem → platibandas transpostas; depois `e0=22,4` deixou 3 cm de vão; agora `22,37`
+  encosta rente.) **O V1 não tem mais beiral oeste** — a laje termina rente à parede, p/ a
+  expansão V2 (junta com a garagem) ser possível. `e0 = 22,5 − BN_EW + OE` sobrou só para
+  o telhado solar (`addShed`), que mantém o beiral oeste próprio.
+- **Laje 1** (intermediária, `floor2` V3/V3.1/V3.2 **e V4**): a laje da casa começa em `Egar`
+  (= junta), sem beiral oeste. No **V4** a mureta de perímetro inclui o oeste **na junta**
+  desde a fase da laje (fase 4) — não há mais o trecho de beiral oeste simétrico (mE 22,0)
+  que existia só enquanto a casa era standalone.
 
 ### Bugs resolvidos / armadilhas conhecidas
 
@@ -884,13 +888,12 @@ Aba `data-v="v4"`, rota `/v4`, painéis `p-v4-2d/3d/med`.
   (0,42 m, = `/v1`) em **todo o perímetro** da casa, na laje 1 (`F2.add`, `_ph = PH.laje1`). Some
   quando o sobrado sobe via **`userData.phEnd = PH.colS`** (o 2º pav a substitui). `applyBuildPhase`
   trata `phEnd`: objeto visível só na janela `[ph, phEnd)`.
-  - **Face oeste simétrica:** a laje oeste do V4 para na junta (`Egar = 22,37`), então a mureta
-    oeste ficaria sem o beiral de 0,5 m das outras faces (desproporcional). Enquanto a casa é
-    **standalone** (`[laje1, gFound)`) o oeste recebe o beiral cheio (mE **`Wcasa − BN_EW`** = 0,5 m
-    medido da FACE da parede, como leste/sul): mureta + stubs sul/norte (→junta) + um pedaço de
-    **laje** + a **fascia** de 0,25 m (`addBorda`, senão a beirada oeste fica 0,25 m mais rasa = um
-    "degrau"). Quando a **garagem anexa** (`gFound`) esse trecho some e o oeste vira a **junta**
-    (mureta em `Egar`, vive `[gFound, colS)`) — sem laje sobreposta com a garagem.
+  - **Face oeste = junta (sem beiral):** a laje oeste do V4 termina RENTE à parede oeste, na
+    junta (`Egar = 22,37`), **desde o V1 standalone** — sem beiral, sem stubs, sem fascia oeste.
+    A mureta oeste fica na junta (`pbAdd(cn0, ce0, …, PH.laje1, PH.colS)`) já na fase da laje.
+    Isso garante que a laje da casa nunca cavalga a futura garagem, viabilizando a junta de
+    dilatação da expansão V2. (Antes, enquanto standalone, o oeste tinha um beiral simétrico de
+    0,5 m que sumia quando a garagem anexava — removido.)
 - **Escadas das portas da frente (V1):** enquanto a casa é standalone, as portas **principal
   (oeste)** e **da sala (norte)** ganham as MESMAS escadas externas do `/v1` (`extStairs 'W'` e
   `'N'`), com `_phEnd = PH.gFound` — somem quando a plataforma/garagem assume o acesso (V2). O
