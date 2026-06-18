@@ -919,7 +919,8 @@ Aba `data-v="v4"`, rota `/v4`, painéis `p-v4-2d/3d/med`.
   (2º pav), que têm `.add` próprio. Cada subseção da garagem/`floor2`/`roof` seta `_ph` antes
   dos `add`. **Cuidado:** a cerca dos fundos declara um `const PH = 2,20` (altura do mourão) que
   sombrearia o `PH` das fases — por isso o `_ph = PH.muro` do muro é setado **fora** do bloco.
-- **`applyBuildPhase('v4')`** (estado `buildPhase4`, default **20**): percorre **toda** a árvore
+- **`applyBuildPhase('v4')`** (estado `buildPhase4`, **abre na fase 1/20 — Fundação**; `setVersion`
+  reseta `buildPhase4=1` ao clicar a aba, p/ sempre começar do início da obra): percorre **toda** a árvore
   (`traverse`), oculta `userData.ph > buildPhase4`, **ergue o telhado** (`roof.position.y =
   CEIL3D+0.16`), força `roof`/`floor2` **sempre visíveis** (quem some é o filho, pelo `ph`) e
   aplica a **pintura** na última fase (gatilho dinâmico `ph >= PHASE_LABELS_V4.length`). V4 **não
