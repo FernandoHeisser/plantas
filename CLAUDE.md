@@ -886,10 +886,15 @@ Aba `data-v="v4"`, rota `/v4`, painéis `p-v4-2d/3d/med`.
   trata `phEnd`: objeto visível só na janela `[ph, phEnd)`.
   - **Face oeste simétrica:** a laje oeste do V4 para na junta (`Egar = 22,37`), então a mureta
     oeste ficaria sem o beiral de 0,5 m das outras faces (desproporcional). Enquanto a casa é
-    **standalone** (`[laje1, gFound)`) o oeste recebe o beiral cheio (mE **22,0** = `/v1`): mureta +
-    stubs sul/norte (22,0→junta) + um pedaço de **laje** que a sustenta. Quando a **garagem anexa**
-    (`gFound`) esse trecho some e o oeste vira a **junta** (mureta em `Egar`, vive `[gFound, colS)`) —
-    sem laje sobreposta com a garagem.
+    **standalone** (`[laje1, gFound)`) o oeste recebe o beiral cheio (mE **`Wcasa − BN_EW`** = 0,5 m
+    medido da FACE da parede, como leste/sul): mureta + stubs sul/norte (→junta) + um pedaço de
+    **laje** + a **fascia** de 0,25 m (`addBorda`, senão a beirada oeste fica 0,25 m mais rasa = um
+    "degrau"). Quando a **garagem anexa** (`gFound`) esse trecho some e o oeste vira a **junta**
+    (mureta em `Egar`, vive `[gFound, colS)`) — sem laje sobreposta com a garagem.
+- **Escadas das portas da frente (V1):** enquanto a casa é standalone, as portas **principal
+  (oeste)** e **da sala (norte)** ganham as MESMAS escadas externas do `/v1` (`extStairs 'W'` e
+  `'N'`), com `_phEnd = PH.gFound` — somem quando a plataforma/garagem assume o acesso (V2). O
+  `stampAdd` carrega `_phEnd` p/ carimbar a janela de fases também em geometria de helpers.
 - **Pivô da porta:** o marcador de dobradiça do `doorArc` (`circ` preto) leva `no3d:true` — senão o
   pipeline o extruda numa **massa preta de 0,45 m** flutuando (corrigido em todas as versões).
 - **Muro = V1.1, não V1:** muro frontal + portão + cercas só aparecem **depois do V1 pronto**, na
