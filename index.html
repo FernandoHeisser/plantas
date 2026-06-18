@@ -3485,8 +3485,11 @@
                 // Boneca de proteção: stub de concreto rebocado sobre a laje, escondendo o ferro
                 espCaps.add(box3d(cn - 0.12, e3 - 0.12, 0.24, 0.24, LTOP, ETOP + BAR_H + 0.05, matEmbase));
             };
-            roof.add(espBars);
-            roof.add(espCaps);
+            // Esperas são irmãs do `roof` (não filhas) → o botão "Esperas" controla só
+            // o ferro/boneca, independente da laje (botão "Laje"). Antes eram filhas do
+            // roof e o reveal forçava a laje a aparecer/sumir junto.
+            g.add(espBars);
+            g.add(espCaps);
             // Esperas dos 12 pilares da CASA
             [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
              [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
@@ -4265,19 +4268,20 @@
         });
         const roof = S.group.getObjectByName('roof');
         if (roof) {
-            // V1: a laje segue a fase (4–6) e some no acabamento — exceto se as esperas
-            // foram reveladas (precisam da laje p/ serem vistas). V2+: estado do botão Laje.
-            if (v === 'v1') roof.visible = (ph >= 4 && ph <= 6) || (ph >= 7 && !!S.espRevealed);
-            else if (S.espRevealed) roof.visible = true;
+            // V1: a laje segue só a fase (4–6) e some no acabamento. V2+: estado do botão
+            // Laje (não forçamos aqui). As esperas NÃO controlam mais a laje.
+            if (v === 'v1') roof.visible = (ph >= 4 && ph <= 6);
         }
-        // Esperas (V1/V2): ferro cru durante a obra (fases <7) ou quando revelado;
-        // capeado (boneca) no acabamento e não-revelado. Herdam roof.visible.
+        // Esperas (V1/V2) — independentes da laje (irmãs do roof): ferro cru durante a obra
+        // (fases da laje 4–6) ou quando revelado; boneca de concreto só com a laje visível,
+        // no acabamento e não-revelado.
         const espB = S.group.getObjectByName('esperasBars');
         const espC = S.group.getObjectByName('esperasCaps');
         if (espB && espC) {
             const revealed = !!S.espRevealed;
-            espB.visible = (ph < 7) || revealed;
-            espC.visible = (ph >= 7) && !revealed;
+            const roofVis = !!(roof && roof.visible);
+            espB.visible = (ph >= 4 && ph <= 6) || revealed;
+            espC.visible = roofVis && (ph >= 7) && !revealed;
         }
         // Mantém o slider em sincronia quando a fase muda por URL (popstate/boot)
         if (v === 'v1' && S.phaseRange) {
@@ -4292,15 +4296,15 @@
         const S = scenes3d[v];
         if (!S || !S.group) return;
         S.espRevealed = !S.espRevealed;
-        applyBuildPhase(v);
-        btn.textContent = 'Esperas: ' + (S.espRevealed ? 'reveladas' : 'ocultas');
-        // Sincroniza o rótulo do botão Laje (applyBuildPhase pode tê-la ligado)
+        const revealed = S.espRevealed;
+        const ph = (v === 'v1') ? buildPhase : 7;
         const roof = S.group.getObjectByName('roof');
-        const lajeBtn = btn.parentElement.querySelector('button');
-        if (roof && lajeBtn) {
-            const noun = (v === 'v31' || v === 'v32') ? 'Telhado' : 'Laje';
-            lajeBtn.textContent = noun + ': ' + (roof.visible ? 'visível' : 'oculto');
-        }
+        const espB = S.group.getObjectByName('esperasBars');
+        const espC = S.group.getObjectByName('esperasCaps');
+        // Só alterna ferro↔boneca; NÃO mexe na laje (botão "Laje" é independente).
+        if (espB) espB.visible = (ph >= 4 && ph <= 6) || revealed;
+        if (espC) espC.visible = !!(roof && roof.visible) && (ph >= 7) && !revealed;
+        btn.textContent = 'Esperas: ' + (revealed ? 'reveladas' : 'ocultas');
     }
 
     function set3DRoof(v, btn) {
@@ -4309,6 +4313,10 @@
         const roof = S.group.getObjectByName('roof');
         if (!roof) return;
         roof.visible = !roof.visible;
+        // A boneca das esperas acompanha a laje (só aparece com a laje, no acabamento e
+        // não-revelada); o ferro cru independe da laje.
+        const espC = S.group.getObjectByName('esperasCaps');
+        if (espC) { const ph = (v === 'v1') ? buildPhase : 7; espC.visible = roof.visible && (ph >= 7) && !S.espRevealed; }
         const noun = (v === 'v31' || v === 'v32') ? 'Telhado' : 'Laje';
         btn.textContent = noun + ': ' + (roof.visible ? 'visível' : 'oculto');
     }
