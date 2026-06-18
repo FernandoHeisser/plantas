@@ -53,12 +53,12 @@
 
         /* Version tabs — pill style */
         .version-tabs { display: flex; gap: 6px; }
-        .vtab {
-            padding: 6px 14px;
+        .version-select {
+            padding: 7px 32px 7px 14px;
             border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.08);
-            background: rgba(255,255,255,0.05);
-            color: #64748b;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.06);
+            color: #e2e8f0;
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px;
             font-weight: 600;
@@ -66,15 +66,14 @@
             transition: all 0.15s;
             text-transform: uppercase;
             letter-spacing: 0.4px;
+            -webkit-appearance: none; -moz-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='10'%20height='6'%20viewBox='0%200%2010%206'%3E%3Cpath%20fill='%2394a3b8'%20d='M0%200l5%206%205-6z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
         }
-        .vtab:hover { background: rgba(255,255,255,0.1); color: #94a3b8; }
-        .vtab[data-v="v1"].active  { background: rgba(59,130,246,0.2);  border-color: rgba(59,130,246,0.45);  color: #93c5fd; }
-        .vtab[data-v="v11"].active { background: rgba(16,185,129,0.2);  border-color: rgba(16,185,129,0.45);  color: #6ee7b7; }
-        .vtab[data-v="v2"].active  { background: rgba(245,158,11,0.2);  border-color: rgba(245,158,11,0.45);  color: #fbbf24; }
-        .vtab[data-v="v3"].active  { background: rgba(139,92,246,0.2);  border-color: rgba(139,92,246,0.45);  color: #c4b5fd; }
-        .vtab[data-v="v31"].active { background: rgba(20,184,166,0.2);  border-color: rgba(20,184,166,0.45);  color: #5eead4; }
-        .vtab[data-v="v32"].active { background: rgba(146,64,14,0.25);  border-color: rgba(180,83,9,0.5);     color: #d6a06a; }
-        .vtab[data-v="v4"].active  { background: rgba(249,115,22,0.2);  border-color: rgba(249,115,22,0.45);  color: #fdba74; }
+        .version-select:hover { background-color: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+        .version-select:focus { outline: none; border-color: rgba(59,130,246,0.6); }
+        .version-select option { background: var(--construido); color: #e2e8f0; }
 
         /* ── SECTION NAV — dark secondary, pills ── */
         .section-nav {
@@ -363,7 +362,7 @@
             .app-header { padding: 9px 14px 8px; }
             .header-title { font-size: 0.88rem; }
             .header-meta { font-size: 9.5px; }
-            .vtab { padding: 4px 9px; font-size: 10px; }
+            .version-select { padding: 5px 28px 5px 10px; font-size: 10px; }
             .version-tabs { gap: 4px; }
 
             .section-nav { padding: 5px 10px; }
@@ -384,7 +383,7 @@
         @media (max-width: 400px) {
             :root { --sticky-h: 96px; }
             .header-meta { display: none; }
-            .vtab { padding: 4px 7px; font-size: 9.5px; }
+            .version-select { padding: 5px 26px 5px 8px; font-size: 9.5px; }
         }
         .map-btn {
             padding: 5px 12px; background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.4);
@@ -649,13 +648,15 @@
             <div class="header-meta">12,50m × 40,00m · Charqueadas, RS · Lote 500m²</div>
         </div>
         <div class="version-tabs">
-            <button class="vtab active" data-v="v1"  onclick="setVersion('v1')">V1 · MVP</button>
-            <button class="vtab"        data-v="v11" onclick="setVersion('v11')">V1.1</button>
-            <button class="vtab"        data-v="v2"  onclick="setVersion('v2')">V2 · Garagem</button>
-            <button class="vtab"        data-v="v3"  onclick="setVersion('v3')">V3 · Sobrado</button>
-            <button class="vtab"        data-v="v31" onclick="setVersion('v31')">V3.1 · Telhado solar</button>
-            <button class="vtab"        data-v="v32" onclick="setVersion('v32')">V3.2 · Pintura marrom</button>
-            <button class="vtab"        data-v="v4"  onclick="setVersion('v4')">V4 · Obra fase a fase</button>
+            <select class="version-select" id="version-select" onchange="setVersion(this.value)" aria-label="Selecionar versão">
+                <option value="v1">V1 · MVP</option>
+                <option value="v11">V1.1 · Muro</option>
+                <option value="v2">V2 · Garagem</option>
+                <option value="v3">V3 · Sobrado</option>
+                <option value="v31">V3.1 · Telhado solar</option>
+                <option value="v32">V3.2 · Pintura marrom</option>
+                <option value="v4">V4 · Obra fase a fase</option>
+            </select>
         </div>
     </div>
 </header>
@@ -1508,13 +1509,10 @@
         return '/' + v;
     }
 
-    // V1 sempre visível; V2/V3 só aparecem na aba quando você está na rota delas
+    // Dropdown de versões: reflete a versão atual no select
     function syncTabs() {
-        document.querySelectorAll('.vtab').forEach(t => {
-            const v = t.dataset.v;
-            t.style.display = (v === 'v1' || v === ver) ? '' : 'none';
-            t.classList.toggle('active', v === ver);
-        });
+        const sel = document.getElementById('version-select');
+        if (sel) sel.value = ver;
     }
 
     function setVersion(v, push = true) {
