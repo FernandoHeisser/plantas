@@ -3452,10 +3452,13 @@
             roof.add(box3d(n0,      eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // sul
             roof.add(box3d(n1 - tt, eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // norte
             roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
-            // Oeste (junta): mureta deslocada p/ OESTE de eW — face interna rente à borda
-            // da laje (eW=22,37), extrudando p/ fora. Senão a espessura entraria p/ leste e
-            // sobreporia as bonecas/esperas dos pilares oeste (22,38→22,62) → z-fight.
-            roof.add(box3d(n0,  eW - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // oeste (junta)
+            // Oeste (junta): mureta ASSENTADA sobre a borda da laje, face externa em eW
+            // (coincidente com a fascia oeste e com o slab), espessura p/ DENTRO — igual
+            // aos lados sul/norte/leste (fascia e mureta sempre na mesma face). Antes ficava
+            // em eW−tt, 12 cm além da fascia → degrau/desnível no canto. A sobreposição com
+            // as bonecas/esperas dos pilares oeste (22,38→22,62) é resolvida pelo
+            // polygonOffset (matEmbase da boneca vence o lajeMat da mureta).
+            roof.add(box3d(n0,  eW,      n1 - n0, tt,      pb, pbTop, lajeMat)); // oeste (junta)
         }
 
         // ── Esperas (arranques p/ o sobrado V3) — só V1/V2 (sem 2º piso ainda) ──
