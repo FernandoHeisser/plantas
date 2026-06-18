@@ -1939,8 +1939,7 @@
             // ── Esperas para garagem V2 — fachada oeste (mE=22,5), só V1 ─────────
             // Garagem é estrutura INDEPENDENTE. Conexões reais com a casa:
             // Degraus externos fundos (leste) — nova parede leste mE=31,5 (face exterior 31,6)
-            lys.push(rect(4.70, 31.60, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
-            lys.push(rect(4.70, 31.90, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
+            backStairs2D().forEach(l => lys.push(l));
             doorArc(5.60, 31.50, -0.90, 0.0, -1).forEach(l => lys.push(l)); // Fundos → abre p/ oeste (cozinha), hinge mN=5,60
             doorArc(4.50, 29.80,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → abre para sul (dentro), hinge leste
             doorArc(4.50, 28.20,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Á. serviço → abre para sul (dentro), hinge leste
@@ -2096,10 +2095,7 @@
             // Borda norte em DIAGONAL: larga na frente (mN=11,5, poste norte do portão p/ cobrir
             // o vão de entrada do carro) afunilando até o canto NO da garagem (GN1=10,5) — acompanha
             // a garagem em vez de deixar uma faixa reta de 1 m a norte dela.
-            lys.push(L.polygon(
-                [rot(GN0, 0), rot(11.5, 0), rot(GN1, GE0+OE), rot(GN0, GE0+OE)],
-                { color: '#94a3b8', weight: 1, fillColor: '#d1d5db', fillOpacity: 0.90, interactive: false }
-            ));
+            driveway2D().forEach(l => lys.push(l));
 
             // Contorno da laje — tracejado; para antes da junta (garagem independente)
             lys.push(L.polygon(
@@ -2169,48 +2165,7 @@
 
         // ── V1.1+: muro frontal (mE=0) + portão norte + cercas ──────────────
         if (v === 'v11' || v === 'v2' || v === 'v3' || v === 'v31' || v === 'v32') {
-            // Muro sólido: mN 0→9,0, espessura 0,15 m p/ dentro do lote
-            // Muro sul: mN 0→8,0
-            lys.push(L.polygon(
-                [rot(0, 0), rot(8.0, 0), rot(8.0, 0.15), rot(0, 0.15)],
-                { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }
-            ));
-            // Muro norte: mN 11,5→12,5 (1 m de recuo do vizinho norte)
-            lys.push(L.polygon(
-                [rot(11.5, 0), rot(12.5, 0), rot(12.5, 0.15), rot(11.5, 0.15)],
-                { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }
-            ));
-            // Portão (3,5 m): tracejado indicando abertura
-            lys.push(L.polyline([rot(8.0, 0.075), rot(11.5, 0.075)],
-                { color: '#94a3b8', weight: 1.5, dashArray: '6 4', interactive: false }));
-            // Folhas do portão abertas 90° (1,75 m p/ dentro do lote)
-            lys.push(L.polyline([rot(8.0, 0), rot(8.0, 1.75)],
-                { color: '#64748b', weight: 1.5, interactive: false }));
-            lys.push(L.polyline([rot(11.5, 0), rot(11.5, 1.75)],
-                { color: '#64748b', weight: 1.5, interactive: false }));
-            // Muro norte: mN 12,35→12,5, mE 0→40
-            lys.push(L.polygon(
-                [rot(12.35, 0), rot(12.5, 0), rot(12.5, 40), rot(12.35, 40)],
-                { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }
-            ));
-            // Colunas de divisa: canto mE=0 + emendas a cada 5m + canto mE=40
-            for (let i = 0; i <= 8; i++) {
-                const ce = i * 5;
-                lys.push(L.polygon(
-                    [rot(12.28, ce-0.11), rot(12.5, ce-0.11), rot(12.5, ce+0.11), rot(12.28, ce+0.11)],
-                    { color: '#1e293b', weight: 0.5, fillColor: '#64748b', fillOpacity: 1, interactive: false }
-                ));
-            }
-            // Cerca sul: mN 0→0,10, mE 0→40
-            lys.push(L.polygon(
-                [rot(0, 0), rot(0.10, 0), rot(0.10, 40), rot(0, 40)],
-                { color: '#5c3a1e', weight: 1, fillColor: '#8B5E3C', fillOpacity: 1, interactive: false }
-            ));
-            // Cerca de madeira nos fundos: mE=40, mN 0→12,5
-            lys.push(L.polygon(
-                [rot(0, 39.90), rot(12.5, 39.90), rot(12.5, 40), rot(0, 40)],
-                { color: '#5c3a1e', weight: 1, fillColor: '#8B5E3C', fillOpacity: 1, interactive: false }
-            ));
+            frontWallsFences2D().forEach(l => lys.push(l));
         }
 
         return lys;
@@ -2335,6 +2290,57 @@
         return lys;
     }
 
+    // ── Contexto externo do lote — fonte única (térreo V2/V3 + visão 2º pav) ──
+    // Acesso pavimentado (driveway) da garagem: rua (mE=0) → entrada (mE=GE0+OE).
+    // Borda norte em diagonal (mN=11,5 na frente → GN1=10,5 na garagem).
+    function driveway2D() {
+        const GN0 = 2.0, GN1 = 10.5, GE0 = 13.5;
+        return [ L.polygon(
+            [rot(GN0, 0), rot(11.5, 0), rot(GN1, GE0 + OE), rot(GN0, GE0 + OE)],
+            { color: '#94a3b8', weight: 1, fillColor: '#d1d5db', fillOpacity: 0.90, interactive: false }) ];
+    }
+
+    // Muro frontal (mE=0) + portão norte + muros laterais + cercas (V1.1+).
+    function frontWallsFences2D() {
+        const lys = [];
+        // Muro sul frontal: mN 0→8,0
+        lys.push(L.polygon([rot(0, 0), rot(8.0, 0), rot(8.0, 0.15), rot(0, 0.15)],
+            { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }));
+        // Muro norte frontal: mN 11,5→12,5
+        lys.push(L.polygon([rot(11.5, 0), rot(12.5, 0), rot(12.5, 0.15), rot(11.5, 0.15)],
+            { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }));
+        // Portão (3,5 m): tracejado indicando abertura
+        lys.push(L.polyline([rot(8.0, 0.075), rot(11.5, 0.075)],
+            { color: '#94a3b8', weight: 1.5, dashArray: '6 4', interactive: false }));
+        // Folhas do portão abertas 90° (1,75 m p/ dentro do lote)
+        lys.push(L.polyline([rot(8.0, 0), rot(8.0, 1.75)], { color: '#64748b', weight: 1.5, interactive: false }));
+        lys.push(L.polyline([rot(11.5, 0), rot(11.5, 1.75)], { color: '#64748b', weight: 1.5, interactive: false }));
+        // Muro norte (divisa): mN 12,35→12,5, mE 0→40
+        lys.push(L.polygon([rot(12.35, 0), rot(12.5, 0), rot(12.5, 40), rot(12.35, 40)],
+            { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }));
+        // Colunas de divisa: canto mE=0 + emendas a cada 5m + canto mE=40
+        for (let i = 0; i <= 8; i++) {
+            const ce = i * 5;
+            lys.push(L.polygon([rot(12.28, ce-0.11), rot(12.5, ce-0.11), rot(12.5, ce+0.11), rot(12.28, ce+0.11)],
+                { color: '#1e293b', weight: 0.5, fillColor: '#64748b', fillOpacity: 1, interactive: false }));
+        }
+        // Cerca sul (divisa): mN 0→0,10, mE 0→40
+        lys.push(L.polygon([rot(0, 0), rot(0.10, 0), rot(0.10, 40), rot(0, 40)],
+            { color: '#5c3a1e', weight: 1, fillColor: '#8B5E3C', fillOpacity: 1, interactive: false }));
+        // Cerca de madeira nos fundos: mE=40, mN 0→12,5
+        lys.push(L.polygon([rot(0, 39.90), rot(12.5, 39.90), rot(12.5, 40), rot(0, 40)],
+            { color: '#5c3a1e', weight: 1, fillColor: '#8B5E3C', fillOpacity: 1, interactive: false }));
+        return lys;
+    }
+
+    // Degraus externos da porta dos fundos (leste, mE=31,5 → quintal).
+    function backStairs2D() {
+        return [
+            rect(4.70, 31.60, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }), // patim
+            rect(4.70, 31.90, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }), // degrau
+        ];
+    }
+
     // Camadas 2D do 2º pavimento (laje + paredes externas + contexto do térreo)
     function buildFloor2Layers() {
         const lys = [];
@@ -2348,6 +2354,12 @@
             { color: '#f59e0b', weight: 2.5, fillColor: LOT_FILL, fillOpacity: 0.82, interactive: false }));
         lys.push(L.polygon([rot(0,0), rot(12.5,0), rot(12.5,40), rot(0,40)],
             { color: '#f59e0b', weight: 3, fillOpacity: 0, interactive: false }));
+
+        // Contexto externo do térreo (driveway + muros/portão/cercas + escada dos
+        // fundos) — mesmas peças do térreo, p/ orientação no 2º pav.
+        driveway2D().forEach(l => lys.push(l));
+        frontWallsFences2D().forEach(l => lys.push(l));
+        backStairs2D().forEach(l => lys.push(l));
 
         // Laje do 2º piso — DUAS estruturas independentes (junta = V2)
         const slabSty = { color: '#94a3b8', weight: 1.5, fillColor: '#fafafa', fillOpacity: 1, interactive: false };
