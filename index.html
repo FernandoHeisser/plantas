@@ -2093,9 +2093,11 @@
             const COL = 0.20;             // seção das colunas (20 × 20 cm)
 
             // Acesso pavimentado: rua (mE=0) → entrada da garagem (mE=GE0+OE no lote)
-            // Norte vai até mN=11,5 (poste norte do portão) para cobrir todo o vão de entrada do carro
+            // Borda norte em DIAGONAL: larga na frente (mN=11,5, poste norte do portão p/ cobrir
+            // o vão de entrada do carro) afunilando até o canto NO da garagem (GN1=10,5) — acompanha
+            // a garagem em vez de deixar uma faixa reta de 1 m a norte dela.
             lys.push(L.polygon(
-                [rot(GN0, 0), rot(11.5, 0), rot(11.5, GE0+OE), rot(GN0, GE0+OE)],
+                [rot(GN0, 0), rot(11.5, 0), rot(GN1, GE0+OE), rot(GN0, GE0+OE)],
                 { color: '#94a3b8', weight: 1, fillColor: '#d1d5db', fillOpacity: 0.90, interactive: false }
             ));
 
@@ -3788,10 +3790,24 @@
             const GEM_P = 0.03;
 
             // Acesso pavimentado: rua (mE=0) → entrada da garagem (mE=GE0)
-            // Norte: 11,5 (poste norte do portão); base desce até baseBot p/ não ficar oco
+            // Borda norte em DIAGONAL (igual ao 2D): larga na frente (mN=11,5, poste norte do
+            // portão) afunilando até o canto NO da garagem (GN1=10,5). Slab trapezoidal extrudado
+            // (box3d só faz retângulo eixo-alinhado). Base desce até baseBot p/ não ficar oco.
             const matDrive = new THREE.MeshStandardMaterial({ color: 0xd0ccc4, roughness: 0.88, metalness: 0, envMapIntensity: 0.2, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
             _ph = PH.gFound;   // garagem: acesso pavimentado = fundação/infra
-            g.add(box3d(GN0, 0, 11.5 - GN0, GE0, baseBot(0, GE0), GCPA, matDrive));
+            const drvBase = baseBot(0, GE0);
+            const drvShape = new THREE.Shape();      // plano (x=mE, y=mN)
+            drvShape.moveTo(0,   GN0);
+            drvShape.lineTo(0,   11.5);              // NO — borda da frente (vão do portão)
+            drvShape.lineTo(GE0, GN1);               // NE — canto NO da garagem (afunila)
+            drvShape.lineTo(GE0, GN0);               // SE — canto SO da garagem
+            drvShape.closePath();
+            const drvGeo = new THREE.ExtrudeGeometry(drvShape, { depth: GCPA - drvBase, bevelEnabled: false });
+            drvGeo.rotateX(-Math.PI / 2);            // plan XY → XZ; extrude vira altura (Y); Z = −mN
+            const drvMesh = new THREE.Mesh(drvGeo, matDrive);
+            drvMesh.position.y = drvBase;
+            drvMesh.castShadow = true; drvMesh.receiveShadow = true;
+            g.add(drvMesh);
 
             // 9 colunas (3×3): frente / meio / fundo × sul / centro / norte.
             // Base desce até a cota natural (baseBot) — casa com o declive, sem flutuar.
