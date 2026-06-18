@@ -3429,10 +3429,20 @@
         const e0 = (22.5 - BN_EW) + OE, e1 = 31.5 + OE + BN_EW;  // e0 só p/ o addShed solar
         const eW = (22.5 - 0.10 - 0.03) + OE;                    // oeste da laje plana = junta
         const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12; // platibanda
+        // Fascia/borda do beiral (= addBorda do V4): banda de 25 cm pendurada SOB a laje
+        // nas faces externas. Dá o "acabamento do lado inferior" (pingadeira) que protege
+        // a parede da chuva e, junto com a platibanda acima, fecha o beiral num plano
+        // vertical limpo — escondendo o topo da casa e a laje (igual ao V4).
+        const fbb = CEIL3D + CPA - 0.25, fbt = CEIL3D + CPA + 0.16, BT = 0.08;
         if (SOLAR) {
             addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16, 2.0, 7.5, 22.5 + OE, 31.5 + OE);
         } else {
             roof.add(box3d(n0, eW, n1 - n0, e1 - eW, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab (oeste = junta)
+            // Fascia do beiral (sul/norte/leste; oeste = junta, sem beiral)
+            roof.add(box3d(n0,      eW,     BT,       e1 - eW, fbb, fbt, lajeMat)); // fascia sul
+            roof.add(box3d(n1 - BT, eW,     BT,       e1 - eW, fbb, fbt, lajeMat)); // fascia norte
+            roof.add(box3d(n0,      e1 - BT, n1 - n0, BT,      fbb, fbt, lajeMat)); // fascia leste
+            // Platibanda (mureta) acima da laje
             roof.add(box3d(n0,      eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // sul
             roof.add(box3d(n1 - tt, eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // norte
             roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste (oeste = junta, sem platibanda)

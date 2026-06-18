@@ -362,7 +362,13 @@ const grade = mE => -mE * SLOPE;   // cota natural do solo (m), datum 0 = calça
 ### Cobertura
 
 Laje plana de concreto (não telhado de duas águas) — **V3 recebe 2º pavimento sobre ela**.  
-Grupo `roof` = laje (y 2,70→2,86) + platibanda em 4 lados (y 2,86→3,28). Começa oculta.  
+Grupo `roof` = **fascia do beiral** (banda de 25 cm pendurada sob a laje, `fbb=CEIL3D+CPA−0,25
+→ fbt=CEIL3D+CPA+0,16`, `BT=0,08`, faces sul/norte/leste) + laje (`CEIL3D+CPA → +0,16`) +
+platibanda/mureta em 3 lados (`pb=CEIL3D+CPA+0,16 → pbTop+0,42`, `tt=0,12`). Começa oculta.  
+A **fascia + platibanda** fecham o beiral num plano vertical limpo: a platibanda esconde o
+topo da casa/laje e a fascia é o **acabamento inferior (pingadeira)** que protege a parede da
+chuva. É a réplica do `addBorda` do V4 (laje 1) — V1 e V4 têm o mesmo acabamento de beiral.
+Oeste = junta de dilatação → sem fascia nem platibanda (laje rente à parede).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
 **Platibanda da garagem (V2 e V3):** gate `if (!SOLAR)` → platibanda no perímetro
