@@ -4280,7 +4280,10 @@
         if (espB && espC) {
             const revealed = !!S.espRevealed;
             const roofVis = !!(roof && roof.visible);
-            espB.visible = (ph >= 4 && ph <= 6) || revealed;
+            // Esperas saem do topo dos pilares → só existem se há coluna (V1: fase ≥ 2 = Colunas).
+            // Sem isso, "revelar" deixava o ferro flutuando na Fundação (fase 1, sem colunas).
+            const colsExist = (v === 'v1') ? (ph >= 2) : true;
+            espB.visible = colsExist && ((ph >= 4 && ph <= 6) || revealed);
             espC.visible = roofVis && (ph >= 7) && !revealed;
         }
         // Mantém o slider em sincronia quando a fase muda por URL (popstate/boot)
@@ -4302,7 +4305,9 @@
         const espB = S.group.getObjectByName('esperasBars');
         const espC = S.group.getObjectByName('esperasCaps');
         // Só alterna ferro↔boneca; NÃO mexe na laje (botão "Laje" é independente).
-        if (espB) espB.visible = (ph >= 4 && ph <= 6) || revealed;
+        // Ferro só existe se há coluna (V1: fase ≥ 2); senão "revelar" flutua sem pilar.
+        const colsExist = (v === 'v1') ? (ph >= 2) : true;
+        if (espB) espB.visible = colsExist && ((ph >= 4 && ph <= 6) || revealed);
         if (espC) espC.visible = !!(roof && roof.visible) && (ph >= 7) && !revealed;
         btn.textContent = 'Esperas: ' + (revealed ? 'reveladas' : 'ocultas');
     }
@@ -4312,12 +4317,19 @@
         if (!S || !S.group) return;
         const roof = S.group.getObjectByName('roof');
         if (!roof) return;
+        const ph = (v === 'v1') ? buildPhase : 7;
+        const noun = (v === 'v31' || v === 'v32') ? 'Telhado' : 'Laje';
+        // V1: a laje só pode existir sobre as colunas + vigas (fase ≥ 3); senão flutuaria
+        // no ar. Bloqueia o botão de revelá-la antes da estrutura estar pronta.
+        if (v === 'v1' && ph < 3 && !roof.visible) {
+            btn.textContent = noun + ': oculta (sem estrutura)';
+            return;
+        }
         roof.visible = !roof.visible;
         // A boneca das esperas acompanha a laje (só aparece com a laje, no acabamento e
         // não-revelada); o ferro cru independe da laje.
         const espC = S.group.getObjectByName('esperasCaps');
-        if (espC) { const ph = (v === 'v1') ? buildPhase : 7; espC.visible = roof.visible && (ph >= 7) && !S.espRevealed; }
-        const noun = (v === 'v31' || v === 'v32') ? 'Telhado' : 'Laje';
+        if (espC) { espC.visible = roof.visible && (ph >= 7) && !S.espRevealed; }
         btn.textContent = noun + ': ' + (roof.visible ? 'visível' : 'oculto');
     }
 
