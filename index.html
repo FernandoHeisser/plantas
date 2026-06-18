@@ -3438,19 +3438,27 @@
             addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16, 2.0, 7.5, 22.5 + OE, 31.5 + OE);
         } else {
             roof.add(box3d(n0, eW, n1 - n0, e1 - eW, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab (oeste = junta)
-            // Fascia do beiral (sul/norte/leste; oeste = junta, sem beiral)
-            roof.add(box3d(n0,      eW,     BT,       e1 - eW, fbb, fbt, lajeMat)); // fascia sul
-            roof.add(box3d(n1 - BT, eW,     BT,       e1 - eW, fbb, fbt, lajeMat)); // fascia norte
-            roof.add(box3d(n0,      e1 - BT, n1 - n0, BT,      fbb, fbt, lajeMat)); // fascia leste
+            // Fascia do beiral — 4 lados. No oeste (junta) a laje é rente à parede (sem
+            // beiral), então a fascia fica RENTE ao slab (face em eW, espessura p/ dentro):
+            // não projeta para fora, preservando a junta de dilatação da garagem (V2+), mas
+            // fecha a faixa do beiral na mesma altura dos outros lados (antes o oeste tinha
+            // só a mureta → faixa "menor" que os demais).
+            roof.add(box3d(n0,      eW,      BT,       e1 - eW, fbb, fbt, lajeMat)); // fascia sul
+            roof.add(box3d(n1 - BT, eW,      BT,       e1 - eW, fbb, fbt, lajeMat)); // fascia norte
+            roof.add(box3d(n0,      e1 - BT, n1 - n0, BT,       fbb, fbt, lajeMat)); // fascia leste
+            roof.add(box3d(n0,      eW,      n1 - n0, BT,       fbb, fbt, lajeMat)); // fascia oeste (rente à junta)
             // Platibanda (mureta) acima da laje — 4 lados (igual ao V4). O oeste fica na
             // junta de dilatação (eW): tem mureta, mas SEM fascia (laje rente à parede).
             roof.add(box3d(n0,      eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // sul
             roof.add(box3d(n1 - tt, eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // norte
             roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
-            // Oeste (junta): mureta deslocada p/ OESTE de eW — face interna rente à borda
-            // da laje (eW=22,37), extrudando p/ fora. Senão a espessura entraria p/ leste e
-            // sobreporia as bonecas/esperas dos pilares oeste (22,38→22,62) → z-fight.
-            roof.add(box3d(n0,  eW - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // oeste (junta)
+            // Oeste (junta): mureta ASSENTADA sobre a borda da laje, face externa em eW
+            // (coincidente com a fascia oeste e com o slab), espessura p/ DENTRO — igual
+            // aos lados sul/norte/leste (fascia e mureta sempre na mesma face). Antes ficava
+            // em eW−tt, 12 cm além da fascia → degrau/desnível no canto. A sobreposição com
+            // as bonecas/esperas dos pilares oeste (22,38→22,62) é resolvida pelo
+            // polygonOffset (matEmbase da boneca vence o lajeMat da mureta).
+            roof.add(box3d(n0,  eW,      n1 - n0, tt,      pb, pbTop, lajeMat)); // oeste (junta)
         }
 
         // ── Esperas (arranques p/ o sobrado V3) — só V1/V2 (sem 2º piso ainda) ──
