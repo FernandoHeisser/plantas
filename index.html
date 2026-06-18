@@ -2939,11 +2939,11 @@
                 paint:20 }                                                              // pintura final
             : { found:1, colT:2, vigaT:3, laje1:4, alven:5, esquad:6, acab:7, cap:7, muro:7,
                 gFound:1, gColT:2, gVigaT:3, gLaje:4, colS:5, vigaS:6, laje2:4, alvenS:5, telhado:4, esquadS:6, paint:7 };
-        let _ph = 0;
+        let _ph = 0, _phEnd = null;   // _phEnd: se setado, o objeto só vive na janela [_ph, _phEnd)
         // Carimba qualquer grupo (g, roof, floor2) com o _ph corrente. roof/floor2 têm
         // seu próprio .add → embrulhados também p/ o V4 revelar seus filhos por fase.
         const stampAdd = grp => { const orig = grp.add.bind(grp);
-            grp.add = (...objs) => { objs.forEach(o => { if (o && o.userData) o.userData.ph = _ph; }); return orig(...objs); }; return orig; };
+            grp.add = (...objs) => { objs.forEach(o => { if (o && o.userData) { o.userData.ph = _ph; if (_phEnd != null) o.userData.phEnd = _phEnd; } }); return orig(...objs); }; return orig; };
         const _origAdd = stampAdd(g);
 
         const floor = texFloor(); floor.repeat.set(8, 5);
@@ -3121,6 +3121,13 @@
             // Escada leste — 4 degraus descendo p/ o quintal (e=0,175 m; p=0,28 m; Blondel ✓)
             extStairs(pN0, pE1, pN1-pN0, 'E');
             _ph = PH.found;   // restaura p/ as seções seguintes da casa
+        }
+        // V4: enquanto a casa é standalone (V1), a porta norte (sala) tem a MESMA escada do
+        // V1 descendo p/ o jardim. Some quando a plataforma/garagem chega (phEnd = gFound).
+        if (v === 'v4') {
+            _ph = PH.found; _phEnd = PH.gFound;
+            extStairs(7.55, 23.00 + OE, 2.00, 'N');
+            _phEnd = null;
         }
         // ── Colunas estruturais da casa — 15×15 cm, matEmbase (V1+V2+V3) ──────
         // Mesmo grid marcado em vermelho no 2D; embedded nas paredes (Z-fight
@@ -3589,7 +3596,7 @@
             // enquanto a casa é standalone [laje1, gFound); quando a garagem anexa, o oeste vira
             // a junta (mureta em Egar), que vive [gFound, colS).
             if (v === 'v4') {
-                const PBb = lz1, PBt = lz1 + 0.42, ptt = 0.12, ceW = 22.5 - BN_EW;  // 22,0 = beiral 0,5 (= leste/sul/norte)
+                const PBb = lz1, PBt = lz1 + 0.42, ptt = 0.12, ceW = Wcasa - BN_EW;  // beiral 0,5 medido da FACE da parede (= leste/sul), p/ não ficar mais curto
                 const pbAdd = (n, e, dn, de, ph0, phEnd) => {
                     _ph = ph0; const m = box3d(n, e + OE, dn, de, PBb, PBt, lajeMat); F2.add(m); m.userData.phEnd = phEnd;
                 };
