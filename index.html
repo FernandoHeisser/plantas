@@ -3421,23 +3421,21 @@
         // Beiral: norte 0,90 m (autoregulador solar lat−30°), sul/leste/oeste 0,50 m (proteção chuva)
         const BN_N = 0.90, BN_S = 0.50, BN_EW = 0.50;
         const n0 = 2 - BN_S, n1 = 7.5 + BN_N;
-        // Oeste: no V1 a casa tem beiral 0,50 m. No V2/V3 a fachada oeste encosta na
-        // garagem (junta de dilatação) → laje sem beiral oeste (para na face da parede,
-        // 22,4) e SEM platibanda oeste. Senão a laje/platibanda da casa cavalgam a laje
-        // da garagem (que termina em GE1j=22,37) e as platibandas ficam transpostas.
-        const hasGarageW = !SOLAR && (rv === 'v2' || rv === 'v3');
-        // Com garagem: a borda oeste vai até a linha da junta (GE1j = 22,5 − EW/2 − GAP =
-        // 22,37) p/ encostar RENTE na laje da garagem, sem deixar fresta/vão entre as duas.
-        const e0 = (hasGarageW ? 22.5 - 0.10 - 0.03 : 22.5 - BN_EW) + OE, e1 = 31.5 + OE + BN_EW;
+        // Oeste: a laje da casa termina SEMPRE rente à face da parede oeste, na linha da
+        // junta de dilatação (22,5 − EW/2 − GAP = 22,37) — sem beiral nem platibanda oeste.
+        // Vale também p/ o V1 standalone: senão o beiral de 0,5 m cavalgaria a futura
+        // garagem (V2) e impediria a junta. (Antes só V2/V3 paravam na junta; o V1 tinha
+        // beiral oeste.) O telhado solar (SOLAR/addShed) mantém o beiral oeste próprio.
+        const e0 = (22.5 - BN_EW) + OE, e1 = 31.5 + OE + BN_EW;  // e0 só p/ o addShed solar
+        const eW = (22.5 - 0.10 - 0.03) + OE;                    // oeste da laje plana = junta
         const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12; // platibanda
         if (SOLAR) {
             addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16, 2.0, 7.5, 22.5 + OE, 31.5 + OE);
         } else {
-            roof.add(box3d(n0, e0, n1 - n0, e1 - e0, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab
-            roof.add(box3d(n0,      e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // sul
-            roof.add(box3d(n1 - tt, e0, tt,       e1 - e0, pb, pbTop, lajeMat)); // norte (uniform)
-            if (!hasGarageW) roof.add(box3d(n0, e0, n1 - n0, tt, pb, pbTop, lajeMat)); // oeste (só V1; V2/V3 = junta)
-            roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
+            roof.add(box3d(n0, eW, n1 - n0, e1 - eW, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab (oeste = junta)
+            roof.add(box3d(n0,      eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // sul
+            roof.add(box3d(n1 - tt, eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // norte
+            roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste (oeste = junta, sem platibanda)
         }
 
         // ── Esperas (arranques p/ o sobrado V3) — só V1/V2 (sem 2º piso ainda) ──
@@ -3591,37 +3589,19 @@
             // V4: platibanda (mureta) em TODO o perímetro da casa, igual ao V1 original
             // (/v1, 0,42 m): cara de "casa quadrada com telhado embutido". Nasce com a laje
             // (fase 4) e some quando o sobrado sobe (phEnd = colS).
-            // A face OESTE precisa do MESMO beiral (0,5 m → mE 22,0) das outras p/ não ficar
-            // desproporcional. Mas no V4 a laje oeste para na junta (Egar = 22,37). Então o
-            // trecho simétrico do oeste (beiral 22,0→junta + mureta + stubs sul/norte) vive só
-            // enquanto a casa é standalone [laje1, gFound); quando a garagem anexa, o oeste vira
-            // a junta (mureta em Egar), que vive [gFound, colS).
+            // OESTE = junta de dilatação (Egar = 22,37): a laje termina RENTE à face da
+            // parede oeste, SEM beiral — desde o V1 standalone — p/ a expansão V2 (junta
+            // com a garagem) ser possível. A mureta oeste fica na junta já na fase da laje.
             if (v === 'v4') {
-                const PBb = lz1, PBt = lz1 + 0.42, ptt = 0.12, ceW = Wcasa - BN_EW;  // beiral 0,5 medido da FACE da parede (= leste/sul), p/ não ficar mais curto
+                const PBb = lz1, PBt = lz1 + 0.42, ptt = 0.12;
                 const pbAdd = (n, e, dn, de, ph0, phEnd) => {
                     _ph = ph0; const m = box3d(n, e + OE, dn, de, PBb, PBt, lajeMat); F2.add(m); m.userData.phEnd = phEnd;
                 };
-                // Sul / norte / leste (oeste = junta) — do V1 ao sobrado
-                pbAdd(cn0,     ce0,     ptt,     ce1-ce0, PH.laje1,  PH.colS);  // sul
-                pbAdd(cn1-ptt, ce0,     ptt,     ce1-ce0, PH.laje1,  PH.colS);  // norte
-                pbAdd(cn0,     ce1-ptt, cn1-cn0, ptt,     PH.laje1,  PH.colS);  // leste
-                pbAdd(cn0,     ce0,     cn1-cn0, ptt,     PH.gFound, PH.colS);  // oeste JUNTA (V2+)
-                // Trecho simétrico do oeste (V1 standalone) — some quando a garagem anexa
-                pbAdd(cn0,     ceW,     ptt,     ce0-ceW, PH.laje1,  PH.gFound); // stub sul (22,0→junta)
-                pbAdd(cn1-ptt, ceW,     ptt,     ce0-ceW, PH.laje1,  PH.gFound); // stub norte
-                pbAdd(cn0,     ceW,     cn1-cn0, ptt,     PH.laje1,  PH.gFound); // mureta oeste simétrica (22,0)
-                // Beiral oeste da laje (22,0→junta) que sustenta a mureta simétrica
-                _ph = PH.laje1;
-                const wb = box3d(cn0, ceW + OE, cn1-cn0, ce0-ceW, lz0, lz1, lajeMat);
-                F2.add(wb); wb.userData.phEnd = PH.gFound;
-                // Fascia oeste (mesma borda de 0,25 m de sul/norte/leste) — senão a beirada
-                // oeste fica 0,25 m mais rasa que as outras → "degrau" na platibanda.
-                // + stubs sul/norte (ceW→junta): a borda sul/norte começa só em Egar, então
-                // sem os stubs sobra um vão/degrau na fascia no canto oeste (sob a mureta-stub).
-                const wfAdd = (n, e, dn, de) => { const m = box3d(n, e + OE, dn, de, lz0 - 0.25, lz1, lajeMat); F2.add(m); m.userData.phEnd = PH.gFound; };
-                wfAdd(cn0,     ceW, cn1-cn0, BT);       // fascia oeste
-                wfAdd(cn0,     ceW, BT,      ce0-ceW);  // fascia stub sul  (ceW→junta)
-                wfAdd(cn1-BT,  ceW, BT,      ce0-ceW);  // fascia stub norte
+                // Sul / norte / leste / oeste (junta) — todas nascem com a laje (V1)
+                pbAdd(cn0,     ce0,     ptt,     ce1-ce0, PH.laje1, PH.colS);  // sul
+                pbAdd(cn1-ptt, ce0,     ptt,     ce1-ce0, PH.laje1, PH.colS);  // norte
+                pbAdd(cn0,     ce1-ptt, cn1-cn0, ptt,     PH.laje1, PH.colS);  // leste
+                pbAdd(cn0,     ce0,     cn1-cn0, ptt,     PH.laje1, PH.colS);  // oeste (junta)
             }
             // Garagem: faces sul, norte, oeste (leste = junta) — borda da laje da garagem → bloco V2
             _ph = PH.gLaje;
