@@ -368,7 +368,7 @@ platibanda/mureta em **4 lados** (`pb=CEIL3D+CPA+0,16 → pbTop+0,42`, `tt=0,12`
 A **fascia + platibanda** fecham o beiral num plano vertical limpo: a platibanda esconde o
 topo da casa/laje e a fascia é o **acabamento inferior (pingadeira)** que protege a parede da
 chuva. É a réplica do `addBorda` do V4 (laje 1) — V1 e V4 têm o mesmo acabamento de beiral.
-Oeste = junta de dilatação → tem **platibanda** (igual ao V4), mas **sem fascia** (laje rente à parede).  
+Oeste = junta de dilatação → no **V1 standalone** tem **platibanda** (igual ao V4), mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3/V3.1/V3.2)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3,v31,v32}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
 **Platibanda da garagem (V2 e V3):** gate `if (!SOLAR)` → platibanda no perímetro
