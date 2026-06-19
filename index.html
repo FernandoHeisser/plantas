@@ -2255,11 +2255,11 @@
             // Fundo: parede traseira (mE 30+OE) → limite do fundo (mE 40). Cresce ao avançar.
             dimLine(4.5, 30 + OE, 4.5, 40, fmtM(40 - (30 + OE)) + ' m — fundo').forEach(l => lys.push(l));
 
-            // Lat. direita (sul): limite sul → parede sul (2 m). Linha colada à face oeste da casa.
-            dimLine(0, 22.5 + OE, 2.0, 22.5 + OE, '2 m — sul').forEach(l => lys.push(l));
+            // Lat. direita (sul): limite sul → parede sul (2 m). Linha no centro da casa.
+            dimLine(0, 26.5 + OE, 2.0, 26.5 + OE, '2 m — sul').forEach(l => lys.push(l));
 
             // Lat. esquerda (norte): parede norte → limite norte
-            dimLine(7.5, 22.5 + OE, 12.5, 22.5 + OE, '5,0 m — norte').forEach(l => lys.push(l));
+            dimLine(7.5, 26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte').forEach(l => lys.push(l));
 
             // ── Cotas totais do lote (beiradas externas) ─────────────────────
             // Âmbar para diferenciar das cotas de afastamento (brancas).
@@ -2519,20 +2519,23 @@
             // Parede sul da garagem — para na junta (estrutura independente da casa)
             lys.push(wall(GN0, GE0, GN0, GE1j, 0.20, { no3d: true }));
 
-            // Colunas nas extremidades da viga E-O de suporte (mN 3,4)
-            [GE0, GE1j - COL].forEach(e =>
-                lys.push(rect(3.40, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
             // Viga E-O aérea (mN 3,4) ao norte da escada — vai até a coluna leste da junta
             lys.push(L.polyline([rot(3.40, GE0+OE), rot(3.40, GE1j+OE)],
                 { color: '#94a3b8', weight: 2, dashArray: '8 5', interactive: false }));
 
-            // Colunas 3×3 — vão N-S centralizado na zona de vagas (mN 3,40→10,30)
-            const GNM = (3.40 + (GN1 - COL)) / 2 - COL / 2; // = 6,75 → vãos iguais de 3,35 m
+            // Colunas da garagem
+            const GNM = (3.40 + (GN1 - COL)) / 2 - COL / 2; // = 6,75
             const GEM = (GE0 + GE1j) / 2 - COL / 2;         // meio E-O (ajustado à junta)
-            [GN0, GNM, GN1 - COL].forEach(n => {
+            // mN=GN0: só extremidades (GEM na parede sul fica embutido, confuso)
+            [GE0, GE1j - COL].forEach(e =>
+                lys.push(rect(GN0, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
+            // mN=3,40: oeste + centro (GE1j-COL omitido — fica a 3 cm da face da parede da casa, lê como torto)
+            [GE0, GEM].forEach(e =>
+                lys.push(rect(3.40, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
+            // Linhas de vagas [GNM / GN1-COL]: 3 colunas cada
+            [GNM, GN1 - COL].forEach(n =>
                 [GE0, GEM, GE1j - COL].forEach(e =>
-                    lys.push(rect(n, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
-            });
+                    lys.push(rect(n, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true }))));
 
             lys.push(roomLabel(6.25, 18.0, 'Garagem', '8,5 × 9 m', '76,5 m²'));
 
@@ -2559,9 +2562,9 @@
             dimLine(0,   18 + OE, GN0,  18 + OE, '2,0 m — sul').forEach(l => lys.push(l));
             dimLine(GN1, 18 + OE, 12.5, 18 + OE, '2,0 m — norte').forEach(l => lys.push(l));
 
-            // Cotas da casa (mesmo posicionamento que V1) — coladas à face oeste da casa
-            dimLine(0, 22.5 + OE, 2.0, 22.5 + OE, '2 m — sul').forEach(l => lys.push(l));
-            dimLine(7.5, 22.5 + OE, 12.5, 22.5 + OE, '5,0 m — norte').forEach(l => lys.push(l));
+            // Cotas da casa — linha no centro da casa (mE 26,5)
+            dimLine(0, 26.5 + OE, 2.0, 26.5 + OE, '2 m — sul').forEach(l => lys.push(l));
+            dimLine(7.5, 26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte').forEach(l => lys.push(l));
         }
 
         // ── V3: 2º pavimento — desenhado em camada própria (buildFloor2Layers),
@@ -2673,9 +2676,6 @@
         // Vão (stairwell) na laje — tracejado, sobre o trecho alto (oeste)
         lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_HE1 - ESC_E_top, 'transparent',
             { color: '#0ea5e9', weight: 1, dashArray: '4 3', fill: false, no3d: true }));
-        // Pilar novo reapoiando a viga central (mE 17,4) ao norte da escada
-        lys.push(rect(3.40, 18.40, ESC_COL, ESC_COL, '#334155',
-            { color: '#0f172a', weight: 0.5, no3d: true }));
         lys.push(L.polyline(                        // seta de subida (L→O)
             [rot(ESC_N0 + ESC_DN/2, ESC_E_base - 0.3 + OE), rot(ESC_N0 + ESC_DN/2, ESC_E_top + 0.3 + OE)],
             { color: '#475569', weight: 1.2, interactive: false }));
@@ -2834,8 +2834,8 @@
         // Cotas de afastamento do edifício às margens do lote (mesmas do térreo) — seguem o OE
         dimLine(4.5, 0, 4.5, 13.5 + OE, fmtM(13.5 + OE) + ' m — frente').forEach(l => lys.push(l));  // frente garagem
         dimLine(4.5, 30 + OE, 4.5, 40, fmtM(40 - (30 + OE)) + ' m — fundo').forEach(l => lys.push(l)); // fundo casa
-        dimLine(0, 22.5 + OE, 2.0, 22.5 + OE, '2 m — sul').forEach(l => lys.push(l));      // casa sul
-        dimLine(7.5, 22.5 + OE, 12.5, 22.5 + OE, '5,0 m — norte').forEach(l => lys.push(l)); // casa norte
+        dimLine(0, 26.5 + OE, 2.0, 26.5 + OE, '2 m — sul').forEach(l => lys.push(l));      // casa sul
+        dimLine(7.5, 26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte').forEach(l => lys.push(l)); // casa norte
         dimLine(0, 18 + OE, 2.0, 18 + OE, '2,0 m — sul').forEach(l => lys.push(l));    // garagem sul
         dimLine(10.5, 18 + OE, 12.5, 18 + OE, '2,0 m — norte').forEach(l => lys.push(l)); // garagem norte
 
@@ -4569,8 +4569,8 @@
         // Afastamentos — branco (mesmas cotas do 2D, seguem o OE → casa)
         _dimLine3D(g,  4.5,  0,        4.5,  22.5 + OE, fmtM(22.5 + OE) + ' m — frente');
         _dimLine3D(g,  4.5,  30 + OE,  4.5,  40,        fmtM(40 - (30 + OE)) + ' m — fundo');
-        _dimLine3D(g,  0,    22.5 + OE, 2.0, 22.5 + OE, '2 m — sul');
-        _dimLine3D(g,  7.5,  22.5 + OE, 12.5, 22.5 + OE, '5,0 m — norte');
+        _dimLine3D(g,  0,    26.5 + OE, 2.0, 26.5 + OE, '2 m — sul');
+        _dimLine3D(g,  7.5,  26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte');
         // Totais do lote — âmbar
         _dimLine3D(g,  13.5, 0,    13.5, 40,    '40 m', '#f59e0b');
         _dimLine3D(g,  0,    41.5, 12.5, 41.5,  '12,5 m', '#f59e0b');
