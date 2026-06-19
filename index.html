@@ -3400,7 +3400,7 @@
         };
         // Telhado de uma água REAL: água de telha + 2 empenas (frontões O/L) apoiadas nas
         //   paredes (wn0/wn1 = mN da parede; we0/we1 = mE dos planos das paredes O/L) + usina FV.
-        const addShed = (grp, n0, e0, n1, e1, yEaveN, wn0, wn1, we0, we1) => {
+        const addShed = (grp, n0, e0, n1, e1, yEaveN, wn0, wn1, we0, we1, o = {}) => {
             const yRoof = n => yEaveN + (n1 - n) * tanP;   // cota da água (plano central) no mN n
             const yBot  = yEaveN - 0.16;                   // topo da parede (= laje do 2º piso)
             grp.add(tiltedSlab(matMetalRoof, n0, e0, n1, e1, yEaveN, 0.10));
@@ -3411,8 +3411,13 @@
             grp.add(box3d(wn0 - 0.075, we0, 0.15, we1 - we0, yBot, yRoof(wn0), matGable)); // sul (alto)
             grp.add(box3d(wn1 - 0.075, we0, 0.15, we1 - we0, yBot, yRoof(wn1), matGable)); // norte (baixo)
             // Módulos FV em grade na água norte, insetados das bordas/beiral.
-            const mIn = 0.55, pw = 1.0, pl = 1.65, gap = 0.04, pth = 0.04;
-            const a0 = e0 + mIn, a1 = e1 - mIn, b0 = n0 + mIn, b1 = n1 - mIn;
+            // o.inset = recuo das bordas (default 0,55; menor = adensa). o.panW0/o.panW1 =
+            // limites O/L absolutos da grade (mE de cena) — usados p/ tirar a faixa oeste do
+            // telhado da casa que a garagem (mais alta, a oeste) sombreia no fim de tarde.
+            const mIn = o.inset !== undefined ? o.inset : 0.55, pw = 1.0, pl = 1.65, gap = 0.04, pth = 0.04;
+            const a0 = o.panW0 !== undefined ? o.panW0 : e0 + mIn;
+            const a1 = o.panW1 !== undefined ? o.panW1 : e1 - mIn;
+            const b0 = n0 + mIn, b1 = n1 - mIn;
             for (let ec = a0; ec + pw <= a1 + 1e-6; ec += pw + gap)
                 for (let nc = b0; nc + pl <= b1 + 1e-6; nc += pl + gap) {
                     const cn = nc + pl / 2;
@@ -3447,7 +3452,10 @@
         // vertical limpo — escondendo o topo da casa e a laje (igual ao V4).
         const fbb = CEIL3D + CPA - 0.25, fbt = CEIL3D + CPA + 0.16, BT = 0.08;
         if (SOLAR) {
-            addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16, 2.0, 7.5, 22.5 + OE, 31.5 + OE);
+            // Casa: painéis começam em mE 24,5 (2,0 m a leste da junta) p/ sair da sombra de
+            // fim de tarde projetada pelo telhado da garagem (mais alto, a oeste). Concentra a
+            // geração na garagem; na casa ficam só as colunas centro/leste, sempre iluminadas.
+            addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16, 2.0, 7.5, 22.5 + OE, 31.5 + OE, { panW0: 24.5 + OE });
         } else {
             roof.add(box3d(n0, eW, n1 - n0, e1 - eW, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab (oeste = junta)
             // Fascia do beiral — 4 lados. No oeste (junta) a laje é rente à parede (sem
@@ -3885,7 +3893,15 @@
             if (SOLAR) {
                 // V3.1: shed independente da garagem caindo p/ norte + painéis FV.
                 // Leste para na junta (GE1j); não encosta na casa.
-                addShed(roof, gn0, ge0, gn1, GE1j, GLAJE + 0.16, GN0, GN1, GE0, GE1j);
+                // inset 0,45 (vs 0,55 padrão): adensa a grade FV — a garagem é o telhado mais
+                // alto, maior e nunca sombreado, então concentra a geração aqui (ganha 1 coluna).
+                addShed(roof, gn0, ge0, gn1, GE1j, GLAJE + 0.16, GN0, GN1, GE0, GE1j, { inset: 0.45 });
+                // Beiral leste da garagem — extensão TODA (gn0→gn1): a água avança 0,50 m a
+                // leste da empena (junta GE1j), como os demais beirais, protegendo a junta/parede
+                // ao longo de todo o comprimento. O telhado da garagem é ~0,64 m mais alto que o
+                // da casa, então esse beiral oversaila o telhado da casa na junta (detalhe normal
+                // de telhados em degrau: o mais alto joga a água sobre o mais baixo).
+                roof.add(tiltedSlab(matMetalRoof, gn0, GE1j, gn1, GE1j + BN_EW, GLAJE + 0.16, 0.10));
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
                 // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
