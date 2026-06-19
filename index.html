@@ -2523,11 +2523,13 @@
             lys.push(L.polyline([rot(3.40, GE0+OE), rot(3.40, GE1j+OE)],
                 { color: '#94a3b8', weight: 2, dashArray: '8 5', interactive: false }));
 
-            // Colunas 4×3 = 12 pilares — alinha com esperas e 2º pav. (V3)
-            // Linhas mN: [GN0=2,0 (parede sul), 3,40 (viga suporte escada), GNM=6,75, GN1-COL=10,30]
+            // Colunas — 3×3 nas linhas de vagas + linha mN=3,40 só nas extremidades
+            // (GEM em mN=3,40 fica dentro do vão da escada — mostrado no 3D, omitido aqui)
             const GNM = (3.40 + (GN1 - COL)) / 2 - COL / 2; // = 6,75
             const GEM = (GE0 + GE1j) / 2 - COL / 2;         // meio E-O (ajustado à junta)
-            [GN0, 3.40, GNM, GN1 - COL].forEach(n =>
+            [GE0, GE1j - COL].forEach(e =>
+                lys.push(rect(3.40, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
+            [GN0, GNM, GN1 - COL].forEach(n =>
                 [GE0, GEM, GE1j - COL].forEach(e =>
                     lys.push(rect(n, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true }))));
 
