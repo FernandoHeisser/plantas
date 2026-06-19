@@ -4482,7 +4482,7 @@
         }
 
         g.add = _origAdd; // cotas (buildDims3D) e qualquer add posterior sem carimbo → sempre visíveis
-        buildDims3D(g);
+        buildDims3D(g, v);
         return g;
     }
 
@@ -4565,12 +4565,17 @@
         g.add(lbl);
     }
 
-    function buildDims3D(g) {
-        // Afastamentos — branco (mesmas cotas do 2D, seguem o OE → casa)
-        _dimLine3D(g,  4.5,  0,        4.5,  22.5 + OE, fmtM(22.5 + OE) + ' m — frente');
+    function buildDims3D(g, v) {
+        const rv = (v === 'v4') ? 'v32' : v;
+        const hasGarage = (rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32');
+        // Afastamentos — branco (mesmas cotas do 2D, seguem o OE)
+        const eFrente = hasGarage ? 13.5 + OE : 22.5 + OE;
+        _dimLine3D(g,  4.5,  0,        4.5,  eFrente,   fmtM(eFrente) + ' m — frente');
         _dimLine3D(g,  4.5,  30 + OE,  4.5,  40,        fmtM(40 - (30 + OE)) + ' m — fundo');
         _dimLine3D(g,  0,    26.5 + OE, 2.0, 26.5 + OE, '2 m — sul');
-        _dimLine3D(g,  7.5,  26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte');
+        const nNorte  = hasGarage ? 10.5 : 7.5;
+        const recuoN  = 12.5 - nNorte;
+        _dimLine3D(g,  nNorte, 26.5 + OE, 12.5, 26.5 + OE, fmtM(recuoN) + ' m — norte');
         // Totais do lote — âmbar
         _dimLine3D(g,  13.5, 0,    13.5, 40,    '40 m', '#f59e0b');
         _dimLine3D(g,  0,    41.5, 12.5, 41.5,  '12,5 m', '#f59e0b');
