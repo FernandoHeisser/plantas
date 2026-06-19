@@ -848,6 +848,12 @@ dilatação** — não há cobertura emendada entre os blocos.
   - Casa: `addShed(roof, n0,e0,n1,e1, CEIL3D+CPA+0.16, 2.0,7.5, 22.5+OE,31.5+OE)`.
     Garagem: `addShed(roof, gn0,ge0,gn1,GE1j, GLAJE+0.16, GN0,GN1, GE0,GE1j)`
     (leste para na junta GE1j; **sem platibanda** quando `SOLAR`).
+  - **Beiral leste EXPOSTO da garagem** (logo após o `addShed` da garagem): de `n1`(=8,4, borda
+    norte do telhado da casa) até `gn1`, a água é estendida 0,50 m a leste da junta com um
+    `tiltedSlab` extra (`matMetalRoof`, mesma `yEaveN`/`PITCH` → coplanar e contíguo à água
+    principal). Esse trecho (mN 7,5→10,5) é o muro leste da garagem voltado p/ o **pátio** (ao
+    norte da casa) → precisa de beiral de proteção como os demais lados. Ao **sul** (mN<8,4) o
+    leste é a junta de dilatação, coberta pelo beiral oeste do telhado da casa → fica rente.
   - Os sheds ficam no **grupo `roof`** → `set3DFloor2` os ergue sobre o 2º piso (mesmo mecanismo
     da laje) e `set3DRoof` os alterna (botão diz **"Telhado"** quando `v==='v31'`).
   - Beiral norte 0,90 m preservado. V1/V2/V3 inalterados (laje plana nos blocos não-`SOLAR`).
