@@ -3886,11 +3886,12 @@
                 // V3.1: shed independente da garagem caindo p/ norte + painéis FV.
                 // Leste para na junta (GE1j); não encosta na casa.
                 addShed(roof, gn0, ge0, gn1, GE1j, GLAJE + 0.16, GN0, GN1, GE0, GE1j);
-                // Beiral leste EXPOSTO da garagem: ao NORTE da casa (mN n1=8,4 → gn1) o muro
-                // leste da garagem dá p/ o pátio e ficava sem proteção contra a chuva. Estende
-                // a água 0,50 m a leste da junta, como os demais beirais. (Ao sul, mN<n1, é a
-                // junta de dilatação, coberta pelo beiral oeste do telhado da casa → fica rente.)
-                roof.add(tiltedSlab(matMetalRoof, n1, GE1j, gn1, GE1j + BN_EW, GLAJE + 0.16, 0.10));
+                // Beiral leste da garagem — extensão TODA (gn0→gn1): a água avança 0,50 m a
+                // leste da empena (junta GE1j), como os demais beirais, protegendo a junta/parede
+                // ao longo de todo o comprimento. O telhado da garagem é ~0,64 m mais alto que o
+                // da casa, então esse beiral oversaila o telhado da casa na junta (detalhe normal
+                // de telhados em degrau: o mais alto joga a água sobre o mais baixo).
+                roof.add(tiltedSlab(matMetalRoof, gn0, GE1j, gn1, GE1j + BN_EW, GLAJE + 0.16, 0.10));
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
                 // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
