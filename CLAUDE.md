@@ -842,9 +842,11 @@ dilatação** — não há cobertura emendada entre os blocos.
   - `gableEnd(mE, wn0,wn1, yBot, yTopN0,yTopN1, thk, mat)` — **empena/frontão**: parede fina
     trapezoidal (BufferGeometry) no plano `mE=cte`, do topo da parede (`yBot=yEaveN−0,16`) até a
     água (segue `PITCH`). Material `matGable` = `matWall.clone()` com `side:DoubleSide`.
-  - `addShed(grp, n0,e0,n1,e1, yEaveN, wn0,wn1, we0,we1)` — água (`matMetalRoof`, galvalume,
+  - `addShed(grp, n0,e0,n1,e1, yEaveN, wn0,wn1, we0,we1, o={})` — água (`matMetalRoof`, galvalume,
     `DoubleSide`) + 2 empenas (planos das paredes O/L `we0`/`we1`, mN `wn0..wn1`) + **grade de
-    módulos FV** (`matPanel`) insetada, cada módulo girado `−PITCH`.
+    módulos FV** (`matPanel`) insetada, cada módulo girado `−PITCH`. `o` = opções da grade FV:
+    `o.inset` (recuo das bordas, default 0,55; menor = adensa), `o.panW0`/`o.panW1` (limites O/L
+    absolutos da grade em mE de cena, p/ recortar colunas).
   - Casa: `addShed(roof, n0,e0,n1,e1, CEIL3D+CPA+0.16, 2.0,7.5, 22.5+OE,31.5+OE)`.
     Garagem: `addShed(roof, gn0,ge0,gn1,GE1j, GLAJE+0.16, GN0,GN1, GE0,GE1j)`
     (leste para na junta GE1j; **sem platibanda** quando `SOLAR`).
@@ -856,6 +858,13 @@ dilatação** — não há cobertura emendada entre os blocos.
     o telhado da casa na junta (detalhe normal de telhados em degrau: o mais alto joga a água
     sobre o mais baixo). A empena leste (`gableEnd` em `we1=GE1j`) fica sob a água — é a parede;
     a água cantilevera 0,50 m além dela.
+  - **Distribuição dos painéis FV (sombra da garagem na casa):** o telhado da garagem é ~0,64 m
+    mais alto e fica a **oeste** da casa → de tarde, com sol baixo (<~20°, hemisfério sul), projeta
+    sombra p/ **leste** sobre a faixa oeste (junta) do telhado da casa. Para concentrar a geração:
+    **garagem** `{ inset: 0.45 }` (adensa, +1 coluna ≈ **40 painéis**); **casa**
+    `{ panW0: 24.5 + OE }` — painéis começam 2,0 m a leste da junta, fora da sombra, só
+    centro/leste (≈ **18 painéis**). Total ≈ 58 (≈ inalterado vs. antes), todos em zona sem sombra.
+    No pico do dia (10–15h) a casa fica limpa de qualquer jeito; a sombra só toca a faixa nua oeste.
   - Os sheds ficam no **grupo `roof`** → `set3DFloor2` os ergue sobre o 2º piso (mesmo mecanismo
     da laje) e `set3DRoof` os alterna (botão diz **"Telhado"** quando `v==='v31'`).
   - Beiral norte 0,90 m preservado. V1/V2/V3 inalterados (laje plana nos blocos não-`SOLAR`).
