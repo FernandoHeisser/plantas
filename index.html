@@ -2488,14 +2488,18 @@
             // a garagem em vez de deixar uma faixa reta de 1 m a norte dela.
             driveway2D().forEach(l => lys.push(l));
 
-            // ── Carros (referência de escala no piso da frente) ──────────────
+            // ── Carros (referência de escala no piso da frente) — SÓ no V2 ────
+            // V2 é a versão de análise da garagem/manobra. Nas demais (V3/V3.1/V3.2
+            // = renders finais, V4 = linha do tempo da obra) os carros são omitidos.
             // 2 carros lado a lado, frente p/ a garagem (leste), pegando sol no pátio.
             // Coords em mE de código (rect soma OE): pátio renderizado = scene mE 0→10.
             // Carro A scene mE 3,0→7,5 / mN 3,2→5,0 · Carro B mN 6,0→7,8.
-            // Comprimento 4,5 m (de) × largura 1,8 m (dn). Servem p/ avaliar manobra
-            // e o quanto a casa+garagem pode avançar p/ a frente (fundação mais barata).
-            lys.push(rect(3.2, 6.5, 1.8, 4.5, '#2563a6', { m3d: 'car' }));   // sedan azul
-            lys.push(rect(6.0, 6.5, 1.8, 4.5, '#b23b3b', { m3d: 'car' }));   // hatch vermelho
+            // Comprimento 4,5 m (de) × largura 1,8 m (dn). Avaliam manobra e o quanto
+            // a casa+garagem pode avançar p/ a frente (fundação mais barata).
+            if (v === 'v2') {
+                lys.push(rect(3.2, 6.5, 1.8, 4.5, '#2563a6', { m3d: 'car' }));   // sedan azul
+                lys.push(rect(6.0, 6.5, 1.8, 4.5, '#b23b3b', { m3d: 'car' }));   // hatch vermelho
+            }
 
             // Contorno da laje — tracejado; para antes da junta (garagem independente)
             lys.push(L.polygon(
