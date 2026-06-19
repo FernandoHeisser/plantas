@@ -2255,11 +2255,11 @@
             // Fundo: parede traseira (mE 30+OE) → limite do fundo (mE 40). Cresce ao avançar.
             dimLine(4.5, 30 + OE, 4.5, 40, fmtM(40 - (30 + OE)) + ' m — fundo').forEach(l => lys.push(l));
 
-            // Lat. direita (sul): limite sul → parede sul (2 m). Linha colada à face oeste da casa.
-            dimLine(0, 22.5 + OE, 2.0, 22.5 + OE, '2 m — sul').forEach(l => lys.push(l));
+            // Lat. direita (sul): limite sul → parede sul (2 m). Linha no centro da casa.
+            dimLine(0, 26.5 + OE, 2.0, 26.5 + OE, '2 m — sul').forEach(l => lys.push(l));
 
             // Lat. esquerda (norte): parede norte → limite norte
-            dimLine(7.5, 22.5 + OE, 12.5, 22.5 + OE, '5,0 m — norte').forEach(l => lys.push(l));
+            dimLine(7.5, 26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte').forEach(l => lys.push(l));
 
             // ── Cotas totais do lote (beiradas externas) ─────────────────────
             // Âmbar para diferenciar das cotas de afastamento (brancas).
@@ -2559,9 +2559,9 @@
             dimLine(0,   18 + OE, GN0,  18 + OE, '2,0 m — sul').forEach(l => lys.push(l));
             dimLine(GN1, 18 + OE, 12.5, 18 + OE, '2,0 m — norte').forEach(l => lys.push(l));
 
-            // Cotas da casa (mesmo posicionamento que V1) — coladas à face oeste da casa
-            dimLine(0, 22.5 + OE, 2.0, 22.5 + OE, '2 m — sul').forEach(l => lys.push(l));
-            dimLine(7.5, 22.5 + OE, 12.5, 22.5 + OE, '5,0 m — norte').forEach(l => lys.push(l));
+            // Cotas da casa — linha no centro da casa (mE 26,5)
+            dimLine(0, 26.5 + OE, 2.0, 26.5 + OE, '2 m — sul').forEach(l => lys.push(l));
+            dimLine(7.5, 26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte').forEach(l => lys.push(l));
         }
 
         // ── V3: 2º pavimento — desenhado em camada própria (buildFloor2Layers),
@@ -2834,8 +2834,8 @@
         // Cotas de afastamento do edifício às margens do lote (mesmas do térreo) — seguem o OE
         dimLine(4.5, 0, 4.5, 13.5 + OE, fmtM(13.5 + OE) + ' m — frente').forEach(l => lys.push(l));  // frente garagem
         dimLine(4.5, 30 + OE, 4.5, 40, fmtM(40 - (30 + OE)) + ' m — fundo').forEach(l => lys.push(l)); // fundo casa
-        dimLine(0, 22.5 + OE, 2.0, 22.5 + OE, '2 m — sul').forEach(l => lys.push(l));      // casa sul
-        dimLine(7.5, 22.5 + OE, 12.5, 22.5 + OE, '5,0 m — norte').forEach(l => lys.push(l)); // casa norte
+        dimLine(0, 26.5 + OE, 2.0, 26.5 + OE, '2 m — sul').forEach(l => lys.push(l));      // casa sul
+        dimLine(7.5, 26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte').forEach(l => lys.push(l)); // casa norte
         dimLine(0, 18 + OE, 2.0, 18 + OE, '2,0 m — sul').forEach(l => lys.push(l));    // garagem sul
         dimLine(10.5, 18 + OE, 12.5, 18 + OE, '2,0 m — norte').forEach(l => lys.push(l)); // garagem norte
 
@@ -4569,8 +4569,8 @@
         // Afastamentos — branco (mesmas cotas do 2D, seguem o OE → casa)
         _dimLine3D(g,  4.5,  0,        4.5,  22.5 + OE, fmtM(22.5 + OE) + ' m — frente');
         _dimLine3D(g,  4.5,  30 + OE,  4.5,  40,        fmtM(40 - (30 + OE)) + ' m — fundo');
-        _dimLine3D(g,  0,    22.5 + OE, 2.0, 22.5 + OE, '2 m — sul');
-        _dimLine3D(g,  7.5,  22.5 + OE, 12.5, 22.5 + OE, '5,0 m — norte');
+        _dimLine3D(g,  0,    26.5 + OE, 2.0, 26.5 + OE, '2 m — sul');
+        _dimLine3D(g,  7.5,  26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte');
         // Totais do lote — âmbar
         _dimLine3D(g,  13.5, 0,    13.5, 40,    '40 m', '#f59e0b');
         _dimLine3D(g,  0,    41.5, 12.5, 41.5,  '12,5 m', '#f59e0b');
