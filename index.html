@@ -2526,11 +2526,14 @@
             // Colunas da garagem
             const GNM = (3.40 + (GN1 - COL)) / 2 - COL / 2; // = 6,75
             const GEM = (GE0 + GE1j) / 2 - COL / 2;         // meio E-O (ajustado à junta)
-            // Linha mN=GN0 (parede sul): só extremidades — GEM no piso da parede é confuso visualmente
+            // mN=GN0: só extremidades (GEM na parede sul fica embutido, confuso)
             [GE0, GE1j - COL].forEach(e =>
                 lys.push(rect(GN0, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
-            // Linhas interiores [3,40 / GNM / GN1-COL]: 3 colunas cada (GE0, GEM, GE1c)
-            [3.40, GNM, GN1 - COL].forEach(n =>
+            // mN=3,40: oeste + centro (GE1j-COL omitido — fica a 3 cm da face da parede da casa, lê como torto)
+            [GE0, GEM].forEach(e =>
+                lys.push(rect(3.40, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
+            // Linhas de vagas [GNM / GN1-COL]: 3 colunas cada
+            [GNM, GN1 - COL].forEach(n =>
                 [GE0, GEM, GE1j - COL].forEach(e =>
                     lys.push(rect(n, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true }))));
 
@@ -2673,9 +2676,6 @@
         // Vão (stairwell) na laje — tracejado, sobre o trecho alto (oeste)
         lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_HE1 - ESC_E_top, 'transparent',
             { color: '#0ea5e9', weight: 1, dashArray: '4 3', fill: false, no3d: true }));
-        // Pilar novo reapoiando a viga central (mE 17,4) ao norte da escada
-        lys.push(rect(3.40, 18.40, ESC_COL, ESC_COL, '#334155',
-            { color: '#0f172a', weight: 0.5, no3d: true }));
         lys.push(L.polyline(                        // seta de subida (L→O)
             [rot(ESC_N0 + ESC_DN/2, ESC_E_base - 0.3 + OE), rot(ESC_N0 + ESC_DN/2, ESC_E_top + 0.3 + OE)],
             { color: '#475569', weight: 1.2, interactive: false }));
