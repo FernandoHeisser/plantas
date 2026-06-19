@@ -2519,20 +2519,17 @@
             // Parede sul da garagem — para na junta (estrutura independente da casa)
             lys.push(wall(GN0, GE0, GN0, GE1j, 0.20, { no3d: true }));
 
-            // Colunas nas extremidades da viga E-O de suporte (mN 3,4)
-            [GE0, GE1j - COL].forEach(e =>
-                lys.push(rect(3.40, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
             // Viga E-O aérea (mN 3,4) ao norte da escada — vai até a coluna leste da junta
             lys.push(L.polyline([rot(3.40, GE0+OE), rot(3.40, GE1j+OE)],
                 { color: '#94a3b8', weight: 2, dashArray: '8 5', interactive: false }));
 
-            // Colunas 3×3 — vão N-S centralizado na zona de vagas (mN 3,40→10,30)
-            const GNM = (3.40 + (GN1 - COL)) / 2 - COL / 2; // = 6,75 → vãos iguais de 3,35 m
+            // Colunas 4×3 = 12 pilares — alinha com esperas e 2º pav. (V3)
+            // Linhas mN: [GN0=2,0 (parede sul), 3,40 (viga suporte escada), GNM=6,75, GN1-COL=10,30]
+            const GNM = (3.40 + (GN1 - COL)) / 2 - COL / 2; // = 6,75
             const GEM = (GE0 + GE1j) / 2 - COL / 2;         // meio E-O (ajustado à junta)
-            [GN0, GNM, GN1 - COL].forEach(n => {
+            [GN0, 3.40, GNM, GN1 - COL].forEach(n =>
                 [GE0, GEM, GE1j - COL].forEach(e =>
-                    lys.push(rect(n, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
-            });
+                    lys.push(rect(n, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true }))));
 
             lys.push(roomLabel(6.25, 18.0, 'Garagem', '8,5 × 9 m', '76,5 m²'));
 
