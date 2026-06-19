@@ -167,12 +167,16 @@ móveis, folhas de porta) acompanha automaticamente.
   (closure) empurra o GEO com `e + OE` para casar o recorte 3D com a parede deslocada.
 - **Geometria 3D manual** (`box3d`: embasamento, baldrame, pisos, degraus, laje/roof,
   garagem) **não passa pelo GEO** → soma `OE` explicitamente (constantes `EE0/EE1`,
-  `GE0/GE1`, `e0/e1`, `be0`, `ESC_E_*`, `HE1`, e nos slabs/pisos literais).
-- **Cotas** (`dimLine` 2D / `_dimLine3D` 3D): pontos sobre a parede usam o `mE`
-  deslocado e o **rótulo muda** (V1 frente: parede em mE 22,5 → cota **19 m**; V1 fundo → **13,5 m**;
-  V2 frente garagem → **10 m**). Pontos na borda do lote (0, 40) e as cotas-totais (40 m, 12,5 m)
-  **não mudam**.
-- **Para reverter ou ajustar o deslocamento, basta mudar `OE`** — não reescrever cotas.
+  `GE0/GE1`, `e0/e1`, `be0`, `ESC_E_*`, `HE1`, e nos slabs/pisos literais). O **chão da
+  casa no 2D** (polígono branco do bloco base) também soma `OE` (`rot(…, 22,5+OE)` …
+  `30+OE`) — senão o piso fica para trás quando o `OE` muda.
+- **Cotas** (`dimLine` 2D / `_dimLine3D` 3D): endpoints sobre a parede e o **rótulo** são
+  **calculados a partir do `OE`** (helper `fmtM`): frente = `22,5+OE` (V1) ou `13,5+OE`
+  (garagem V2+); fundo = `40−(30+OE)`; laterais coladas na face oeste (`22,5+OE`) com valor
+  fixo (recuo N-S não depende do OE). Pontos na borda do lote (0, 40) e as cotas-totais
+  (40 m, 12,5 m) **não mudam**.
+- **Para ajustar o deslocamento, basta mudar `OE`** — chão da casa, carros e **todas as
+  cotas (2D e 3D) acompanham automaticamente** (posição e valor). Não reescrever cotas.
 
 ---
 
@@ -323,6 +327,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `wardrobeE` | Guarda-roupa com portas voltadas p/ **LESTE** (costas na parede oeste). Espelho do `wardrobe` — usado no quarto (parede oeste mE=28,5). |
 | `hood` | **Coifa**: canopy inox + boca de sucção escura + duto até o teto (z local **2,70**). Usa `z3d` como base (~1,55). Monta acima de uma janela-fita. |
 | `washer` | — (removido — ponto daquela posição virou tapete/capacho) |
+| `car` | **Carro** (referência de escala no piso da frente, V2+): carroceria + cabine de vidro + teto + 4 rodas (cilindros eixo N-S) + faróis/lanternas. `dn`=largura (~1,8 m), `de`=comprimento (~4,5 m); **frente aponta p/ LESTE** (+mE). `s.color` = cor da lataria. Assenta na base do piso (CPA=0,15 = topo do acesso GCPA). Não é parte da casa — só dimensiona o pátio/manobra. **Só no V2** (gate `if (v==='v2')` dentro do bloco da garagem): V3/V3.1/V3.2 são renders finais e V4 é a linha do tempo da obra, sem carros. |
 
 > **Atenção:** `counter` e `chair` recebem `(g, s, model)` — precisam do array model completo. O dispatch já passa: `FURN3D[s.m3d](g, s, model)`.
 
