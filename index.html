@@ -2523,13 +2523,14 @@
             lys.push(L.polyline([rot(3.40, GE0+OE), rot(3.40, GE1j+OE)],
                 { color: '#94a3b8', weight: 2, dashArray: '8 5', interactive: false }));
 
-            // Colunas — 3×3 nas linhas de vagas + linha mN=3,40 só nas extremidades
-            // (GEM em mN=3,40 fica dentro do vão da escada — mostrado no 3D, omitido aqui)
+            // Colunas da garagem
             const GNM = (3.40 + (GN1 - COL)) / 2 - COL / 2; // = 6,75
             const GEM = (GE0 + GE1j) / 2 - COL / 2;         // meio E-O (ajustado à junta)
+            // Linha mN=GN0 (parede sul): só extremidades — GEM no piso da parede é confuso visualmente
             [GE0, GE1j - COL].forEach(e =>
-                lys.push(rect(3.40, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
-            [GN0, GNM, GN1 - COL].forEach(n =>
+                lys.push(rect(GN0, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
+            // Linhas interiores [3,40 / GNM / GN1-COL]: 3 colunas cada (GE0, GEM, GE1c)
+            [3.40, GNM, GN1 - COL].forEach(n =>
                 [GE0, GEM, GE1j - COL].forEach(e =>
                     lys.push(rect(n, e, COL, COL, '#334155', { color: '#0f172a', weight: 0.5, no3d: true }))));
 
