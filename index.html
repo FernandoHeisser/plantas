@@ -3942,12 +3942,9 @@
             _ph = PH.gFound;   // piso + degraus + baldrame da garagem = fundação (V2)
             g.add(box3d(GN0, GE0, GN1 - GN0, vigaLen, GCPA - 0.025, GCPA, matGFloor));
 
-            // Degraus da porta principal: garagem (GCPA=0,20) → casa (CPA=0,50).
-            // Desnível 0,30 m em 2 espelhos iguais de 0,15 m (piso 0,30) — sobem p/ leste
-            // até a face oeste da casa (GE1). Normas Caixa (espelho ≤ 0,18; degraus iguais).
-            const dN = 2.30, dW = 1.00, dP = 0.30;
-            g.add(box3d(dN, GE1j - 2*dP, dW, dP, GCPA, GCPA + 0.15, matEmbase));
-            g.add(box3d(dN, GE1j - 1*dP, dW, dP, GCPA, CPA,         matEmbase));
+            // Transição garagem→casa é PLANA: GCPA = CPA = 0,15 m (mesmo nível).
+            // Os degraus de transição antigos (quando GCPA=0,20 e CPA=0,50) foram
+            // removidos — não há mais desnível na porta principal.
 
             // Baldrame da garagem — mesmo padrão da casa: cobre EW (0,20) + projeção GEM_P
             // gS0 = borda sul exterior da fundação (= face externa da parede sul + proj)
