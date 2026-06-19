@@ -323,6 +323,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `wardrobeE` | Guarda-roupa com portas voltadas p/ **LESTE** (costas na parede oeste). Espelho do `wardrobe` — usado no quarto (parede oeste mE=28,5). |
 | `hood` | **Coifa**: canopy inox + boca de sucção escura + duto até o teto (z local **2,70**). Usa `z3d` como base (~1,55). Monta acima de uma janela-fita. |
 | `washer` | — (removido — ponto daquela posição virou tapete/capacho) |
+| `car` | **Carro** (referência de escala no piso da frente, V2+): carroceria + cabine de vidro + teto + 4 rodas (cilindros eixo N-S) + faróis/lanternas. `dn`=largura (~1,8 m), `de`=comprimento (~4,5 m); **frente aponta p/ LESTE** (+mE). `s.color` = cor da lataria. Assenta na base do piso (CPA=0,15 = topo do acesso GCPA). Não é parte da casa — só dimensiona o pátio/manobra. Colocado no bloco da garagem (`v2\|\|v3\|\|v31\|\|v32`). |
 
 > **Atenção:** `counter` e `chair` recebem `(g, s, model)` — precisam do array model completo. O dispatch já passa: `FURN3D[s.m3d](g, s, model)`.
 

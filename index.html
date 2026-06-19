@@ -2483,6 +2483,15 @@
             // a garagem em vez de deixar uma faixa reta de 1 m a norte dela.
             driveway2D().forEach(l => lys.push(l));
 
+            // ── Carros (referência de escala no piso da frente) ──────────────
+            // 2 carros lado a lado, frente p/ a garagem (leste), pegando sol no pátio.
+            // Coords em mE de código (rect soma OE): pátio renderizado = scene mE 0→10.
+            // Carro A scene mE 3,0→7,5 / mN 3,2→5,0 · Carro B mN 6,0→7,8.
+            // Comprimento 4,5 m (de) × largura 1,8 m (dn). Servem p/ avaliar manobra
+            // e o quanto a casa+garagem pode avançar p/ a frente (fundação mais barata).
+            lys.push(rect(3.2, 6.5, 1.8, 4.5, '#2563a6', { m3d: 'car' }));   // sedan azul
+            lys.push(rect(6.0, 6.5, 1.8, 4.5, '#b23b3b', { m3d: 'car' }));   // hatch vermelho
+
             // Contorno da laje — tracejado; para antes da junta (garagem independente)
             lys.push(L.polygon(
                 [rot(GN0, GE0+OE), rot(GN1, GE0+OE), rot(GN1, GE1j+OE), rot(GN0, GE1j+OE)],
@@ -2999,6 +3008,40 @@
         rug(g, s) {
             const b = s.z || 0;
             fbox(g, s.n, s.e, s.dn, s.de, b + 0.004, b + 0.02, s.color, { roughness: 0.97, metalness: 0 });
+        },
+        // Carro — referência de escala no piso da frente (não é parte da casa).
+        // dn = largura (N-S, ~1,8 m), de = comprimento (E-O, ~4,5 m). A frente do
+        // carro aponta p/ LESTE (+mE = sentido da garagem). Carroceria + cabine de
+        // vidro + 4 rodas + faróis. Assenta no piso (base CPA via grupo).
+        car(g, s) {
+            const { n, e, dn, de } = s;
+            const col = s.color || '#b23b3b';
+            const body  = fmat(col, { roughness: 0.35, metalness: 0.55, envMapIntensity: 0.7 });
+            const glass = fmat('#222a30', { roughness: 0.12, metalness: 0.6, transparent: true, opacity: 0.65, envMapIntensity: 1 });
+            const tire  = fmat('#15161a', { roughness: 0.9, metalness: 0.05 });
+            // Carroceria inferior (capô/porta-malas mais baixos que a cintura)
+            fbox(g, n + 0.06, e + 0.20, dn - 0.12, de - 0.40, 0.26, 0.62, body);
+            // Cintura/ombro (mais estreito, define a silhueta)
+            fbox(g, n + 0.10, e + 0.55, dn - 0.20, de - 1.10, 0.62, 0.82, body);
+            // Cabine de vidro (recuada do centro p/ trás, greenhouse)
+            fbox(g, n + 0.16, e + de * 0.30, dn - 0.32, de * 0.40, 0.82, 1.20, glass);
+            // Teto (faixa fina da cor do carro sobre a cabine)
+            fbox(g, n + 0.16, e + de * 0.30, dn - 0.32, de * 0.40, 1.20, 1.24, body);
+            // Faróis dianteiros (leste) e lanternas (oeste)
+            fbox(g, n + 0.14, e + de - 0.06, 0.22, 0.04, 0.40, 0.56, '#fff6d8', { emissive: col3d('#fff0b0'), emissiveIntensity: 0.35 });
+            fbox(g, n + dn - 0.36, e + de - 0.06, 0.22, 0.04, 0.40, 0.56, '#fff6d8', { emissive: col3d('#fff0b0'), emissiveIntensity: 0.35 });
+            fbox(g, n + 0.14, e + 0.02, 0.22, 0.04, 0.40, 0.56, '#7a1010', { emissive: col3d('#cc2222'), emissiveIntensity: 0.3 });
+            fbox(g, n + dn - 0.36, e + 0.02, 0.22, 0.04, 0.40, 0.56, '#7a1010', { emissive: col3d('#cc2222'), emissiveIntensity: 0.3 });
+            // 4 rodas — cilindros com eixo N-S (rolam no sentido mE). r=0,30 → topo 0,60
+            const r = 0.30, thick = 0.20;
+            [e + 0.95, e + de - 0.95].forEach(we =>          // eixos: traseiro (oeste) / dianteiro (leste)
+                [n + 0.14 + thick / 2, n + dn - 0.14 - thick / 2].forEach(wn => {
+                    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, thick, 20), tire);
+                    m.rotation.x = Math.PI / 2;             // eixo Y → Z (alinha com mN)
+                    m.position.set(we, r, -wn);
+                    m.castShadow = true; m.receiveShadow = true;
+                    g.add(m);
+                }));
         },
         // TV — painel fino na parede oeste (de=profundidade leste, dn=largura N-S)
         tv(g, s) {
