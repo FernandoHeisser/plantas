@@ -4511,9 +4511,18 @@
                     const GW = 0.14, GD = 0.13, drop = 0.02;  // calha: largura(mN) × altura, 2cm sob o beiral
                     const PR = 0.055;                         // raio descida/condutor (~Ø110)
                     const Hend = 0.15, slope = 0.015;         // descarga na sarjeta (mundo) + 1,5%
+                    // tubo cilíndrico entre 2 pontos quaisquer (p/ conector diagonal calha→coluna)
+                    const pipeBetween = (x1,y1,z1, x2,y2,z2, r, mat) => {
+                        const a = new THREE.Vector3(x1,y1,z1), b = new THREE.Vector3(x2,y2,z2);
+                        const dir = new THREE.Vector3().subVectors(b,a);
+                        const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, Math.max(dir.length(),0.01), 12), mat);
+                        m.position.copy(a).add(b).multiplyScalar(0.5);
+                        m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone().normalize());
+                        m.castShadow = true; return m;
+                    };
                     // dnN/dnE (opcionais): encostam a DESCIDA numa coluna (mais escondida).
-                    // Quando dados, a calha capta no beiral (nEave) e um "swan-neck" curto no
-                    // topo leva a água até a coluna (dnN, dnE); a descida desce colada nela.
+                    // Quando dados, a calha capta no beiral (nEave) e um conector no topo leva a
+                    // água até a coluna (dnN, dnE) — diagonal se a coluna está fora do vão da calha.
                     const drenar = (nEave, eW, eE, nRoute, dnN, dnE) => {
                         const dN = dnN === undefined ? nEave : dnN;   // mN da descida (coluna ou beiral)
                         const dE = dnE === undefined ? eW    : dnE;   // mE da descida
@@ -4523,11 +4532,11 @@
                         const gutTop = eaveL - drop, gutBot = gutTop - GD;
                         // calha ao longo do beiral norte
                         roof.add(box3d(nEave - GW/2, eW, GW, eE - eW, gutBot, gutTop, matCalha));
-                        // swan-neck no topo: do beiral (nEave, dE) até a coluna (dN, dE)
-                        if (dN !== nEave) {
-                            const sn = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, Math.abs(nEave - dN), 16), matCalha);
-                            sn.rotation.x = Math.PI / 2;
-                            sn.position.set(dE, gutBot, -(nEave + dN) / 2); sn.castShadow = true; roof.add(sn);
+                        // conector no topo: do ponto da calha mais perto da coluna (clamp ao vão)
+                        // até o topo da descida (dN, dE) — diagonal quando a coluna está fora do vão.
+                        if (dnN !== undefined || (dnE !== undefined && dnE !== eW)) {
+                            const tapE = Math.max(eW, Math.min(eE, dE));
+                            roof.add(pipeBetween(tapE, gutBot, -nEave, dE, gutBot, -dN, PR, matCalha));
                         }
                         // descida vertical em (dN, dE): fundo da calha → cota do condutor
                         const dn = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, gutBot - wl(Hstart), 16), matCalha);
@@ -4551,11 +4560,11 @@
                     // Garagem: descida encostada na COLUNA NO do pilotis (face norte, virada p/ a
                     // cerca → escondida do pátio). Coluna: mE GE0→GE0+0,20, mN GN1−0,20→GN1.
                     drenar(gn1, ge0, GE1j, nWall, GN1 + 0.06, GE0 + 0.10);   // garagem → coluna NO → muro → rua
-                    // Casa: a descida não pode cair a oeste da junta (sob a garagem) NEM no vão da
-                    // porta de correr da sala norte (scene mE 17,5→19,5). Encosta na COLUNA da casa
-                    // a LESTE da porta (code mE 25,5 → scene 20,0; col. oeste mE 17,0 fica sob o
-                    // beiral da garagem). Face norte (dnN=7,6) → virada p/ a cerca, fora do caminho.
-                    drenar(n1,  GE1j + BN_EW + 0.2, e1, nWall - 0.18, 7.6, 25.5 + OE);   // casa → coluna N (leste da porta) → muro → rua
+                    // Casa: descida na COLUNA NORDESTE do pilotis da garagem (no recanto da junta
+                    // entre os 2 prédios → bem escondida). Coluna: mE GE1j−COL→GE1j (face leste = junta),
+                    // mN GN1−COL→GN1. Descida na face norte (dnN=GN1+0,06=10,56; dnE=GE1j−0,10=16,77).
+                    // A calha da casa (mN 8,4) leva a água por um conector diagonal até essa coluna.
+                    drenar(n1,  GE1j + BN_EW + 0.2, e1, nWall - 0.18, GN1 + 0.06, GE1j - 0.10);   // casa → coluna NE da garagem → muro → rua
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
