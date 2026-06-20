@@ -4294,13 +4294,20 @@
             const matDrive = new THREE.MeshStandardMaterial({ color: 0xd0ccc4, roughness: 0.88, metalness: 0, envMapIntensity: 0.2, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
             _ph = PH.gFound;
             const drvBase = baseBot(0, GE0);
+            // Anti-z-fight: a face oeste e o topo frontal NÃO podem ser coplanares com
+            // o muro frontal (face oeste em mE=0) nem com o plano inclinado da grama
+            // (y=0 em mE=0). DWO recua a face oeste ~3 cm p/ dentro (tuca atrás do muro);
+            // DFL ergue o lábio frontal ~3 cm acima da grama (pavimento assenta SOBRE o
+            // terreno). Sem isso, várias superfícies disputam o mesmo plano e a que
+            // "vence" muda com o ângulo da câmera (parede parecendo saltar perto/longe).
+            const DWO = 0.03, DFL = 0.03;
             const dv = [
-                [0,    0,       -GN0 ],  // 0 top SW — nível da rua (y=0)
-                [0,    0,       -11.5],  // 1 top NW
-                [GE0,  GCPA,   -GN1 ],  // 2 top NE — nível do piso da garagem (y=GCPA)
-                [GE0,  GCPA,   -GN0 ],  // 3 top SE
-                [0,    drvBase, -GN0 ],  // 4 bot SW
-                [0,    drvBase, -11.5],  // 5 bot NW
+                [DWO,  DFL,     -GN0 ],  // 0 top SW — lábio 3 cm acima da rua/grama
+                [DWO,  DFL,     -11.5],  // 1 top NW
+                [GE0,  GCPA,    -GN1 ],  // 2 top NE — nível do piso da garagem (y=GCPA)
+                [GE0,  GCPA,    -GN0 ],  // 3 top SE
+                [DWO,  drvBase, -GN0 ],  // 4 bot SW — face oeste recuada 3 cm (atrás do muro)
+                [DWO,  drvBase, -11.5],  // 5 bot NW
                 [GE0,  drvBase, -GN1 ],  // 6 bot NE
                 [GE0,  drvBase, -GN0 ],  // 7 bot SE
             ];
