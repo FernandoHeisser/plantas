@@ -111,6 +111,7 @@
         #p-v3-3d .card,
         #p-v31-3d .card,
         #p-v32-3d .card,
+        #p-v33-3d .card,
         #p-v4-3d .card {
             padding: 0;
             border: none;
@@ -466,6 +467,7 @@
         #p-v3-med,
         #p-v31-med,
         #p-v32-med,
+        #p-v33-med,
         #p-v4-med {
             min-height: calc(100dvh - var(--sticky-h));
             overflow-y: auto;
@@ -655,6 +657,7 @@
                 <option value="v3">V3 · Sobrado</option>
                 <option value="v31">V3.1 · Telhado solar</option>
                 <option value="v32">V3.2 · Pintura marrom</option>
+                <option value="v33">V3.3 · Calhas</option>
                 <option value="v4">V4 · Obra fase a fase</option>
             </select>
         </div>
@@ -1020,6 +1023,96 @@
                 <strong>acabamento de pintura</strong> aplicado ao conjunto. Ver a ficha
                 completa de cômodos e aberturas na aba <strong>Medidas do V3</strong> e os
                 dados da usina solar na aba <strong>Medidas do V3.1</strong>.
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ V3.3 — V3.2 + sistema de calhas/escoamento ══════════ -->
+    <div class="panel" id="p-v33-2d">
+        <div class="card">
+            <div class="map-wrap">
+                <div id="map-v33" class="mapa-sat"></div>
+                <div class="map-floortoggle">
+                    <button type="button" onclick="setV3Floor(this)">Piso: térreo</button>
+                </div>
+                <div class="scene3d-compass">
+                    <div class="rose">
+                        <div class="pt n" style="left:29px;top:9px">N</div>
+                        <div class="pt"   style="left:47px;top:29px;color:#4ade80">L</div>
+                        <div class="pt"   style="left:29px;top:47px;color:#64748b">S</div>
+                        <div class="pt"   style="left:11px;top:29px;color:#f59e0b">O</div>
+                    </div>
+                </div>
+                <div class="map-legend-ov">
+                    <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
+                    <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v33-3d">
+        <div class="card">
+            <div id="scene3d-v33" class="scene3d">
+                <div class="scene3d-toolbar">
+                    <button type="button" onclick="set3DFloor2('v33', this)">2º piso: oculto</button>
+                    <button type="button" onclick="set3DRoof('v33', this)">Telhado: oculto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v33-med">
+        <div class="med-page">
+            <!-- Summary -->
+            <div class="med-summary">
+                <div class="med-sum-item">
+                    <span class="med-sum-label">Base</span>
+                    <span class="med-sum-value">= V3.2</span>
+                    <span class="med-sum-sub">sobrado + solar + pintura</span>
+                </div>
+                <div class="med-sum-item">
+                    <span class="med-sum-label">Acréscimo</span>
+                    <span class="med-sum-value">Calhas</span>
+                    <span class="med-sum-sub">escoamento p/ a rua/boeiro</span>
+                </div>
+                <div class="med-sum-item">
+                    <span class="med-sum-label">Vazão proj.</span>
+                    <span class="med-sum-value">~6,7 L/s</span>
+                    <span class="med-sum-sub">160 m² · i=150 mm/h</span>
+                </div>
+            </div>
+
+            <!-- Sistema de escoamento -->
+            <div class="med-section-title">Sistema de calhas (o que o V3.3 acrescenta)</div>
+            <div class="med-rooms-grid">
+                <div class="med-room-card col-blue">
+                    <div class="med-room-name">Calha — beiral norte</div>
+                    <div class="med-room-dims">Ø100–125 mm</div>
+                    <div class="med-room-area">declive 0,5%</div>
+                    <div class="med-room-meta">Coleta toda a água da água (telhado cai p/ norte)<br>Casa + garagem, calhas independentes<br>Caem para o canto noroeste (NO)</div>
+                </div>
+                <div class="med-room-card col-slate">
+                    <div class="med-room-name">Descidas + condutor à rua</div>
+                    <div class="med-room-dims">100 mm</div>
+                    <div class="med-room-area">aparente, ~1%</div>
+                    <div class="med-room-meta">Descida no canto NO de cada bloco<br>Condutor horizontal p/ OESTE até a sarjeta<br>Aproveita 3,16 m de pé do beiral (vence o aterro)</div>
+                </div>
+            </div>
+
+            <div class="med-section-title">Escoamento — frente × fundos</div>
+            <div class="med-room-meta" style="font-size:11px;line-height:1.7">
+                O telhado solar cai para o <strong>norte</strong>; a calha redireciona
+                <strong>~100% da água do telhado para a frente</strong> (rua/boeiro a oeste),
+                aproveitando a altura do beiral (3,16 m) para vencer o aterro que sobe em
+                direção à rua. A água de quintal (terreno nu) continua escoando para os
+                <strong>fundos</strong> (cota −1,0 m) por gravidade. Sem risco de água parada
+                no telhado (12° / 21%); atenção a declive contínuo na calha e no condutor
+                aparente. Ver a planta/cobertura nas <strong>Medidas do V3 / V3.1</strong>.
             </div>
         </div>
     </div>
@@ -1882,6 +1975,7 @@
         if (p === '/v4')   return 'v4';
         if (p === '/v1.1') return 'v11';
         if (p === '/v2')   return 'v2';
+        if (p === '/v3.3') return 'v33';
         if (p === '/v3.2') return 'v32';
         if (p === '/v3.1') return 'v31';
         if (p === '/v3')   return 'v3';
@@ -1892,6 +1986,7 @@
         if (v === 'v11') return '/v1.1';
         if (v === 'v31') return '/v3.1';
         if (v === 'v32') return '/v3.2';
+        if (v === 'v33') return '/v3.3';
         return '/' + v;
     }
 
@@ -2206,7 +2301,7 @@
     }
 
     function buildLayers(v) {
-        if (v === 'v4') v = 'v32';          // V4 (timeline de obra) = mesmo 2D do V3.2
+        if (v === 'v4' || v === 'v33') v = 'v32';  // V4 (obra) e V3.3 (calhas) = mesmo 2D do V3.2
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
         const lys = [];
 
@@ -3362,7 +3457,7 @@
     // Constrói o grupo 3D do prédio a partir do modelo (paredes c/ vãos + móveis + lajes)
     function buildBuilding3D(v) {
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
-        const rv = v === 'v4'  ? 'v32' : v; // V4 renderiza igual ao V3.2 (rv); `v` guarda a identidade p/ as fases da obra
+        const rv = (v === 'v4' || v === 'v33') ? 'v32' : v; // V4 (obra) e V3.3 (calhas) renderizam igual ao V3.2 (rv); `v` guarda a identidade (fases / calhas)
         const model = captureModel(v);
         const g = new THREE.Group();
 
@@ -4626,7 +4721,7 @@
     }
 
     function buildDims3D(g, v) {
-        const rv = (v === 'v4') ? 'v32' : v;
+        const rv = (v === 'v4' || v === 'v33') ? 'v32' : v;
         const hasGarage = (rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32');
         // Afastamentos — branco (mesmas cotas do 2D, seguem o OE)
         const eFrente = hasGarage ? 13.5 + OE : 22.5 + OE;
@@ -4873,7 +4968,7 @@
         const roof = S.group.getObjectByName('roof');
         if (!roof) return;
         const ph = (v === 'v1') ? buildPhase : 7;
-        const noun = (v === 'v31' || v === 'v32') ? 'Telhado' : 'Laje';
+        const noun = (v === 'v31' || v === 'v32' || v === 'v33') ? 'Telhado' : 'Laje';
         // V1: a laje só pode existir sobre as colunas + vigas (fase ≥ 3); senão flutuaria
         // no ar. Bloqueia o botão de revelá-la antes da estrutura estar pronta.
         if (v === 'v1' && ph < 3 && !roof.visible) {
@@ -5005,7 +5100,7 @@
             maxNativeZoom: 18, maxZoom: 25
         }).addTo(map);
 
-        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32' || v === 'v4') ? v3Layers() : buildLayers(v)).addTo(map);
+        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32' || v === 'v33' || v === 'v4') ? v3Layers() : buildLayers(v)).addTo(map);
         maps[v] = map;
         map._overlay = overlay;
 
