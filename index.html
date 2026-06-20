@@ -1948,7 +1948,7 @@
     // doorArc/win/roomLabel) → propaga p/ o 2D e p/ o GEO (logo p/ o 3D extrudado).
     // A geometria 3D manual (box3d: embasamento/piso/laje/garagem) e as cotas
     // somam OE explicitamente. O lote/terreno NÃO se desloca.
-    const OE = -4.5;   // −4,5 m: conjunto avançado +1 m p/ a frente (terreno alto) → pátio 10→9 m, menos aterro no fundo (era −3,5)
+    const OE = -5.5;   // −5,5 m: conjunto avançado +1 m p/ a frente → pátio 8 m, menos aterro no fundo (era −4,5)
 
     // Formata metro em pt-BR p/ rótulos de cota: inteiro quando exato, senão vírgula
     // (ex.: 9 → "9", 14,5 → "14,5"). Usado nas cotas que dependem do OE.
@@ -2872,7 +2872,7 @@
     //  Nada de coordenadas é redigitado: tudo vem de buildLayers → GEO.
     // ═══════════════════════════════════════════════════════════════════════
     const CEIL3D = 2.70;          // pé-direito (m)
-    const CPA    = 0.15;          // Cota do Piso Acabado — 15 cm acima do terreno acabado (datum 0)
+    const CPA    = 0.30;          // Cota do Piso Acabado — 30 cm acima do terreno acabado (datum 0)
                                   // Mesmo nível da garagem (GCPA=0,15). Atende Caixa,
                                   // resulta em 1 degrau na entrada após o aterramento.
 
@@ -3563,7 +3563,7 @@
             // É acesso ligado à GARAGEM (nível GCPA) → no V4 entra no bloco V2 (gFound),
             // não na fundação da casa (senão aparece um "piso norte" antes da garagem existir).
             _ph = PH.gFound;
-            const GCPA_V2 = 0.15;
+            const GCPA_V2 = 0.30;
             const pN0 = 7.55, pN1 = 10.55;                    // 3 m em N (mN 7,55→10,55)
             const pE0 = 22.5 - 0.10 + OE, pE1 = 25.4 + OE; // alinha face ext. da parede (pE0) com a fachada oeste
             // Laje da plataforma
@@ -4244,7 +4244,7 @@
             // Coluna leste: face leste em GE1j → gap físico = 5 cm até face ext. da casa
             const GE1c = GE1j - COL;
             const GEMc = GEM;                           // coluna intermédia E-O
-            const GCPA  = 0.15;   // piso garagem — 15 cm acima da calçada (entrada quase plana p/ carro)
+            const GCPA  = 0.30;   // piso garagem — 30 cm acima da calçada (era 0,15)
             const GEM_P = 0.03;
 
             // Acesso pavimentado: rua (mE=0) → entrada da garagem (mE=GE0)
