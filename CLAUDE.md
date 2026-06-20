@@ -681,6 +681,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 | **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
 | **V3.2** | 🔶 Herda o 2D do V3.1 | ✅ Herda o V3.1 + **pintura da casa em marrom** (`WALL_TINT` tinge o `matWall` só p/ `v32`) | 🔶 Placeholder com resumo |
+| **V3.3** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **sistema de calhas/escoamento** (calha no beiral norte → descida no canto NO → condutor à rua) — só `v33` | 🔶 Placeholder com resumo do escoamento |
 | **V4** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **slider 🏗 de obra com 20 fases na ordem cronológica real** (V1 → cobre esperas → V1.1 muro → V2 garagem → V3 sobrado → pintura) | 🔶 Placeholder com resumo |
 | **V0.1–V0.6** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
 
@@ -887,6 +888,38 @@ aceita `v31` também aceita `v32` (incl. `SOLAR` e o `noun` do botão "Telhado")
   `matWall` (multiplica a textura de reboco `texWall()`). Como `matGable = matWall.clone()`, as
   empenas/fechamentos do telhado também ficam marrom. Embasamento/baldrame/laje mantêm a cor própria.
   Só afeta o `v32` — `matWall` é recriado por versão em `buildBuilding3D(v)`.
+
+### V3.3 — Sistema de calhas / escoamento para a rua
+
+Variante do V3.2: **herda tudo** (sobrado + telhado solar + pintura marrom) e acrescenta o
+**sistema de calhas** que escoa a água do telhado para a **frente** (rua/boeiro a oeste, `mE=0`).
+Mesmo padrão de aba/rota/painéis (`/v3.3`, `p-v33-2d/3d/med`, `<option value="v33">`); o render
+**reusa o V3.2 via `rv`** — em `buildBuilding3D`, `buildLayers`, `buildDims3D` e `initMap` o
+gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`.
+
+- **Por que o telhado não cai para a rua:** o telhado solar é de **uma água caindo para o
+  NORTE** (geração FV, `addShed`), perpendicular à rua (oeste). Toda a água do telhado vai para o
+  **beiral norte**; quem decide frente×fundos é a **calha + condutor**, não o telhado.
+- **Geometria (gate `if (v === 'v33')`, logo após o beiral leste da garagem, dentro de `if (SOLAR)`):**
+  helper local `drenar(nEave, eW, eE, nRoute?)` monta, por bloco (casa + garagem):
+  - **calha** (`box3d`) ao longo do beiral norte, ~2 cm sob a água;
+  - **descida** (cilindro Ø~110) no canto NO (`mE = eW`, oeste do bloco), do fundo da calha à cota
+    do condutor;
+  - **condutor** horizontal (`box` inclinado via `rotation.z`) para **oeste** até a rua (`mE=0`),
+    descendo `Hstart→Hend=0,15 m` (declive **+1,5%**, descarga no meio-fio);
+  - **leg** (só casa, `nRoute=gn1+0,5`): tubo deitado levando o pé da descida para o alinhamento
+    **norte da garagem** antes de correr para a rua — evita cruzar o pilotis.
+- **Aproveita o pé do beiral do sobrado (~6 m de mundo):** dá carga para vencer o **aterro que
+  sobe** rumo à rua (`grade=−mE·2,5%`, terreno cai para os fundos). O condutor fica **elevado**
+  (aparente) e desce continuamente → sem barriga, **sem água parada**.
+- **Cotas em LOCAL do `roof`** (`wl(yw)=yw−LY`, `LY=CEIL3D+0,16`): as calhas ficam no grupo `roof`
+  e **sobem com o 2º piso** (`set3DFloor2`); aparecem/somem com o botão **Telhado** (`set3DRoof`).
+  Otimizado para a vista do **sobrado completo** (2º piso + telhado visíveis).
+- **Escoamento:** ~100% da água do **telhado** vai para a frente (rua); a água de **quintal**
+  (terreno nu) continua para os **fundos** (cota −1,0 m) por gravidade. Ver `p-v33-med`.
+
+> **Nota:** o `OE` real no código é **−5,5** (não −3,5). O bloco de calhas usa as variáveis em
+> escopo (`e0/e1/ge0/GE1j`), então acompanha o `OE` automaticamente.
 
 ### V4 — Evolução cronológica real da obra (20 fases: V1 → V2 → V3 → pintura)
 
