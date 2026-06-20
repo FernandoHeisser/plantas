@@ -1154,7 +1154,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo frente</span>
-            <span class="med-sum-value">18,0 m</span>
+            <span class="med-sum-value">17,0 m</span>
             <span class="med-sum-sub">da rua (oeste)</span>
           </div>
           <div class="med-sum-item">
@@ -1169,7 +1169,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo fundos</span>
-            <span class="med-sum-value">14,5 m</span>
+            <span class="med-sum-value">15,5 m</span>
             <span class="med-sum-sub">leste (quintal)</span>
           </div>
         </div>
@@ -1347,7 +1347,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo frente</span>
-            <span class="med-sum-value">18,0 m</span>
+            <span class="med-sum-value">17,0 m</span>
             <span class="med-sum-sub">da rua (oeste)</span>
           </div>
           <div class="med-sum-item">
@@ -1362,7 +1362,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo fundos</span>
-            <span class="med-sum-value">14,5 m</span>
+            <span class="med-sum-value">15,5 m</span>
             <span class="med-sum-sub">leste (quintal)</span>
           </div>
         </div>
@@ -1497,7 +1497,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo frente</span>
-            <span class="med-sum-value">9,0 m</span>
+            <span class="med-sum-value">8,0 m</span>
             <span class="med-sum-sub">rua → garagem</span>
           </div>
           <div class="med-sum-item">
@@ -1512,7 +1512,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo fundos</span>
-            <span class="med-sum-value">14,5 m</span>
+            <span class="med-sum-value">15,5 m</span>
             <span class="med-sum-sub">leste (quintal)</span>
           </div>
         </div>
@@ -2872,9 +2872,9 @@
     //  Nada de coordenadas é redigitado: tudo vem de buildLayers → GEO.
     // ═══════════════════════════════════════════════════════════════════════
     const CEIL3D = 2.70;          // pé-direito (m)
-    const CPA    = 0.30;          // Cota do Piso Acabado — 30 cm acima do terreno acabado (datum 0)
-                                  // Mesmo nível da garagem (GCPA=0,15). Atende Caixa,
-                                  // resulta em 1 degrau na entrada após o aterramento.
+    const CPA    = 0.30;          // Cota do Piso Acabado — 30 cm acima da calçada (datum 0)
+                                  // Mesmo nível da garagem (GCPA=0,30). Atende Caixa,
+                                  // resulta em 2 degraus na entrada.
 
     // ── Declive do terreno (visita): ~1 m em 40 m = 2,5%, descendo da frente
     //    (calçada, mE=0 = datum 0) para os fundos (mE=40 → −1,0 m). Cota natural
@@ -3598,7 +3598,7 @@
         if (bv === 'v1') {
             extStairs(7.55, 23.00 + OE, 2.00, 'N'); // V1: escada desce p/ o jardim
         } else {
-            // V2/V3: plataforma 3×3 m nivelada à garagem (GCPA=0,15) + escada norte e leste.
+            // V2/V3: plataforma 3×3 m nivelada à garagem (GCPA=0,30) + escada norte e leste.
             // É acesso ligado à GARAGEM (nível GCPA) → no V4 entra no bloco V2 (gFound),
             // não na fundação da casa (senão aparece um "piso norte" antes da garagem existir).
             _ph = PH.gFound;
@@ -3607,7 +3607,7 @@
             const pE0 = 22.5 - 0.10 + OE, pE1 = 25.4 + OE; // alinha face ext. da parede (pE0) com a fachada oeste
             // Laje da plataforma
             g.add(box3d(pN0, pE0, pN1-pN0, pE1-pE0, grade(pE1) - 0.02, GCPA_V2, matEmbase));
-            // Escada leste — 4 degraus descendo p/ o quintal (e=0,175 m; p=0,28 m; Blondel ✓)
+            // Escada leste — desce p/ o quintal via extStairs (e/p calculados pelo rise)
             extStairs(pN0, pE1, pN1-pN0, 'E');
             _ph = PH.found;   // restaura p/ as seções seguintes da casa
         }
@@ -3650,7 +3650,7 @@
           }
         }
 
-        // Porta dos fundos (leste) — 5 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
+        // Porta dos fundos (leste) — 6 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
         _ph = PH.found; // escada dos fundos = fundação
         extStairs(4.70, 31.6 + OE, 1.20, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
         _ph = 0; // contorno do lote = entorno (sempre visível)
