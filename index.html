@@ -4534,7 +4534,11 @@
                         cm.castShadow = true; roof.add(cm);
                     };
                     drenar(gn1, ge0, GE1j);             // garagem (bloco oeste, perto da rua)
-                    drenar(n1,  e0,  e1,  gn1 + 0.5);   // casa (desvia p/ norte da garagem → rua)
+                    // Casa: a descida/leg NÃO podem cair no canto oeste do beiral (e0=mE 16,5),
+                    // que fica DENTRO da garagem (esta vai até GE1j+BN_EW=17,37, incl. beiral
+                    // leste). Desce a leste da junta (GE1j+BN_EW+0,2 ≈ 17,57, já na própria casa);
+                    // a faixa oeste do beiral da casa (oversailada pela garagem) drena p/ a garagem.
+                    drenar(n1,  GE1j + BN_EW + 0.2, e1, gn1 + 0.5);   // casa (livre da garagem → norte → rua)
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
