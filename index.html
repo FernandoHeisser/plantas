@@ -4533,12 +4533,17 @@
                         cm.rotation.z = Math.atan2(Hstart - Hend, len);
                         cm.castShadow = true; roof.add(cm);
                     };
-                    drenar(gn1, ge0, GE1j);             // garagem (bloco oeste, perto da rua)
+                    // Condutores correm RENTE ao muro/cerca norte (lote vai até mN 12,5),
+                    // bem no canto — não obstruem o pátio/acesso. Cada descida sobe por um
+                    // "leg" curto até a linha do muro e segue p/ a rua. As duas linhas ficam
+                    // 0,18 m separadas (garagem mais externa, junto à cerca; casa por dentro).
+                    const nWall = 12.5 - 0.20;          // condutor da garagem (mN 12,30)
+                    drenar(gn1, ge0, GE1j, nWall);      // garagem → rente ao muro norte → rua
                     // Casa: a descida/leg NÃO podem cair no canto oeste do beiral (e0=mE 16,5),
                     // que fica DENTRO da garagem (esta vai até GE1j+BN_EW=17,37, incl. beiral
-                    // leste). Desce a leste da junta (GE1j+BN_EW+0,2 ≈ 17,57, já na própria casa);
-                    // a faixa oeste do beiral da casa (oversailada pela garagem) drena p/ a garagem.
-                    drenar(n1,  GE1j + BN_EW + 0.2, e1, gn1 + 0.5);   // casa (livre da garagem → norte → rua)
+                    // leste). Desce a leste da junta (GE1j+BN_EW+0,2 ≈ 17,57, já na própria casa)
+                    // e segue rente ao muro (linha de dentro, mN 12,12) até a rua.
+                    drenar(n1,  GE1j + BN_EW + 0.2, e1, nWall - 0.18);   // casa → rente ao muro norte → rua
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
