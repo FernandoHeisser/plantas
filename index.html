@@ -4495,6 +4495,47 @@
                 // da casa, então esse beiral oversaila o telhado da casa na junta (detalhe normal
                 // de telhados em degrau: o mais alto joga a água sobre o mais baixo).
                 roof.add(tiltedSlab(matMetalRoof, gn0, GE1j, gn1, GE1j + BN_EW, GLAJE + 0.16, 0.10));
+                // ── V3.3: sistema de calhas/escoamento p/ a rua (só V3.3) ──────
+                // O telhado solar cai p/ NORTE → calha no beiral norte de cada bloco;
+                // descida no canto NO; condutor ELEVADO descendo p/ OESTE até a rua
+                // (mE=0 / boeiro). O pé do beiral do sobrado (~6 m de mundo) dá carga
+                // p/ vencer o aterro, que sobe em direção à rua (grade=−mE·2,5%): o
+                // condutor desce de ~+0,4 (no pé da descida) p/ +0,15 na sarjeta.
+                // Geometria no grupo roof (sobe com o 2º piso). Cotas em LOCAL do roof:
+                // world = local + LY quando o telhado está erguido sobre o sobrado.
+                if (v === 'v33') {
+                    const LY = CEIL3D + 0.16;                 // o roof sobe LY com o 2º piso
+                    const wl = yw => yw - LY;                 // altura de mundo → local do roof
+                    const matCalha = new THREE.MeshStandardMaterial({ color: 0xc9ccd1, roughness: 0.5, metalness: 0.35, envMapIntensity: 0.4 });
+                    const eaveL = CEIL3D + CPA + 0.16;        // beiral local (casa = garagem = 3,16)
+                    const GW = 0.14, GD = 0.13, drop = 0.02;  // calha: largura(mN) × altura, 2cm sob o beiral
+                    const PR = 0.055;                         // raio descida/condutor (~Ø110)
+                    const Hend = 0.15, slope = 0.015;         // descarga na sarjeta (mundo) + 1,5%
+                    const drenar = (nEave, eW, eE, nRoute) => {
+                        const nR = nRoute === undefined ? nEave : nRoute;
+                        const len = eW;                       // do canto NO (mE=eW) até a rua (mE=0)
+                        const Hstart = Hend + len * slope;    // cota do condutor no pé da descida (mundo)
+                        const gutTop = eaveL - drop, gutBot = gutTop - GD;
+                        // calha ao longo do beiral norte
+                        roof.add(box3d(nEave - GW/2, eW, GW, eE - eW, gutBot, gutTop, matCalha));
+                        // descida vertical no canto NO: fundo da calha → cota do condutor
+                        const dn = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, gutBot - wl(Hstart), 16), matCalha);
+                        dn.position.set(eW, (gutBot + wl(Hstart)) / 2, -nEave); dn.castShadow = true; roof.add(dn);
+                        // (casa) leg deitado levando o pé da descida ao alinhamento norte (nR)
+                        if (nR !== nEave) {
+                            const lg = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, Math.abs(nR - nEave), 16), matCalha);
+                            lg.rotation.x = Math.PI / 2;      // eixo do cilindro → N-S (Z)
+                            lg.position.set(eW, wl(Hstart), -(nEave + nR) / 2); lg.castShadow = true; roof.add(lg);
+                        }
+                        // condutor horizontal p/ OESTE (mE eW→0) em nR, descendo Hstart→Hend
+                        const cm = new THREE.Mesh(new THREE.BoxGeometry(len, 2 * PR, 2 * PR), matCalha);
+                        cm.position.set(eW / 2, wl((Hstart + Hend) / 2), -nR);
+                        cm.rotation.z = Math.atan2(Hstart - Hend, len);
+                        cm.castShadow = true; roof.add(cm);
+                    };
+                    drenar(gn1, ge0, GE1j);             // garagem (bloco oeste, perto da rua)
+                    drenar(n1,  e0,  e1,  gn1 + 0.5);   // casa (desvia p/ norte da garagem → rua)
+                }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
                 // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
