@@ -4286,39 +4286,56 @@
             const GCPA  = 0.30;   // piso garagem — 30 cm acima da calçada (era 0,15)
             const GEM_P = 0.03;
 
-            // Acesso pavimentado: rampa suave da rua (y=0, mE=0) até o piso da garagem (GCPA, mE=GE0).
+            // Acesso pavimentado: RAMPA CURTA (1,5 m) na entrada + LAJE PLANA (GCPA) no restante.
+            // - Rampa (mE 0→1,5): topo inclinado y=0→GCPA → sem degrau no portão para o carro.
+            // - Laje plana (mE 1,5→GE0): topo a GCPA, mesma aparência do original → footprint correto.
             // Borda norte em DIAGONAL (igual ao 2D): mN=11,5 na frente, afunila até GN1=10,5 na garagem.
-            // BufferGeometry customizado: topo inclinado (sem degrau na entrada), base plana em drvBase.
-            // Vértices (scene: X=mE, Y=altura, Z=-mN):
-            //   top SW=0, NW=1, NE=2, SE=3 | bot SW=4, NW=5, NE=6, SE=7
             const matDrive = new THREE.MeshStandardMaterial({ color: 0xd0ccc4, roughness: 0.88, metalness: 0, envMapIntensity: 0.2, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
             _ph = PH.gFound;
             const drvBase = baseBot(0, GE0);
-            const dv = [
-                [0,    0,       -GN0 ],  // 0 top SW — nível da rua
-                [0,    0,       -11.5],  // 1 top NW
-                [GE0,  GCPA,   -GN1 ],  // 2 top NE — nível do piso da garagem
-                [GE0,  GCPA,   -GN0 ],  // 3 top SE
-                [0,    drvBase, -GN0 ],  // 4 bot SW
-                [0,    drvBase, -11.5],  // 5 bot NW
-                [GE0,  drvBase, -GN1 ],  // 6 bot NE
-                [GE0,  drvBase, -GN0 ],  // 7 bot SE
+            const RAMP = 1.5;  // comprimento da rampa de entrada (m)
+            const nN_r = 11.5 - (11.5 - GN1) / GE0 * RAMP;  // borda norte interpolada em mE=RAMP
+
+            // — Rampa (mE 0→RAMP): BufferGeometry com topo inclinado —
+            const dvR = [
+                [0,    0,       -GN0   ],  // 0 top SW
+                [0,    0,       -11.5  ],  // 1 top NW
+                [RAMP, GCPA,   -nN_r  ],  // 2 top NE
+                [RAMP, GCPA,   -GN0   ],  // 3 top SE
+                [0,    drvBase, -GN0   ],  // 4 bot SW
+                [0,    drvBase, -11.5  ],  // 5 bot NW
+                [RAMP, drvBase, -nN_r  ],  // 6 bot NE
+                [RAMP, drvBase, -GN0   ],  // 7 bot SE
             ];
-            const tri = (...i) => [...dv[i[0]], ...dv[i[1]], ...dv[i[2]]];
-            const drvPos = new Float32Array([
-                ...tri(0,3,2), ...tri(0,2,1),   // topo (rampa inclinada)
-                ...tri(4,6,7), ...tri(4,5,6),   // base
-                ...tri(0,1,5), ...tri(0,5,4),   // face oeste (rua)
-                ...tri(3,6,2), ...tri(3,7,6),   // face leste (garagem)
-                ...tri(0,7,3), ...tri(0,4,7),   // face sul
-                ...tri(1,6,5), ...tri(1,2,6),   // face norte (diagonal)
+            const triR = (...i) => [...dvR[i[0]], ...dvR[i[1]], ...dvR[i[2]]];
+            const rampPos = new Float32Array([
+                ...triR(0,3,2), ...triR(0,2,1),  // topo inclinado
+                ...triR(4,6,7), ...triR(4,5,6),  // base
+                ...triR(0,1,5), ...triR(0,5,4),  // face oeste (rua)
+                ...triR(3,6,2), ...triR(3,7,6),  // face leste (junta com a laje)
+                ...triR(0,7,3), ...triR(0,4,7),  // face sul
+                ...triR(1,6,5), ...triR(1,2,6),  // face norte diagonal
             ]);
-            const drvGeo = new THREE.BufferGeometry();
-            drvGeo.setAttribute('position', new THREE.BufferAttribute(drvPos, 3));
-            drvGeo.computeVertexNormals();
-            const drvMesh = new THREE.Mesh(drvGeo, matDrive);
-            drvMesh.castShadow = true; drvMesh.receiveShadow = true;
-            g.add(drvMesh);
+            const rampGeo = new THREE.BufferGeometry();
+            rampGeo.setAttribute('position', new THREE.BufferAttribute(rampPos, 3));
+            rampGeo.computeVertexNormals();
+            const rampMesh = new THREE.Mesh(rampGeo, matDrive);
+            rampMesh.castShadow = true; rampMesh.receiveShadow = true;
+            g.add(rampMesh);
+
+            // — Laje plana (mE RAMP→GE0): ExtrudeGeometry a GCPA, mesma aparência do original —
+            const flatShape = new THREE.Shape();
+            flatShape.moveTo(RAMP, GN0  );
+            flatShape.lineTo(RAMP, nN_r );
+            flatShape.lineTo(GE0,  GN1  );
+            flatShape.lineTo(GE0,  GN0  );
+            flatShape.closePath();
+            const flatGeo = new THREE.ExtrudeGeometry(flatShape, { depth: GCPA - drvBase, bevelEnabled: false });
+            flatGeo.rotateX(-Math.PI / 2);
+            const flatMesh = new THREE.Mesh(flatGeo, matDrive);
+            flatMesh.position.y = drvBase;
+            flatMesh.castShadow = true; flatMesh.receiveShadow = true;
+            g.add(flatMesh);
 
             // 9 colunas (3×3): frente / meio / fundo × sul / centro / norte.
             // Base desce até a cota natural (baseBot) — casa com o declive, sem flutuar.
