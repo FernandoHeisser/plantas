@@ -912,9 +912,10 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
   - **leg** (deitado, no fundo): leva o pé da descida ao alinhamento do condutor (`nRoute`).
   - **Roteamento atual:** condutores **rente à cerca norte** (`nWall=12,30` garagem / `12,12` casa;
     lote até mN 12,5), fora do pátio. **Garagem:** descida na **coluna NO do pilotis** (face norte,
-    `dnN=GN1+0,06`, `dnE=GE0+0,10` — virada p/ a cerca, escondida do pátio). **Casa:** desce no
-    **reentrâncio da junta** (`GE1j+BN_EW+0,2 ≈ 17,57`); a coluna oeste da casa (mE 17,0) fica sob o
-    beiral da garagem, inacessível.
+    `dnN=GN1+0,06`, `dnE=GE0+0,10` — virada p/ a cerca, escondida do pátio). **Casa:** descida na
+    **coluna a LESTE da porta de correr da sala norte** (`dnN=7,6`, `dnE=25,5+OE ≈ scene 20,0`; a
+    porta ocupa scene mE 17,5→19,5, e a coluna oeste mE 17,0 fica sob o beiral da garagem) — fora do
+    vão/caminho da porta. A calha da casa começa em `GE1j+BN_EW+0,2 ≈ 17,57` e drena p/ essa descida.
 - **Aproveita o pé do beiral do sobrado (~6 m de mundo):** dá carga para vencer o **aterro que
   sobe** rumo à rua (`grade=−mE·2,5%`, terreno cai para os fundos). O condutor fica **elevado**
   (aparente) e desce continuamente → sem barriga, **sem água parada**.

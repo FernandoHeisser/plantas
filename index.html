@@ -4551,11 +4551,11 @@
                     // Garagem: descida encostada na COLUNA NO do pilotis (face norte, virada p/ a
                     // cerca → escondida do pátio). Coluna: mE GE0→GE0+0,20, mN GN1−0,20→GN1.
                     drenar(gn1, ge0, GE1j, nWall, GN1 + 0.06, GE0 + 0.10);   // garagem → coluna NO → muro → rua
-                    // Casa: a descida NÃO pode cair a oeste da junta (e0=mE 16,5 cai DENTRO da
-                    // garagem, que vai até GE1j+BN_EW=17,37). Desce a leste da junta
-                    // (GE1j+BN_EW+0,2 ≈ 17,57) — no reentrâncio casa↔garagem, já escondida; a
-                    // coluna oeste da casa (mE 17,0) fica sob o beiral da garagem, inacessível.
-                    drenar(n1,  GE1j + BN_EW + 0.2, e1, nWall - 0.18);   // casa → reentrâncio junta → muro → rua
+                    // Casa: a descida não pode cair a oeste da junta (sob a garagem) NEM no vão da
+                    // porta de correr da sala norte (scene mE 17,5→19,5). Encosta na COLUNA da casa
+                    // a LESTE da porta (code mE 25,5 → scene 20,0; col. oeste mE 17,0 fica sob o
+                    // beiral da garagem). Face norte (dnN=7,6) → virada p/ a cerca, fora do caminho.
+                    drenar(n1,  GE1j + BN_EW + 0.2, e1, nWall - 0.18, 7.6, 25.5 + OE);   // casa → coluna N (leste da porta) → muro → rua
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
