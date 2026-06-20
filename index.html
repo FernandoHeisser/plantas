@@ -3531,26 +3531,65 @@
 
         // Piso retângulo completo (mN 2,0→7,5 × mE 22,5→31,5) — 1cm aquém das faces interiores
         g.add(box3d(2.11, 22.61 + OE, 5.28, 8.78, CPA - 0.025, CPA, matFloor));
-        // ── Escadas externas — normas Caixa/NBR 9050 ───────────────────────────
-        // Espelho (e) 16–18 cm · piso (p) ~28–29 cm · Blondel 2e+p ≈ 0,63 m ·
-        // degraus IGUAIS · largura ≥ 0,80 m. Como a casa está +1,0 m acima do solo
-        // natural (declive), o lance precisa de ~6 degraus (não 3). Sobe do solo
-        // (grade) até a CPA. dir 'W' desce p/ oeste; dir 'N' desce p/ norte.
+        // ── Escadas externas — NBR 9050 / Caixa ────────────────────────────────
+        // Espelho (e) ≤ 19 cm (externas residenciais) · Blondel 2e+p = 0,64 m ·
+        // degraus iguais · largura ≥ 1,20 m · corrimão bilateral em todas.
+        // Espelho máx 19 cm (vs 18 cm interior) evita gap onde nenhum NS inteiro
+        // cai em [16,18] para certos rises (ex.: rise 74 cm → 4×18,5 cm ok).
+        const matRail = new THREE.MeshStandardMaterial({
+            color: 0x555555, roughness: 0.3, metalness: 0.8
+        });
+        // Trilho inclinado entre dois pontos em coords de cena (X=mE, Y=alt, Z=−mN)
+        const railSeg3d = (x0, y0, z0, x1, y1, z1) => {
+            const a = new THREE.Vector3(x0, y0, z0);
+            const b = new THREE.Vector3(x1, y1, z1);
+            const d = b.clone().sub(a);
+            const len = d.length();
+            if (len < 0.01) return;
+            const geo = new THREE.BoxGeometry(0.05, 0.05, len);
+            const mesh = new THREE.Mesh(geo, matRail);
+            mesh.position.copy(a.clone().add(b).multiplyScalar(0.5));
+            mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d.normalize());
+            mesh.castShadow = true;
+            g.add(mesh);
+        };
         const extStairs = (topN, faceE, w, dir) => {
-            const base = grade(faceE) - 0.02;                    // solo na soleira
+            const base = grade(faceE) - 0.02;     // nível do solo na soleira
             const rise = CPA - base;
-            // Norma Caixa: espelho 0,16–0,18 m, degraus iguais.
-            // Usa floor(rise/0.16) para garantir e ≥ 0,16 m.
-            // Se cair acima de 0,18 tenta ceil → pega o menor NS válido.
-            let NS = Math.max(2, Math.floor(rise / 0.16));
-            if (rise / NS > 0.18) NS = Math.ceil(rise / 0.18);  // fallback: e ≤ 0,18
-            const e  = rise / NS;                                // espelho (igual em todos)
-            const p  = Math.min(0.32, Math.max(0.28, 0.63 - 2*e)); // piso p/ Blondel ≈ 0,63
+            // ceil(rise/0.19) = mínimo de degraus p/ e ≤ 19 cm — sempre válido
+            let NS = Math.ceil(rise / 0.19);
+            NS = Math.max(2, NS);
+            const e = rise / NS;                   // espelho igual em todos os degraus
+            // Blondel 2e+p = 0,64 m; piso mín 0,26 m (externo), máx 0,32 m
+            const p = Math.min(0.32, Math.max(0.26, 0.64 - 2 * e));
+            // Degraus
             for (let i = 1; i <= NS; i++) {
-                const top = base + i * e;                        // i=NS → topo na CPA (patamar = piso)
-                if      (dir === 'W') g.add(box3d(topN, faceE - (NS - i + 1) * p, w, p, base, top, matEmbase));
-                else if (dir === 'E') g.add(box3d(topN, faceE + (NS - i) * p,     w, p, base, top, matEmbase));
-                else                  g.add(box3d(topN + (NS - i) * p, faceE,     p, w, base, top, matEmbase)); // 'N'
+                const top = base + i * e;
+                if      (dir === 'W') g.add(box3d(topN, faceE - (NS - i + 1)*p, w, p, base, top, matEmbase));
+                else if (dir === 'E') g.add(box3d(topN, faceE + (NS - i)*p,     w, p, base, top, matEmbase));
+                else                  g.add(box3d(topN + (NS - i)*p, faceE,     p, w, base, top, matEmbase));
+            }
+            // Corrimão bilateral — poste no topo, poste na base, trilho inclinado
+            // Poste intermediário quando NS ≥ 5 (≈ no meio do lance)
+            const PW = 0.05, RH = 0.90;
+            const post = (pn, pe, z0, z1) =>
+                g.add(box3d(pn - PW/2, pe - PW/2, PW, PW, z0, z1, matRail));
+            if (dir === 'W' || dir === 'E') {
+                const eBot = dir === 'W' ? faceE - NS*p : faceE + NS*p;
+                [topN, topN + w].forEach(sn => {
+                    post(sn, faceE, CPA,         CPA  + RH);
+                    post(sn, eBot,  base - 0.05, base + RH);
+                    if (NS >= 5) post(sn, (faceE + eBot)/2, (CPA + base)/2, (CPA + base)/2 + RH);
+                    railSeg3d(faceE, CPA + RH, -sn, eBot, base + RH, -sn);
+                });
+            } else { // 'N'
+                const nBot = topN + NS * p;
+                [faceE, faceE + w].forEach(se => {
+                    post(topN, se, CPA,         CPA  + RH);
+                    post(nBot, se, base - 0.05, base + RH);
+                    if (NS >= 5) post((topN + nBot)/2, se, (CPA + base)/2, (CPA + base)/2 + RH);
+                    railSeg3d(se, CPA + RH, -topN, se, base + RH, -nBot);
+                });
             }
         };
         // Porta principal (oeste) — só V1 (no V2/V3 a garagem ocupa a frente; acesso pela garagem)
@@ -3613,7 +3652,7 @@
 
         // Porta dos fundos (leste) — 5 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
         _ph = PH.found; // escada dos fundos = fundação
-        extStairs(4.70, 31.6 + OE, 0.90, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
+        extStairs(4.70, 31.6 + OE, 1.20, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
         _ph = 0; // contorno do lote = entorno (sempre visível)
 
         // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
