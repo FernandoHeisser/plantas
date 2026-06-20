@@ -901,14 +901,20 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
   NORTE** (geração FV, `addShed`), perpendicular à rua (oeste). Toda a água do telhado vai para o
   **beiral norte**; quem decide frente×fundos é a **calha + condutor**, não o telhado.
 - **Geometria (gate `if (v === 'v33')`, logo após o beiral leste da garagem, dentro de `if (SOLAR)`):**
-  helper local `drenar(nEave, eW, eE, nRoute?)` monta, por bloco (casa + garagem):
+  helper local `drenar(nEave, eW, eE, nRoute?, dnN?, dnE?)` monta, por bloco (casa + garagem):
   - **calha** (`box3d`) ao longo do beiral norte, ~2 cm sob a água;
-  - **descida** (cilindro Ø~110) no canto NO (`mE = eW`, oeste do bloco), do fundo da calha à cota
-    do condutor;
+  - **descida** (cilindro Ø~110) **colada numa coluna** quando `dnN/dnE` são dados (mais escondida),
+    do fundo da calha à cota do condutor; senão cai no canto NO (`mE = eW`);
+  - **swan-neck** (só quando há coluna): tubo deitado no topo levando a água do beiral (`nEave`) até
+    a coluna (`dnN, dnE`);
   - **condutor** horizontal (`box` inclinado via `rotation.z`) para **oeste** até a rua (`mE=0`),
     descendo `Hstart→Hend=0,15 m` (declive **+1,5%**, descarga no meio-fio);
-  - **leg** (só casa, `nRoute=gn1+0,5`): tubo deitado levando o pé da descida para o alinhamento
-    **norte da garagem** antes de correr para a rua — evita cruzar o pilotis.
+  - **leg** (deitado, no fundo): leva o pé da descida ao alinhamento do condutor (`nRoute`).
+  - **Roteamento atual:** condutores **rente à cerca norte** (`nWall=12,30` garagem / `12,12` casa;
+    lote até mN 12,5), fora do pátio. **Garagem:** descida na **coluna NO do pilotis** (face norte,
+    `dnN=GN1+0,06`, `dnE=GE0+0,10` — virada p/ a cerca, escondida do pátio). **Casa:** desce no
+    **reentrâncio da junta** (`GE1j+BN_EW+0,2 ≈ 17,57`); a coluna oeste da casa (mE 17,0) fica sob o
+    beiral da garagem, inacessível.
 - **Aproveita o pé do beiral do sobrado (~6 m de mundo):** dá carga para vencer o **aterro que
   sobe** rumo à rua (`grade=−mE·2,5%`, terreno cai para os fundos). O condutor fica **elevado**
   (aparente) e desce continuamente → sem barriga, **sem água parada**.
