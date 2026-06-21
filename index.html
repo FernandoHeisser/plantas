@@ -4563,22 +4563,22 @@
                     // bem no canto — não obstruem o pátio/acesso. As duas linhas ficam 0,18 m
                     // separadas (garagem mais externa, junto à cerca; casa por dentro).
                     const nWall = 12.5 - 0.20;          // condutor da garagem (mN 12,30)
-                    // Condutores/legs horizontais ENTERRADOS (abaixo do `grade` do terreno) → sem cano
-                    // acima do chão p/ tropeçar. Descarregam em yBoeiro (~0,85 m abaixo da rua, dentro
-                    // do boeiro/galeria) e SOBEM a burSlope rumo aos fundos → enterrados todo o percurso
-                    // mesmo o terreno caindo p/ trás (grade=−mE·2,5%). A descida desce até o tubo enterrado.
-                    const yBoeiro = -0.85, burSlope = 0.014;
+                    // Condutores/legs correm ABAIXO DO PISO da garagem/área norte (top do tubo < GCPA
+                    // =0,30) → embutidos no piso, sem cano knee-high p/ tropeçar. MAS descarregam na
+                    // SARJETA (`hSar=0,12`, nível da rua) com declive SUAVE (`sSar=0,007`) → respeitam
+                    // o caimento da rua (sem enterrar fundo demais, que não tem boeiro raso onde sair).
+                    // Correm rente ao muro norte, pela beirada. Cota casa casa no encontro c/ a garagem.
+                    const hSar = 0.10, sSar = 0.006;
                     // Garagem: descida encostada na COLUNA NO do pilotis (face norte, virada p/ a
                     // cerca → escondida do pátio). Coluna: mE GE0→GE0+0,20, mN GN1−0,20→GN1.
-                    drenar(gn1, ge0, GE1j, nWall, GN1 + 0.06, GE0 + 0.10, yBoeiro, burSlope);   // garagem → coluna NO → muro ENTERRADO → boeiro
+                    drenar(gn1, ge0, GE1j, nWall, GN1 + 0.06, GE0 + 0.10, hSar, sSar);   // garagem → coluna NO → muro (sob o piso) → sarjeta
                     // Casa: descida na COLUNA NOROESTE DA CASA (mE 22,5+OE=17,0, mN 7,5; descida na
                     // face norte, dnN=7,66). O leg SOBE pela JUNTA (mE 17,0) até o muro; o condutor
-                    // corre RENTE AO MURO NORTE (nWall) e ENCONTRA o condutor da garagem na descida
-                    // dela (mE=meetE), seguindo juntos até a rua. Vai SEMPRE pela beirada (junta +
-                    // muro) — nunca pelo meio. ENTERRADO; a cota casa no encontro (= cota da garagem
-                    // em meetE) → tubo contínuo e enterrado no muro.
+                    // corre RENTE AO MURO NORTE (nWall, sob o piso) e ENCONTRA o condutor da garagem
+                    // na descida dela (mE=meetE), seguindo juntos até a rua. Pela beirada (junta +
+                    // muro), nunca pelo meio. Cota casa no encontro (= cota da garagem em meetE).
                     const meetE = GE0 + 0.10;   // = mE da descida da garagem (ponto de encontro no muro)
-                    drenar(n1, e0, e1, nWall, 7.66, 22.5 + OE, yBoeiro + meetE * burSlope, burSlope, meetE);
+                    drenar(n1, e0, e1, nWall, 7.66, 22.5 + OE, hSar + meetE * sSar, sSar, meetE);
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na

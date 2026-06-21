@@ -918,11 +918,12 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
     **ENCONTRA o condutor da garagem** (na descida dela) → seguem juntos ao boeiro. `hE/sl` da casa =
     cota/declive do condutor da garagem em `meetE` → tubo **contínuo** no muro. **Sempre pela beirada
     (junta + muro), nunca pelo meio do pátio/driveway.** A **calha da casa cobre todo o beiral** (`e0→e1`).
-- **Trechos horizontais ENTERRADOS (legs + condutores):** ficam **abaixo do `grade`** do terreno
-  (`yBoeiro=−0,85`, `burSlope=0,014` passados como `hE/sl`) → sem cano acima do chão p/ tropeçar.
-  Descarregam no **boeiro** (~0,85 m abaixo da rua) e sobem rumo aos fundos, ficando enterrados todo
-  o percurso mesmo o terreno caindo p/ trás. A **descida** desce do beiral (~6 m) **até o tubo
-  enterrado** (fundo em ~−0,6/−0,75), entrando no chão. Ocultos pela grama (plano em `grade`).
+- **Trechos horizontais ABAIXO DO PISO (legs + condutores):** rodam com o topo do tubo **< GCPA=0,30**
+  (`hSar=0,10`, `sSar=0,006` passados como `hE/sl`) → embutidos no **piso da garagem / área norte
+  pavimentada** (sem cano knee-high p/ tropeçar), mas **descarregam na SARJETA** (`hSar≈0,10`, nível
+  da rua) com declive suave → **respeitam o caimento da rua** (não dá p/ enterrar fundo no boeiro —
+  era o erro do `−0,85`). A **descida** desce do beiral (~6 m) até o tubo sob o piso. Topo máx. dos
+  horizontais ≈ 0,26 (folga ~4 cm sob o piso).
 - **Cotas em LOCAL do `roof`** (`wl(yw)=yw−LY`, `LY=CEIL3D+0,16`): as calhas ficam no grupo `roof`
   e **sobem com o 2º piso** (`set3DFloor2`); aparecem/somem com o botão **Telhado** (`set3DRoof`).
   Otimizado para a vista do **sobrado completo** (2º piso + telhado visíveis).
