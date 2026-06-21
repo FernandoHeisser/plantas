@@ -914,10 +914,11 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
   - **Roteamento atual:** condutores **rente à cerca norte** (`nWall=12,30` garagem / `12,12` casa;
     lote até mN 12,5), fora do pátio. **Garagem:** descida na **coluna NO do pilotis** (face norte,
     `dnN=GN1+0,06`, `dnE=GE0+0,10` — virada p/ a cerca, escondida do pátio). **Casa:** descida na
-    **coluna NORDESTE do pilotis da garagem** (`dnN=GN1+0,06=10,56`, `dnE=GE1j−0,10=16,77`), no
-    **recanto da junta** entre os 2 prédios — bem escondida e fora do vão da porta de correr da sala
-    norte (scene mE 17,5→19,5). A calha da casa (mN 8,4) leva a água por um **conector diagonal** até
-    essa coluna; a calha começa em `GE1j+BN_EW+0,2 ≈ 17,57`.
+    **coluna NORDESTE do pilotis da garagem** (`dnN=GN1−0,10=10,40`, `dnE=GE1j+0,06=16,93` = FACE
+    LESTE da coluna, do lado de FORA da garagem). `dnE>GE1j=16,87` é proposital: o conector reto
+    corre no recanto ABERTO, **sem entrar na parede** da garagem (com `dnE=16,77`, na linha da junta,
+    ele atravessava o corpo dela). A **calha da casa cobre todo o beiral** (`e0→e1`, não mais a partir
+    de 17,57) e, alcançando o `mE` da descida, o **conector vira reto (N-S)** — sem diagonal solta.
 - **Aproveita o pé do beiral do sobrado (~6 m de mundo):** dá carga para vencer o **aterro que
   sobe** rumo à rua (`grade=−mE·2,5%`, terreno cai para os fundos). O condutor fica **elevado**
   (aparente) e desce continuamente → sem barriga, **sem água parada**.

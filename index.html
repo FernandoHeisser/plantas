@@ -4560,12 +4560,13 @@
                     // Garagem: descida encostada na COLUNA NO do pilotis (face norte, virada p/ a
                     // cerca → escondida do pátio). Coluna: mE GE0→GE0+0,20, mN GN1−0,20→GN1.
                     drenar(gn1, ge0, GE1j, nWall, GN1 + 0.06, GE0 + 0.10);   // garagem → coluna NO → muro → rua
-                    // Casa: descida na COLUNA NORDESTE do pilotis da garagem (no recanto da junta
-                    // entre os 2 prédios → bem escondida). Coluna: mE GE1j−COL→GE1j (face leste = junta),
-                    // mN GN1−COL→GN1. Descida na face norte (dnN=GN1+0,06=10,56; dnE=GE1j−0,10=16,77).
-                    // Calha da casa cobre TODO o beiral norte (e0→e1); como alcança o mE da coluna,
-                    // o conector p/ a descida vira reto (N-S), sem diagonal solta no vão.
-                    drenar(n1,  e0, e1, nWall - 0.18, GN1 + 0.06, GE1j - 0.10);   // casa → coluna NE da garagem → muro → rua
+                    // Casa: descida na COLUNA NORDESTE do pilotis da garagem (no recanto da junta).
+                    // Coluna: mE GE1j−COL→GE1j, mN GN1−COL→GN1. A descida encosta na FACE LESTE da
+                    // coluna (dnE=GE1j+0,06=16,93) — do lado de FORA da garagem (que vai até GE1j=
+                    // 16,87) → o conector reto corre no recanto ABERTO, sem entrar na parede da
+                    // garagem (era o problema quando dnE=16,77, dentro do corpo dela).
+                    // Calha cobre TODO o beiral (e0→e1); alcança o mE da descida → conector reto (N-S).
+                    drenar(n1,  e0, e1, nWall - 0.18, GN1 - 0.10, GE1j + 0.06);   // casa → coluna NE (face leste) → muro → rua
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
