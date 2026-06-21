@@ -4526,13 +4526,14 @@
                     // hE/sl (opcionais) = cota de descarga e declive do condutor. Default = sarjeta
                     // aparente (0,15 / 1,5%). Casa usa cota baixa + declive suave p/ o condutor caber
                     // DENTRO da laje do piso (top < GCPA=0,30) → embutido, sem cano aparente no chão.
-                    const drenar = (nEave, eW, eE, nRoute, dnN, dnE, hE, sl) => {
+                    const drenar = (nEave, eW, eE, nRoute, dnN, dnE, hE, sl, endE) => {
                         const HE = hE === undefined ? Hend  : hE;
                         const SL = sl === undefined ? slope : sl;
+                        const eEnd = endE === undefined ? 0 : endE;   // mE onde o condutor descarrega (0 = rua)
                         const dN = dnN === undefined ? nEave : dnN;   // mN da descida (coluna ou beiral)
                         const dE = dnE === undefined ? eW    : dnE;   // mE da descida
                         const nR = nRoute === undefined ? dN : nRoute;
-                        const len = dE;                       // descida → rua (mE=0)
+                        const len = dE - eEnd;                // descida → ponto de descarga (eEnd)
                         const Hstart = HE + len * SL;         // cota do condutor no pé da descida (mundo)
                         const gutTop = eaveL - drop, gutBot = gutTop - GD;
                         // calha ao longo do beiral norte
@@ -4552,9 +4553,9 @@
                             lg.rotation.x = Math.PI / 2;      // eixo do cilindro → N-S (Z)
                             lg.position.set(dE, wl(Hstart), -(dN + nR) / 2); lg.castShadow = true; roof.add(lg);
                         }
-                        // condutor horizontal p/ OESTE (mE dE→0) em nR, descendo Hstart→HE
+                        // condutor horizontal p/ OESTE (mE dE→eEnd) em nR, descendo Hstart→HE
                         const cm = new THREE.Mesh(new THREE.BoxGeometry(len, 2 * PR, 2 * PR), matCalha);
-                        cm.position.set(dE / 2, wl((Hstart + HE) / 2), -nR);
+                        cm.position.set((dE + eEnd) / 2, wl((Hstart + HE) / 2), -nR);
                         cm.rotation.z = Math.atan2(Hstart - HE, len);
                         cm.castShadow = true; roof.add(cm);
                     };
@@ -4567,10 +4568,15 @@
                     drenar(gn1, ge0, GE1j, nWall, GN1 + 0.06, GE0 + 0.10);   // garagem → coluna NO → muro → rua
                     // Casa: descida na COLUNA NOROESTE DA CASA (face norte da parede da sala, a oeste
                     // da porta de correr). Coluna em mE 22,5+OE=17,0, mN 7,5; descida na face norte
-                    // (dnN=7,66, dnE=17,0). Curto conector da calha (mN 8,4) até ela. O condutor então
-                    // corre POR DENTRO DO PISO (mN 7,66, atravessando a laje da garagem ao nível do
-                    // piso) até a rua — embutido, sem cano aparente cruzando o vão (nRoute=dnN → s/ leg).
-                    drenar(n1,  e0, e1, 7.66, 7.66, 22.5 + OE, 0.02, 0.012);   // casa → coluna NO da casa → cano DENTRO do piso → rua
+                    // (dnN=7,66, dnE=17,0). Curto conector da calha (mN 8,4) até ela. O condutor corre
+                    // POR DENTRO DO PISO (mN 7,66, embutido na laje da garagem) até mE 1 (perto da rua).
+                    const cMN = 7.66, meetE = 1.0;
+                    drenar(n1,  e0, e1, cMN, cMN, 22.5 + OE, 0.02, 0.012, meetE);   // casa → coluna NO → piso → mE 1
+                    // No fim do percurso o cano EMERGE do piso (riser) e segue p/ o canto NO,
+                    // ENCONTRANDO o condutor da garagem (mN=nWall, em mE=meetE) → descarga conjunta no boeiro.
+                    const ySurf = Hend + meetE * slope;       // = cota do condutor da garagem em mE=meetE (0,165)
+                    roof.add(pipeBetween(meetE, wl(0.02), -cMN,  meetE, wl(ySurf), -cMN,   PR, matCalha)); // riser (sobe do piso)
+                    roof.add(pipeBetween(meetE, wl(ySurf), -cMN, meetE, wl(ySurf), -nWall, PR, matCalha)); // vai ao encontro da garagem
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na

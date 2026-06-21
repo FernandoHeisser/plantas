@@ -907,15 +907,17 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
     do fundo da calha à cota do condutor; senão cai no canto NO (`mE = eW`);
   - **conector no topo** (`pipeBetween`, só quando há coluna): tubo do ponto da calha mais perto da
     coluna (clamp ao vão) até o topo da descida (`dnN, dnE`) — diagonal se a coluna está fora do vão;
-  - **condutor** horizontal (`box` inclinado via `rotation.z`) para **oeste** até a rua (`mE=0`),
-    descendo `Hstart→hE` (declive `sl`). `hE/sl` default = sarjeta aparente (0,15 / 1,5%);
+  - **condutor** horizontal (`box` inclinado via `rotation.z`) para **oeste** até `mE=endE` (0 = rua),
+    descendo `Hstart→hE` (declive `sl`). `hE/sl` default = sarjeta aparente (0,15 / 1,5%); `endE` def. 0;
   - **leg** (deitado, no fundo): leva o pé da descida ao alinhamento do condutor (`nRoute`).
   - **Roteamento atual:** **Garagem:** descida na **coluna NO do pilotis** (face norte, `dnN=GN1+0,06`,
     `dnE=GE0+0,10`); condutor **rente à cerca norte** (`nWall=12,30`), fora do pátio. **Casa:** descida
     na **coluna NOROESTE DA CASA** (face norte da parede da sala, a oeste da porta de correr;
     `dnN=7,66`, `dnE=22,5+OE=17,0`); o condutor corre **POR DENTRO DO PISO** (`nRoute=dnN` → s/ leg;
-    `hE=0,02`, `sl=0,012` → top do tubo `<0,30=GCPA`, embutido na laje da garagem) até a rua, sem cano
-    aparente no chão do pilotis. A **calha da casa cobre todo o beiral** (`e0→e1`).
+    `hE=0,02`, `sl=0,012` → top do tubo `<0,30=GCPA`, embutido na laje da garagem) até `endE=1` (perto
+    da rua). Aí o cano **EMERGE** do piso (riser `pipeBetween`) e segue ao norte (mE 1, `cMN→nWall`)
+    **ao encontro do condutor da garagem** → descarga conjunta no boeiro. A **calha da casa cobre todo
+    o beiral** (`e0→e1`).
 - **Aproveita o pé do beiral do sobrado (~6 m de mundo):** dá carga para vencer o **aterro que
   sobe** rumo à rua (`grade=−mE·2,5%`, terreno cai para os fundos). O condutor fica **elevado**
   (aparente) e desce continuamente → sem barriga, **sem água parada**.
