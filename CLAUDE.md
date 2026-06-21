@@ -918,9 +918,11 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
     **ENCONTRA o condutor da garagem** (na descida dela) → seguem juntos ao boeiro. `hE/sl` da casa =
     cota/declive do condutor da garagem em `meetE` → tubo **contínuo** no muro. **Sempre pela beirada
     (junta + muro), nunca pelo meio do pátio/driveway.** A **calha da casa cobre todo o beiral** (`e0→e1`).
-- **Aproveita o pé do beiral do sobrado (~6 m de mundo):** dá carga para vencer o **aterro que
-  sobe** rumo à rua (`grade=−mE·2,5%`, terreno cai para os fundos). O condutor fica **elevado**
-  (aparente) e desce continuamente → sem barriga, **sem água parada**.
+- **Trechos horizontais ENTERRADOS (legs + condutores):** ficam **abaixo do `grade`** do terreno
+  (`yBoeiro=−0,85`, `burSlope=0,014` passados como `hE/sl`) → sem cano acima do chão p/ tropeçar.
+  Descarregam no **boeiro** (~0,85 m abaixo da rua) e sobem rumo aos fundos, ficando enterrados todo
+  o percurso mesmo o terreno caindo p/ trás. A **descida** desce do beiral (~6 m) **até o tubo
+  enterrado** (fundo em ~−0,6/−0,75), entrando no chão. Ocultos pela grama (plano em `grade`).
 - **Cotas em LOCAL do `roof`** (`wl(yw)=yw−LY`, `LY=CEIL3D+0,16`): as calhas ficam no grupo `roof`
   e **sobem com o 2º piso** (`set3DFloor2`); aparecem/somem com o botão **Telhado** (`set3DRoof`).
   Otimizado para a vista do **sobrado completo** (2º piso + telhado visíveis).
