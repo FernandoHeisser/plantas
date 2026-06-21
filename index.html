@@ -4566,17 +4566,14 @@
                     // Garagem: descida encostada na COLUNA NO do pilotis (face norte, virada p/ a
                     // cerca → escondida do pátio). Coluna: mE GE0→GE0+0,20, mN GN1−0,20→GN1.
                     drenar(gn1, ge0, GE1j, nWall, GN1 + 0.06, GE0 + 0.10);   // garagem → coluna NO → muro → rua
-                    // Casa: descida na COLUNA NOROESTE DA CASA (face norte da parede da sala, a oeste
-                    // da porta de correr). Coluna em mE 22,5+OE=17,0, mN 7,5; descida na face norte
-                    // (dnN=7,66, dnE=17,0). Curto conector da calha (mN 8,4) até ela. O condutor corre
-                    // POR DENTRO DO PISO (mN 7,66, embutido na laje da garagem) até mE 1 (perto da rua).
-                    const cMN = 7.66, meetE = 1.0;
-                    drenar(n1,  e0, e1, cMN, cMN, 22.5 + OE, 0.02, 0.012, meetE);   // casa → coluna NO → piso → mE 1
-                    // No fim do percurso o cano EMERGE do piso (riser) e segue p/ o canto NO,
-                    // ENCONTRANDO o condutor da garagem (mN=nWall, em mE=meetE) → descarga conjunta no boeiro.
-                    const ySurf = Hend + meetE * slope;       // = cota do condutor da garagem em mE=meetE (0,165)
-                    roof.add(pipeBetween(meetE, wl(0.02), -cMN,  meetE, wl(ySurf), -cMN,   PR, matCalha)); // riser (sobe do piso)
-                    roof.add(pipeBetween(meetE, wl(ySurf), -cMN, meetE, wl(ySurf), -nWall, PR, matCalha)); // vai ao encontro da garagem
+                    // Casa: descida na COLUNA NOROESTE DA CASA (mE 22,5+OE=17,0, mN 7,5; descida na
+                    // face norte, dnN=7,66). O leg SOBE pela JUNTA (mE 17,0) até o muro; o condutor
+                    // corre RENTE AO MURO NORTE (nWall) e ENCONTRA o condutor da garagem na descida
+                    // dela (mE=meetE), seguindo juntos até a rua. Vai SEMPRE pela beirada (junta +
+                    // muro) — nunca pelo meio do pátio/driveway. As cotas casam no encontro: hE/sl
+                    // = cota e declive do condutor da garagem em meetE → tubo contínuo no muro.
+                    const meetE = GE0 + 0.10;   // = mE da descida da garagem (ponto de encontro no muro)
+                    drenar(n1, e0, e1, nWall, 7.66, 22.5 + OE, Hend + meetE * slope, slope, meetE);
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na

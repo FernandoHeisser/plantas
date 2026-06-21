@@ -913,11 +913,11 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
   - **Roteamento atual:** **Garagem:** descida na **coluna NO do pilotis** (face norte, `dnN=GN1+0,06`,
     `dnE=GE0+0,10`); condutor **rente à cerca norte** (`nWall=12,30`), fora do pátio. **Casa:** descida
     na **coluna NOROESTE DA CASA** (face norte da parede da sala, a oeste da porta de correr;
-    `dnN=7,66`, `dnE=22,5+OE=17,0`); o condutor corre **POR DENTRO DO PISO** (`nRoute=dnN` → s/ leg;
-    `hE=0,02`, `sl=0,012` → top do tubo `<0,30=GCPA`, embutido na laje da garagem) até `endE=1` (perto
-    da rua). Aí o cano **EMERGE** do piso (riser `pipeBetween`) e segue ao norte (mE 1, `cMN→nWall`)
-    **ao encontro do condutor da garagem** → descarga conjunta no boeiro. A **calha da casa cobre todo
-    o beiral** (`e0→e1`).
+    `dnN=7,66`, `dnE=22,5+OE=17,0`); o **leg sobe pela JUNTA** (mE 17,0, `dnN→nWall`) e o condutor
+    corre **RENTE AO MURO NORTE** (`nRoute=nWall=12,30`) de mE 17 até `endE=meetE=GE0+0,10=8,1`, onde
+    **ENCONTRA o condutor da garagem** (na descida dela) → seguem juntos ao boeiro. `hE/sl` da casa =
+    cota/declive do condutor da garagem em `meetE` → tubo **contínuo** no muro. **Sempre pela beirada
+    (junta + muro), nunca pelo meio do pátio/driveway.** A **calha da casa cobre todo o beiral** (`e0→e1`).
 - **Aproveita o pé do beiral do sobrado (~6 m de mundo):** dá carga para vencer o **aterro que
   sobe** rumo à rua (`grade=−mE·2,5%`, terreno cai para os fundos). O condutor fica **elevado**
   (aparente) e desce continuamente → sem barriga, **sem água parada**.
