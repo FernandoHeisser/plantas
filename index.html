@@ -4563,8 +4563,9 @@
                     // Casa: descida na COLUNA NORDESTE do pilotis da garagem (no recanto da junta
                     // entre os 2 prédios → bem escondida). Coluna: mE GE1j−COL→GE1j (face leste = junta),
                     // mN GN1−COL→GN1. Descida na face norte (dnN=GN1+0,06=10,56; dnE=GE1j−0,10=16,77).
-                    // A calha da casa (mN 8,4) leva a água por um conector diagonal até essa coluna.
-                    drenar(n1,  GE1j + BN_EW + 0.2, e1, nWall - 0.18, GN1 + 0.06, GE1j - 0.10);   // casa → coluna NE da garagem → muro → rua
+                    // Calha da casa cobre TODO o beiral norte (e0→e1); como alcança o mE da coluna,
+                    // o conector p/ a descida vira reto (N-S), sem diagonal solta no vão.
+                    drenar(n1,  e0, e1, nWall - 0.18, GN1 + 0.06, GE1j - 0.10);   // casa → coluna NE da garagem → muro → rua
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
