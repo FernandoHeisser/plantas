@@ -4523,12 +4523,17 @@
                     // dnN/dnE (opcionais): encostam a DESCIDA numa coluna (mais escondida).
                     // Quando dados, a calha capta no beiral (nEave) e um conector no topo leva a
                     // água até a coluna (dnN, dnE) — diagonal se a coluna está fora do vão da calha.
-                    const drenar = (nEave, eW, eE, nRoute, dnN, dnE) => {
+                    // hE/sl (opcionais) = cota de descarga e declive do condutor. Default = sarjeta
+                    // aparente (0,15 / 1,5%). Casa usa cota baixa + declive suave p/ o condutor caber
+                    // DENTRO da laje do piso (top < GCPA=0,30) → embutido, sem cano aparente no chão.
+                    const drenar = (nEave, eW, eE, nRoute, dnN, dnE, hE, sl) => {
+                        const HE = hE === undefined ? Hend  : hE;
+                        const SL = sl === undefined ? slope : sl;
                         const dN = dnN === undefined ? nEave : dnN;   // mN da descida (coluna ou beiral)
                         const dE = dnE === undefined ? eW    : dnE;   // mE da descida
                         const nR = nRoute === undefined ? dN : nRoute;
                         const len = dE;                       // descida → rua (mE=0)
-                        const Hstart = Hend + len * slope;    // cota do condutor no pé da descida (mundo)
+                        const Hstart = HE + len * SL;         // cota do condutor no pé da descida (mundo)
                         const gutTop = eaveL - drop, gutBot = gutTop - GD;
                         // calha ao longo do beiral norte
                         roof.add(box3d(nEave - GW/2, eW, GW, eE - eW, gutBot, gutTop, matCalha));
@@ -4547,10 +4552,10 @@
                             lg.rotation.x = Math.PI / 2;      // eixo do cilindro → N-S (Z)
                             lg.position.set(dE, wl(Hstart), -(dN + nR) / 2); lg.castShadow = true; roof.add(lg);
                         }
-                        // condutor horizontal p/ OESTE (mE dE→0) em nR, descendo Hstart→Hend
+                        // condutor horizontal p/ OESTE (mE dE→0) em nR, descendo Hstart→HE
                         const cm = new THREE.Mesh(new THREE.BoxGeometry(len, 2 * PR, 2 * PR), matCalha);
-                        cm.position.set(dE / 2, wl((Hstart + Hend) / 2), -nR);
-                        cm.rotation.z = Math.atan2(Hstart - Hend, len);
+                        cm.position.set(dE / 2, wl((Hstart + HE) / 2), -nR);
+                        cm.rotation.z = Math.atan2(Hstart - HE, len);
                         cm.castShadow = true; roof.add(cm);
                     };
                     // Condutores correm RENTE ao muro/cerca norte (lote vai até mN 12,5),
@@ -4560,13 +4565,12 @@
                     // Garagem: descida encostada na COLUNA NO do pilotis (face norte, virada p/ a
                     // cerca → escondida do pátio). Coluna: mE GE0→GE0+0,20, mN GN1−0,20→GN1.
                     drenar(gn1, ge0, GE1j, nWall, GN1 + 0.06, GE0 + 0.10);   // garagem → coluna NO → muro → rua
-                    // Casa: descida na COLUNA NORDESTE do pilotis da garagem (no recanto da junta).
-                    // Coluna: mE GE1j−COL→GE1j, mN GN1−COL→GN1. A descida encosta na FACE LESTE da
-                    // coluna (dnE=GE1j+0,06=16,93) — do lado de FORA da garagem (que vai até GE1j=
-                    // 16,87) → o conector reto corre no recanto ABERTO, sem entrar na parede da
-                    // garagem (era o problema quando dnE=16,77, dentro do corpo dela).
-                    // Calha cobre TODO o beiral (e0→e1); alcança o mE da descida → conector reto (N-S).
-                    drenar(n1,  e0, e1, nWall - 0.18, GN1 - 0.10, GE1j + 0.06);   // casa → coluna NE (face leste) → muro → rua
+                    // Casa: descida na COLUNA NOROESTE DA CASA (face norte da parede da sala, a oeste
+                    // da porta de correr). Coluna em mE 22,5+OE=17,0, mN 7,5; descida na face norte
+                    // (dnN=7,66, dnE=17,0). Curto conector da calha (mN 8,4) até ela. O condutor então
+                    // corre POR DENTRO DO PISO (mN 7,66, atravessando a laje da garagem ao nível do
+                    // piso) até a rua — embutido, sem cano aparente cruzando o vão (nRoute=dnN → s/ leg).
+                    drenar(n1,  e0, e1, 7.66, 7.66, 22.5 + OE, 0.02, 0.012);   // casa → coluna NO da casa → cano DENTRO do piso → rua
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na

@@ -901,24 +901,21 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
   NORTE** (geração FV, `addShed`), perpendicular à rua (oeste). Toda a água do telhado vai para o
   **beiral norte**; quem decide frente×fundos é a **calha + condutor**, não o telhado.
 - **Geometria (gate `if (v === 'v33')`, logo após o beiral leste da garagem, dentro de `if (SOLAR)`):**
-  helper local `drenar(nEave, eW, eE, nRoute?, dnN?, dnE?)` monta, por bloco (casa + garagem):
+  helper local `drenar(nEave, eW, eE, nRoute?, dnN?, dnE?, hE?, sl?)` monta, por bloco (casa + garagem):
   - **calha** (`box3d`) ao longo do beiral norte, ~2 cm sob a água;
   - **descida** (cilindro Ø~110) **colada numa coluna** quando `dnN/dnE` são dados (mais escondida),
     do fundo da calha à cota do condutor; senão cai no canto NO (`mE = eW`);
   - **conector no topo** (`pipeBetween`, só quando há coluna): tubo do ponto da calha mais perto da
-    coluna (clamp ao vão) até o topo da descida (`dnN, dnE`) — **diagonal** quando a coluna está fora
-    do vão da calha (caso da casa);
+    coluna (clamp ao vão) até o topo da descida (`dnN, dnE`) — diagonal se a coluna está fora do vão;
   - **condutor** horizontal (`box` inclinado via `rotation.z`) para **oeste** até a rua (`mE=0`),
-    descendo `Hstart→Hend=0,15 m` (declive **+1,5%**, descarga no meio-fio);
+    descendo `Hstart→hE` (declive `sl`). `hE/sl` default = sarjeta aparente (0,15 / 1,5%);
   - **leg** (deitado, no fundo): leva o pé da descida ao alinhamento do condutor (`nRoute`).
-  - **Roteamento atual:** condutores **rente à cerca norte** (`nWall=12,30` garagem / `12,12` casa;
-    lote até mN 12,5), fora do pátio. **Garagem:** descida na **coluna NO do pilotis** (face norte,
-    `dnN=GN1+0,06`, `dnE=GE0+0,10` — virada p/ a cerca, escondida do pátio). **Casa:** descida na
-    **coluna NORDESTE do pilotis da garagem** (`dnN=GN1−0,10=10,40`, `dnE=GE1j+0,06=16,93` = FACE
-    LESTE da coluna, do lado de FORA da garagem). `dnE>GE1j=16,87` é proposital: o conector reto
-    corre no recanto ABERTO, **sem entrar na parede** da garagem (com `dnE=16,77`, na linha da junta,
-    ele atravessava o corpo dela). A **calha da casa cobre todo o beiral** (`e0→e1`, não mais a partir
-    de 17,57) e, alcançando o `mE` da descida, o **conector vira reto (N-S)** — sem diagonal solta.
+  - **Roteamento atual:** **Garagem:** descida na **coluna NO do pilotis** (face norte, `dnN=GN1+0,06`,
+    `dnE=GE0+0,10`); condutor **rente à cerca norte** (`nWall=12,30`), fora do pátio. **Casa:** descida
+    na **coluna NOROESTE DA CASA** (face norte da parede da sala, a oeste da porta de correr;
+    `dnN=7,66`, `dnE=22,5+OE=17,0`); o condutor corre **POR DENTRO DO PISO** (`nRoute=dnN` → s/ leg;
+    `hE=0,02`, `sl=0,012` → top do tubo `<0,30=GCPA`, embutido na laje da garagem) até a rua, sem cano
+    aparente no chão do pilotis. A **calha da casa cobre todo o beiral** (`e0→e1`).
 - **Aproveita o pé do beiral do sobrado (~6 m de mundo):** dá carga para vencer o **aterro que
   sobe** rumo à rua (`grade=−mE·2,5%`, terreno cai para os fundos). O condutor fica **elevado**
   (aparente) e desce continuamente → sem barriga, **sem água parada**.
