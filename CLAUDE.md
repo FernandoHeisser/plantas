@@ -924,11 +924,12 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
   da rua) com declive suave → **respeitam o caimento da rua** (não dá p/ enterrar fundo no boeiro —
   era o erro do `−0,85`). A **descida** desce do beiral (~6 m) até o tubo sob o piso. Topo máx. dos
   horizontais ≈ 0,26 (folga ~4 cm sob o piso).
-- **Canteiro de plantas (esconde os canos):** faixa ajardinada rente ao muro norte (mN 11,55→12,42,
-  mE 0,4→17,1) sobre o percurso do condutor — borda baixa (`matBorder` pedra) + terra (`matSoil`) +
-  fileira de ~19 arbustos (esferas achatadas, verdes variados). Também no grupo `roof` (cotas via
-  `wl()`), então alinha no piso com o 2º piso erguido, igual às calhas.
-- **Cotas em LOCAL do `roof`** (`wl(yw)=yw−LY`, `LY=CEIL3D+0,16`): as calhas/canteiro ficam no grupo
+- **Plantas no chão (escondem os canos):** ~33 arbustos (esferas achatadas, verdes variados)
+  assentados no **terreno** (`grade(mE)`, faixa de grama sem piso, mN 11,7→12,3, mE 0,6→16,9) ao
+  longo do muro norte, sobre o condutor. Ficam no **grupo principal `g`** (no chão — NÃO no `roof`,
+  então não flutuam nem sobem com o 2º piso) e são altos o bastante p/ cobrir o cano (que sobe rumo
+  ao caimento). PRNG com seed fixa → layout estável entre reaberturas. (Não há canteiro elevado.)
+- **Cotas em LOCAL do `roof`** (`wl(yw)=yw−LY`, `LY=CEIL3D+0,16`): as calhas ficam no grupo
   `roof` e **sobem com o 2º piso** (`set3DFloor2`); aparecem/somem com o botão **Telhado** (`set3DRoof`).
   Otimizado para a vista do **sobrado completo** (2º piso + telhado visíveis).
 - **Escoamento:** ~100% da água do **telhado** vai para a frente (rua); a água de **quintal**

@@ -4580,29 +4580,22 @@
                     const meetE = GE0 + 0.10;   // = mE da descida da garagem (ponto de encontro no muro)
                     drenar(n1, e0, e1, nWall, 7.66, 22.5 + OE, hSar + meetE * sSar, sSar, meetE);
 
-                    // ── Canteiro de plantas escondendo os canos (rente ao muro norte) ──────
-                    // Faixa ao longo do muro (mN ~11,5→12,42, mE 0,4→17,1) cobrindo o percurso
-                    // do condutor (mN ~12,3). No grupo roof → alinha no piso com o 2º piso erguido
-                    // (mesma referência das calhas). Borda baixa + terra + arbustos.
-                    const cn0 = 11.55, cn1 = 12.42, ce0 = 0.4, ce1 = 17.1, bt = 0.08;
-                    const cBase = 0.28, cSoil = 0.40, cTop = 0.46;   // cotas (mundo): base, terra, topo da borda
-                    const matBorder = new THREE.MeshStandardMaterial({ color: 0xc9bfa6, roughness: 0.9, metalness: 0 });
-                    const matSoil   = new THREE.MeshStandardMaterial({ color: 0x3a2a1c, roughness: 1.0, metalness: 0 });
-                    roof.add(box3d(cn0,      ce0,      bt,        ce1 - ce0, wl(cBase), wl(cTop),  matBorder)); // borda sul
-                    roof.add(box3d(cn1 - bt, ce0,      bt,        ce1 - ce0, wl(cBase), wl(cTop),  matBorder)); // borda norte
-                    roof.add(box3d(cn0,      ce0,      cn1 - cn0, bt,        wl(cBase), wl(cTop),  matBorder)); // borda oeste
-                    roof.add(box3d(cn0,      ce1 - bt, cn1 - cn0, bt,        wl(cBase), wl(cTop),  matBorder)); // borda leste
-                    roof.add(box3d(cn0 + bt, ce0 + bt, (cn1 - cn0) - 2*bt, (ce1 - ce0) - 2*bt, wl(cBase), wl(cSoil), matSoil)); // terra
-                    // Arbustos em fileira (esferas achatadas, verdes variados) — escondem/ladeiam o cano
-                    const greens = [0x3f6b2e, 0x4e7d36, 0x356428, 0x5a8c3e];
-                    const cnc = (cn0 + cn1) / 2;
-                    for (let e = ce0 + 0.7; e < ce1 - 0.4; e += 0.85) {
-                        const r = 0.22 + Math.sin(e * 3) * 0.04;
+                    // ── Plantas NO CHÃO escondendo os canos (faixa de grama, sem piso) ────
+                    // Vários arbustos assentados no TERRENO (grade) na faixa de grama ao longo do
+                    // muro norte, sobre o percurso do condutor (mN ~12,3) — escondem o cano e fazem
+                    // o paisagismo. Ficam no grupo PRINCIPAL (g), no chão: NÃO flutuam nem sobem com
+                    // o 2º piso. Densos/altos o bastante p/ cobrir o cano (que sobe rumo ao caimento).
+                    const greens = [0x3f6b2e, 0x4e7d36, 0x356428, 0x5a8c3e, 0x2f5a25];
+                    let pseed = 7;
+                    const prnd = () => { pseed = (pseed * 9301 + 49297) % 233280; return pseed / 233280; };
+                    for (let e = 0.6; e <= 16.9; e += 0.5) {
+                        const nrow = 12.30 - prnd() * 0.6;            // mN 11,70→12,30 (sobre/à frente do cano)
+                        const r = 0.36 + prnd() * 0.12;              // raio 0,36–0,48
                         const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
-                            new THREE.MeshStandardMaterial({ color: greens[Math.floor(e * 7) % greens.length], roughness: 0.95, metalness: 0 }));
-                        bush.scale.y = 0.8;
-                        bush.position.set(e, wl(cSoil) + r * 0.65, -(cnc + Math.sin(e * 5) * 0.12));
-                        bush.castShadow = true; bush.receiveShadow = true; roof.add(bush);
+                            new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
+                        bush.scale.y = 1.2 + prnd() * 0.25;          // levemente alongado (arbusto)
+                        bush.position.set(e, grade(e) + r * 0.5, -nrow);   // base assentada no terreno (grade)
+                        bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
                     }
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
