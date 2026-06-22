@@ -1504,15 +1504,15 @@
         <div class="med-rooms-grid">
           <div class="med-room-card col-slate">
             <div class="med-room-name">Muro frontal</div>
-            <div class="med-room-dims">~9,0 m</div>
+            <div class="med-room-dims">~7,5 m</div>
             <div class="med-room-area">alvenaria</div>
-            <div class="med-room-meta">Frente oeste (mE 0)<br>Trechos sul + norte do portão<br>Acabamento da divisa com a rua</div>
+            <div class="med-room-meta">Frente oeste (mE 0)<br>Trechos sul (6,5 m) + norte (1,0 m)<br>Acabamento da divisa com a rua</div>
           </div>
           <div class="med-room-card col-amber">
             <div class="med-room-name">Portão</div>
-            <div class="med-room-dims">3,50 m</div>
-            <div class="med-room-area">2 folhas</div>
-            <div class="med-room-meta">Frente oeste (mE 0)<br>Abre p/ dentro do lote<br>Acesso de pedestre/veículo</div>
+            <div class="med-room-dims">5,00 m</div>
+            <div class="med-room-area">de correr</div>
+            <div class="med-room-meta">Frente oeste (mE 0)<br>Desliza p/ o norte<br>Acesso de veículo + pedestre</div>
           </div>
           <div class="med-room-card col-slate">
             <div class="med-room-name">Muro divisa norte</div>
@@ -2802,18 +2802,22 @@
     // Muro frontal (mE=0) + portão norte + muros laterais + cercas (V1.1+).
     function frontWallsFences2D() {
         const lys = [];
-        // Muro sul frontal: mN 0→8,0
-        lys.push(L.polygon([rot(0, 0), rot(8.0, 0), rot(8.0, 0.15), rot(0, 0.15)],
+        // Muro sul frontal: mN 0→6,5 (até o alinhamento do poste na calçada)
+        lys.push(L.polygon([rot(0, 0), rot(6.5, 0), rot(6.5, 0.15), rot(0, 0.15)],
             { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }));
         // Muro norte frontal: mN 11,5→12,5
         lys.push(L.polygon([rot(11.5, 0), rot(12.5, 0), rot(12.5, 0.15), rot(11.5, 0.15)],
             { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }));
-        // Portão (3,5 m): tracejado indicando abertura
-        lys.push(L.polyline([rot(8.0, 0.075), rot(11.5, 0.075)],
+        // Portão de correr (5,0 m): mN 6,5→11,5, desliza p/ o norte (atrás do muro norte)
+        // Vão (tracejado)
+        lys.push(L.polyline([rot(6.5, 0.075), rot(11.5, 0.075)],
             { color: '#94a3b8', weight: 1.5, dashArray: '6 4', interactive: false }));
-        // Folhas do portão abertas 90° (1,75 m p/ dentro do lote)
-        lys.push(L.polyline([rot(8.0, 0), rot(8.0, 1.75)], { color: '#64748b', weight: 1.5, interactive: false }));
-        lys.push(L.polyline([rot(11.5, 0), rot(11.5, 1.75)], { color: '#64748b', weight: 1.5, interactive: false }));
+        // Folha do portão (fechada): barra fina ao longo do vão
+        lys.push(L.polygon([rot(6.5, 0.05), rot(11.5, 0.05), rot(11.5, 0.12), rot(6.5, 0.12)],
+            { color: '#334155', weight: 1, fillColor: '#64748b', fillOpacity: 1, interactive: false }));
+        // Seta indicando o sentido de deslizamento (p/ o norte)
+        lys.push(L.polyline([rot(9.0, 0.45), rot(11.3, 0.45)], { color: '#64748b', weight: 1.5, interactive: false }));
+        lys.push(L.polyline([rot(10.9, 0.30), rot(11.3, 0.45), rot(10.9, 0.60)], { color: '#64748b', weight: 1.5, interactive: false }));
         // Muro norte (divisa): mN 12,35→12,5, mE 0→40
         lys.push(L.polygon([rot(12.35, 0), rot(12.5, 0), rot(12.5, 40), rot(12.35, 40)],
             { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }));
@@ -4674,13 +4678,15 @@
         if (rv === 'v11' || rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32') {
             const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
-            // Muro sul: mN 0→8,0
-            g.add(box3d(0, 0, 8.0, 0.15, grade(0) - 0.02, grade(0) + 2.0, matMuro));
+            // Muro sul: mN 0→6,5 (até o alinhamento do poste na calçada)
+            g.add(box3d(0, 0, 6.5, 0.15, grade(0) - 0.02, grade(0) + 2.0, matMuro));
             // Muro norte: mN 11,5→12,5 (1 m de recuo do vizinho norte)
             g.add(box3d(11.5, 0, 1.0, 0.15, grade(0) - 0.02, grade(0) + 2.0, matMuro));
-            // Postes do portão em mN=8,0 e mN=11,5
-            g.add(box3d(7.85, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
+            // Postes do portão de correr em mN=6,5 e mN=11,5 (vão de 5,0 m)
+            g.add(box3d(6.35, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
             g.add(box3d(11.35, -0.05, 0.30, 0.25, grade(0) - 0.05, grade(0) + 2.30, matPoste));
+            // Folha do portão de correr (fechada): painel fino ao longo do vão mN 6,5→11,5
+            g.add(box3d(6.5, 0.045, 5.0, 0.06, grade(0) + 0.05, grade(0) + 1.80, matPoste));
             // Muro norte: mN 12,35→12,5, mE 0→40, segmentado p/ seguir o declive
             const matNMuro  = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matPilar  = fmat(0x8c8478, { roughness: 0.88, metalness: 0.02 });
