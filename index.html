@@ -4588,9 +4588,12 @@
                     const greens = [0x3f6b2e, 0x4e7d36, 0x356428, 0x5a8c3e, 0x2f5a25];
                     let pseed = 7;
                     const prnd = () => { pseed = (pseed * 9301 + 49297) % 233280; return pseed / 233280; };
-                    for (let e = 0.6; e <= 16.9; e += 0.5) {
-                        const nrow = 12.30 - prnd() * 0.6;            // mN 11,70→12,30 (sobre/à frente do cano)
-                        const r = 0.36 + prnd() * 0.12;              // raio 0,36–0,48
+                    // Muro norte: face interna em mN 12,35. A BORDA NORTE do arbusto (centro+raio)
+                    // fica em ~12,33 → encosta no muro SEM atravessar, e ainda cobre o cano (mN 12,30).
+                    for (let e = 0.9; e <= 16.9; e += 0.5) {
+                        const r = 0.32 + prnd() * 0.10;              // raio 0,32–0,42
+                        const nEdge = 12.34 - prnd() * 0.03;         // borda norte < face do muro (12,35)
+                        const nrow = nEdge - r;                       // centro recuado conforme o raio
                         const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
                             new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
                         bush.scale.y = 1.2 + prnd() * 0.25;          // levemente alongado (arbusto)
