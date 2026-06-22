@@ -681,6 +681,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 | **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
 | **V3.2** | 🔶 Herda o 2D do V3.1 | ✅ Herda o V3.1 + **pintura da casa em marrom** (`WALL_TINT` tinge o `matWall` só p/ `v32`) | 🔶 Placeholder com resumo |
+| **V3.3** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **sistema de calhas/escoamento** (calha no beiral norte → descida no canto NO → condutor à rua) — só `v33` | 🔶 Placeholder com resumo do escoamento |
 | **V4** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **slider 🏗 de obra com 20 fases na ordem cronológica real** (V1 → cobre esperas → V1.1 muro → V2 garagem → V3 sobrado → pintura) | 🔶 Placeholder com resumo |
 | **V0.1–V0.6** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
 
@@ -887,6 +888,55 @@ aceita `v31` também aceita `v32` (incl. `SOLAR` e o `noun` do botão "Telhado")
   `matWall` (multiplica a textura de reboco `texWall()`). Como `matGable = matWall.clone()`, as
   empenas/fechamentos do telhado também ficam marrom. Embasamento/baldrame/laje mantêm a cor própria.
   Só afeta o `v32` — `matWall` é recriado por versão em `buildBuilding3D(v)`.
+
+### V3.3 — Sistema de calhas / escoamento para a rua
+
+Variante do V3.2: **herda tudo** (sobrado + telhado solar + pintura marrom) e acrescenta o
+**sistema de calhas** que escoa a água do telhado para a **frente** (rua/boeiro a oeste, `mE=0`).
+Mesmo padrão de aba/rota/painéis (`/v3.3`, `p-v33-2d/3d/med`, `<option value="v33">`); o render
+**reusa o V3.2 via `rv`** — em `buildBuilding3D`, `buildLayers`, `buildDims3D` e `initMap` o
+gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`.
+
+- **Por que o telhado não cai para a rua:** o telhado solar é de **uma água caindo para o
+  NORTE** (geração FV, `addShed`), perpendicular à rua (oeste). Toda a água do telhado vai para o
+  **beiral norte**; quem decide frente×fundos é a **calha + condutor**, não o telhado.
+- **Geometria (gate `if (v === 'v33')`, logo após o beiral leste da garagem, dentro de `if (SOLAR)`):**
+  helper local `drenar(nEave, eW, eE, nRoute?, dnN?, dnE?, hE?, sl?)` monta, por bloco (casa + garagem):
+  - **calha** (`box3d`) ao longo do beiral norte, ~2 cm sob a água;
+  - **descida** (cilindro Ø~110) **colada numa coluna** quando `dnN/dnE` são dados (mais escondida),
+    do fundo da calha à cota do condutor; senão cai no canto NO (`mE = eW`);
+  - **conector no topo** (`pipeBetween`, só quando há coluna): tubo do ponto da calha mais perto da
+    coluna (clamp ao vão) até o topo da descida (`dnN, dnE`) — diagonal se a coluna está fora do vão;
+  - **condutor** horizontal (`box` inclinado via `rotation.z`) para **oeste** até `mE=endE` (0 = rua),
+    descendo `Hstart→hE` (declive `sl`). `hE/sl` default = sarjeta aparente (0,15 / 1,5%); `endE` def. 0;
+  - **leg** (deitado, no fundo): leva o pé da descida ao alinhamento do condutor (`nRoute`).
+  - **Roteamento atual:** **Garagem:** descida na **coluna NO do pilotis** (face norte, `dnN=GN1+0,06`,
+    `dnE=GE0+0,10`); condutor **rente à cerca norte** (`nWall=12,30`), fora do pátio. **Casa:** descida
+    na **coluna NOROESTE DA CASA** (face norte da parede da sala, a oeste da porta de correr;
+    `dnN=7,66`, `dnE=22,5+OE=17,0`); o **leg sobe pela JUNTA** (mE 17,0, `dnN→nWall`) e o condutor
+    corre **RENTE AO MURO NORTE** (`nRoute=nWall=12,30`) de mE 17 até `endE=meetE=GE0+0,10=8,1`, onde
+    **ENCONTRA o condutor da garagem** (na descida dela) → seguem juntos ao boeiro. `hE/sl` da casa =
+    cota/declive do condutor da garagem em `meetE` → tubo **contínuo** no muro. **Sempre pela beirada
+    (junta + muro), nunca pelo meio do pátio/driveway.** A **calha da casa cobre todo o beiral** (`e0→e1`).
+- **Trechos horizontais ABAIXO DO PISO (legs + condutores):** rodam com o topo do tubo **< GCPA=0,30**
+  (`hSar=0,10`, `sSar=0,006` passados como `hE/sl`) → embutidos no **piso da garagem / área norte
+  pavimentada** (sem cano knee-high p/ tropeçar), mas **descarregam na SARJETA** (`hSar≈0,10`, nível
+  da rua) com declive suave → **respeitam o caimento da rua** (não dá p/ enterrar fundo no boeiro —
+  era o erro do `−0,85`). A **descida** desce do beiral (~6 m) até o tubo sob o piso. Topo máx. dos
+  horizontais ≈ 0,26 (folga ~4 cm sob o piso).
+- **Plantas no chão (escondem os canos):** ~33 arbustos (esferas achatadas, verdes variados)
+  assentados no **terreno** (`grade(mE)`, faixa de grama sem piso, mN 11,7→12,3, mE 0,6→16,9) ao
+  longo do muro norte, sobre o condutor. Ficam no **grupo principal `g`** (no chão — NÃO no `roof`,
+  então não flutuam nem sobem com o 2º piso) e são altos o bastante p/ cobrir o cano (que sobe rumo
+  ao caimento). PRNG com seed fixa → layout estável entre reaberturas. (Não há canteiro elevado.)
+- **Cotas em LOCAL do `roof`** (`wl(yw)=yw−LY`, `LY=CEIL3D+0,16`): as calhas ficam no grupo
+  `roof` e **sobem com o 2º piso** (`set3DFloor2`); aparecem/somem com o botão **Telhado** (`set3DRoof`).
+  Otimizado para a vista do **sobrado completo** (2º piso + telhado visíveis).
+- **Escoamento:** ~100% da água do **telhado** vai para a frente (rua); a água de **quintal**
+  (terreno nu) continua para os **fundos** (cota −1,0 m) por gravidade. Ver `p-v33-med`.
+
+> **Nota:** o `OE` real no código é **−5,5** (não −3,5). O bloco de calhas usa as variáveis em
+> escopo (`e0/e1/ge0/GE1j`), então acompanha o `OE` automaticamente.
 
 ### V4 — Evolução cronológica real da obra (20 fases: V1 → V2 → V3 → pintura)
 
