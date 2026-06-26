@@ -4323,8 +4323,10 @@
              [28.5,2.0,4.5],[28.5,4.5,7.5],[31.5,2.0,4.5],[31.5,4.5,7.5]].forEach(([e,n0,n1]) => beamNS(e,n0,n1));
 
             // GARAGEM — colunas (alinhadas ao pilotis do térreo) + grelha; junta em Egar.
-            // Inclui a linha extra em mN 3,40 (apoio junto à face norte da escada) e a
-            // viga N-S central só ao NORTE da escada — igual ao térreo.
+            // Inclui a linha extra em mN 3,40 (apoio junto à face norte da escada). A viga
+            // N-S central do TETO corre inteira (mN 2,0→10,5): aqui não passa escada — ela
+            // morre na laje 1 (~3,0 m), e o teto está ~2,7 m acima → sem conflito de pé-direito
+            // (o corte só existe na laje 1 / térreo, onde a escada realmente sobe).
             const GNM2 = 6.75, GEMc2 = (W + Egar)/2 - COL/2, GE1c2 = Egar - COL; // mN 6,75; mE meio/leste
             _ph = PH.colS;
             [2.0, 3.40, GNM2, 10.5 - COL].forEach(n => [W, GEMc2, GE1c2].forEach(e => col2(n, e)));
@@ -4332,7 +4334,7 @@
             [2.0, 3.40, GNM2, 10.5 - VW].forEach(n => beamEW(n, W, Egar));  // E-O: sul / mN 3,40 / centro / norte
             beamNS(W,     2.0,  10.5);   // N-S oeste (inteira)
             beamNS(GE1c2, 2.0,  10.5);   // N-S leste (inteira)
-            beamNS(GEMc2, 3.40, 10.5);   // N-S central — só ao NORTE da escada (reapoiada em mN 3,40)
+            beamNS(GEMc2, 2.0,  10.5);   // N-S central — inteira (no teto não há escada cruzando)
 
             // Laje de cobertura (forro de concreto sob o telhado) — fase própria no V4.
             // No sobrado solar não há laje plana de cobertura no `roof` (o telhado a
