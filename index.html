@@ -112,6 +112,7 @@
         #p-v31-3d .card,
         #p-v32-3d .card,
         #p-v33-3d .card,
+        #p-v34-3d .card,
         #p-v4-3d .card {
             padding: 0;
             border: none;
@@ -468,6 +469,7 @@
         #p-v31-med,
         #p-v32-med,
         #p-v33-med,
+        #p-v34-med,
         #p-v4-med {
             min-height: calc(100dvh - var(--sticky-h));
             overflow-y: auto;
@@ -658,6 +660,7 @@
                 <option value="v31">V3.1 · Telhado solar</option>
                 <option value="v32">V3.2 · Pintura marrom</option>
                 <option value="v33">V3.3 · Calhas</option>
+                <option value="v34">V3.4 · Churrasqueira</option>
                 <option value="v4">V4 · Obra fase a fase</option>
             </select>
         </div>
@@ -1113,6 +1116,68 @@
                 <strong>fundos</strong> (cota −1,0 m) por gravidade. Sem risco de água parada
                 no telhado (12° / 21%); atenção a declive contínuo na calha e no condutor
                 aparente. Ver a planta/cobertura nas <strong>Medidas do V3 / V3.1</strong>.
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ V3.4 — área gourmet / churrasqueira nos fundos ══════════ -->
+    <div class="panel" id="p-v34-2d">
+        <div class="card">
+            <div class="map-wrap">
+                <div id="map-v34" class="mapa-sat"></div>
+                <div class="map-floortoggle">
+                    <button type="button" onclick="setV3Floor(this)">Piso: térreo</button>
+                </div>
+                <div class="scene3d-compass">
+                    <div class="rose">
+                        <div class="pt n" style="left:29px;top:9px">N</div>
+                        <div class="pt"   style="left:47px;top:29px;color:#4ade80">L</div>
+                        <div class="pt"   style="left:29px;top:47px;color:#64748b">S</div>
+                        <div class="pt"   style="left:11px;top:29px;color:#f59e0b">O</div>
+                    </div>
+                </div>
+                <div class="map-legend-ov">
+                    <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
+                    <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v34-3d">
+        <div class="card">
+            <div id="scene3d-v34" class="scene3d">
+                <div class="scene3d-toolbar">
+                    <button type="button" onclick="set3DFloor2('v34', this)">2º piso: oculto</button>
+                    <button type="button" onclick="set3DRoof('v34', this)">Telhado: oculto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v34-med">
+        <div class="med-page">
+            <div class="med-summary">
+                <div class="med-sum-item">
+                    <span class="med-sum-label">Base</span>
+                    <span class="med-sum-value">= V3.3</span>
+                    <span class="med-sum-sub">sobrado + solar + pintura + calhas</span>
+                </div>
+                <div class="med-sum-item">
+                    <span class="med-sum-label">Acréscimo</span>
+                    <span class="med-sum-value">Churrasqueira</span>
+                    <span class="med-sum-sub">área gourmet nos fundos (quintal leste)</span>
+                </div>
+            </div>
+            <div class="med-section-title">Área gourmet / churrasqueira (o que o V3.4 acrescenta)</div>
+            <div class="med-room-meta" style="font-size:11px;line-height:1.7">
+                Esboço em andamento — área externa de churrasco no quintal (leste), na
+                saída da porta dos fundos da cozinha. A definir: churrasqueira, pia,
+                bancada e mesa (estilo gaúcho).
             </div>
         </div>
     </div>
@@ -1975,6 +2040,7 @@
         if (p === '/v4')   return 'v4';
         if (p === '/v1.1') return 'v11';
         if (p === '/v2')   return 'v2';
+        if (p === '/v3.4') return 'v34';
         if (p === '/v3.3') return 'v33';
         if (p === '/v3.2') return 'v32';
         if (p === '/v3.1') return 'v31';
@@ -1987,6 +2053,7 @@
         if (v === 'v31') return '/v3.1';
         if (v === 'v32') return '/v3.2';
         if (v === 'v33') return '/v3.3';
+        if (v === 'v34') return '/v3.4';
         return '/' + v;
     }
 
@@ -2301,7 +2368,7 @@
     }
 
     function buildLayers(v) {
-        if (v === 'v4' || v === 'v33') v = 'v32';  // V4 (obra) e V3.3 (calhas) = mesmo 2D do V3.2
+        if (v === 'v4' || v === 'v33' || v === 'v34') v = 'v32';  // V4 (obra), V3.3 (calhas) e V3.4 (churrasqueira) = mesmo 2D do V3.2
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
         const lys = [];
 
@@ -3461,7 +3528,7 @@
     // Constrói o grupo 3D do prédio a partir do modelo (paredes c/ vãos + móveis + lajes)
     function buildBuilding3D(v) {
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
-        const rv = (v === 'v4' || v === 'v33') ? 'v32' : v; // V4 (obra) e V3.3 (calhas) renderizam igual ao V3.2 (rv); `v` guarda a identidade (fases / calhas)
+        const rv = (v === 'v4' || v === 'v33' || v === 'v34') ? 'v32' : v; // V4 (obra), V3.3 (calhas) e V3.4 (churrasqueira) renderizam igual ao V3.2 (rv); `v` guarda a identidade (fases / calhas / churrasqueira)
         const model = captureModel(v);
         const g = new THREE.Group();
 
@@ -4509,7 +4576,7 @@
                 // condutor desce de ~+0,4 (no pé da descida) p/ +0,15 na sarjeta.
                 // Geometria no grupo roof (sobe com o 2º piso). Cotas em LOCAL do roof:
                 // world = local + LY quando o telhado está erguido sobre o sobrado.
-                if (v === 'v33') {
+                if (v === 'v33' || v === 'v34') {            // V3.4 herda as calhas do V3.3
                     const LY = CEIL3D + 0.16;                 // o roof sobe LY com o 2º piso
                     const wl = yw => yw - LY;                 // altura de mundo → local do roof
                     const matCalha = new THREE.MeshStandardMaterial({ color: 0xc9ccd1, roughness: 0.5, metalness: 0.35, envMapIntensity: 0.4 });
@@ -4835,7 +4902,7 @@
     }
 
     function buildDims3D(g, v) {
-        const rv = (v === 'v4' || v === 'v33') ? 'v32' : v;
+        const rv = (v === 'v4' || v === 'v33' || v === 'v34') ? 'v32' : v;
         const hasGarage = (rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32');
         // Afastamentos — branco (mesmas cotas do 2D, seguem o OE)
         const eFrente = hasGarage ? 13.5 + OE : 22.5 + OE;
@@ -5082,7 +5149,7 @@
         const roof = S.group.getObjectByName('roof');
         if (!roof) return;
         const ph = (v === 'v1') ? buildPhase : 7;
-        const noun = (v === 'v31' || v === 'v32' || v === 'v33') ? 'Telhado' : 'Laje';
+        const noun = (v === 'v31' || v === 'v32' || v === 'v33' || v === 'v34') ? 'Telhado' : 'Laje';
         // V1: a laje só pode existir sobre as colunas + vigas (fase ≥ 3); senão flutuaria
         // no ar. Bloqueia o botão de revelá-la antes da estrutura estar pronta.
         if (v === 'v1' && ph < 3 && !roof.visible) {
@@ -5214,7 +5281,7 @@
             maxNativeZoom: 18, maxZoom: 25
         }).addTo(map);
 
-        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32' || v === 'v33' || v === 'v4') ? v3Layers() : buildLayers(v)).addTo(map);
+        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32' || v === 'v33' || v === 'v34' || v === 'v4') ? v3Layers() : buildLayers(v)).addTo(map);
         maps[v] = map;
         map._overlay = overlay;
 
