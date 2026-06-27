@@ -4739,6 +4739,33 @@
                         bush.position.set(e, grade(e) + Hp / 2, -nrow);   // base no terreno (grade)
                         bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
                     }
+
+                    // ── V3.4: jardineira de alvenaria embutindo o tronco elevado (gourmet) ──
+                    // No trecho da gourmet o tronco fica ~0,8–1,1 m acima do gramado (terreno cai
+                    // pros fundos, cano cai pra rua). Caixa de alvenaria (muro = parede norte) com
+                    // o cano por dentro + terra e plantas em cima. A queda na coluna NE segue
+                    // APARENTE e entra na jardineira. Grupo `g` (chão) — alinha com o tronco na
+                    // vista do sobrado (telhado erguido).
+                    if (v === 'v34') {
+                        const jX0 = 21.8, jX1 = 38 + OE;           // do fim dos arbustos até a ponta do tronco
+                        const jNs = 11.35, jNn = 12.42, T = 0.12;  // face sul (gourmet) → muro; espessura
+                        const jBase = grade(jX1), jTop = 0.52;     // base no ponto + baixo (leste); topo nivelado
+                        const soilMat = new THREE.MeshStandardMaterial({ color: 0x6b4f33, roughness: 1.0, metalness: 0 });
+                        g.add(box3d(jNs,     jX0,     T,           jX1 - jX0,           jBase, jTop, matWall)); // parede sul (face gourmet)
+                        g.add(box3d(jNs,     jX0,     jNn - jNs,   T,                   jBase, jTop, matWall)); // tampa oeste
+                        g.add(box3d(jNs,     jX1 - T, jNn - jNs,   T,                   jBase, jTop, matWall)); // tampa leste
+                        g.add(box3d(jNs + T, jX0 + T, (jNn-jNs)-2*T, (jX1-jX0)-2*T,     jTop - 0.12, jTop - 0.03, soilMat)); // terra no topo
+                        for (let e = jX0 + 0.4; e <= jX1 - 0.4; e += 0.45) {   // plantas em cima da jardineira
+                            const r = 0.26 + prnd() * 0.12;
+                            const cn = (jNs + jNn) / 2 - prnd() * 0.12;
+                            const Hp = 0.42 + prnd() * 0.28;
+                            const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
+                                new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
+                            bush.scale.y = (Hp / 2) / r;
+                            bush.position.set(e, (jTop - 0.05) + Hp / 2, -cn);
+                            bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
+                        }
+                    }
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
