@@ -905,18 +905,21 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
   `if (SOLAR)`):** dois helpers locais montam o sistema por bloco (casa + garagem):
   - **`calha(nEave, gE0, gE1)`** — `box3d` ao longo do beiral norte (largura `GW=0,14` × altura
     `GD=0,13`, ~2 cm sob a água: `gutTop=eaveL−drop`, `gutBot=gutTop−GD`).
-  - **`queda(nEave, gE0, gE1, dN, dE)`** — **tubo de queda Ø110 (`PR=0,055`) numa COLUNA** `(dN,dE)`:
-    conector da calha ao topo (`pipeBetween`, clamp ao vão), vertical descendo a coluna do beiral
-    (~5,7 m) até a cota do tronco `wl(clW(dE))`, e **leg** N-S levando o pé ao muro (`nWall`).
+  - **`queda(nEave, gE0, gE1, dN, dE, turnE?)`** — **tubo de queda Ø110 (`PR=0,055`) numa COLUNA**
+    `(dN,dE)`: conector da calha ao topo (`pipeBetween`, clamp ao vão), vertical descendo a coluna do
+    beiral (~5,7 m) e **leg** N-S levando o pé ao muro (`nWall`). `turnE` (opcional) = X onde o cano
+    vira p/ o muro: o trecho horizontal corre **junto à parede** (E-O, em `dN`) até `turnE` e só ali
+    sobe — usado na **casa NE** p/ o cano não cruzar o caminho perto da gourmet (vai pela parede até
+    a junta, `jUNTA = 22,5+OE+0,30`, e sai junto dos outros dois tubos).
   - **Tronco único Ø150 (`PR2=0,075`):** UM `pipeBetween` rente ao muro norte (`nWall=12,30`), do
     feed mais a leste (casa NE, `X=31,5+OE`) até a **sarjeta da frente** (`X=0`, rua/boeiro).
     Cota do centro `clW(e)=cl0+e·sSar` (`cl0=0,06`, `sSar=0,006`/0,6%) → topo `<GCPA=0,30` (enterrado).
 - **4 tubos de queda — um em CADA extremidade de cada calha** (decidido com o cliente):
   - **Garagem:** coluna **NO** (`GN1+0,06, GE0+0,10`) + coluna **NE/junta** (`GN1+0,06, GE1j−0,10`).
-  - **Casa:** coluna **NO/junta** (`7,66, 22,5+OE`) + coluna **NE/extremo leste** (`7,66, 31,5+OE`)
-    — esta última desce pela coluna NE e o leg corre **enterrado** até o muro (pedido do cliente:
-    "passando por dentro do piso", invisível).
-  - Os 4 legs despejam no **tronco Ø150**, que os leva juntos pela beirada do muro até a rua.
+  - **Casa:** coluna **NO/junta** (`7,66, 22,5+OE`) + coluna **NE/extremo leste** (`7,66, 31,5+OE`,
+    com `turnE=jUNTA`) — esta desce pela coluna NE e corre **junto à parede norte** (enterrado) até a
+    junta, saindo junto dos outros (pedido do cliente: não cruzar o caminho da gourmet; invisível).
+  - Os 4 legs despejam no **tronco Ø150** (X 0→jUNTA), que os leva juntos pela beirada do muro à rua.
 - **Dimensionamento (chuva POA, NBR 10844, i=150 mm/h; tempestade 180):** casa+garagem ≈ 461 L/min
   (553 na tempestade). O **Ø150 a 0,6%** ≈ **750 L/min** → folga ~35 % até na tempestade. (O esquema
   antigo — condutores únicos casa+garagem se unindo num só Ø110 — estourava: ~335 L/min.) Os tubos de
