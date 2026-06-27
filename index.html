@@ -3032,6 +3032,9 @@
         // Piso/deck da área coberta
         L_.push(rect(N0, E0, N1 - N0, E1 - E0, '#e7dcc6',
             { color: '#a8956b', weight: 1, no3d: true }));
+        // Braço do piso ao NORTE da casa → liga à escada da porta de correr (sala)
+        L_.push(rect(7.5, 26.8, N1 - 7.5, E0 - 26.8, '#e7dcc6',
+            { color: '#a8956b', weight: 1, no3d: true }));
         // Contorno do telhado (beiral ~0,4 m a N/S/L; rente à casa a oeste) — tracejado
         L_.push(L.polygon([rot(N0 - 0.4, E0 + OE), rot(N1 + 0.4, E0 + OE),
                            rot(N1 + 0.4, E1 + 0.4 + OE), rot(N0 - 0.4, E1 + 0.4 + OE)],
@@ -3056,14 +3059,13 @@
         L_.push(rect(2.20, 34.90, 0.40, 0.60, '#475569', { color: '#1e293b', weight: 0.9, no3d: true }));  // chaminé (duto)
         L_.push(circ(2.40, 35.20, 0.10, '#1e293b', { color: '#0f172a', weight: 0.6, no3d: true }));        // saída da chaminé
 
-        // ── Mesa comprida com bancos (estilo gaúcho, eixo E-O, centro-norte) ──
-        L_.push(rect(5.85, 32.80, 0.90, 3.20, '#c08a4a', { color: '#5b3a1a', weight: 1, no3d: true }));    // tampo
-        L_.push(ln(6.30, 32.80, 6.30, 36.00, { color: '#5b3a1a', weight: 0.5, dashArray: '4 3' }));        // junta do tampo
-        L_.push(rect(5.45, 32.80, 0.38, 3.20, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco sul
-        L_.push(rect(6.77, 32.80, 0.38, 3.20, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco norte
+        // ── Mesa comprida com bancos (estilo gaúcho, eixo N-S, centro) ──
+        L_.push(rect(4.50, 34.15, 3.20, 0.90, '#c08a4a', { color: '#5b3a1a', weight: 1, no3d: true }));    // tampo (N-S)
+        L_.push(ln(4.50, 34.60, 7.70, 34.60, { color: '#5b3a1a', weight: 0.5, dashArray: '4 3' }));        // junta do tampo
+        L_.push(rect(4.50, 33.70, 3.20, 0.38, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco oeste
+        L_.push(rect(4.50, 35.12, 3.20, 0.38, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco leste
 
-        // Degrau contínuo em todo o lado NORTE + LESTE (deck elevado)
-        L_.push(rect(N1, E0, 0.45, (E1 - E0) + 0.45, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // norte (+ canto NE)
+        // Degrau contínuo no lado LESTE (norte sem degrau — piso liga à escada da sala)
         L_.push(rect(N0, E1, (N1 - N0), 0.45, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));        // leste
 
         // Colunas da cobertura — linha leste (beiral baixo da água p/ leste)
@@ -4932,12 +4934,18 @@
             fb(N0, E0, N1 - N0, E1 - E0, grade(X(E1)), GFL - 0.03, matEmbase); // base até a cota natural mais baixa (leste)
             fb(N0, E0, N1 - N0, E1 - E0, GFL - 0.03, GFL, deckMat);            // piso acabado
 
-            // Degrau CONTÍNUO em todo o lado NORTE + LESTE (desce do deck p/ o gramado)
+            // Degrau CONTÍNUO no lado LESTE (desce do deck p/ o gramado).
+            // Norte SEM degrau: o piso se estende e liga à escada da porta de correr.
             {
                 const stepMat = fmat(0xcfc9bd, { roughness: 0.9 });
                 const SD = 0.45, sTop = GFL - 0.20, sBase = grade(X(E1 + SD)) - 0.12;
-                fb(N1, E0, SD, (E1 - E0) + SD, sBase, sTop, stepMat);            // lado norte (+ canto NE)
                 fb(N0, E1, (N1 - N0), SD, sBase, sTop, stepMat);                 // lado leste
+            }
+            // Braço do piso ao NORTE da casa → liga à escada da porta de correr (sala)
+            {
+                const aN0 = 7.5, aE0 = 26.8;                                      // até a base da escada da porta de correr
+                fb(aN0, aE0, N1 - aN0, E0 - aE0, grade(X(E0)), GFL - 0.03, matEmbase); // embasamento
+                fb(aN0, aE0, N1 - aN0, E0 - aE0, GFL - 0.03, GFL, deckMat);            // piso
             }
 
             // Parede SUL raked (segue o telhado) — encosto da cocção.
@@ -4982,14 +4990,14 @@
             fb(2.20, 34.78, 0.50, 0.64, GFL + 1.10, chimTop, chimn);             // chaminé (duto, atravessa o telhado)
             fb(2.13, 34.70, 0.64, 0.80, chimTop, chimTop + 0.15, chimn);         // capa da chaminé
 
-            // ── Mesa comprida com bancos (estilo gaúcho, eixo E-O) ───────────
-            fb(5.85, 32.80, 0.90, 3.20, GFL + 0.72, GFL + 0.78, wood);           // tampo
-            [[5.92, 32.90], [5.92, 35.82], [6.66, 32.90], [6.66, 35.82]].forEach(([n, e]) =>
+            // ── Mesa comprida com bancos (estilo gaúcho, eixo N-S) ───────────
+            fb(4.50, 34.15, 3.20, 0.90, GFL + 0.72, GFL + 0.78, wood);           // tampo
+            [[4.58, 34.25], [7.54, 34.25], [4.58, 34.87], [7.54, 34.87]].forEach(([n, e]) =>
                 fb(n, e, 0.08, 0.08, GFL, GFL + 0.72, woodD));                    // pernas da mesa
-            [5.45, 6.77].forEach(n => {                                           // 2 bancos (sul/norte)
-                fb(n, 32.80, 0.38, 3.20, GFL + 0.42, GFL + 0.47, wood);          // assento
-                [[n + 0.05, 32.95], [n + 0.05, 35.80], [n + 0.05, 34.30]].forEach(([nn, e]) =>
-                    fb(nn, e, 0.06, 0.06, GFL, GFL + 0.42, woodD));               // pernas do banco
+            [33.70, 35.12].forEach(e => {                                         // 2 bancos (oeste/leste)
+                fb(4.50, e, 3.20, 0.38, GFL + 0.42, GFL + 0.47, wood);          // assento
+                [[4.65, e + 0.05], [6.00, e + 0.05], [7.50, e + 0.05]].forEach(([n, ee]) =>
+                    fb(n, ee, 0.06, 0.06, GFL, GFL + 0.42, woodD));               // pernas do banco
             });
         }
 
