@@ -4693,9 +4693,29 @@
                     const jUNTA = 22.5 + OE + 0.30;                         // entrada no muro junto aos outros tubos
                     queda(n1, e0, e1, 7.66, 22.5 + OE);                     // casa · coluna NO (junta)
                     queda(n1, e0, e1, 7.66, 31.5 + OE, jUNTA);             // casa · coluna NE (corre junto à parede → junta)
-                    // Tronco Ø150: do feed mais a leste (entrada da casa NE na junta) à sarjeta (X 0), rente ao muro.
-                    const xEast = jUNTA;                                    // X (cena) do feed mais a leste
+                    // Tronco Ø150 até a sarjeta (X 0), rente ao muro. No V3.4 ESTENDE até a área
+                    // gourmet (X ~32,5) p/ receber a queda NE dela; no V3.3 para na junta.
+                    const xEast = (v === 'v34') ? (38 + OE) : jUNTA;        // X (cena) do feed mais a leste
                     roof.add(pipeBetween(xEast, wl(clW(xEast)), -nWall, 0, wl(clW(0)), -nWall, PR2, matCalha));
+
+                    // ── V3.4: liga a ÁREA GOURMET ao tronco (calha leste + queda na coluna NE) ──
+                    // Telhado da gourmet cai p/ LESTE → calha no beiral leste (baixo) + tubo de queda
+                    // na coluna NE, descendo até o tronco. SEM tratamento p/ esconder (visualização crua).
+                    if (v === 'v34') {
+                        const gGFL = -0.30, gYW = gGFL + 3.50, gSL = 0.10;   // = bloco churrasqueira
+                        const gE0 = 31.6, gE1 = 37.6, gN0 = 2.0, gN1 = 10.5; // mE/mN (código) da gourmet
+                        const gYt = e => gYW - gSL * (e - gE0);              // cota do telhado (mundo) em mE=e
+                        const eaveE = (gE1 + 0.4) + OE;                      // X da calha (beiral leste c/ overhang)
+                        const gTop = gYt(gE1 + 0.4) - 0.02, gBot = gTop - GD; // cotas da calha (mundo)
+                        const cN0 = gN0 - 0.4, cN1 = gN1 + 0.4;             // extensão N-S do beiral
+                        roof.add(box3d(cN0, eaveE - GW/2, cN1 - cN0, GW, wl(gBot), wl(gTop), matCalha)); // calha leste (N-S)
+                        const dNg = gN1 - 0.10, dEg = (gE1 - 0.10) + OE;    // coluna NE da gourmet
+                        roof.add(pipeBetween(eaveE, wl(gBot), -dNg, dEg, wl(gBot), -dNg, PR, matCalha)); // conector calha→topo
+                        const yJg = wl(clW(dEg));                           // cota do tronco em dEg (local)
+                        const dng = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, wl(gBot) - yJg, 16), matCalha);
+                        dng.position.set(dEg, (wl(gBot) + yJg) / 2, -dNg); dng.castShadow = true; roof.add(dng); // queda na coluna NE
+                        roof.add(pipeBetween(dEg, yJg, -dNg, dEg, yJg, -nWall, PR, matCalha));            // leg p/ o muro → encaixa no tronco
+                    }
 
                     // ── Plantas NO CHÃO escondendo os canos (faixa de grama, sem piso) ────
                     // Vários arbustos assentados no TERRENO (grade) na faixa de grama ao longo do
