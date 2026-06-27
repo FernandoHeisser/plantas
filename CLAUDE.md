@@ -901,33 +901,32 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
 - **Por que o telhado não cai para a rua:** o telhado solar é de **uma água caindo para o
   NORTE** (geração FV, `addShed`), perpendicular à rua (oeste). Toda a água do telhado vai para o
   **beiral norte**; quem decide frente×fundos é a **calha + condutor**, não o telhado.
-- **Geometria (gate `if (v === 'v33')`, logo após o beiral leste da garagem, dentro de `if (SOLAR)`):**
-  helper local `drenar(nEave, eW, eE, nRoute?, dnN?, dnE?, hE?, sl?)` monta, por bloco (casa + garagem):
-  - **calha** (`box3d`) ao longo do beiral norte, ~2 cm sob a água;
-  - **descida** (cilindro Ø~110) **colada numa coluna** quando `dnN/dnE` são dados (mais escondida),
-    do fundo da calha à cota do condutor; senão cai no canto NO (`mE = eW`);
-  - **conector no topo** (`pipeBetween`, só quando há coluna): tubo do ponto da calha mais perto da
-    coluna (clamp ao vão) até o topo da descida (`dnN, dnE`) — diagonal se a coluna está fora do vão;
-  - **condutor** horizontal (`box` inclinado via `rotation.z`) para **oeste** até `mE=endE` (0 = rua),
-    descendo `Hstart→hE` (declive `sl`). `hE/sl` default = sarjeta aparente (0,15 / 1,5%); `endE` def. 0;
-  - **leg** (deitado, no fundo): leva o pé da descida ao alinhamento do condutor (`nRoute`).
-  - **Roteamento atual:** **Garagem:** descida na **coluna NO do pilotis** (face norte, `dnN=GN1+0,06`,
-    `dnE=GE0+0,10`); condutor **rente à cerca norte** (`nWall=12,30`), fora do pátio. **Casa:** descida
-    na **coluna NOROESTE DA CASA** (face norte da parede da sala, a oeste da porta de correr;
-    `dnN=7,66`, `dnE=22,5+OE=17,0`); o **leg sobe pela JUNTA** (mE 17,0, `dnN→nWall`) e o condutor
-    corre **RENTE AO MURO NORTE** (`nRoute=nWall=12,30`) de mE 17 até `endE=meetE=GE0+0,10=8,1`, onde
-    **ENCONTRA o condutor da garagem** (na descida dela) → seguem juntos ao boeiro. `hE/sl` da casa =
-    cota/declive do condutor da garagem em `meetE` → tubo **contínuo** no muro. **Sempre pela beirada
-    (junta + muro), nunca pelo meio do pátio/driveway.** A **calha da casa cobre todo o beiral** (`e0→e1`).
-- **Trechos horizontais ABAIXO DO PISO (legs + condutores):** rodam com o topo do tubo **< GCPA=0,30**
-  (`hSar=0,10`, `sSar=0,006` passados como `hE/sl`) → embutidos no **piso da garagem / área norte
-  pavimentada** (sem cano knee-high p/ tropeçar), mas **descarregam na SARJETA** (`hSar≈0,10`, nível
-  da rua) com declive suave → **respeitam o caimento da rua** (não dá p/ enterrar fundo no boeiro —
-  era o erro do `−0,85`). A **descida** desce do beiral (~6 m) até o tubo sob o piso. Topo máx. dos
-  horizontais ≈ 0,26 (folga ~4 cm sob o piso).
-- **Plantas no chão (escondem os canos):** ~33 arbustos (esferas achatadas, verdes variados)
-  assentados no **terreno** (`grade(mE)`, faixa de grama sem piso, mN 11,7→12,3, mE 0,6→16,9) ao
-  longo do muro norte, sobre o condutor. Ficam no **grupo principal `g`** (no chão — NÃO no `roof`,
+- **Geometria (gate `if (v === 'v33' || v === 'v34')`, após o beiral leste da garagem, dentro de
+  `if (SOLAR)`):** dois helpers locais montam o sistema por bloco (casa + garagem):
+  - **`calha(nEave, gE0, gE1)`** — `box3d` ao longo do beiral norte (largura `GW=0,14` × altura
+    `GD=0,13`, ~2 cm sob a água: `gutTop=eaveL−drop`, `gutBot=gutTop−GD`).
+  - **`queda(nEave, gE0, gE1, dN, dE)`** — **tubo de queda Ø110 (`PR=0,055`) numa COLUNA** `(dN,dE)`:
+    conector da calha ao topo (`pipeBetween`, clamp ao vão), vertical descendo a coluna do beiral
+    (~5,7 m) até a cota do tronco `wl(clW(dE))`, e **leg** N-S levando o pé ao muro (`nWall`).
+  - **Tronco único Ø150 (`PR2=0,075`):** UM `pipeBetween` rente ao muro norte (`nWall=12,30`), do
+    feed mais a leste (casa NE, `X=31,5+OE`) até a **sarjeta da frente** (`X=0`, rua/boeiro).
+    Cota do centro `clW(e)=cl0+e·sSar` (`cl0=0,06`, `sSar=0,006`/0,6%) → topo `<GCPA=0,30` (enterrado).
+- **4 tubos de queda — um em CADA extremidade de cada calha** (decidido com o cliente):
+  - **Garagem:** coluna **NO** (`GN1+0,06, GE0+0,10`) + coluna **NE/junta** (`GN1+0,06, GE1j−0,10`).
+  - **Casa:** coluna **NO/junta** (`7,66, 22,5+OE`) + coluna **NE/extremo leste** (`7,66, 31,5+OE`)
+    — esta última desce pela coluna NE e o leg corre **enterrado** até o muro (pedido do cliente:
+    "passando por dentro do piso", invisível).
+  - Os 4 legs despejam no **tronco Ø150**, que os leva juntos pela beirada do muro até a rua.
+- **Dimensionamento (chuva POA, NBR 10844, i=150 mm/h; tempestade 180):** casa+garagem ≈ 461 L/min
+  (553 na tempestade). O **Ø150 a 0,6%** ≈ **750 L/min** → folga ~35 % até na tempestade. (O esquema
+  antigo — condutores únicos casa+garagem se unindo num só Ø110 — estourava: ~335 L/min.) Os tubos de
+  queda Ø110 e as calhas (14×10) têm folga; o **tronco era o gargalo**, resolvido pelo diâmetro.
+- **Tudo ABAIXO DO PISO:** o tronco corre com topo `<GCPA=0,30` (declive baixo porque a sarjeta é
+  rasa; a vazão é vencida pelo Ø150, não pelo caimento) → embutido no piso/área norte, descarregando
+  na sarjeta no nível da rua. As **quedas** descem do beiral (~6 m) até o tronco.
+- **Plantas no chão (escondem os canos):** arbustos (esferas achatadas, verdes variados)
+  assentados no **terreno** (`grade(mE)`, faixa de grama sem piso, mN ~12,3, mE 0,9→26,5) ao
+  longo do muro norte, sobre o tronco. Ficam no **grupo principal `g`** (no chão — NÃO no `roof`,
   então não flutuam nem sobem com o 2º piso) e são altos o bastante p/ cobrir o cano (que sobe rumo
   ao caimento). PRNG com seed fixa → layout estável entre reaberturas. (Não há canteiro elevado.)
 - **Cotas em LOCAL do `roof`** (`wl(yw)=yw−LY`, `LY=CEIL3D+0,16`): as calhas ficam no grupo
