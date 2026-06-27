@@ -4726,18 +4726,26 @@
                     const greens = [0x3f6b2e, 0x4e7d36, 0x356428, 0x5a8c3e, 0x2f5a25];
                     let pseed = 7;
                     const prnd = () => { pseed = (pseed * 9301 + 49297) % 233280; return pseed / 233280; };
+                    // Canteiro LARGO: usa toda a faixa de grama do norte (entre as estruturas e o
+                    // muro). Vários arbustos espalhados em PROFUNDIDADE, ESCALONADOS — baixos na
+                    // frente (sul) do canteiro, altos junto ao muro (norte) p/ cobrir o cano.
                     const plantEnd = (v === 'v34') ? 21.8 : 17.6;
-                    for (let e = 0.6; e <= plantEnd; e += 0.4) {
-                        // altura-alvo: cobre o topo do cano (clW+0,075) com folga; mín 0,45 m
-                        const Hp = Math.max(0.45, (clW(e) + 0.075 - grade(e)) + 0.18);
-                        const r = 0.30 + prnd() * 0.12;              // largura (raio) 0,30–0,42
-                        const nEdge = 12.34 - prnd() * 0.03;         // borda norte < face do muro (12,35)
-                        const nrow = nEdge - r;                       // centro recuado conforme o raio
-                        const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
-                            new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
-                        bush.scale.y = (Hp / 2) / r;                  // semi-eixo vertical = Hp/2 → topo em grade+Hp
-                        bush.position.set(e, grade(e) + Hp / 2, -nrow);   // base no terreno (grade)
-                        bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
+                    const bandS = 10.6, bandN = 12.35;            // faixa do canteiro (sul → muro)
+                    for (let e = 0.6; e <= plantEnd; e += 0.45) {
+                        const nb = 2 + Math.floor(prnd() * 2);    // 2–3 arbustos por coluna (preenche a faixa)
+                        for (let k = 0; k < nb; k++) {
+                            const r = 0.26 + prnd() * 0.13;
+                            const nrow = bandS + r + prnd() * (bandN - bandS - 2 * r);   // profundidade aleatória
+                            const ej = e + (prnd() - 0.5) * 0.35;
+                            const t = (nrow - bandS) / (bandN - bandS);                  // 0 sul → 1 muro
+                            const cover = clW(ej) + 0.075 - grade(ej) + 0.15;            // altura p/ cobrir o cano (no muro)
+                            const Hp = Math.max(0.38, 0.38 + (cover - 0.38) * t) + (prnd() - 0.5) * 0.15;
+                            const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
+                                new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
+                            bush.scale.y = (Hp / 2) / r;
+                            bush.position.set(ej, grade(ej) + Hp / 2, -nrow);
+                            bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
+                        }
                     }
 
                     // ── V3.4: jardineira de alvenaria embutindo o tronco elevado (gourmet) ──
@@ -4748,22 +4756,25 @@
                     // vista do sobrado (telhado erguido).
                     if (v === 'v34') {
                         const jX0 = 21.8, jX1 = 38 + OE;           // do fim dos arbustos até a ponta do tronco
-                        const jNs = 11.35, jNn = 12.42, T = 0.12;  // face sul (gourmet) → muro; espessura
-                        const jBase = grade(jX1), jTop = 0.52;     // base no ponto + baixo (leste); topo nivelado
+                        const jNs = 10.6, jNn = 12.42, T = 0.12;   // LARGA (mesma faixa do canteiro) → muro; espessura
+                        const jBase = grade(jX1), jTop = 0.40;     // BAIXA: topo só o suficiente p/ cobrir o cano (~0,33)
                         const soilMat = new THREE.MeshStandardMaterial({ color: 0x6b4f33, roughness: 1.0, metalness: 0 });
                         g.add(box3d(jNs,     jX0,     T,           jX1 - jX0,           jBase, jTop, matWall)); // parede sul (face gourmet)
                         g.add(box3d(jNs,     jX0,     jNn - jNs,   T,                   jBase, jTop, matWall)); // tampa oeste
                         g.add(box3d(jNs,     jX1 - T, jNn - jNs,   T,                   jBase, jTop, matWall)); // tampa leste
-                        g.add(box3d(jNs + T, jX0 + T, (jNn-jNs)-2*T, (jX1-jX0)-2*T,     jTop - 0.12, jTop - 0.03, soilMat)); // terra no topo
-                        for (let e = jX0 + 0.4; e <= jX1 - 0.4; e += 0.45) {   // plantas em cima da jardineira
-                            const r = 0.26 + prnd() * 0.12;
-                            const cn = (jNs + jNn) / 2 - prnd() * 0.12;
-                            const Hp = 0.42 + prnd() * 0.28;
-                            const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
-                                new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
-                            bush.scale.y = (Hp / 2) / r;
-                            bush.position.set(e, (jTop - 0.05) + Hp / 2, -cn);
-                            bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
+                        g.add(box3d(jNs + T, jX0 + T, (jNn-jNs)-2*T, (jX1-jX0)-2*T,     jTop - 0.10, jTop - 0.02, soilMat)); // terra no topo
+                        for (let e = jX0 + 0.3; e <= jX1 - 0.3; e += 0.45) {   // plantas espalhadas em cima da jardineira larga
+                            const nb = 2 + Math.floor(prnd() * 2);
+                            for (let k = 0; k < nb; k++) {
+                                const r = 0.24 + prnd() * 0.13;
+                                const cn = jNs + 0.25 + prnd() * (jNn - jNs - 0.5);
+                                const Hp = 0.36 + prnd() * 0.30;
+                                const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
+                                    new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
+                                bush.scale.y = (Hp / 2) / r;
+                                bush.position.set(e + (prnd() - 0.5) * 0.3, (jTop - 0.04) + Hp / 2, -cn);
+                                bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
+                            }
                         }
                     }
                 }
