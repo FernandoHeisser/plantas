@@ -4671,24 +4671,30 @@
                     const calha = (nEave, gE0, gE1) =>
                         roof.add(box3d(nEave - GW/2, gE0, GW, gE1 - gE0, gutBot, gutTop, matCalha));
                     // Tubo de queda numa COLUNA (dN,dE): capta a calha (nEave), desce pela coluna
-                    // e despeja no tronco — leg p/ o norte até o muro. Tudo enterrado (sob o piso).
-                    const queda = (nEave, gE0, gE1, dN, dE) => {
+                    // e despeja no tronco. `turnE` (opcional) = X onde o cano vira p/ o muro: quando
+                    // dado, o trecho horizontal corre JUNTO À PAREDE (E-O, em dN) até turnE e só ali
+                    // sobe p/ o muro — usado na casa NE p/ não cruzar o caminho perto da gourmet.
+                    // Tudo enterrado (sob o piso).
+                    const queda = (nEave, gE0, gE1, dN, dE, turnE) => {
+                        const jE = turnE === undefined ? dE : turnE;        // X de entrada no tronco
                         const tapE = Math.max(gE0, Math.min(gE1, dE));      // ponto da calha junto à coluna
                         roof.add(pipeBetween(tapE, gutBot, -nEave, dE, gutBot, -dN, PR, matCalha)); // conector calha→topo
-                        const yJoin = wl(clW(dE));                          // cota do tronco neste mE (local)
+                        const yJoin = wl(clW(jE));                          // cota do tronco no ponto de entrada (local)
                         const dn = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, gutBot - yJoin, 16), matCalha);
                         dn.position.set(dE, (gutBot + yJoin) / 2, -dN); dn.castShadow = true; roof.add(dn); // vertical na coluna
-                        roof.add(pipeBetween(dE, yJoin, -dN, dE, yJoin, -nWall, PR, matCalha));          // leg p/ o muro
+                        if (jE !== dE) roof.add(pipeBetween(dE, yJoin, -dN, jE, yJoin, -dN, PR, matCalha)); // corre junto à parede (E-O)
+                        roof.add(pipeBetween(jE, yJoin, -dN, jE, yJoin, -nWall, PR, matCalha));          // leg p/ o muro (em jE)
                     };
                     // Calhas + 4 tubos de queda nas colunas das DUAS extremidades de cada calha
                     calha(gn1, ge0, GE1j);                                  // calha garagem
                     queda(gn1, ge0, GE1j, GN1 + 0.06, GE0 + 0.10);         // garagem · coluna NO
                     queda(gn1, ge0, GE1j, GN1 + 0.06, GE1j - 0.10);        // garagem · coluna NE (junta)
                     calha(n1, e0, e1);                                      // calha casa
+                    const jUNTA = 22.5 + OE + 0.30;                         // entrada no muro junto aos outros tubos
                     queda(n1, e0, e1, 7.66, 22.5 + OE);                     // casa · coluna NO (junta)
-                    queda(n1, e0, e1, 7.66, 31.5 + OE);                     // casa · coluna NE (extremo leste — vermelho)
-                    // Tronco Ø150: do feed mais a leste (casa NE) até a sarjeta (mE 0), rente ao muro.
-                    const xEast = 31.5 + OE;                                // X (cena) do feed mais a leste
+                    queda(n1, e0, e1, 7.66, 31.5 + OE, jUNTA);             // casa · coluna NE (corre junto à parede → junta)
+                    // Tronco Ø150: do feed mais a leste (entrada da casa NE na junta) à sarjeta (X 0), rente ao muro.
+                    const xEast = jUNTA;                                    // X (cena) do feed mais a leste
                     roof.add(pipeBetween(xEast, wl(clW(xEast)), -nWall, 0, wl(clW(0)), -nWall, PR2, matCalha));
 
                     // ── Plantas NO CHÃO escondendo os canos (faixa de grama, sem piso) ────
@@ -4701,7 +4707,7 @@
                     const prnd = () => { pseed = (pseed * 9301 + 49297) % 233280; return pseed / 233280; };
                     // Muro norte: face interna em mN 12,35. A BORDA NORTE do arbusto (centro+raio)
                     // fica em ~12,33 → encosta no muro SEM atravessar, e ainda cobre o cano (mN 12,30).
-                    for (let e = 0.9; e <= 26.5; e += 0.5) {
+                    for (let e = 0.9; e <= 17.6; e += 0.5) {
                         const r = 0.32 + prnd() * 0.10;              // raio 0,32–0,42
                         const nEdge = 12.34 - prnd() * 0.03;         // borda norte < face do muro (12,35)
                         const nrow = nEdge - r;                       // centro recuado conforme o raio
