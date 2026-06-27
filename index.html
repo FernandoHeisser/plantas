@@ -3062,9 +3062,9 @@
         L_.push(rect(5.45, 32.80, 0.38, 3.20, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco sul
         L_.push(rect(6.77, 32.80, 0.38, 3.20, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco norte
 
-        // Acesso: 2 degraus no lado NORTE (deck elevado ~2 degraus acima do gramado)
-        L_.push(rect(7.50, 33.00, 0.30, 1.40, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));   // degrau 1
-        L_.push(rect(7.80, 33.00, 0.30, 1.40, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));   // degrau 2
+        // Degrau contínuo em todo o lado NORTE + LESTE (deck elevado)
+        L_.push(rect(N1, E0, 0.32, (E1 - E0) + 0.32, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // norte (+ canto NE)
+        L_.push(rect(N0, E1, (N1 - N0), 0.32, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));        // leste
 
         // Colunas da cobertura — linha leste (beiral baixo da água p/ leste)
         [N0, (N0 + N1) / 2 - 0.10, N1 - 0.20].forEach(n => L_.push(rect(n, E1 - 0.20, 0.20, 0.20, '#334155',
@@ -4890,7 +4890,7 @@
         if (v === 'v34') {
             const N0 = 2.0, N1 = 7.5, E0 = 31.6, E1 = 36.6;   // footprint (mN, mE cód.)
             const GFL = -0.30;                                 // piso acabado ELEVADO e plano (~2 degraus acima do quintal)
-            const yWest = GFL + 2.95, slope = 0.10, RT = 0.12; // telhado: alto a oeste, 10% p/ leste
+            const yWest = GFL + 3.50, slope = 0.10, RT = 0.12; // telhado: alto a oeste, 10% p/ leste (elevado)
             const yt = e => yWest - slope * (e - E0);          // cota do topo do telhado (e em cód.)
             const X = e => e + OE;                             // mE cód. → cena
             // fbox/fcyl com OE embutido
@@ -4930,12 +4930,12 @@
             fb(N0, E0, N1 - N0, E1 - E0, grade(X(E1)), GFL - 0.03, matEmbase); // base até a cota natural mais baixa (leste)
             fb(N0, E0, N1 - N0, E1 - E0, GFL - 0.03, GFL, deckMat);            // piso acabado
 
-            // 2 degraus de acesso no lado NORTE (desce do deck elevado p/ o gramado)
+            // Degrau CONTÍNUO em todo o lado NORTE + LESTE (desce do deck p/ o gramado)
             {
                 const stepMat = fmat(0xcfc9bd, { roughness: 0.9 });
-                const sE0 = 33.0, sW = 1.4, sBase = grade(X(34.4)) - 0.05;
-                fb(N1,        sE0, 0.30, sW, sBase, GFL - 0.20, stepMat); // degrau 1 (superior)
-                fb(N1 + 0.30, sE0, 0.30, sW, sBase, GFL - 0.40, stepMat); // degrau 2 (inferior, ~nível do gramado)
+                const SD = 0.32, sTop = GFL - 0.20, sBase = grade(X(E1 + SD)) - 0.12;
+                fb(N1, E0, SD, (E1 - E0) + SD, sBase, sTop, stepMat);            // lado norte (+ canto NE)
+                fb(N0, E1, (N1 - N0), SD, sBase, sTop, stepMat);                 // lado leste
             }
 
             // Parede SUL raked (segue o telhado) — encosto da cocção
@@ -4972,8 +4972,9 @@
             fb(2.35, 34.40, 0.65, 1.40, GFL + 0.85, GFL + 1.06, ember);          // braseiro (recesso)
             for (let i = 0; i < 5; i++)
                 fb(2.42 + i * 0.11, 34.42, 0.03, 1.36, GFL + 0.95, GFL + 0.98, grate); // grelha
-            fb(2.20, 34.78, 0.50, 0.64, GFL + 1.10, GFL + 2.45, chimn);          // chaminé (duto, atravessa o telhado)
-            fb(2.13, 34.70, 0.64, 0.80, GFL + 2.45, GFL + 2.60, chimn);          // capa da chaminé
+            const chimTop = yt(35.10) + 0.35;                                    // 0,35 m acima do telhado no ponto da chaminé
+            fb(2.20, 34.78, 0.50, 0.64, GFL + 1.10, chimTop, chimn);             // chaminé (duto, atravessa o telhado)
+            fb(2.13, 34.70, 0.64, 0.80, chimTop, chimTop + 0.15, chimn);         // capa da chaminé
 
             // ── Mesa comprida com bancos (estilo gaúcho, eixo E-O) ───────────
             fb(5.85, 32.80, 0.90, 3.20, GFL + 0.72, GFL + 0.78, wood);           // tampo
