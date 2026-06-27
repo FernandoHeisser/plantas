@@ -4876,6 +4876,104 @@
         }
 
         g.add = _origAdd; // cotas (buildDims3D) e qualquer add posterior sem carimbo → sempre visíveis
+
+        // ── V3.4: área gourmet / churrasqueira (extrusão do esboço 2D) ───────
+        // Quintal leste, encostada na parede leste da casa (cód. mE 31,6), em
+        // volta da porta dos fundos. Cocção na parede SUL; mesa E-O no centro.
+        // Telhado de uma água caindo p/ LESTE (longe da casa). No grupo `g`
+        // (chão) → não sobe/some com os toggles de 2º piso/telhado da casa.
+        // Coords de CÓDIGO (mE); helpers locais somam OE (geometria manual).
+        if (v === 'v34') {
+            const N0 = 2.0, N1 = 7.5, E0 = 31.6, E1 = 36.6;   // footprint (mN, mE cód.)
+            const GFL = -0.55;                                 // piso acabado da área (nível do quintal)
+            const yWest = GFL + 2.95, slope = 0.10, RT = 0.12; // telhado: alto a oeste, 10% p/ leste
+            const yt = e => yWest - slope * (e - E0);          // cota do topo do telhado (e em cód.)
+            const X = e => e + OE;                             // mE cód. → cena
+            // fbox/fcyl com OE embutido
+            const fb = (n, e, dn, de, z0, z1, c, ex) => fbox(g, n, e + OE, dn, de, z0, z1, c, ex);
+            const fc = (n, e, r, z0, z1, c, ex) => fcyl(g, n, e + OE, r, z0, z1, c, ex);
+            // BufferGeometry de quad extrudado (8 verts: 4 topo + 4 base)
+            const quad8 = (verts, mat) => {
+                const tri = (a, b, c) => [...verts[a], ...verts[b], ...verts[c]];
+                const pos = new Float32Array([
+                    ...tri(0, 2, 1), ...tri(0, 3, 2),   // topo
+                    ...tri(4, 5, 6), ...tri(4, 6, 7),   // base
+                    ...tri(0, 1, 5), ...tri(0, 5, 4),   // oeste
+                    ...tri(3, 7, 6), ...tri(3, 6, 2),   // leste
+                    ...tri(0, 4, 7), ...tri(0, 7, 3),   // sul
+                    ...tri(1, 2, 6), ...tri(1, 6, 5),   // norte
+                ]);
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                geo.computeVertexNormals();
+                const m = new THREE.Mesh(geo, mat);
+                m.castShadow = true; m.receiveShadow = true; g.add(m);
+            };
+            // Materiais
+            const wallMat = new THREE.MeshStandardMaterial({ color: 0x7a5230, roughness: 0.9, side: THREE.DoubleSide }); // alvenaria (marrom, casa V3.2)
+            const deckMat = new THREE.MeshStandardMaterial({ color: 0xcdb78f, roughness: 0.9 });
+            const roofMat = new THREE.MeshStandardMaterial({ color: 0x7d8388, roughness: 0.55, metalness: 0.45, side: THREE.DoubleSide });
+            const brick = fmat(0xa9551f, { roughness: 0.92 });
+            const ember = fmat(0x2b2b30, { roughness: 0.8 });
+            const grate = fmat(0x9a9a9a, { metalness: 0.55, roughness: 0.45 });
+            const chimn = fmat(0x6b7480, { roughness: 0.75 });
+            const cMat  = fmat(0xe2dfd7, { roughness: 0.5, metalness: 0.1 });
+            const sinkM = fmat(0xb9c0c6, { metalness: 0.6, roughness: 0.3 });
+            const wood  = fmat(0xb07d3f, { roughness: 0.7 });
+            const woodD = fmat(0x7c5320, { roughness: 0.7 });
+
+            // Embasamento (contrapiso sobre o declive — não flutua) + deck
+            fb(N0, E0, N1 - N0, E1 - E0, grade(X(E1)), GFL - 0.03, matEmbase); // base até a cota natural mais baixa (leste)
+            fb(N0, E0, N1 - N0, E1 - E0, GFL - 0.03, GFL, deckMat);            // piso acabado
+
+            // Parede SUL raked (segue o telhado) — encosto da cocção
+            {
+                const th = 0.20, yb = GFL, yU = e => yt(e) - RT;
+                quad8([
+                    [X(E0), yb, -N0], [X(E1), yb, -N0], [X(E1), yU(E1), -N0], [X(E0), yU(E0), -N0],
+                    [X(E0), yb, -(N0 - th)], [X(E1), yb, -(N0 - th)], [X(E1), yU(E1), -(N0 - th)], [X(E0), yU(E0), -(N0 - th)],
+                ], wallMat);
+            }
+
+            // Colunas (linha leste — beiral baixo da água)
+            const colBot = grade(X(E1));
+            [N0, (N0 + N1) / 2 - 0.10, N1 - 0.20].forEach(n =>
+                fb(n, E1 - 0.20, 0.20, 0.20, colBot, yt(E1) - RT, matEmbase));
+
+            // Telhado de uma água (overhang 0,4 m a N/S/L; rente à casa a oeste)
+            {
+                const oh = 0.4, e0 = E0, e1 = E1 + oh, n0 = N0 - oh, n1 = N1 + oh;
+                quad8([
+                    [X(e0), yt(e0), -n0], [X(e0), yt(e0), -n1], [X(e1), yt(e1), -n1], [X(e1), yt(e1), -n0],
+                    [X(e0), yt(e0) - RT, -n0], [X(e0), yt(e0) - RT, -n1], [X(e1), yt(e1) - RT, -n1], [X(e1), yt(e1) - RT, -n0],
+                ], roofMat);
+            }
+
+            // ── Bancada com pia (parede sul, oeste) ──────────────────────────
+            fb(2.20, 32.00, 0.62, 2.00, GFL, GFL + 0.90, cMat);                 // bancada
+            fb(2.32, 32.58, 0.40, 0.80, GFL + 0.80, GFL + 0.89, sinkM);          // cuba
+            fc(2.30, 33.70, 0.022, GFL + 0.90, GFL + 1.18, sinkM);               // torneira (haste)
+            fb(2.34, 33.55, 0.05, 0.18, GFL + 1.12, GFL + 1.18, sinkM);          // bica
+
+            // ── Churrasqueira de alvenaria com chaminé (parede sul, leste) ───
+            fb(2.20, 34.20, 1.00, 1.80, GFL, GFL + 1.10, brick);                 // corpo (tijolo)
+            fb(2.35, 34.40, 0.65, 1.40, GFL + 0.85, GFL + 1.06, ember);          // braseiro (recesso)
+            for (let i = 0; i < 5; i++)
+                fb(2.42 + i * 0.11, 34.42, 0.03, 1.36, GFL + 0.95, GFL + 0.98, grate); // grelha
+            fb(2.20, 34.78, 0.50, 0.64, GFL + 1.10, GFL + 2.45, chimn);          // chaminé (duto, atravessa o telhado)
+            fb(2.13, 34.70, 0.64, 0.80, GFL + 2.45, GFL + 2.60, chimn);          // capa da chaminé
+
+            // ── Mesa comprida com bancos (estilo gaúcho, eixo E-O) ───────────
+            fb(5.85, 32.80, 0.90, 3.20, GFL + 0.72, GFL + 0.78, wood);           // tampo
+            [[5.92, 32.90], [5.92, 35.82], [6.66, 32.90], [6.66, 35.82]].forEach(([n, e]) =>
+                fb(n, e, 0.08, 0.08, GFL, GFL + 0.72, woodD));                    // pernas da mesa
+            [5.45, 6.77].forEach(n => {                                           // 2 bancos (sul/norte)
+                fb(n, 32.80, 0.38, 3.20, GFL + 0.42, GFL + 0.47, wood);          // assento
+                [[n + 0.05, 32.95], [n + 0.05, 35.80], [n + 0.05, 34.30]].forEach(([nn, e]) =>
+                    fb(nn, e, 0.06, 0.06, GFL, GFL + 0.42, woodD));               // pernas do banco
+            });
+        }
+
         buildDims3D(g, v);
         return g;
     }
