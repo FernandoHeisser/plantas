@@ -3025,7 +3025,7 @@
     function buildChurras2D() {
         const L_ = [];
         // Footprint: largura COMPLETA da parede leste (mN 2,0→7,5) × 5,0 m de prof.
-        const N0 = 2.0, N1 = 8.5, E0 = 31.6, E1 = 37.6;   // footprint (mN, mE) cód. — +1 m N, +1 m L
+        const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 37.6;  // footprint (mN, mE) cód. — face norte alinhada à garagem (GN1=10,5)
         const ln = (n1, e1, n2, e2, o) => L.polyline([rot(n1, e1 + OE), rot(n2, e2 + OE)],
             { color: '#1f2937', weight: 1, interactive: false, ...o });
 
@@ -3072,8 +3072,8 @@
         // Coluna NW (área passa do canto norte da casa → sustenta o beiral alto)
         L_.push(rect(N1 - 0.20, E0, 0.20, 0.20, '#334155', { color: '#0f172a', weight: 0.5, no3d: true }));
 
-        // Rótulo do ambiente (centro, no corredor entre cocção e mesa)
-        L_.push(roomLabel(4.35, 34.0, 'Área Gourmet', 'churrasqueira + pia + mesa', '~27 m²'));
+        // Rótulo do ambiente (área livre ao norte da mesa)
+        L_.push(roomLabel(9.10, 34.60, 'Área Gourmet', 'churrasqueira + pia + mesa', '~51 m²'));
         return L_;
     }
 
@@ -4890,7 +4890,7 @@
         // (chão) → não sobe/some com os toggles de 2º piso/telhado da casa.
         // Coords de CÓDIGO (mE); helpers locais somam OE (geometria manual).
         if (v === 'v34') {
-            const N0 = 2.0, N1 = 8.5, E0 = 31.6, E1 = 37.6;   // footprint (mN, mE cód.) — +1 m N, +1 m L
+            const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 37.6;  // footprint (mN, mE cód.) — face norte alinhada à garagem (GN1=10,5)
             const GFL = -0.30;                                 // piso acabado ELEVADO e plano (~2 degraus acima do quintal)
             const yWest = GFL + 3.50, slope = 0.10, RT = 0.12; // telhado: alto a oeste, 10% p/ leste (elevado)
             const yt = e => yWest - slope * (e - E0);          // cota do topo do telhado (e em cód.)
