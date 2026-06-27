@@ -3063,8 +3063,8 @@
         L_.push(rect(6.77, 32.80, 0.38, 3.20, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco norte
 
         // Degrau contínuo em todo o lado NORTE + LESTE (deck elevado)
-        L_.push(rect(N1, E0, 0.32, (E1 - E0) + 0.32, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // norte (+ canto NE)
-        L_.push(rect(N0, E1, (N1 - N0), 0.32, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));        // leste
+        L_.push(rect(N1, E0, 0.45, (E1 - E0) + 0.45, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // norte (+ canto NE)
+        L_.push(rect(N0, E1, (N1 - N0), 0.45, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));        // leste
 
         // Colunas da cobertura — linha leste (beiral baixo da água p/ leste)
         [N0, (N0 + N1) / 2 - 0.10, N1 - 0.20].forEach(n => L_.push(rect(n, E1 - 0.20, 0.20, 0.20, '#334155',
@@ -4933,14 +4933,15 @@
             // Degrau CONTÍNUO em todo o lado NORTE + LESTE (desce do deck p/ o gramado)
             {
                 const stepMat = fmat(0xcfc9bd, { roughness: 0.9 });
-                const SD = 0.32, sTop = GFL - 0.20, sBase = grade(X(E1 + SD)) - 0.12;
+                const SD = 0.45, sTop = GFL - 0.20, sBase = grade(X(E1 + SD)) - 0.12;
                 fb(N1, E0, SD, (E1 - E0) + SD, sBase, sTop, stepMat);            // lado norte (+ canto NE)
                 fb(N0, E1, (N1 - N0), SD, sBase, sTop, stepMat);                 // lado leste
             }
 
-            // Parede SUL raked (segue o telhado) — encosto da cocção
+            // Parede SUL raked (segue o telhado) — encosto da cocção.
+            // Base desce até a cota natural (grade leste, mais baixa) p/ NÃO flutuar.
             {
-                const th = 0.20, yb = GFL, yU = e => yt(e) - RT;
+                const th = 0.20, yb = grade(X(E1)), yU = e => yt(e) - RT;
                 quad8([
                     [X(E0), yb, -N0], [X(E1), yb, -N0], [X(E1), yU(E1), -N0], [X(E0), yU(E0), -N0],
                     [X(E0), yb, -(N0 - th)], [X(E1), yb, -(N0 - th)], [X(E1), yU(E1), -(N0 - th)], [X(E0), yU(E0), -(N0 - th)],
