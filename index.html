@@ -3062,6 +3062,10 @@
         L_.push(rect(5.45, 32.80, 0.38, 3.20, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco sul
         L_.push(rect(6.77, 32.80, 0.38, 3.20, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco norte
 
+        // Acesso: 2 degraus no lado NORTE (deck elevado ~2 degraus acima do gramado)
+        L_.push(rect(7.50, 33.00, 0.30, 1.40, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));   // degrau 1
+        L_.push(rect(7.80, 33.00, 0.30, 1.40, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));   // degrau 2
+
         // Colunas da cobertura — linha leste (beiral baixo da água p/ leste)
         [N0, (N0 + N1) / 2 - 0.10, N1 - 0.20].forEach(n => L_.push(rect(n, E1 - 0.20, 0.20, 0.20, '#334155',
             { color: '#0f172a', weight: 0.5, no3d: true })));
@@ -4885,7 +4889,7 @@
         // Coords de CÓDIGO (mE); helpers locais somam OE (geometria manual).
         if (v === 'v34') {
             const N0 = 2.0, N1 = 7.5, E0 = 31.6, E1 = 36.6;   // footprint (mN, mE cód.)
-            const GFL = -0.55;                                 // piso acabado da área (nível do quintal)
+            const GFL = -0.30;                                 // piso acabado ELEVADO e plano (~2 degraus acima do quintal)
             const yWest = GFL + 2.95, slope = 0.10, RT = 0.12; // telhado: alto a oeste, 10% p/ leste
             const yt = e => yWest - slope * (e - E0);          // cota do topo do telhado (e em cód.)
             const X = e => e + OE;                             // mE cód. → cena
@@ -4925,6 +4929,14 @@
             // Embasamento (contrapiso sobre o declive — não flutua) + deck
             fb(N0, E0, N1 - N0, E1 - E0, grade(X(E1)), GFL - 0.03, matEmbase); // base até a cota natural mais baixa (leste)
             fb(N0, E0, N1 - N0, E1 - E0, GFL - 0.03, GFL, deckMat);            // piso acabado
+
+            // 2 degraus de acesso no lado NORTE (desce do deck elevado p/ o gramado)
+            {
+                const stepMat = fmat(0xcfc9bd, { roughness: 0.9 });
+                const sE0 = 33.0, sW = 1.4, sBase = grade(X(34.4)) - 0.05;
+                fb(N1,        sE0, 0.30, sW, sBase, GFL - 0.20, stepMat); // degrau 1 (superior)
+                fb(N1 + 0.30, sE0, 0.30, sW, sBase, GFL - 0.40, stepMat); // degrau 2 (inferior, ~nível do gramado)
+            }
 
             // Parede SUL raked (segue o telhado) — encosto da cocção
             {
