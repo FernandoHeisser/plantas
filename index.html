@@ -2849,10 +2849,9 @@
     function northPlat2D() {
         const lys = [];
         lys.push(rect(7.55, 22.4, 3.0, 3.0, '#e2e8f0', { color: '#64748b', weight: 1.2, no3d: true }));
-        for (let i = 1; i <= 4; i++)               // degraus leste (descem p/ o quintal)
-            lys.push(L.polyline(
-                [rot(7.55, 25.4 + i*0.28 + OE), rot(10.55, 25.4 + i*0.28 + OE)],
-                { color: '#94a3b8', weight: 1.0, interactive: false }));
+        for (let i = 0; i < 4; i++)                // degraus leste (descem p/ o quintal) — preenchidos p/ não mostrar a grama
+            lys.push(rect(7.55, 25.4 + i*0.28, 3.0, 0.28, i % 2 ? '#c8c8c8' : '#dedede',
+                { color: '#6b7280', weight: 0.8, no3d: true }));
         return lys;
     }
 
