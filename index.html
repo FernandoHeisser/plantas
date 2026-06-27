@@ -4709,7 +4709,7 @@
                         const gTop = gYt(gE1 + 0.4) - 0.02, gBot = gTop - GD; // cotas da calha (mundo)
                         const cN0 = gN0 - 0.4, cN1 = gN1 + 0.4;             // extensão N-S do beiral
                         roof.add(box3d(cN0, eaveE - GW/2, cN1 - cN0, GW, wl(gBot), wl(gTop), matCalha)); // calha leste (N-S)
-                        const dNg = gN1 - 0.10, dEg = (gE1 - 0.10) + OE;    // coluna NE da gourmet
+                        const dNg = gN1 - 0.10, dEg = (gE1 + 0.10) + OE;    // FACE LESTE da coluna NE (aparente, fora da coluna), sob a calha
                         roof.add(pipeBetween(eaveE, wl(gBot), -dNg, dEg, wl(gBot), -dNg, PR, matCalha)); // conector calha→topo
                         const yJg = wl(clW(dEg));                           // cota do tronco em dEg (local)
                         const dng = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, wl(gBot) - yJg, 16), matCalha);
