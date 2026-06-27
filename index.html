@@ -4647,8 +4647,9 @@
                     const matCalha = new THREE.MeshStandardMaterial({ color: 0xc9ccd1, roughness: 0.5, metalness: 0.35, envMapIntensity: 0.4 });
                     const eaveL = CEIL3D + CPA + 0.16;        // beiral local (casa = garagem = 3,16)
                     const GW = 0.14, GD = 0.13, drop = 0.02;  // calha: largura(mN) × altura, 2cm sob o beiral
-                    const PR = 0.055;                         // raio descida/condutor (~Ø110)
-                    const Hend = 0.15, slope = 0.015;         // descarga na sarjeta (mundo) + 1,5%
+                    const PR  = 0.055;                        // raio dos tubos de queda (~Ø110)
+                    const PR2 = 0.075;                        // raio do TRONCO único (~Ø150) p/ a rua
+                    const gutTop = eaveL - drop, gutBot = gutTop - GD;   // cotas da calha (local)
                     // tubo cilíndrico entre 2 pontos quaisquer (p/ conector diagonal calha→coluna)
                     const pipeBetween = (x1,y1,z1, x2,y2,z2, r, mat) => {
                         const a = new THREE.Vector3(x1,y1,z1), b = new THREE.Vector3(x2,y2,z2);
@@ -4658,65 +4659,43 @@
                         m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone().normalize());
                         m.castShadow = true; return m;
                     };
-                    // dnN/dnE (opcionais): encostam a DESCIDA numa coluna (mais escondida).
-                    // Quando dados, a calha capta no beiral (nEave) e um conector no topo leva a
-                    // água até a coluna (dnN, dnE) — diagonal se a coluna está fora do vão da calha.
-                    // hE/sl (opcionais) = cota de descarga e declive do condutor. Default = sarjeta
-                    // aparente (0,15 / 1,5%). Casa usa cota baixa + declive suave p/ o condutor caber
-                    // DENTRO da laje do piso (top < GCPA=0,30) → embutido, sem cano aparente no chão.
-                    const drenar = (nEave, eW, eE, nRoute, dnN, dnE, hE, sl, endE) => {
-                        const HE = hE === undefined ? Hend  : hE;
-                        const SL = sl === undefined ? slope : sl;
-                        const eEnd = endE === undefined ? 0 : endE;   // mE onde o condutor descarrega (0 = rua)
-                        const dN = dnN === undefined ? nEave : dnN;   // mN da descida (coluna ou beiral)
-                        const dE = dnE === undefined ? eW    : dnE;   // mE da descida
-                        const nR = nRoute === undefined ? dN : nRoute;
-                        const len = dE - eEnd;                // descida → ponto de descarga (eEnd)
-                        const Hstart = HE + len * SL;         // cota do condutor no pé da descida (mundo)
-                        const gutTop = eaveL - drop, gutBot = gutTop - GD;
-                        // calha ao longo do beiral norte
-                        roof.add(box3d(nEave - GW/2, eW, GW, eE - eW, gutBot, gutTop, matCalha));
-                        // conector no topo: do ponto da calha mais perto da coluna (clamp ao vão)
-                        // até o topo da descida (dN, dE) — diagonal quando a coluna está fora do vão.
-                        if (dnN !== undefined || (dnE !== undefined && dnE !== eW)) {
-                            const tapE = Math.max(eW, Math.min(eE, dE));
-                            roof.add(pipeBetween(tapE, gutBot, -nEave, dE, gutBot, -dN, PR, matCalha));
-                        }
-                        // descida vertical em (dN, dE): fundo da calha → cota do condutor
-                        const dn = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, gutBot - wl(Hstart), 16), matCalha);
-                        dn.position.set(dE, (gutBot + wl(Hstart)) / 2, -dN); dn.castShadow = true; roof.add(dn);
-                        // leg deitado levando o pé da descida ao alinhamento do condutor (nR)
-                        if (nR !== dN) {
-                            const lg = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, Math.abs(nR - dN), 16), matCalha);
-                            lg.rotation.x = Math.PI / 2;      // eixo do cilindro → N-S (Z)
-                            lg.position.set(dE, wl(Hstart), -(dN + nR) / 2); lg.castShadow = true; roof.add(lg);
-                        }
-                        // condutor horizontal p/ OESTE (mE dE→eEnd) em nR, descendo Hstart→HE
-                        const cm = new THREE.Mesh(new THREE.BoxGeometry(len, 2 * PR, 2 * PR), matCalha);
-                        cm.position.set((dE + eEnd) / 2, wl((Hstart + HE) / 2), -nR);
-                        cm.rotation.z = Math.atan2(Hstart - HE, len);
-                        cm.castShadow = true; roof.add(cm);
+                    // ── Tronco único Ø150 enterrado, rente ao muro norte, até a rua ──
+                    // Todos os tubos de queda (2 casa + 2 garagem) descem nas COLUNAS, viram p/ o
+                    // norte sob o piso e despejam neste tronco, que corre rente ao muro (mN 12,30)
+                    // e desemboca na sarjeta da frente (mE 0). Declive baixo (a sarjeta é rasa);
+                    // a vazão da tempestade é vencida pelo Ø150 (~750 L/min), não pelo caimento.
+                    const nWall = 12.5 - 0.20;                // tronco rente ao muro norte (mN 12,30)
+                    const cl0 = 0.06, sSar = 0.006;           // centro do tronco na rua (mundo) + declive 0,6%
+                    const clW = e => cl0 + e * sSar;          // cota (mundo) do centro do tronco em X=e (cena; rua=0)
+                    // Calha no beiral norte de um bloco
+                    const calha = (nEave, gE0, gE1) =>
+                        roof.add(box3d(nEave - GW/2, gE0, GW, gE1 - gE0, gutBot, gutTop, matCalha));
+                    // Tubo de queda numa COLUNA (dN,dE): capta a calha (nEave), desce pela coluna
+                    // e despeja no tronco. `turnE` (opcional) = X onde o cano vira p/ o muro: quando
+                    // dado, o trecho horizontal corre JUNTO À PAREDE (E-O, em dN) até turnE e só ali
+                    // sobe p/ o muro — usado na casa NE p/ não cruzar o caminho perto da gourmet.
+                    // Tudo enterrado (sob o piso).
+                    const queda = (nEave, gE0, gE1, dN, dE, turnE) => {
+                        const jE = turnE === undefined ? dE : turnE;        // X de entrada no tronco
+                        const tapE = Math.max(gE0, Math.min(gE1, dE));      // ponto da calha junto à coluna
+                        roof.add(pipeBetween(tapE, gutBot, -nEave, dE, gutBot, -dN, PR, matCalha)); // conector calha→topo
+                        const yJoin = wl(clW(jE));                          // cota do tronco no ponto de entrada (local)
+                        const dn = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, gutBot - yJoin, 16), matCalha);
+                        dn.position.set(dE, (gutBot + yJoin) / 2, -dN); dn.castShadow = true; roof.add(dn); // vertical na coluna
+                        if (jE !== dE) roof.add(pipeBetween(dE, yJoin, -dN, jE, yJoin, -dN, PR, matCalha)); // corre junto à parede (E-O)
+                        roof.add(pipeBetween(jE, yJoin, -dN, jE, yJoin, -nWall, PR, matCalha));          // leg p/ o muro (em jE)
                     };
-                    // Condutores correm RENTE ao muro/cerca norte (lote vai até mN 12,5),
-                    // bem no canto — não obstruem o pátio/acesso. As duas linhas ficam 0,18 m
-                    // separadas (garagem mais externa, junto à cerca; casa por dentro).
-                    const nWall = 12.5 - 0.20;          // condutor da garagem (mN 12,30)
-                    // Condutores/legs correm ABAIXO DO PISO da garagem/área norte (top do tubo < GCPA
-                    // =0,30) → embutidos no piso, sem cano knee-high p/ tropeçar. MAS descarregam na
-                    // SARJETA (`hSar=0,12`, nível da rua) com declive SUAVE (`sSar=0,007`) → respeitam
-                    // o caimento da rua (sem enterrar fundo demais, que não tem boeiro raso onde sair).
-                    // Correm rente ao muro norte, pela beirada. Cota casa casa no encontro c/ a garagem.
-                    const hSar = 0.10, sSar = 0.006;
-                    // Garagem: descida encostada na COLUNA NO do pilotis (face norte, virada p/ a
-                    // cerca → escondida do pátio). Coluna: mE GE0→GE0+0,20, mN GN1−0,20→GN1.
-                    drenar(gn1, ge0, GE1j, nWall, GN1 + 0.06, GE0 + 0.10, hSar, sSar);   // garagem → coluna NO → muro (sob o piso) → sarjeta
-                    // Casa: descida na COLUNA NOROESTE DA CASA (mE 22,5+OE=17,0, mN 7,5; descida na
-                    // face norte, dnN=7,66). O leg SOBE pela JUNTA (mE 17,0) até o muro; o condutor
-                    // corre RENTE AO MURO NORTE (nWall, sob o piso) e ENCONTRA o condutor da garagem
-                    // na descida dela (mE=meetE), seguindo juntos até a rua. Pela beirada (junta +
-                    // muro), nunca pelo meio. Cota casa no encontro (= cota da garagem em meetE).
-                    const meetE = GE0 + 0.10;   // = mE da descida da garagem (ponto de encontro no muro)
-                    drenar(n1, e0, e1, nWall, 7.66, 22.5 + OE, hSar + meetE * sSar, sSar, meetE);
+                    // Calhas + 4 tubos de queda nas colunas das DUAS extremidades de cada calha
+                    calha(gn1, ge0, GE1j);                                  // calha garagem
+                    queda(gn1, ge0, GE1j, GN1 + 0.06, GE0 + 0.10);         // garagem · coluna NO
+                    queda(gn1, ge0, GE1j, GN1 + 0.06, GE1j - 0.10);        // garagem · coluna NE (junta)
+                    calha(n1, e0, e1);                                      // calha casa
+                    const jUNTA = 22.5 + OE + 0.30;                         // entrada no muro junto aos outros tubos
+                    queda(n1, e0, e1, 7.66, 22.5 + OE);                     // casa · coluna NO (junta)
+                    queda(n1, e0, e1, 7.66, 31.5 + OE, jUNTA);             // casa · coluna NE (corre junto à parede → junta)
+                    // Tronco Ø150: do feed mais a leste (entrada da casa NE na junta) à sarjeta (X 0), rente ao muro.
+                    const xEast = jUNTA;                                    // X (cena) do feed mais a leste
+                    roof.add(pipeBetween(xEast, wl(clW(xEast)), -nWall, 0, wl(clW(0)), -nWall, PR2, matCalha));
 
                     // ── Plantas NO CHÃO escondendo os canos (faixa de grama, sem piso) ────
                     // Vários arbustos assentados no TERRENO (grade) na faixa de grama ao longo do
@@ -4728,7 +4707,7 @@
                     const prnd = () => { pseed = (pseed * 9301 + 49297) % 233280; return pseed / 233280; };
                     // Muro norte: face interna em mN 12,35. A BORDA NORTE do arbusto (centro+raio)
                     // fica em ~12,33 → encosta no muro SEM atravessar, e ainda cobre o cano (mN 12,30).
-                    for (let e = 0.9; e <= 16.9; e += 0.5) {
+                    for (let e = 0.9; e <= 17.6; e += 0.5) {
                         const r = 0.32 + prnd() * 0.10;              // raio 0,32–0,42
                         const nEdge = 12.34 - prnd() * 0.03;         // borda norte < face do muro (12,35)
                         const nrow = nEdge - r;                       // centro recuado conforme o raio
