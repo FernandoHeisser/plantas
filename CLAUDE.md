@@ -682,6 +682,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
 | **V3.2** | 🔶 Herda o 2D do V3.1 | ✅ Herda o V3.1 + **pintura da casa em marrom** (`WALL_TINT` tinge o `matWall` só p/ `v32`) | 🔶 Placeholder com resumo |
 | **V3.3** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **sistema de calhas/escoamento** (calha no beiral norte → descida no canto NO → condutor à rua) — só `v33` | 🔶 Placeholder com resumo do escoamento |
+| **V3.4** | 🔶 Herda o 2D do V3.3 + **área gourmet/churrasqueira** no quintal leste (`buildChurras2D`, só `v34`) | 🔶 Herda **tudo do V3.3** (calhas inclusas) + **área gourmet 3D** (deck + parede sul + churrasqueira c/ chaminé + bancada/pia + mesa com bancos + telhado de uma água) — só `v34` | 🔶 Placeholder com resumo |
 | **V4** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **slider 🏗 de obra com 20 fases na ordem cronológica real** (V1 → cobre esperas → V1.1 muro → V2 garagem → V3 sobrado → pintura) | 🔶 Placeholder com resumo |
 | **V0.1–V0.6** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
 
@@ -937,6 +938,43 @@ gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`
 
 > **Nota:** o `OE` real no código é **−5,5** (não −3,5). O bloco de calhas usa as variáveis em
 > escopo (`e0/e1/ge0/GE1j`), então acompanha o `OE` automaticamente.
+
+### V3.4 — Área gourmet / churrasqueira (quintal leste)
+
+Variante do V3.3: **herda tudo** (sobrado + telhado solar + pintura marrom + calhas) e acrescenta
+uma **área gourmet coberta** no quintal, encostada na **parede leste da casa** (cód. mE 31,6), em
+volta da **porta dos fundos** da cozinha. Mesmo padrão de aba/rota/painéis (`/v3.4`, `p-v34-2d/3d/med`,
+`<option value="v34">`); o render base reusa o V3.2 via `rv` (`v34 → v32` em `buildLayers`,
+`buildBuilding3D`, `buildDims3D`, `initMap`) e **herda as calhas** (gate `v==='v33' || v==='v34'`).
+
+- **Partido (decidido com o cliente):** cobertura de **alvenaria (telhado próprio)**, **encostada na
+  casa** (saída da cozinha), pacote **leve** = churrasqueira c/ chaminé + bancada c/ pia + mesa com
+  bancos (estilo gaúcho). Cocção na **parede SUL**; convívio aberto ao **norte/leste**.
+- **Footprint:** mN 2,0→7,5 (largura COMPLETA da parede leste) × mE 31,6→36,6 ≈ **5,5 × 5,0 = ~27 m²**.
+- **2D (`buildChurras2D()`, só no caminho do mapa):** `v3Layers()` anexa as camadas quando
+  `ver==='v34'` e `v3floor===1` (térreo). Como `GEO` é null em `initMap`, **não vaza p/ o 3D**
+  (`captureModel('v34')` → `buildLayers` remapeia p/ `v32`). Deck + contorno do telhado (tracejado) +
+  parede sul (poché) + bancada/pia + churrasqueira/braseiro/grelha/chaminé + mesa E-O com 2 bancos +
+  3 colunas na borda leste + `roomLabel`. Coords de CÓDIGO (helpers somam OE).
+- **3D (`buildBuilding3D`, gate `if (v==='v34')`, no fim, adicionado ao grupo `g`):** fica no
+  **nível do chão** → **não** sobe nem some com os toggles de 2º piso/telhado da casa.
+  - **Piso:** `GFL = −0,55` (nível do quintal). Embasamento (`matEmbase`) desce de `GFL` até
+    `grade(mE leste)` (cota natural mais baixa) → não flutua, igual casa/garagem; deck por cima.
+  - **Telhado de uma água caindo p/ LESTE** (longe da casa): `yt(e) = yWest − slope·(e−E0)`,
+    `yWest = GFL+2,95`, `slope = 0,10` (~10%), espessura `RT=0,12`, beiral 0,4 m a N/S/L (rente à
+    casa a oeste). Quad extrudado por `quad8()` (BufferGeometry, 8 verts, como o `driveway`).
+  - **Parede sul raked** (`quad8`, topo segue `yt(e)−RT`): encosto da cocção, fecha o lado sul.
+  - **Colunas** (3, `matEmbase`) na borda leste, da `grade` ao sub-beiral leste (`yt(E1)−RT`).
+  - **Churrasqueira** (corpo tijolo + braseiro + 5 barras de grelha + **chaminé** que atravessa o
+    telhado + capa), **bancada com pia** (cuba + torneira), **mesa E-O** (tampo + 4 pernas) + **2
+    bancos** (assento + pernas). Helpers locais `fb`/`fc` = `fbox`/`fcyl` com OE embutido.
+- **Helpers/coords:** `quad8(verts, mat)` monta um sólido extrudado a partir de 8 vértices (mesmas 12
+  faces do `driveway`). Cota `y` independe do OE (a inclinação é E-O, OE cancela em `yt`); só o `X(e)=
+  e+OE` desloca em mE.
+
+**Próximas etapas V3.4:** abrir o braseiro na face norte (hoje o corpo lê meio sólido de frente);
+cotas 2D/3D da área; ficha de medidas (`p-v34-med`); opcional fechar o leste (privacidade do vizinho
+de fundo) e/ou esticar a profundidade.
 
 ### V4 — Evolução cronológica real da obra (20 fases: V1 → V2 → V3 → pintura)
 

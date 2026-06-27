@@ -112,6 +112,7 @@
         #p-v31-3d .card,
         #p-v32-3d .card,
         #p-v33-3d .card,
+        #p-v34-3d .card,
         #p-v4-3d .card {
             padding: 0;
             border: none;
@@ -468,6 +469,7 @@
         #p-v31-med,
         #p-v32-med,
         #p-v33-med,
+        #p-v34-med,
         #p-v4-med {
             min-height: calc(100dvh - var(--sticky-h));
             overflow-y: auto;
@@ -658,6 +660,7 @@
                 <option value="v31">V3.1 · Telhado solar</option>
                 <option value="v32">V3.2 · Pintura marrom</option>
                 <option value="v33">V3.3 · Calhas</option>
+                <option value="v34">V3.4 · Churrasqueira</option>
                 <option value="v4">V4 · Obra fase a fase</option>
             </select>
         </div>
@@ -1113,6 +1116,68 @@
                 <strong>fundos</strong> (cota −1,0 m) por gravidade. Sem risco de água parada
                 no telhado (12° / 21%); atenção a declive contínuo na calha e no condutor
                 aparente. Ver a planta/cobertura nas <strong>Medidas do V3 / V3.1</strong>.
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ V3.4 — área gourmet / churrasqueira nos fundos ══════════ -->
+    <div class="panel" id="p-v34-2d">
+        <div class="card">
+            <div class="map-wrap">
+                <div id="map-v34" class="mapa-sat"></div>
+                <div class="map-floortoggle">
+                    <button type="button" onclick="setV3Floor(this)">Piso: térreo</button>
+                </div>
+                <div class="scene3d-compass">
+                    <div class="rose">
+                        <div class="pt n" style="left:29px;top:9px">N</div>
+                        <div class="pt"   style="left:47px;top:29px;color:#4ade80">L</div>
+                        <div class="pt"   style="left:29px;top:47px;color:#64748b">S</div>
+                        <div class="pt"   style="left:11px;top:29px;color:#f59e0b">O</div>
+                    </div>
+                </div>
+                <div class="map-legend-ov">
+                    <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
+                    <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
+                    <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v34-3d">
+        <div class="card">
+            <div id="scene3d-v34" class="scene3d">
+                <div class="scene3d-toolbar">
+                    <button type="button" onclick="set3DFloor2('v34', this)">2º piso: oculto</button>
+                    <button type="button" onclick="set3DRoof('v34', this)">Telhado: oculto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" id="p-v34-med">
+        <div class="med-page">
+            <div class="med-summary">
+                <div class="med-sum-item">
+                    <span class="med-sum-label">Base</span>
+                    <span class="med-sum-value">= V3.3</span>
+                    <span class="med-sum-sub">sobrado + solar + pintura + calhas</span>
+                </div>
+                <div class="med-sum-item">
+                    <span class="med-sum-label">Acréscimo</span>
+                    <span class="med-sum-value">Churrasqueira</span>
+                    <span class="med-sum-sub">área gourmet nos fundos (quintal leste)</span>
+                </div>
+            </div>
+            <div class="med-section-title">Área gourmet / churrasqueira (o que o V3.4 acrescenta)</div>
+            <div class="med-room-meta" style="font-size:11px;line-height:1.7">
+                Esboço em andamento — área externa de churrasco no quintal (leste), na
+                saída da porta dos fundos da cozinha. A definir: churrasqueira, pia,
+                bancada e mesa (estilo gaúcho).
             </div>
         </div>
     </div>
@@ -1975,6 +2040,7 @@
         if (p === '/v4')   return 'v4';
         if (p === '/v1.1') return 'v11';
         if (p === '/v2')   return 'v2';
+        if (p === '/v3.4') return 'v34';
         if (p === '/v3.3') return 'v33';
         if (p === '/v3.2') return 'v32';
         if (p === '/v3.1') return 'v31';
@@ -1987,6 +2053,7 @@
         if (v === 'v31') return '/v3.1';
         if (v === 'v32') return '/v3.2';
         if (v === 'v33') return '/v3.3';
+        if (v === 'v34') return '/v3.4';
         return '/' + v;
     }
 
@@ -2301,7 +2368,7 @@
     }
 
     function buildLayers(v) {
-        if (v === 'v4' || v === 'v33') v = 'v32';  // V4 (obra) e V3.3 (calhas) = mesmo 2D do V3.2
+        if (v === 'v4' || v === 'v33' || v === 'v34') v = 'v32';  // V4 (obra), V3.3 (calhas) e V3.4 (churrasqueira) = mesmo 2D do V3.2
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
         const lys = [];
 
@@ -2782,10 +2849,9 @@
     function northPlat2D() {
         const lys = [];
         lys.push(rect(7.55, 22.4, 3.0, 3.0, '#e2e8f0', { color: '#64748b', weight: 1.2, no3d: true }));
-        for (let i = 1; i <= 4; i++)               // degraus leste (descem p/ o quintal)
-            lys.push(L.polyline(
-                [rot(7.55, 25.4 + i*0.28 + OE), rot(10.55, 25.4 + i*0.28 + OE)],
-                { color: '#94a3b8', weight: 1.0, interactive: false }));
+        for (let i = 0; i < 4; i++)                // degraus leste (descem p/ o quintal) — preenchidos p/ não mostrar a grama
+            lys.push(rect(7.55, 25.4 + i*0.28, 3.0, 0.28, i % 2 ? '#c8c8c8' : '#dedede',
+                { color: '#6b7280', weight: 0.8, no3d: true }));
         return lys;
     }
 
@@ -2951,7 +3017,73 @@
 
     // Alternância de pavimento no mapa 2D do V3 (térreo ↔ 2º piso)
     let v3floor = 1;
-    function v3Layers() { return v3floor === 2 ? buildFloor2Layers() : buildLayers('v3'); }
+    // ── V3.4: área gourmet / churrasqueira (esboço 2D) ──────────────────────
+    // Quintal leste, encostada na parede leste da casa (mE 31,6), em volta da
+    // porta dos fundos (mN 4,7→5,6). Coberta (telhado de uma água p/ leste).
+    // Coords de CÓDIGO (helpers somam OE); só 2D (GEO=null no caminho do mapa).
+    function buildChurras2D() {
+        const L_ = [];
+        // Footprint: largura COMPLETA da parede leste (mN 2,0→7,5) × 5,0 m de prof.
+        const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 37.6;  // footprint (mN, mE) cód. — face norte alinhada à garagem (GN1=10,5)
+        const ln = (n1, e1, n2, e2, o) => L.polyline([rot(n1, e1 + OE), rot(n2, e2 + OE)],
+            { color: '#1f2937', weight: 1, interactive: false, ...o });
+
+        // Piso/deck da área coberta
+        L_.push(rect(N0, E0, N1 - N0, E1 - E0, '#e7dcc6',
+            { color: '#a8956b', weight: 1, no3d: true }));
+        // Braço do piso ao NORTE da casa → liga à escada da porta de correr (sala)
+        L_.push(rect(7.5, 26.8, N1 - 7.5, E0 - 26.8, '#e7dcc6',
+            { color: '#a8956b', weight: 1, no3d: true }));
+        // Contorno do telhado (beiral ~0,4 m a N/S/L; rente à casa a oeste) — tracejado
+        L_.push(L.polygon([rot(N0 - 0.4, E0 + OE), rot(N1 + 0.4, E0 + OE),
+                           rot(N1 + 0.4, E1 + 0.4 + OE), rot(N0 - 0.4, E1 + 0.4 + OE)],
+            { color: '#64748b', weight: 1.3, dashArray: '6 4', fill: false, interactive: false }));
+
+        // Parede de fundo (SUL) — alvenaria onde encostam churrasqueira + bancada
+        // (colinear com a fachada sul da casa, mN 2,0)
+        L_.push(rect(N0, E0, 0.20, E1 - E0, '#334155',
+            { color: '#0f172a', weight: 0.5, no3d: true }));
+
+        // ── Bancada com pia (parede SUL, lado oeste — perto da cozinha p/ água) ─
+        L_.push(rect(2.20, 32.00, 0.62, 2.00, '#e5e7eb', { color: '#475569', weight: 0.8, no3d: true })); // bancada
+        L_.push(rect(2.30, 32.55, 0.42, 0.85, '#dbeafe', { color: '#2563eb', weight: 0.6, no3d: true })); // cuba
+        L_.push(circ(2.51, 32.97, 0.03, '#94a3b8', { color: '#475569', weight: 0.3, no3d: true }));        // ralo
+        L_.push(circ(2.30, 33.70, 0.025, '#64748b', { color: '#334155', weight: 0.3, no3d: true }));       // torneira
+
+        // ── Churrasqueira de alvenaria com chaminé (parede SUL, lado leste) ──
+        L_.push(rect(2.20, 34.20, 1.00, 1.80, '#b45309', { color: '#7c2d12', weight: 1, no3d: true }));    // corpo (tijolo)
+        L_.push(rect(2.40, 34.40, 0.62, 1.40, '#3f3f46', { color: '#18181b', weight: 0.8, no3d: true }));  // boca/braseiro
+        for (let i = 1; i <= 4; i++) L_.push(ln(2.40 + i * 0.12, 34.40, 2.40 + i * 0.12, 35.80,
+            { color: '#a1a1aa', weight: 0.6 }));                                                            // grelha
+        L_.push(rect(2.20, 34.90, 0.40, 0.60, '#475569', { color: '#1e293b', weight: 0.9, no3d: true }));  // chaminé (duto)
+        L_.push(circ(2.40, 35.20, 0.10, '#1e293b', { color: '#0f172a', weight: 0.6, no3d: true }));        // saída da chaminé
+
+        // ── Mesa comprida com bancos (estilo gaúcho, eixo N-S, centro) ──
+        L_.push(rect(4.50, 34.15, 3.20, 0.90, '#c08a4a', { color: '#5b3a1a', weight: 1, no3d: true }));    // tampo (N-S)
+        L_.push(ln(4.50, 34.60, 7.70, 34.60, { color: '#5b3a1a', weight: 0.5, dashArray: '4 3' }));        // junta do tampo
+        L_.push(rect(4.50, 33.70, 3.20, 0.38, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco oeste
+        L_.push(rect(4.50, 35.12, 3.20, 0.38, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco leste
+
+        // Degrau contínuo no lado LESTE (norte sem degrau — piso liga à escada da sala)
+        L_.push(rect(N0, E1, (N1 - N0), 0.45, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));        // leste
+
+        // Colunas da cobertura — linha leste (beiral baixo da água p/ leste)
+        [N0, (N0 + N1) / 2 - 0.10, N1 - 0.20].forEach(n => L_.push(rect(n, E1 - 0.20, 0.20, 0.20, '#334155',
+            { color: '#0f172a', weight: 0.5, no3d: true })));
+        // Coluna NW (área passa do canto norte da casa → sustenta o beiral alto)
+        L_.push(rect(N1 - 0.20, E0, 0.20, 0.20, '#334155', { color: '#0f172a', weight: 0.5, no3d: true }));
+
+        // Rótulo do ambiente (área livre ao norte da mesa)
+        L_.push(roomLabel(9.10, 34.60, 'Área Gourmet', 'churrasqueira + pia + mesa', '~51 m²'));
+        return L_;
+    }
+
+    function v3Layers() {
+        if (v3floor === 2) return buildFloor2Layers();
+        const lys = buildLayers('v3');
+        if (ver === 'v34') buildChurras2D().forEach(l => lys.push(l));   // V3.4 acrescenta a churrasqueira (esboço 2D)
+        return lys;
+    }
     function setV3Floor(btn) {
         v3floor = v3floor === 1 ? 2 : 1;
         btn.textContent = 'Piso: ' + (v3floor === 2 ? '2º pav.' : 'térreo');
@@ -3461,7 +3593,7 @@
     // Constrói o grupo 3D do prédio a partir do modelo (paredes c/ vãos + móveis + lajes)
     function buildBuilding3D(v) {
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
-        const rv = (v === 'v4' || v === 'v33') ? 'v32' : v; // V4 (obra) e V3.3 (calhas) renderizam igual ao V3.2 (rv); `v` guarda a identidade (fases / calhas)
+        const rv = (v === 'v4' || v === 'v33' || v === 'v34') ? 'v32' : v; // V4 (obra), V3.3 (calhas) e V3.4 (churrasqueira) renderizam igual ao V3.2 (rv); `v` guarda a identidade (fases / calhas / churrasqueira)
         const model = captureModel(v);
         const g = new THREE.Group();
 
@@ -4509,7 +4641,7 @@
                 // condutor desce de ~+0,4 (no pé da descida) p/ +0,15 na sarjeta.
                 // Geometria no grupo roof (sobe com o 2º piso). Cotas em LOCAL do roof:
                 // world = local + LY quando o telhado está erguido sobre o sobrado.
-                if (v === 'v33') {
+                if (v === 'v33' || v === 'v34') {            // V3.4 herda as calhas do V3.3
                     const LY = CEIL3D + 0.16;                 // o roof sobe LY com o 2º piso
                     const wl = yw => yw - LY;                 // altura de mundo → local do roof
                     const matCalha = new THREE.MeshStandardMaterial({ color: 0xc9ccd1, roughness: 0.5, metalness: 0.35, envMapIntensity: 0.4 });
@@ -4751,6 +4883,123 @@
         }
 
         g.add = _origAdd; // cotas (buildDims3D) e qualquer add posterior sem carimbo → sempre visíveis
+
+        // ── V3.4: área gourmet / churrasqueira (extrusão do esboço 2D) ───────
+        // Quintal leste, encostada na parede leste da casa (cód. mE 31,6), em
+        // volta da porta dos fundos. Cocção na parede SUL; mesa E-O no centro.
+        // Telhado de uma água caindo p/ LESTE (longe da casa). No grupo `g`
+        // (chão) → não sobe/some com os toggles de 2º piso/telhado da casa.
+        // Coords de CÓDIGO (mE); helpers locais somam OE (geometria manual).
+        if (v === 'v34') {
+            const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 37.6;  // footprint (mN, mE cód.) — face norte alinhada à garagem (GN1=10,5)
+            const GFL = -0.30;                                 // piso acabado ELEVADO e plano (~2 degraus acima do quintal)
+            const yWest = GFL + 3.50, slope = 0.10, RT = 0.12; // telhado: alto a oeste, 10% p/ leste (elevado)
+            const yt = e => yWest - slope * (e - E0);          // cota do topo do telhado (e em cód.)
+            const X = e => e + OE;                             // mE cód. → cena
+            // fbox/fcyl com OE embutido
+            const fb = (n, e, dn, de, z0, z1, c, ex) => fbox(g, n, e + OE, dn, de, z0, z1, c, ex);
+            const fc = (n, e, r, z0, z1, c, ex) => fcyl(g, n, e + OE, r, z0, z1, c, ex);
+            // BufferGeometry de quad extrudado (8 verts: 4 topo + 4 base)
+            const quad8 = (verts, mat) => {
+                const tri = (a, b, c) => [...verts[a], ...verts[b], ...verts[c]];
+                const pos = new Float32Array([
+                    ...tri(0, 2, 1), ...tri(0, 3, 2),   // topo
+                    ...tri(4, 5, 6), ...tri(4, 6, 7),   // base
+                    ...tri(0, 1, 5), ...tri(0, 5, 4),   // oeste
+                    ...tri(3, 7, 6), ...tri(3, 6, 2),   // leste
+                    ...tri(0, 4, 7), ...tri(0, 7, 3),   // sul
+                    ...tri(1, 2, 6), ...tri(1, 6, 5),   // norte
+                ]);
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                geo.computeVertexNormals();
+                const m = new THREE.Mesh(geo, mat);
+                m.castShadow = true; m.receiveShadow = true; g.add(m);
+            };
+            // Materiais
+            const wallMat = new THREE.MeshStandardMaterial({ color: 0x7a5230, roughness: 0.9, side: THREE.DoubleSide }); // alvenaria (marrom, casa V3.2)
+            const deckMat = new THREE.MeshStandardMaterial({ color: 0xcdb78f, roughness: 0.9 });
+            const roofMat = new THREE.MeshStandardMaterial({ color: 0x7d8388, roughness: 0.55, metalness: 0.45, side: THREE.DoubleSide });
+            const brick = fmat(0xa9551f, { roughness: 0.92 });
+            const ember = fmat(0x2b2b30, { roughness: 0.8 });
+            const grate = fmat(0x9a9a9a, { metalness: 0.55, roughness: 0.45 });
+            const chimn = fmat(0x6b7480, { roughness: 0.75 });
+            const cMat  = fmat(0xe2dfd7, { roughness: 0.5, metalness: 0.1 });
+            const sinkM = fmat(0xb9c0c6, { metalness: 0.6, roughness: 0.3 });
+            const wood  = fmat(0xb07d3f, { roughness: 0.7 });
+            const woodD = fmat(0x7c5320, { roughness: 0.7 });
+
+            // Embasamento (contrapiso sobre o declive — não flutua) + deck
+            fb(N0, E0, N1 - N0, E1 - E0, grade(X(E1)), GFL - 0.03, matEmbase); // base até a cota natural mais baixa (leste)
+            fb(N0, E0, N1 - N0, E1 - E0, GFL - 0.03, GFL, deckMat);            // piso acabado
+
+            // Degrau CONTÍNUO no lado LESTE (desce do deck p/ o gramado).
+            // Norte SEM degrau: o piso se estende e liga à escada da porta de correr.
+            {
+                const stepMat = fmat(0xcfc9bd, { roughness: 0.9 });
+                const SD = 0.45, sTop = GFL - 0.20, sBase = grade(X(E1 + SD)) - 0.12;
+                fb(N0, E1, (N1 - N0), SD, sBase, sTop, stepMat);                 // lado leste
+            }
+            // Braço do piso ao NORTE da casa → liga à escada da porta de correr (sala)
+            {
+                const aN0 = 7.5, aE0 = 26.8;                                      // até a base da escada da porta de correr
+                fb(aN0, aE0, N1 - aN0, E0 - aE0, grade(X(E0)), GFL - 0.03, matEmbase); // embasamento
+                fb(aN0, aE0, N1 - aN0, E0 - aE0, GFL - 0.03, GFL, deckMat);            // piso
+            }
+
+            // Parede SUL raked (segue o telhado) — encosto da cocção.
+            // Base desce até a cota natural (grade leste, mais baixa) p/ NÃO flutuar.
+            {
+                const th = 0.20, yb = grade(X(E1)), yU = e => yt(e) - RT;
+                quad8([
+                    [X(E0), yb, -N0], [X(E1), yb, -N0], [X(E1), yU(E1), -N0], [X(E0), yU(E0), -N0],
+                    [X(E0), yb, -(N0 - th)], [X(E1), yb, -(N0 - th)], [X(E1), yU(E1), -(N0 - th)], [X(E0), yU(E0), -(N0 - th)],
+                ], wallMat);
+            }
+
+            // Colunas (linha leste — beiral baixo da água)
+            const colBot = grade(X(E1));
+            [N0, (N0 + N1) / 2 - 0.10, N1 - 0.20].forEach(n =>
+                fb(n, E1 - 0.20, 0.20, 0.20, colBot, yt(E1) - RT, matEmbase));
+            // Coluna NW: a borda alta (oeste) só encosta na casa até mN 7,5; com a área
+            // passando do canto norte da casa, esta coluna sustenta o beiral alto ali.
+            fb(N1 - 0.20, E0, 0.20, 0.20, grade(X(E0)), yt(E0) - RT, matEmbase);
+
+            // Telhado de uma água (overhang 0,4 m a N/S/L; rente à casa a oeste)
+            {
+                const oh = 0.4, e0 = E0, e1 = E1 + oh, n0 = N0 - oh, n1 = N1 + oh;
+                quad8([
+                    [X(e0), yt(e0), -n0], [X(e0), yt(e0), -n1], [X(e1), yt(e1), -n1], [X(e1), yt(e1), -n0],
+                    [X(e0), yt(e0) - RT, -n0], [X(e0), yt(e0) - RT, -n1], [X(e1), yt(e1) - RT, -n1], [X(e1), yt(e1) - RT, -n0],
+                ], roofMat);
+            }
+
+            // ── Bancada com pia (parede sul, oeste) ──────────────────────────
+            fb(2.20, 32.00, 0.62, 2.00, GFL, GFL + 0.90, cMat);                 // bancada
+            fb(2.32, 32.58, 0.40, 0.80, GFL + 0.80, GFL + 0.89, sinkM);          // cuba
+            fc(2.30, 33.70, 0.022, GFL + 0.90, GFL + 1.18, sinkM);               // torneira (haste)
+            fb(2.34, 33.55, 0.05, 0.18, GFL + 1.12, GFL + 1.18, sinkM);          // bica
+
+            // ── Churrasqueira de alvenaria com chaminé (parede sul, leste) ───
+            fb(2.20, 34.20, 1.00, 1.80, GFL, GFL + 1.10, brick);                 // corpo (tijolo)
+            fb(2.35, 34.40, 0.65, 1.40, GFL + 0.85, GFL + 1.06, ember);          // braseiro (recesso)
+            for (let i = 0; i < 5; i++)
+                fb(2.42 + i * 0.11, 34.42, 0.03, 1.36, GFL + 0.95, GFL + 0.98, grate); // grelha
+            const chimTop = yt(35.10) + 0.35;                                    // 0,35 m acima do telhado no ponto da chaminé
+            fb(2.20, 34.78, 0.50, 0.64, GFL + 1.10, chimTop, chimn);             // chaminé (duto, atravessa o telhado)
+            fb(2.13, 34.70, 0.64, 0.80, chimTop, chimTop + 0.15, chimn);         // capa da chaminé
+
+            // ── Mesa comprida com bancos (estilo gaúcho, eixo N-S) ───────────
+            fb(4.50, 34.15, 3.20, 0.90, GFL + 0.72, GFL + 0.78, wood);           // tampo
+            [[4.58, 34.25], [7.54, 34.25], [4.58, 34.87], [7.54, 34.87]].forEach(([n, e]) =>
+                fb(n, e, 0.08, 0.08, GFL, GFL + 0.72, woodD));                    // pernas da mesa
+            [33.70, 35.12].forEach(e => {                                         // 2 bancos (oeste/leste)
+                fb(4.50, e, 3.20, 0.38, GFL + 0.42, GFL + 0.47, wood);          // assento
+                [[4.65, e + 0.05], [6.00, e + 0.05], [7.50, e + 0.05]].forEach(([n, ee]) =>
+                    fb(n, ee, 0.06, 0.06, GFL, GFL + 0.42, woodD));               // pernas do banco
+            });
+        }
+
         buildDims3D(g, v);
         return g;
     }
@@ -4835,7 +5084,7 @@
     }
 
     function buildDims3D(g, v) {
-        const rv = (v === 'v4' || v === 'v33') ? 'v32' : v;
+        const rv = (v === 'v4' || v === 'v33' || v === 'v34') ? 'v32' : v;
         const hasGarage = (rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32');
         // Afastamentos — branco (mesmas cotas do 2D, seguem o OE)
         const eFrente = hasGarage ? 13.5 + OE : 22.5 + OE;
@@ -5082,7 +5331,7 @@
         const roof = S.group.getObjectByName('roof');
         if (!roof) return;
         const ph = (v === 'v1') ? buildPhase : 7;
-        const noun = (v === 'v31' || v === 'v32' || v === 'v33') ? 'Telhado' : 'Laje';
+        const noun = (v === 'v31' || v === 'v32' || v === 'v33' || v === 'v34') ? 'Telhado' : 'Laje';
         // V1: a laje só pode existir sobre as colunas + vigas (fase ≥ 3); senão flutuaria
         // no ar. Bloqueia o botão de revelá-la antes da estrutura estar pronta.
         if (v === 'v1' && ph < 3 && !roof.visible) {
@@ -5214,7 +5463,7 @@
             maxNativeZoom: 18, maxZoom: 25
         }).addTo(map);
 
-        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32' || v === 'v33' || v === 'v4') ? v3Layers() : buildLayers(v)).addTo(map);
+        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32' || v === 'v33' || v === 'v34' || v === 'v4') ? v3Layers() : buildLayers(v)).addTo(map);
         maps[v] = map;
         map._overlay = overlay;
 
