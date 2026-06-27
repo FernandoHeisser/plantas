@@ -4717,24 +4717,26 @@
                         roof.add(pipeBetween(dEg, yJg, -dNg, dEg, yJg, -nWall, PR, matCalha));            // leg p/ o muro → encaixa no tronco
                     }
 
-                    // ── Plantas NO CHÃO escondendo os canos (faixa de grama, sem piso) ────
-                    // Vários arbustos assentados no TERRENO (grade) na faixa de grama ao longo do
-                    // muro norte, sobre o percurso do condutor (mN ~12,3) — escondem o cano e fazem
-                    // o paisagismo. Ficam no grupo PRINCIPAL (g), no chão: NÃO flutuam nem sobem com
-                    // o 2º piso. Densos/altos o bastante p/ cobrir o cano (que sobe rumo ao caimento).
+                    // ── Canteiro contínuo na lateral norte (esconde o cano + paisagismo) ──
+                    // Arbustos assentados no TERRENO (grade) na faixa de grama ao longo do muro,
+                    // sobre o tronco. Grupo PRINCIPAL (g), no chão: NÃO sobem com o 2º piso.
+                    // A ALTURA cresce p/ os fundos acompanhando a subida do cano (clW) → cobre o
+                    // tronco em toda a faixa. No V3.4 vai até onde começa a jardineira (X ~21,8);
+                    // no V3.3 até o fim do tronco (junta, X ~17,6).
                     const greens = [0x3f6b2e, 0x4e7d36, 0x356428, 0x5a8c3e, 0x2f5a25];
                     let pseed = 7;
                     const prnd = () => { pseed = (pseed * 9301 + 49297) % 233280; return pseed / 233280; };
-                    // Muro norte: face interna em mN 12,35. A BORDA NORTE do arbusto (centro+raio)
-                    // fica em ~12,33 → encosta no muro SEM atravessar, e ainda cobre o cano (mN 12,30).
-                    for (let e = 0.9; e <= 17.6; e += 0.5) {
-                        const r = 0.32 + prnd() * 0.10;              // raio 0,32–0,42
+                    const plantEnd = (v === 'v34') ? 21.8 : 17.6;
+                    for (let e = 0.6; e <= plantEnd; e += 0.4) {
+                        // altura-alvo: cobre o topo do cano (clW+0,075) com folga; mín 0,45 m
+                        const Hp = Math.max(0.45, (clW(e) + 0.075 - grade(e)) + 0.18);
+                        const r = 0.30 + prnd() * 0.12;              // largura (raio) 0,30–0,42
                         const nEdge = 12.34 - prnd() * 0.03;         // borda norte < face do muro (12,35)
                         const nrow = nEdge - r;                       // centro recuado conforme o raio
                         const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
                             new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
-                        bush.scale.y = 1.2 + prnd() * 0.25;          // levemente alongado (arbusto)
-                        bush.position.set(e, grade(e) + r * 0.5, -nrow);   // base assentada no terreno (grade)
+                        bush.scale.y = (Hp / 2) / r;                  // semi-eixo vertical = Hp/2 → topo em grade+Hp
+                        bush.position.set(e, grade(e) + Hp / 2, -nrow);   // base no terreno (grade)
                         bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
                     }
                 }
