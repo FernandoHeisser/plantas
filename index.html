@@ -3792,8 +3792,8 @@
                 const m = new THREE.Mesh(geo, matPath);
                 m.castShadow = true; m.receiveShadow = true; g.add(m);
             };
-            pathSlab(0.85, 1.75, 0.3,  32.6);   // perna SUL: frente (mE 0,3) → canto SE, passando a gourmet
-            pathSlab(0.85, 10.5, 32.6, 33.5);   // perna LESTE → curva p/ o NORTE (leste da gourmet, até os fundos)
+            pathSlab(0.30, 1.75, 0.3,  32.6);   // perna SUL LARGA: cerca (0,12) → embasamento (1,77), recuo sul quase todo
+            pathSlab(0.30, 10.5, 32.6, 33.9);   // perna LESTE/curva NORTE (mais larga), até os fundos
         }
         // ── Escadas externas — NBR 9050 / Caixa ────────────────────────────────
         // Espelho (e) ≤ 19 cm (externas residenciais) · Blondel 2e+p = 0,64 m ·
@@ -4832,24 +4832,6 @@
                                 const cover = (clW(ej) + 0.075) - jTop + 0.30;           // +margem: sobe a linha de trás
                                 const Hp = Math.max(0.45, 0.45 + (cover - 0.45) * tt) + (prnd() - 0.5) * 0.15;
                                 addShrub(ej, jTop, nrow, r, Hp);    // folhagem realista no bed
-                            }
-                        }
-                    }
-
-                    // ── Canteiro SUL: faixa de arbustos entre o path e a cerca sul ──────
-                    // Mesmo estilo do canteiro norte (addShrub), borda BAIXA no recuo sul,
-                    // da frente ao canto SE (acompanha a perna sul do path). Clampado: não
-                    // atravessa a cerca sul (face ~mN 0,12) nem invade o path (mN 0,85).
-                    {
-                        const fS = 0.18, fN = 0.80;            // faixa (cerca → path)
-                        for (let e = 0.8; e <= 32; e += 0.5) {
-                            const nb = 1 + Math.floor(prnd() * 2);   // 1–2 arbustos por coluna (faixa estreita)
-                            for (let k = 0; k < nb; k++) {
-                                const r = 0.17 + prnd() * 0.07;      // arbustos pequenos (borda)
-                                const nrow = fS + r + prnd() * (fN - fS - 2 * r);
-                                const ej = e + (prnd() - 0.5) * 0.4;
-                                const Hp = 0.35 + prnd() * 0.28;     // borda baixa variada
-                                addShrub(ej, grade(ej), nrow, r, Hp, fN, fS);   // clampa N (path) e S (cerca)
                             }
                         }
                     }
