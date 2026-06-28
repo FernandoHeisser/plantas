@@ -4726,6 +4726,27 @@
                     const greens = [0x3f6b2e, 0x4e7d36, 0x356428, 0x5a8c3e, 0x2f5a25];
                     let pseed = 7;
                     const prnd = () => { pseed = (pseed * 9301 + 49297) % 233280; return pseed / 233280; };
+                    // Arbusto realista: cluster de LÓBULOS (icosaedros jitterados, flat shading)
+                    // empilhados e afunilando p/ cima → silhueta orgânica de folhagem (não bola
+                    // lisa). Cores variadas por lóbulo. Camufla o cano entre as folhas.
+                    const leafMats = greens.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.93, metalness: 0, flatShading: true }));
+                    const addShrub = (cx, baseY, cz, R, H) => {
+                        const nL = 3 + Math.floor(prnd() * 2);                 // 3–4 lóbulos
+                        for (let i = 0; i < nL; i++) {
+                            const frac = (i + 0.4) / nL;                       // base (0) → topo (1)
+                            const lr = R * (0.62 + prnd() * 0.30) * (1 - 0.40 * frac);  // afunila p/ cima
+                            const geo = new THREE.IcosahedronGeometry(lr, 1);
+                            const pa = geo.attributes.position;
+                            for (let vi = 0; vi < pa.count; vi++)             // irregularidade (folhas)
+                                pa.setXYZ(vi, pa.getX(vi) * (1 + (prnd()-0.5)*0.45),
+                                              pa.getY(vi) * (1 + (prnd()-0.5)*0.45),
+                                              pa.getZ(vi) * (1 + (prnd()-0.5)*0.45));
+                            geo.computeVertexNormals();
+                            const m = new THREE.Mesh(geo, leafMats[Math.floor(prnd() * leafMats.length)]);
+                            m.position.set(cx + (prnd()-0.5)*R*0.6, baseY + frac*H, -(cz + (prnd()-0.5)*R*0.6));
+                            m.castShadow = true; m.receiveShadow = true; g.add(m);
+                        }
+                    };
                     // Canteiro LARGO: usa toda a faixa de grama do norte (entre as estruturas e o
                     // muro). Vários arbustos espalhados em PROFUNDIDADE, ESCALONADOS — baixos na
                     // frente (sul) do canteiro, altos junto ao muro (norte) p/ cobrir o cano.
@@ -4740,11 +4761,7 @@
                             const t = (nrow - bandS) / (bandN - bandS);                  // 0 sul → 1 muro
                             const cover = clW(ej) + 0.075 - grade(ej) + 0.15;            // altura p/ cobrir o cano (no muro)
                             const Hp = Math.max(0.38, 0.38 + (cover - 0.38) * t) + (prnd() - 0.5) * 0.15;
-                            const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
-                                new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
-                            bush.scale.y = (Hp / 2) / r;
-                            bush.position.set(ej, grade(ej) + Hp / 2, -nrow);
-                            bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
+                            addShrub(ej, grade(ej), nrow, r, Hp);   // folhagem realista na grama
                         }
                     }
 
@@ -4774,11 +4791,7 @@
                                 const tt = (nrow - jNs) / (jNn - jNs);                   // 0 sul → 1 muro
                                 const cover = (clW(ej) + 0.075) - jTop + 0.18;           // do topo do bed até cobrir o cano
                                 const Hp = Math.max(0.45, 0.45 + (cover - 0.45) * tt) + (prnd() - 0.5) * 0.15;
-                                const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
-                                    new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
-                                bush.scale.y = (Hp / 2) / r;
-                                bush.position.set(ej, jTop + Hp / 2, -nrow);             // base na terra do bed
-                                bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
+                                addShrub(ej, jTop, nrow, r, Hp);    // folhagem realista no bed
                             }
                         }
                     }
