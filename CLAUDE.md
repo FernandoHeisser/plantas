@@ -974,9 +974,25 @@ volta da **porta dos fundos** da cozinha. Mesmo padrão de aba/rota/painéis (`/
   faces do `driveway`). Cota `y` independe do OE (a inclinação é E-O, OE cancela em `yt`); só o `X(e)=
   e+OE` desloca em mE.
 
+**Escoamento + paisagismo da lateral norte (V3.4, no bloco das calhas `v33||v34`):**
+- **Ligação da gourmet ao tronco:** o telhado da gourmet cai p/ LESTE → **calha no beiral leste**
+  (baixo) + **tubo de queda Ø110 na coluna NE** (face leste, `gE1+0,10`, **aparente**) descendo até
+  o tronco; **leg** N-S até o muro. Só no V3.4 o **tronco Ø150 estende** até a gourmet (`xEast=38+OE`);
+  no V3.3 para na junta. O cano fica **~1 m acima do gramado** ali (terreno cai pros fundos, cano cai
+  pra rua) — daí o paisagismo o esconder.
+- **Canteiro contínuo (lateral norte):** faixa LARGA (mN 10,6→12,35) de arbustos da frente (X0,6) à
+  gourmet, ESCALONADOS — baixos na frente do canteiro, **altos junto ao muro** (fórmula `cover` segue
+  `clW`) p/ cobrir o cano. Helper **`addShrub(cx,baseY,cz,R,H)`**: arbusto realista = cluster de 4–5
+  **lóbulos** (icosaedros jitterados, **flat shading**, cores `leafMats`) empilhados e afunilando.
+  Grupo `g` (chão) — alinha com o tronco na vista do sobrado (telhado erguido).
+- **Jardineira (gourmet):** bed BAIXO de alvenaria (`matWall`, topo `jTop=−0,40`) — o **cano passa
+  ACIMA dela, entre os arbustos** (NÃO embutido na alvenaria). Arbustos plantados no bed cobrem o cano.
+- **Anti-bug muro:** `addShrub` clampa cada lóbulo em **mN ≤ `MURO_N`=12,33** (raio efetivo `lr·1,25`
+  c/ o jitter) → a folhagem encosta no muro mas **não o atravessa**.
+
 **Próximas etapas V3.4:** abrir o braseiro na face norte (hoje o corpo lê meio sólido de frente);
 cotas 2D/3D da área; ficha de medidas (`p-v34-med`); opcional fechar o leste (privacidade do vizinho
-de fundo) e/ou esticar a profundidade.
+de fundo) e/ou esticar a profundidade; opcional sebe de fundo densa p/ esconder o cano 100%.
 
 ### V4 — Evolução cronológica real da obra (20 fases: V1 → V2 → V3 → pintura)
 

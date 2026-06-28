@@ -4693,29 +4693,111 @@
                     const jUNTA = 22.5 + OE + 0.30;                         // entrada no muro junto aos outros tubos
                     queda(n1, e0, e1, 7.66, 22.5 + OE);                     // casa · coluna NO (junta)
                     queda(n1, e0, e1, 7.66, 31.5 + OE, jUNTA);             // casa · coluna NE (corre junto à parede → junta)
-                    // Tronco Ø150: do feed mais a leste (entrada da casa NE na junta) à sarjeta (X 0), rente ao muro.
-                    const xEast = jUNTA;                                    // X (cena) do feed mais a leste
+                    // Tronco Ø150 até a sarjeta (X 0), rente ao muro. No V3.4 ESTENDE até a área
+                    // gourmet (X ~32,5) p/ receber a queda NE dela; no V3.3 para na junta.
+                    const xEast = (v === 'v34') ? (38 + OE) : jUNTA;        // X (cena) do feed mais a leste
                     roof.add(pipeBetween(xEast, wl(clW(xEast)), -nWall, 0, wl(clW(0)), -nWall, PR2, matCalha));
 
-                    // ── Plantas NO CHÃO escondendo os canos (faixa de grama, sem piso) ────
-                    // Vários arbustos assentados no TERRENO (grade) na faixa de grama ao longo do
-                    // muro norte, sobre o percurso do condutor (mN ~12,3) — escondem o cano e fazem
-                    // o paisagismo. Ficam no grupo PRINCIPAL (g), no chão: NÃO flutuam nem sobem com
-                    // o 2º piso. Densos/altos o bastante p/ cobrir o cano (que sobe rumo ao caimento).
+                    // ── V3.4: liga a ÁREA GOURMET ao tronco (calha leste + queda na coluna NE) ──
+                    // Telhado da gourmet cai p/ LESTE → calha no beiral leste (baixo) + tubo de queda
+                    // na coluna NE, descendo até o tronco. SEM tratamento p/ esconder (visualização crua).
+                    if (v === 'v34') {
+                        const gGFL = -0.30, gYW = gGFL + 3.50, gSL = 0.10;   // = bloco churrasqueira
+                        const gE0 = 31.6, gE1 = 37.6, gN0 = 2.0, gN1 = 10.5; // mE/mN (código) da gourmet
+                        const gYt = e => gYW - gSL * (e - gE0);              // cota do telhado (mundo) em mE=e
+                        const eaveE = (gE1 + 0.4) + OE;                      // X da calha (beiral leste c/ overhang)
+                        const gTop = gYt(gE1 + 0.4) - 0.02, gBot = gTop - GD; // cotas da calha (mundo)
+                        const cN0 = gN0 - 0.4, cN1 = gN1 + 0.4;             // extensão N-S do beiral
+                        roof.add(box3d(cN0, eaveE - GW/2, cN1 - cN0, GW, wl(gBot), wl(gTop), matCalha)); // calha leste (N-S)
+                        const dNg = gN1 - 0.10, dEg = (gE1 + 0.10) + OE;    // FACE LESTE da coluna NE (aparente, fora da coluna), sob a calha
+                        roof.add(pipeBetween(eaveE, wl(gBot), -dNg, dEg, wl(gBot), -dNg, PR, matCalha)); // conector calha→topo
+                        const yJg = wl(clW(dEg));                           // cota do tronco em dEg (local)
+                        const dng = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, wl(gBot) - yJg, 16), matCalha);
+                        dng.position.set(dEg, (wl(gBot) + yJg) / 2, -dNg); dng.castShadow = true; roof.add(dng); // queda na coluna NE
+                        roof.add(pipeBetween(dEg, yJg, -dNg, dEg, yJg, -nWall, PR, matCalha));            // leg p/ o muro → encaixa no tronco
+                    }
+
+                    // ── Canteiro contínuo na lateral norte (esconde o cano + paisagismo) ──
+                    // Arbustos assentados no TERRENO (grade) na faixa de grama ao longo do muro,
+                    // sobre o tronco. Grupo PRINCIPAL (g), no chão: NÃO sobem com o 2º piso.
+                    // A ALTURA cresce p/ os fundos acompanhando a subida do cano (clW) → cobre o
+                    // tronco em toda a faixa. No V3.4 vai até onde começa a jardineira (X ~21,8);
+                    // no V3.3 até o fim do tronco (junta, X ~17,6).
                     const greens = [0x3f6b2e, 0x4e7d36, 0x356428, 0x5a8c3e, 0x2f5a25];
                     let pseed = 7;
                     const prnd = () => { pseed = (pseed * 9301 + 49297) % 233280; return pseed / 233280; };
-                    // Muro norte: face interna em mN 12,35. A BORDA NORTE do arbusto (centro+raio)
-                    // fica em ~12,33 → encosta no muro SEM atravessar, e ainda cobre o cano (mN 12,30).
-                    for (let e = 0.9; e <= 17.6; e += 0.5) {
-                        const r = 0.32 + prnd() * 0.10;              // raio 0,32–0,42
-                        const nEdge = 12.34 - prnd() * 0.03;         // borda norte < face do muro (12,35)
-                        const nrow = nEdge - r;                       // centro recuado conforme o raio
-                        const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
-                            new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
-                        bush.scale.y = 1.2 + prnd() * 0.25;          // levemente alongado (arbusto)
-                        bush.position.set(e, grade(e) + r * 0.5, -nrow);   // base assentada no terreno (grade)
-                        bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
+                    // Arbusto realista: cluster de LÓBULOS (icosaedros jitterados, flat shading)
+                    // empilhados e afunilando p/ cima → silhueta orgânica de folhagem (não bola
+                    // lisa). Cores variadas por lóbulo. Camufla o cano entre as folhas.
+                    const leafMats = greens.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.93, metalness: 0, flatShading: true }));
+                    const MURO_N = 12.33;   // face interna do muro norte (12,35) − folga: folhagem não atravessa
+                    const addShrub = (cx, baseY, cz, R, H) => {
+                        const nL = 4 + Math.floor(prnd() * 2);                 // 4–5 lóbulos (mais cheio)
+                        for (let i = 0; i < nL; i++) {
+                            const frac = (i + 0.4) / nL;                       // base (0) → topo (1)
+                            const lr = R * (0.80 + prnd() * 0.30) * (1 - 0.28 * frac);  // maiores e + sobrepostos
+                            const geo = new THREE.IcosahedronGeometry(lr, 1);
+                            const pa = geo.attributes.position;
+                            for (let vi = 0; vi < pa.count; vi++)             // irregularidade (folhas)
+                                pa.setXYZ(vi, pa.getX(vi) * (1 + (prnd()-0.5)*0.45),
+                                              pa.getY(vi) * (1 + (prnd()-0.5)*0.45),
+                                              pa.getZ(vi) * (1 + (prnd()-0.5)*0.45));
+                            geo.computeVertexNormals();
+                            const m = new THREE.Mesh(geo, leafMats[Math.floor(prnd() * leafMats.length)]);
+                            // clampa o lóbulo p/ NÃO atravessar o muro (raio efetivo c/ o jitter ≈ lr·1,25)
+                            let lz = cz + (prnd()-0.5)*R*0.6;
+                            if (lz + lr*1.25 > MURO_N) lz = MURO_N - lr*1.25;
+                            m.position.set(cx + (prnd()-0.5)*R*0.6, baseY + frac*H, -lz);
+                            m.castShadow = true; m.receiveShadow = true; g.add(m);
+                        }
+                    };
+                    // Canteiro LARGO: usa toda a faixa de grama do norte (entre as estruturas e o
+                    // muro). Vários arbustos espalhados em PROFUNDIDADE, ESCALONADOS — baixos na
+                    // frente (sul) do canteiro, altos junto ao muro (norte) p/ cobrir o cano.
+                    const plantEnd = (v === 'v34') ? 21.8 : 17.6;
+                    const bandS = 10.6, bandN = 12.35;            // faixa do canteiro (sul → muro)
+                    for (let e = 0.6; e <= plantEnd; e += 0.38) {
+                        const nb = 2 + Math.floor(prnd() * 2);    // 2–3 arbustos por coluna (preenche a faixa)
+                        for (let k = 0; k < nb; k++) {
+                            const r = 0.28 + prnd() * 0.14;
+                            const nrow = bandS + r + prnd() * (bandN - bandS - 2 * r);   // profundidade aleatória
+                            const ej = e + (prnd() - 0.5) * 0.35;
+                            const t = (nrow - bandS) / (bandN - bandS);                  // 0 sul → 1 muro
+                            const cover = clW(ej) + 0.075 - grade(ej) + 0.28;            // +margem: sobe a linha de trás (cobre o cano)
+                            const Hp = Math.max(0.40, 0.40 + (cover - 0.40) * t) + (prnd() - 0.5) * 0.15;
+                            addShrub(ej, grade(ej), nrow, r, Hp);   // folhagem realista na grama
+                        }
+                    }
+
+                    // ── V3.4: jardineira de alvenaria embutindo o tronco elevado (gourmet) ──
+                    // No trecho da gourmet o tronco fica ~0,8–1,1 m acima do gramado (terreno cai
+                    // pros fundos, cano cai pra rua). Caixa de alvenaria (muro = parede norte) com
+                    // o cano por dentro + terra e plantas em cima. A queda na coluna NE segue
+                    // APARENTE e entra na jardineira. Grupo `g` (chão) — alinha com o tronco na
+                    // vista do sobrado (telhado erguido).
+                    if (v === 'v34') {
+                        const jX0 = 21.8, jX1 = 38 + OE;           // do fim dos arbustos até a ponta do tronco
+                        const jNs = 10.6, jNn = 12.42, T = 0.12;   // LARGA (mesma faixa do canteiro) → muro; espessura
+                        const jBase = grade(jX1), jTop = -0.40;    // bed BAIXO: o cano fica ACIMA (não dentro), entre as plantas
+                        const soilMat = new THREE.MeshStandardMaterial({ color: 0x6b4f33, roughness: 1.0, metalness: 0 });
+                        g.add(box3d(jNs,     jX0,     T,           jX1 - jX0,           jBase, jTop, matWall)); // borda sul (face gourmet)
+                        g.add(box3d(jNs,     jX0,     jNn - jNs,   T,                   jBase, jTop, matWall)); // tampa oeste
+                        g.add(box3d(jNs,     jX1 - T, jNn - jNs,   T,                   jBase, jTop, matWall)); // tampa leste
+                        g.add(box3d(jNs + T, jX0 + T, (jNn-jNs)-2*T, (jX1-jX0)-2*T,     jTop - 0.08, jTop - 0.01, soilMat)); // terra do bed
+                        // Arbustos plantados no bed, ALTOS o bastante p/ cobrir o cano (que passa
+                        // ACIMA, entre eles). Escalonados: baixos na frente (sul), altos no muro.
+                        for (let e = jX0 + 0.3; e <= jX1 - 0.3; e += 0.34) {
+                            const nb = 2 + Math.floor(prnd() * 2);
+                            for (let k = 0; k < nb; k++) {
+                                const r = 0.26 + prnd() * 0.14;
+                                const nrow = jNs + 0.2 + prnd() * (jNn - jNs - 0.35);
+                                const ej = e + (prnd() - 0.5) * 0.3;
+                                const tt = (nrow - jNs) / (jNn - jNs);                   // 0 sul → 1 muro
+                                const cover = (clW(ej) + 0.075) - jTop + 0.30;           // +margem: sobe a linha de trás
+                                const Hp = Math.max(0.45, 0.45 + (cover - 0.45) * tt) + (prnd() - 0.5) * 0.15;
+                                addShrub(ej, jTop, nrow, r, Hp);    // folhagem realista no bed
+                            }
+                        }
                     }
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
