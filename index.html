@@ -3810,19 +3810,20 @@
             const matGate = new THREE.MeshStandardMaterial({ color: 0x556070, roughness: 0.5, metalness: 0.45 });
             const PT = 0.12, FT = 0.03, FBOT = gr - 0.10, FTOP = gr + 1.95, FRAIL = gr + 1.80;
             const gB = gr + 0.06, gT = gr + 1.70;          // cota dos portões (acima do solo)
-            // Mourões: pontas dos painéis + divisórias do portãozinho norte CENTRALIZADO (mN 0, 2, 7,5, 9,25, 10,35, 12,5)
-            [0, 2.0, 7.5, 9.25, 10.35, 12.5].forEach(n => g.add(box3d(n - PT/2, fX - PT/2, PT, PT, FBOT, FTOP, matMour)));
+            // Mourões: pontas + divisórias do portãozinho, CENTRALIZADO no vão livre entre a
+            // parede da casa (mN 7,5) e a coluna do pilotis (~mN 10,3) → centro ~8,9 (mN 0, 2, 7,5, 8,4, 9,4, 12,5)
+            [0, 2.0, 7.5, 8.4, 9.4, 12.5].forEach(n => g.add(box3d(n - PT/2, fX - PT/2, PT, PT, FBOT, FTOP, matMour)));
             // Painel de madeira (ripado vertical + travessa) entre n0 e n1
             const ripPanel = (n0, n1) => {
                 const s = n0 + PT/2, e = n1 - PT/2, np = Math.max(1, Math.round((e - s)/0.13)), pw = (e - s)/np;
                 for (let j = 0; j < np; j++) g.add(box3d(s + j*pw, fX - FT/2, pw*0.72, FT, FBOT + 0.05, FRAIL, matRip));
                 g.add(box3d(n0, fX - FT/2, n1 - n0, FT, FRAIL - 0.08, FRAIL, matRip));   // travessa superior
             };
-            ripPanel(7.5, 9.25);     // NORTE — trecho oeste (junto à casa)
-            ripPanel(10.35, 12.5);   // NORTE — trecho leste (até o muro)
-            // PORTÃOZINHO de pedestre CENTRALIZADO no painel norte (mN 9,31→10,29)
+            ripPanel(7.5, 8.4);      // NORTE — trecho oeste (junto à casa)
+            ripPanel(9.4, 12.5);     // NORTE — trecho leste (passa a coluna até o muro)
+            // PORTÃOZINHO de pedestre CENTRALIZADO no vão livre (mN 8,46→9,34)
             {
-                const a = 9.31, b = 10.29;
+                const a = 8.46, b = 9.34;
                 g.add(box3d(a,        fX - 0.02, 0.06,  0.04, gB, gT, matGate));    // montante S
                 g.add(box3d(b - 0.06, fX - 0.02, 0.06,  0.04, gB, gT, matGate));    // montante N
                 g.add(box3d(a, fX - 0.02, b - a, 0.04, gT - 0.06, gT, matGate));    // travessa sup
