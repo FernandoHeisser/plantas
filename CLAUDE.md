@@ -988,7 +988,16 @@ volta da **porta dos fundos** da cozinha. Mesmo padrão de aba/rota/painéis (`/
 - **Jardineira (gourmet):** bed BAIXO de alvenaria (`matWall`, topo `jTop=−0,40`) — o **cano passa
   ACIMA dela, entre os arbustos** (NÃO embutido na alvenaria). Arbustos plantados no bed cobrem o cano.
 - **Anti-bug muro:** `addShrub` clampa cada lóbulo em **mN ≤ `MURO_N`=12,33** (raio efetivo `lr·1,25`
-  c/ o jitter) → a folhagem encosta no muro mas **não o atravessa**.
+  c/ o jitter) → a folhagem encosta no muro mas **não o atravessa**. (Assinatura aceita `zMax/zMin`
+  opcionais p/ clampar os dois lados; default = só o muro norte.)
+
+**Path do corredor SUL (V3.4, gate `v33||v34`, no bloco base — perto do piso, após `grade`):**
+- Calçada para dar a **volta na casa** sem molhar os pés. Em **L**: perna SUL (mN 0,30→1,75 — recuo
+  sul quase todo, da cerca ao embasamento) de mE 0,3→32,6 + perna LESTE subindo p/ o NORTE
+  (mE 32,6→33,9, mN 0,30→10,5, contorna a leste da gourmet até os fundos).
+- Helper `pathSlab(nS,nN,xW,xE)` = slab inclinado seguindo o declive (`grade`), no estilo do `driveway`.
+- **Z-fight:** SEM `polygonOffset` (empurrava no depth-buffer) + topo **12 cm acima da grama** (`LIP`)
+  → assenta nítido sobre o terreno. Material `matPath` (pedra clara).
 
 **Próximas etapas V3.4:** abrir o braseiro na face norte (hoje o corpo lê meio sólido de frente);
 cotas 2D/3D da área; ficha de medidas (`p-v34-med`); opcional fechar o leste (privacidade do vizinho
