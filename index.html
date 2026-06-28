@@ -3762,6 +3762,38 @@
 
         // Piso retângulo completo (mN 2,0→7,5 × mE 22,5→31,5) — 1cm aquém das faces interiores
         g.add(box3d(2.11, 22.61 + OE, 5.28, 8.78, CPA - 0.025, CPA, matFloor));
+
+        // ── Path do CORREDOR SUL — caminho seco entre a casa e a divisa sul ─────
+        // Calçada elevada ~5 cm sobre a grama p/ transitar sem molhar os pés
+        // (umidade/chuva). Faixa mN 0,8→1,7 (no recuo sul de 2 m, ao sul do
+        // embasamento em mN 1,77), da frente (mE 0,3) até passar o canto SE da casa
+        // (mE 27). Slab INCLINADO seguindo o declive (grade), igual ao driveway.
+        // Só nas versões com paisagismo (v33/v34).
+        if (v === 'v33' || v === 'v34') {
+            const matPath = new THREE.MeshStandardMaterial({ color: 0xc2bbac, roughness: 0.9, metalness: 0, envMapIntensity: 0.2, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
+            const pS = 0.8, pN = 1.7, pW = 0.3, pE = 27;     // faixa mN (sul→norte) e mE (frente→canto SE)
+            const LIP = 0.05, TH = 0.08;                      // 5 cm acima da grama; slab de 8 cm
+            const tW = grade(pW) + LIP, tE = grade(pE) + LIP; // topo acompanha o declive (grade linear em mE)
+            const bW = tW - TH, bE = tE - TH;
+            const pv = [
+                [pW, tW, -pS], [pW, tW, -pN], [pE, tE, -pN], [pE, tE, -pS],   // topo: SW NW NE SE (0-3)
+                [pW, bW, -pS], [pW, bW, -pN], [pE, bE, -pN], [pE, bE, -pS],   // base: SW NW NE SE (4-7)
+            ];
+            const triP = (a, b, c) => [...pv[a], ...pv[b], ...pv[c]];
+            const pPos = new Float32Array([
+                ...triP(0,3,2), ...triP(0,2,1),   // topo
+                ...triP(4,6,7), ...triP(4,5,6),   // base
+                ...triP(0,1,5), ...triP(0,5,4),   // oeste
+                ...triP(3,6,2), ...triP(3,7,6),   // leste
+                ...triP(0,7,3), ...triP(0,4,7),   // sul
+                ...triP(1,2,6), ...triP(1,6,5),   // norte
+            ]);
+            const pGeo = new THREE.BufferGeometry();
+            pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+            pGeo.computeVertexNormals();
+            const pMesh = new THREE.Mesh(pGeo, matPath);
+            pMesh.castShadow = true; pMesh.receiveShadow = true; g.add(pMesh);
+        }
         // ── Escadas externas — NBR 9050 / Caixa ────────────────────────────────
         // Espelho (e) ≤ 19 cm (externas residenciais) · Blondel 2e+p = 0,64 m ·
         // degraus iguais · largura ≥ 1,20 m · corrimão bilateral em todas.
