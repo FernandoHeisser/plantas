@@ -3762,6 +3762,39 @@
 
         // Piso retângulo completo (mN 2,0→7,5 × mE 22,5→31,5) — 1cm aquém das faces interiores
         g.add(box3d(2.11, 22.61 + OE, 5.28, 8.78, CPA - 0.025, CPA, matFloor));
+
+        // ── Path do CORREDOR SUL — caminho seco p/ dar a VOLTA na casa ──────────
+        // Calçada elevada ~12 cm sobre a grama p/ transitar sem molhar os pés
+        // (umidade/chuva). Em L: perna SUL (frente → leste, no recuo sul) + perna
+        // LESTE subindo p/ o NORTE (contorna a leste da gourmet até os fundos).
+        // Slab INCLINADO seguindo o declive (grade). Sem polygonOffset (causava
+        // z-fight com a grama) e mais alto → assenta nítido SOBRE o terreno.
+        // Só nas versões com paisagismo (v33/v34).
+        if (v === 'v33' || v === 'v34') {
+            const matPath = new THREE.MeshStandardMaterial({ color: 0xc2bbac, roughness: 0.9, metalness: 0, envMapIntensity: 0.25 });
+            const LIP = 0.12, TH = 0.10;                      // 12 cm acima da grama (anti z-fight); slab 10 cm
+            // slab axis-alinhado com o topo acompanhando o declive (grade linear em mE)
+            const pathSlab = (nS, nN, xW, xE) => {
+                const tW = grade(xW) + LIP, tE = grade(xE) + LIP, bW = tW - TH, bE = tE - TH;
+                const pv = [
+                    [xW, tW, -nS], [xW, tW, -nN], [xE, tE, -nN], [xE, tE, -nS],   // topo SW NW NE SE
+                    [xW, bW, -nS], [xW, bW, -nN], [xE, bE, -nN], [xE, bE, -nS],   // base SW NW NE SE
+                ];
+                const tr = (a, b, c) => [...pv[a], ...pv[b], ...pv[c]];
+                const pos = new Float32Array([
+                    ...tr(0,3,2), ...tr(0,2,1), ...tr(4,6,7), ...tr(4,5,6),
+                    ...tr(0,1,5), ...tr(0,5,4), ...tr(3,6,2), ...tr(3,7,6),
+                    ...tr(0,7,3), ...tr(0,4,7), ...tr(1,2,6), ...tr(1,6,5),
+                ]);
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                geo.computeVertexNormals();
+                const m = new THREE.Mesh(geo, matPath);
+                m.castShadow = true; m.receiveShadow = true; g.add(m);
+            };
+            pathSlab(0.30, 1.75, 0.3,  32.6);   // perna SUL LARGA: cerca (0,12) → embasamento (1,77), recuo sul quase todo
+            pathSlab(0.30, 10.5, 32.6, 33.9);   // perna LESTE/curva NORTE (mais larga), até os fundos
+        }
         // ── Escadas externas — NBR 9050 / Caixa ────────────────────────────────
         // Espelho (e) ≤ 19 cm (externas residenciais) · Blondel 2e+p = 0,64 m ·
         // degraus iguais · largura ≥ 1,20 m · corrimão bilateral em todas.
@@ -4731,7 +4764,9 @@
                     // lisa). Cores variadas por lóbulo. Camufla o cano entre as folhas.
                     const leafMats = greens.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.93, metalness: 0, flatShading: true }));
                     const MURO_N = 12.33;   // face interna do muro norte (12,35) − folga: folhagem não atravessa
-                    const addShrub = (cx, baseY, cz, R, H) => {
+                    // zMax/zMin (mN) = limites onde a folhagem NÃO pode passar (muro norte /
+                    // cerca sul). Default: clampa só o muro norte (canteiro do norte).
+                    const addShrub = (cx, baseY, cz, R, H, zMax = MURO_N, zMin = -1e9) => {
                         const nL = 4 + Math.floor(prnd() * 2);                 // 4–5 lóbulos (mais cheio)
                         for (let i = 0; i < nL; i++) {
                             const frac = (i + 0.4) / nL;                       // base (0) → topo (1)
@@ -4744,9 +4779,10 @@
                                               pa.getZ(vi) * (1 + (prnd()-0.5)*0.45));
                             geo.computeVertexNormals();
                             const m = new THREE.Mesh(geo, leafMats[Math.floor(prnd() * leafMats.length)]);
-                            // clampa o lóbulo p/ NÃO atravessar o muro (raio efetivo c/ o jitter ≈ lr·1,25)
+                            // clampa o lóbulo p/ NÃO atravessar o muro/cerca (raio efetivo c/ o jitter ≈ lr·1,25)
                             let lz = cz + (prnd()-0.5)*R*0.6;
-                            if (lz + lr*1.25 > MURO_N) lz = MURO_N - lr*1.25;
+                            if (lz + lr*1.25 > zMax) lz = zMax - lr*1.25;
+                            if (lz - lr*1.25 < zMin) lz = zMin + lr*1.25;
                             m.position.set(cx + (prnd()-0.5)*R*0.6, baseY + frac*H, -lz);
                             m.castShadow = true; m.receiveShadow = true; g.add(m);
                         }
