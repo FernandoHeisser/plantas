@@ -4730,6 +4730,7 @@
                     // empilhados e afunilando p/ cima → silhueta orgânica de folhagem (não bola
                     // lisa). Cores variadas por lóbulo. Camufla o cano entre as folhas.
                     const leafMats = greens.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.93, metalness: 0, flatShading: true }));
+                    const MURO_N = 12.33;   // face interna do muro norte (12,35) − folga: folhagem não atravessa
                     const addShrub = (cx, baseY, cz, R, H) => {
                         const nL = 4 + Math.floor(prnd() * 2);                 // 4–5 lóbulos (mais cheio)
                         for (let i = 0; i < nL; i++) {
@@ -4743,7 +4744,10 @@
                                               pa.getZ(vi) * (1 + (prnd()-0.5)*0.45));
                             geo.computeVertexNormals();
                             const m = new THREE.Mesh(geo, leafMats[Math.floor(prnd() * leafMats.length)]);
-                            m.position.set(cx + (prnd()-0.5)*R*0.6, baseY + frac*H, -(cz + (prnd()-0.5)*R*0.6));
+                            // clampa o lóbulo p/ NÃO atravessar o muro (raio efetivo c/ o jitter ≈ lr·1,25)
+                            let lz = cz + (prnd()-0.5)*R*0.6;
+                            if (lz + lr*1.25 > MURO_N) lz = MURO_N - lr*1.25;
+                            m.position.set(cx + (prnd()-0.5)*R*0.6, baseY + frac*H, -lz);
                             m.castShadow = true; m.receiveShadow = true; g.add(m);
                         }
                     };
