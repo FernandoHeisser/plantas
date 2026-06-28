@@ -4731,10 +4731,10 @@
                     // lisa). Cores variadas por lóbulo. Camufla o cano entre as folhas.
                     const leafMats = greens.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.93, metalness: 0, flatShading: true }));
                     const addShrub = (cx, baseY, cz, R, H) => {
-                        const nL = 3 + Math.floor(prnd() * 2);                 // 3–4 lóbulos
+                        const nL = 4 + Math.floor(prnd() * 2);                 // 4–5 lóbulos (mais cheio)
                         for (let i = 0; i < nL; i++) {
                             const frac = (i + 0.4) / nL;                       // base (0) → topo (1)
-                            const lr = R * (0.62 + prnd() * 0.30) * (1 - 0.40 * frac);  // afunila p/ cima
+                            const lr = R * (0.80 + prnd() * 0.30) * (1 - 0.28 * frac);  // maiores e + sobrepostos
                             const geo = new THREE.IcosahedronGeometry(lr, 1);
                             const pa = geo.attributes.position;
                             for (let vi = 0; vi < pa.count; vi++)             // irregularidade (folhas)
@@ -4752,15 +4752,15 @@
                     // frente (sul) do canteiro, altos junto ao muro (norte) p/ cobrir o cano.
                     const plantEnd = (v === 'v34') ? 21.8 : 17.6;
                     const bandS = 10.6, bandN = 12.35;            // faixa do canteiro (sul → muro)
-                    for (let e = 0.6; e <= plantEnd; e += 0.45) {
+                    for (let e = 0.6; e <= plantEnd; e += 0.38) {
                         const nb = 2 + Math.floor(prnd() * 2);    // 2–3 arbustos por coluna (preenche a faixa)
                         for (let k = 0; k < nb; k++) {
-                            const r = 0.26 + prnd() * 0.13;
+                            const r = 0.28 + prnd() * 0.14;
                             const nrow = bandS + r + prnd() * (bandN - bandS - 2 * r);   // profundidade aleatória
                             const ej = e + (prnd() - 0.5) * 0.35;
                             const t = (nrow - bandS) / (bandN - bandS);                  // 0 sul → 1 muro
-                            const cover = clW(ej) + 0.075 - grade(ej) + 0.15;            // altura p/ cobrir o cano (no muro)
-                            const Hp = Math.max(0.38, 0.38 + (cover - 0.38) * t) + (prnd() - 0.5) * 0.15;
+                            const cover = clW(ej) + 0.075 - grade(ej) + 0.28;            // +margem: sobe a linha de trás (cobre o cano)
+                            const Hp = Math.max(0.40, 0.40 + (cover - 0.40) * t) + (prnd() - 0.5) * 0.15;
                             addShrub(ej, grade(ej), nrow, r, Hp);   // folhagem realista na grama
                         }
                     }
@@ -4782,14 +4782,14 @@
                         g.add(box3d(jNs + T, jX0 + T, (jNn-jNs)-2*T, (jX1-jX0)-2*T,     jTop - 0.08, jTop - 0.01, soilMat)); // terra do bed
                         // Arbustos plantados no bed, ALTOS o bastante p/ cobrir o cano (que passa
                         // ACIMA, entre eles). Escalonados: baixos na frente (sul), altos no muro.
-                        for (let e = jX0 + 0.3; e <= jX1 - 0.3; e += 0.4) {
+                        for (let e = jX0 + 0.3; e <= jX1 - 0.3; e += 0.34) {
                             const nb = 2 + Math.floor(prnd() * 2);
                             for (let k = 0; k < nb; k++) {
-                                const r = 0.24 + prnd() * 0.13;
+                                const r = 0.26 + prnd() * 0.14;
                                 const nrow = jNs + 0.2 + prnd() * (jNn - jNs - 0.35);
                                 const ej = e + (prnd() - 0.5) * 0.3;
                                 const tt = (nrow - jNs) / (jNn - jNs);                   // 0 sul → 1 muro
-                                const cover = (clW(ej) + 0.075) - jTop + 0.18;           // do topo do bed até cobrir o cano
+                                const cover = (clW(ej) + 0.075) - jTop + 0.30;           // +margem: sobe a linha de trás
                                 const Hp = Math.max(0.45, 0.45 + (cover - 0.45) * tt) + (prnd() - 0.5) * 0.15;
                                 addShrub(ej, jTop, nrow, r, Hp);    // folhagem realista no bed
                             }
