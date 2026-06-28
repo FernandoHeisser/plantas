@@ -3795,6 +3795,34 @@
             pathSlab(0.30, 1.75, 0.3,  32.6);   // perna SUL LARGA: cerca (0,12) → embasamento (1,77), recuo sul quase todo
             pathSlab(0.30, 10.5, 32.6, 33.9);   // perna LESTE/curva NORTE (mais larga), até os fundos
         }
+
+        // ── Cerca de contenção de animais — divide FRENTE × FUNDOS na junta (mE 17) ──
+        // O perímetro já é todo cercado; esta cerca interna impede os animais (que
+        // ficam nos fundos) de alcançar a garagem/pátio da frente. O vão da casa
+        // (mN 2→7,5) já é barrado pela parede oeste; fecham-se os 2 gaps: corredor
+        // SUL (mN 0→2, com PORTÃO onde o path cruza) + lado NORTE (mN 7,5→12,5).
+        // Só nas versões com paisagismo (v33/v34).
+        if (v === 'v33' || v === 'v34') {
+            const fX = 22.5 + OE;                          // junta (= parede oeste da casa) = mE 17 mundo
+            const gr = grade(fX);                          // declive constante nesta linha N-S
+            const matMour = new THREE.MeshStandardMaterial({ color: 0x7B3E28, roughness: 0.92, metalness: 0 });
+            const matRip  = new THREE.MeshStandardMaterial({ color: 0xC8823C, roughness: 0.88, metalness: 0 });
+            const matGate = new THREE.MeshStandardMaterial({ color: 0x556070, roughness: 0.5, metalness: 0.45 });
+            const PT = 0.12, FT = 0.03, FBOT = gr - 0.10, FTOP = gr + 1.95, FRAIL = gr + 1.80;
+            // Mourões nas pontas dos painéis (mN 0, 2, 7,5, 12,5)
+            [0, 2.0, 7.5, 12.5].forEach(n => g.add(box3d(n - PT/2, fX - PT/2, PT, PT, FBOT, FTOP, matMour)));
+            // Painel NORTE (mN 7,5→12,5): ripado vertical de madeira + travessa
+            const bS = 7.5 + PT/2, bE = 12.5 - PT/2, nP = Math.round((bE - bS) / 0.13), pw = (bE - bS) / nP;
+            for (let j = 0; j < nP; j++) g.add(box3d(bS + j*pw, fX - FT/2, pw*0.72, FT, FBOT + 0.05, FRAIL, matRip));
+            g.add(box3d(7.5, fX - FT/2, 5.0, FT, FRAIL - 0.08, FRAIL, matRip));   // travessa superior
+            // PORTÃO SUL (mN 0→2): quadro metálico + barras verticais (path passa por baixo)
+            const gB = gr + 0.06, gT = gr + 1.70;
+            g.add(box3d(0.06, fX - 0.02, 0.06, 0.04, gB, gT, matGate));            // montante O
+            g.add(box3d(1.88, fX - 0.02, 0.06, 0.04, gB, gT, matGate));            // montante L
+            g.add(box3d(0.06, fX - 0.02, 1.88, 0.04, gT - 0.06, gT, matGate));     // travessa sup
+            g.add(box3d(0.06, fX - 0.02, 1.88, 0.04, gB, gB + 0.06, matGate));     // travessa inf
+            for (let j = 1; j < 9; j++) g.add(box3d(0.06 + 1.82*(j/9), fX - 0.015, 0.03, 0.03, gB, gT, matGate)); // barras
+        }
         // ── Escadas externas — NBR 9050 / Caixa ────────────────────────────────
         // Espelho (e) ≤ 19 cm (externas residenciais) · Blondel 2e+p = 0,64 m ·
         // degraus iguais · largura ≥ 1,20 m · corrimão bilateral em todas.
