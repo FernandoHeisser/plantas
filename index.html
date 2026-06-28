@@ -4757,22 +4757,27 @@
                     if (v === 'v34') {
                         const jX0 = 21.8, jX1 = 38 + OE;           // do fim dos arbustos até a ponta do tronco
                         const jNs = 10.6, jNn = 12.42, T = 0.12;   // LARGA (mesma faixa do canteiro) → muro; espessura
-                        const jBase = grade(jX1), jTop = 0.40;     // BAIXA: topo só o suficiente p/ cobrir o cano (~0,33)
+                        const jBase = grade(jX1), jTop = -0.40;    // bed BAIXO: o cano fica ACIMA (não dentro), entre as plantas
                         const soilMat = new THREE.MeshStandardMaterial({ color: 0x6b4f33, roughness: 1.0, metalness: 0 });
-                        g.add(box3d(jNs,     jX0,     T,           jX1 - jX0,           jBase, jTop, matWall)); // parede sul (face gourmet)
+                        g.add(box3d(jNs,     jX0,     T,           jX1 - jX0,           jBase, jTop, matWall)); // borda sul (face gourmet)
                         g.add(box3d(jNs,     jX0,     jNn - jNs,   T,                   jBase, jTop, matWall)); // tampa oeste
                         g.add(box3d(jNs,     jX1 - T, jNn - jNs,   T,                   jBase, jTop, matWall)); // tampa leste
-                        g.add(box3d(jNs + T, jX0 + T, (jNn-jNs)-2*T, (jX1-jX0)-2*T,     jTop - 0.10, jTop - 0.02, soilMat)); // terra no topo
-                        for (let e = jX0 + 0.3; e <= jX1 - 0.3; e += 0.45) {   // plantas espalhadas em cima da jardineira larga
+                        g.add(box3d(jNs + T, jX0 + T, (jNn-jNs)-2*T, (jX1-jX0)-2*T,     jTop - 0.08, jTop - 0.01, soilMat)); // terra do bed
+                        // Arbustos plantados no bed, ALTOS o bastante p/ cobrir o cano (que passa
+                        // ACIMA, entre eles). Escalonados: baixos na frente (sul), altos no muro.
+                        for (let e = jX0 + 0.3; e <= jX1 - 0.3; e += 0.4) {
                             const nb = 2 + Math.floor(prnd() * 2);
                             for (let k = 0; k < nb; k++) {
                                 const r = 0.24 + prnd() * 0.13;
-                                const cn = jNs + 0.25 + prnd() * (jNn - jNs - 0.5);
-                                const Hp = 0.36 + prnd() * 0.30;
+                                const nrow = jNs + 0.2 + prnd() * (jNn - jNs - 0.35);
+                                const ej = e + (prnd() - 0.5) * 0.3;
+                                const tt = (nrow - jNs) / (jNn - jNs);                   // 0 sul → 1 muro
+                                const cover = (clW(ej) + 0.075) - jTop + 0.18;           // do topo do bed até cobrir o cano
+                                const Hp = Math.max(0.45, 0.45 + (cover - 0.45) * tt) + (prnd() - 0.5) * 0.15;
                                 const bush = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8),
                                     new THREE.MeshStandardMaterial({ color: greens[Math.floor(prnd() * greens.length)], roughness: 0.95, metalness: 0 }));
                                 bush.scale.y = (Hp / 2) / r;
-                                bush.position.set(e + (prnd() - 0.5) * 0.3, (jTop - 0.04) + Hp / 2, -cn);
+                                bush.position.set(ej, jTop + Hp / 2, -nrow);             // base na terra do bed
                                 bush.castShadow = true; bush.receiveShadow = true; g.add(bush);
                             }
                         }
