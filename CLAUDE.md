@@ -999,6 +999,16 @@ volta da **porta dos fundos** da cozinha. Mesmo padrão de aba/rota/painéis (`/
 - **Z-fight:** SEM `polygonOffset` (empurrava no depth-buffer) + topo **12 cm acima da grama** (`LIP`)
   → assenta nítido sobre o terreno. Material `matPath` (pedra clara).
 
+**Cerca de contenção de animais (V3.4, gate `v33||v34`, no bloco base, após o path):**
+- Cerca INTERNA na **junta** (parede oeste da casa, `fX = 22,5+OE` = mE 17 mundo) separando
+  FRENTE (garagem/pátio/rua) × FUNDOS (casa + quintal) — os animais ficam nos fundos. O perímetro
+  já é todo cercado; isto divide o interior. O vão da casa (mN 2→7,5) é barrado pela própria parede.
+- **2 gaps fechados:** corredor SUL (mN 0→2) com **portão** metálico (sobre o path) + lado NORTE
+  (mN 7,5→12,5) com ripado de madeira (`ripPanel(n0,n1)`) e um **portão de pedestre LARGO (~1,3 m,
+  mN 8,26→9,54)** centralizado no **vão livre entre a parede e a coluna do pilotis** (centro ~8,9;
+  o centro geométrico do painel cairia na coluna ~mN 10,3). Mourões em mN 0,2,7,5,8,2,9,6,12,5.
+- **Folhagem (`greens`/`leafMats`)** mudada p/ verde **mais forte/saturado** (0x1f6b2a…0x49b855).
+
 **Próximas etapas V3.4:** abrir o braseiro na face norte (hoje o corpo lê meio sólido de frente);
 cotas 2D/3D da área; ficha de medidas (`p-v34-med`); opcional fechar o leste (privacidade do vizinho
 de fundo) e/ou esticar a profundidade; opcional sebe de fundo densa p/ esconder o cano 100%.
