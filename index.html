@@ -3795,6 +3795,49 @@
             pathSlab(0.30, 1.75, 0.3,  32.6);   // perna SUL LARGA: cerca (0,12) → embasamento (1,77), recuo sul quase todo
             pathSlab(0.30, 10.5, 32.6, 33.9);   // perna LESTE/curva NORTE (mais larga), até os fundos
         }
+
+        // ── Cerca de contenção de animais — divide FRENTE × FUNDOS na junta (mE 17) ──
+        // O perímetro já é todo cercado; esta cerca interna impede os animais (que
+        // ficam nos fundos) de alcançar a garagem/pátio da frente. O vão da casa
+        // (mN 2→7,5) já é barrado pela parede oeste; fecham-se os 2 gaps: corredor
+        // SUL (mN 0→2, com PORTÃO onde o path cruza) + lado NORTE (mN 7,5→12,5).
+        // Só nas versões com paisagismo (v33/v34).
+        if (v === 'v33' || v === 'v34') {
+            const fX = 22.5 + OE;                          // junta (= parede oeste da casa) = mE 17 mundo
+            const gr = grade(fX);                          // declive constante nesta linha N-S
+            const matMour = new THREE.MeshStandardMaterial({ color: 0x7B3E28, roughness: 0.92, metalness: 0 });
+            const matRip  = new THREE.MeshStandardMaterial({ color: 0xC8823C, roughness: 0.88, metalness: 0 });
+            const matGate = new THREE.MeshStandardMaterial({ color: 0x556070, roughness: 0.5, metalness: 0.45 });
+            const PT = 0.12, FT = 0.03, FBOT = gr - 0.10, FTOP = gr + 1.95, FRAIL = gr + 1.80;
+            const gB = gr + 0.06, gT = gr + 1.70;          // cota dos portões (acima do solo)
+            // Mourões: pontas + divisórias do portãozinho, CENTRALIZADO no vão livre entre a
+            // parede da casa (mN 7,5) e a coluna do pilotis (~mN 10,3) → centro ~8,9. Portão LARGO
+            // (~1,3 m) p/ passar móveis/objetos maiores (mN 0, 2, 7,5, 8,2, 9,6, 12,5)
+            [0, 2.0, 7.5, 8.2, 9.6, 12.5].forEach(n => g.add(box3d(n - PT/2, fX - PT/2, PT, PT, FBOT, FTOP, matMour)));
+            // Painel de madeira (ripado vertical + travessa) entre n0 e n1
+            const ripPanel = (n0, n1) => {
+                const s = n0 + PT/2, e = n1 - PT/2, np = Math.max(1, Math.round((e - s)/0.13)), pw = (e - s)/np;
+                for (let j = 0; j < np; j++) g.add(box3d(s + j*pw, fX - FT/2, pw*0.72, FT, FBOT + 0.05, FRAIL, matRip));
+                g.add(box3d(n0, fX - FT/2, n1 - n0, FT, FRAIL - 0.08, FRAIL, matRip));   // travessa superior
+            };
+            ripPanel(7.5, 8.2);      // NORTE — trecho oeste (junto à casa)
+            ripPanel(9.6, 12.5);     // NORTE — trecho leste (passa a coluna até o muro)
+            // PORTÃO de pedestre LARGO, centralizado no vão livre (mN 8,26→9,54 ≈ 1,28 m)
+            {
+                const a = 8.26, b = 9.54;
+                g.add(box3d(a,        fX - 0.02, 0.06,  0.04, gB, gT, matGate));    // montante S
+                g.add(box3d(b - 0.06, fX - 0.02, 0.06,  0.04, gB, gT, matGate));    // montante N
+                g.add(box3d(a, fX - 0.02, b - a, 0.04, gT - 0.06, gT, matGate));    // travessa sup
+                g.add(box3d(a, fX - 0.02, b - a, 0.04, gB, gB + 0.06, matGate));    // travessa inf
+                for (let j = 1; j < 7; j++) g.add(box3d(a + (b - a - 0.06)*(j/7), fX - 0.015, 0.03, 0.03, gB, gT, matGate)); // barras
+            }
+            // PORTÃO SUL (mN 0→2): quadro metálico + barras verticais (path passa por baixo)
+            g.add(box3d(0.06, fX - 0.02, 0.06, 0.04, gB, gT, matGate));            // montante O
+            g.add(box3d(1.88, fX - 0.02, 0.06, 0.04, gB, gT, matGate));            // montante L
+            g.add(box3d(0.06, fX - 0.02, 1.88, 0.04, gT - 0.06, gT, matGate));     // travessa sup
+            g.add(box3d(0.06, fX - 0.02, 1.88, 0.04, gB, gB + 0.06, matGate));     // travessa inf
+            for (let j = 1; j < 9; j++) g.add(box3d(0.06 + 1.82*(j/9), fX - 0.015, 0.03, 0.03, gB, gT, matGate)); // barras
+        }
         // ── Escadas externas — NBR 9050 / Caixa ────────────────────────────────
         // Espelho (e) ≤ 19 cm (externas residenciais) · Blondel 2e+p = 0,64 m ·
         // degraus iguais · largura ≥ 1,20 m · corrimão bilateral em todas.
@@ -4756,7 +4799,7 @@
                     // A ALTURA cresce p/ os fundos acompanhando a subida do cano (clW) → cobre o
                     // tronco em toda a faixa. No V3.4 vai até onde começa a jardineira (X ~21,8);
                     // no V3.3 até o fim do tronco (junta, X ~17,6).
-                    const greens = [0x3f6b2e, 0x4e7d36, 0x356428, 0x5a8c3e, 0x2f5a25];
+                    const greens = [0x1f6b2a, 0x2e8b34, 0x3aa544, 0x49b855, 0x217a2c];  // verde mais forte/realista (saturado, menos oliva)
                     let pseed = 7;
                     const prnd = () => { pseed = (pseed * 9301 + 49297) % 233280; return pseed / 233280; };
                     // Arbusto realista: cluster de LÓBULOS (icosaedros jitterados, flat shading)
