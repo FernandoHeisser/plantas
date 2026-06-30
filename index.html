@@ -3853,7 +3853,7 @@
             const d = b.clone().sub(a);
             const len = d.length();
             if (len < 0.01) return;
-            const geo = new THREE.BoxGeometry(0.05, 0.05, len);
+            const geo = new THREE.BoxGeometry(0.035, 0.035, len);
             const mesh = new THREE.Mesh(geo, matRail);
             mesh.position.copy(a.clone().add(b).multiplyScalar(0.5));
             mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d.normalize());
@@ -3878,7 +3878,7 @@
             }
             // Corrimão bilateral — poste no topo, poste na base, trilho inclinado
             // Poste intermediário quando NS ≥ 5 (≈ no meio do lance)
-            const PW = 0.05, RH = 0.90;
+            const PW = 0.035, RH = 0.90;
             const post = (pn, pe, z0, z1) =>
                 g.add(box3d(pn - PW/2, pe - PW/2, PW, PW, z0, z1, matRail));
             if (dir === 'W' || dir === 'E') {
