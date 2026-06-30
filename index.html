@@ -3860,8 +3860,11 @@
             mesh.castShadow = true;
             g.add(mesh);
         };
-        const extStairs = (topN, faceE, w, dir) => {
-            const base = grade(faceE) - 0.02;     // nível do solo na soleira
+        const extStairs = (topN, faceE, w, dir, baseY) => {
+            // base = piso de chegada: terreno natural (padrão) OU cota explícita
+            // (ex.: deck da gourmet no V3.4, p/ a escada não descer abaixo do piso
+            // e o corrimão não extrapolar os degraus visíveis).
+            const base = (baseY !== undefined) ? baseY : grade(faceE) - 0.02;
             const rise = CPA - base;
             // ceil(rise/0.19) = mínimo de degraus p/ e ≤ 19 cm — sempre válido
             let NS = Math.ceil(rise / 0.19);
@@ -3959,7 +3962,9 @@
 
         // Porta dos fundos (leste) — 6 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
         _ph = PH.found; // escada dos fundos = fundação
-        extStairs(4.70, 31.6 + OE, 1.20, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
+        // No V3.4 a escada chega no deck da gourmet (GFL=−0,30), não no terreno:
+        // assim tem ~3 degraus e o corrimão acompanha os degraus (não extrapola).
+        extStairs(4.70, 31.6 + OE, 1.20, 'E', v === 'v34' ? -0.30 : undefined); // nova parede leste mE=31,5 (face exterior 31,6)
         _ph = 0; // contorno do lote = entorno (sempre visível)
 
         // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
