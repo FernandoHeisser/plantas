@@ -3024,7 +3024,7 @@
     function buildChurras2D() {
         const L_ = [];
         // Footprint: largura COMPLETA da parede leste (mN 2,0→7,5) × 5,0 m de prof.
-        const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 37.6;  // footprint (mN, mE) cód. — face norte alinhada à garagem (GN1=10,5)
+        const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 36.6;  // footprint (mN, mE) cód. — face norte alinhada à garagem (GN1=10,5); prof. 5,0 m (era 6,0; −1 m p/ o pátio dos fundos)
         const ln = (n1, e1, n2, e2, o) => L.polyline([rot(n1, e1 + OE), rot(n2, e2 + OE)],
             { color: '#1f2937', weight: 1, interactive: false, ...o });
 
@@ -3074,7 +3074,7 @@
         L_.push(rect(N1 - 0.20, E0, 0.20, 0.20, '#334155', { color: '#0f172a', weight: 0.5, no3d: true }));
 
         // Rótulo do ambiente (área livre ao norte da mesa)
-        L_.push(roomLabel(9.10, 34.60, 'Área Gourmet', 'churrasqueira + pia + mesa', '~51 m²'));
+        L_.push(roomLabel(9.10, 34.10, 'Área Gourmet', 'churrasqueira + pia + mesa', '~43 m²'));
         return L_;
     }
 
@@ -4771,7 +4771,7 @@
                     queda(n1, e0, e1, 7.66, 31.5 + OE, jUNTA);             // casa · coluna NE (corre junto à parede → junta)
                     // Tronco Ø150 até a sarjeta (X 0), rente ao muro. No V3.4 ESTENDE até a área
                     // gourmet (X ~32,5) p/ receber a queda NE dela; no V3.3 para na junta.
-                    const xEast = (v === 'v34') ? (38 + OE) : jUNTA;        // X (cena) do feed mais a leste
+                    const xEast = (v === 'v34') ? (37 + OE) : jUNTA;        // X (cena) do feed mais a leste
                     roof.add(pipeBetween(xEast, wl(clW(xEast)), -nWall, 0, wl(clW(0)), -nWall, PR2, matCalha));
 
                     // ── V3.4: liga a ÁREA GOURMET ao tronco (calha leste + queda na coluna NE) ──
@@ -4779,7 +4779,7 @@
                     // na coluna NE, descendo até o tronco. SEM tratamento p/ esconder (visualização crua).
                     if (v === 'v34') {
                         const gGFL = -0.30, gYW = gGFL + 3.50, gSL = 0.10;   // = bloco churrasqueira
-                        const gE0 = 31.6, gE1 = 37.6, gN0 = 2.0, gN1 = 10.5; // mE/mN (código) da gourmet
+                        const gE0 = 31.6, gE1 = 36.6, gN0 = 2.0, gN1 = 10.5; // mE/mN (código) da gourmet
                         const gYt = e => gYW - gSL * (e - gE0);              // cota do telhado (mundo) em mE=e
                         const eaveE = (gE1 + 0.4) + OE;                      // X da calha (beiral leste c/ overhang)
                         const gTop = gYt(gE1 + 0.4) - 0.02, gBot = gTop - GD; // cotas da calha (mundo)
@@ -4855,7 +4855,7 @@
                     // APARENTE e entra na jardineira. Grupo `g` (chão) — alinha com o tronco na
                     // vista do sobrado (telhado erguido).
                     if (v === 'v34') {
-                        const jX0 = 21.8, jX1 = 38 + OE;           // do fim dos arbustos até a ponta do tronco
+                        const jX0 = 21.8, jX1 = 37 + OE;           // do fim dos arbustos até a ponta do tronco
                         const jNs = 10.6, jNn = 12.42, T = 0.12;   // LARGA (mesma faixa do canteiro) → muro; espessura
                         const jBase = grade(jX1), jTop = -0.40;    // bed BAIXO: o cano fica ACIMA (não dentro), entre as plantas
                         const soilMat = new THREE.MeshStandardMaterial({ color: 0x6b4f33, roughness: 1.0, metalness: 0 });
@@ -5031,7 +5031,7 @@
         // (chão) → não sobe/some com os toggles de 2º piso/telhado da casa.
         // Coords de CÓDIGO (mE); helpers locais somam OE (geometria manual).
         if (v === 'v34') {
-            const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 37.6;  // footprint (mN, mE cód.) — face norte alinhada à garagem (GN1=10,5)
+            const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 36.6;  // footprint (mN, mE cód.) — face norte alinhada à garagem (GN1=10,5); prof. 5,0 m (era 6,0; −1 m p/ o pátio dos fundos)
             const GFL = -0.30;                                 // piso acabado ELEVADO e plano (~2 degraus acima do quintal)
             const yWest = GFL + 3.50, slope = 0.10, RT = 0.12; // telhado: alto a oeste, 10% p/ leste (elevado)
             const yt = e => yWest - slope * (e - E0);          // cota do topo do telhado (e em cód.)
