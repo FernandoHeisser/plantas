@@ -3024,7 +3024,7 @@
     function buildChurras2D() {
         const L_ = [];
         // Footprint: largura COMPLETA da parede leste (mN 2,0→7,5) × 5,0 m de prof.
-        const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 37.6;  // footprint (mN, mE) cód. — face norte alinhada à garagem (GN1=10,5)
+        const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 36.6;  // footprint (mN, mE) cód. — face norte alinhada à garagem (GN1=10,5); prof. 5,0 m (era 6,0; −1 m p/ o pátio dos fundos)
         const ln = (n1, e1, n2, e2, o) => L.polyline([rot(n1, e1 + OE), rot(n2, e2 + OE)],
             { color: '#1f2937', weight: 1, interactive: false, ...o });
 
@@ -3074,7 +3074,7 @@
         L_.push(rect(N1 - 0.20, E0, 0.20, 0.20, '#334155', { color: '#0f172a', weight: 0.5, no3d: true }));
 
         // Rótulo do ambiente (área livre ao norte da mesa)
-        L_.push(roomLabel(9.10, 34.60, 'Área Gourmet', 'churrasqueira + pia + mesa', '~51 m²'));
+        L_.push(roomLabel(9.10, 34.10, 'Área Gourmet', 'churrasqueira + pia + mesa', '~43 m²'));
         return L_;
     }
 
@@ -3792,8 +3792,8 @@
                 const m = new THREE.Mesh(geo, matPath);
                 m.castShadow = true; m.receiveShadow = true; g.add(m);
             };
-            pathSlab(0.30, 1.75, 0.3,  32.6);   // perna SUL LARGA: cerca (0,12) → embasamento (1,77), recuo sul quase todo
-            pathSlab(0.30, 10.5, 32.6, 33.9);   // perna LESTE/curva NORTE (mais larga), até os fundos
+            pathSlab(0.30, 1.75, 0.3,  31.6);   // perna SUL LARGA: cerca (0,12) → embasamento (1,77), recuo sul quase todo
+            pathSlab(0.30, 10.5, 31.6, 32.9);   // perna LESTE/curva NORTE (mais larga), até os fundos — encosta no degrau leste da gourmet (E1 36,6 +OE +0,45 ≈ 31,55)
         }
 
         // ── Cerca de contenção de animais — divide FRENTE × FUNDOS na junta (mE 17) ──
@@ -3853,15 +3853,18 @@
             const d = b.clone().sub(a);
             const len = d.length();
             if (len < 0.01) return;
-            const geo = new THREE.BoxGeometry(0.05, 0.05, len);
+            const geo = new THREE.BoxGeometry(0.035, 0.035, len);
             const mesh = new THREE.Mesh(geo, matRail);
             mesh.position.copy(a.clone().add(b).multiplyScalar(0.5));
             mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d.normalize());
             mesh.castShadow = true;
             g.add(mesh);
         };
-        const extStairs = (topN, faceE, w, dir) => {
-            const base = grade(faceE) - 0.02;     // nível do solo na soleira
+        const extStairs = (topN, faceE, w, dir, baseY) => {
+            // base = piso de chegada: terreno natural (padrão) OU cota explícita
+            // (ex.: deck da gourmet no V3.4, p/ a escada não descer abaixo do piso
+            // e o corrimão não extrapolar os degraus visíveis).
+            const base = (baseY !== undefined) ? baseY : grade(faceE) - 0.02;
             const rise = CPA - base;
             // ceil(rise/0.19) = mínimo de degraus p/ e ≤ 19 cm — sempre válido
             let NS = Math.ceil(rise / 0.19);
@@ -3878,7 +3881,7 @@
             }
             // Corrimão bilateral — poste no topo, poste na base, trilho inclinado
             // Poste intermediário quando NS ≥ 5 (≈ no meio do lance)
-            const PW = 0.05, RH = 0.90;
+            const PW = 0.035, RH = 0.90;
             const post = (pn, pe, z0, z1) =>
                 g.add(box3d(pn - PW/2, pe - PW/2, PW, PW, z0, z1, matRail));
             if (dir === 'W' || dir === 'E') {
@@ -3959,7 +3962,9 @@
 
         // Porta dos fundos (leste) — 6 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
         _ph = PH.found; // escada dos fundos = fundação
-        extStairs(4.70, 31.6 + OE, 1.20, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
+        // No V3.4 a escada chega no deck da gourmet (GFL=−0,30), não no terreno:
+        // assim tem ~3 degraus e o corrimão acompanha os degraus (não extrapola).
+        extStairs(4.70, 31.6 + OE, 1.20, 'E', v === 'v34' ? -0.30 : undefined); // nova parede leste mE=31,5 (face exterior 31,6)
         _ph = 0; // contorno do lote = entorno (sempre visível)
 
         // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
@@ -4771,7 +4776,7 @@
                     queda(n1, e0, e1, 7.66, 31.5 + OE, jUNTA);             // casa · coluna NE (corre junto à parede → junta)
                     // Tronco Ø150 até a sarjeta (X 0), rente ao muro. No V3.4 ESTENDE até a área
                     // gourmet (X ~32,5) p/ receber a queda NE dela; no V3.3 para na junta.
-                    const xEast = (v === 'v34') ? (38 + OE) : jUNTA;        // X (cena) do feed mais a leste
+                    const xEast = (v === 'v34') ? (37 + OE) : jUNTA;        // X (cena) do feed mais a leste
                     roof.add(pipeBetween(xEast, wl(clW(xEast)), -nWall, 0, wl(clW(0)), -nWall, PR2, matCalha));
 
                     // ── V3.4: liga a ÁREA GOURMET ao tronco (calha leste + queda na coluna NE) ──
@@ -4779,7 +4784,7 @@
                     // na coluna NE, descendo até o tronco. SEM tratamento p/ esconder (visualização crua).
                     if (v === 'v34') {
                         const gGFL = -0.30, gYW = gGFL + 3.50, gSL = 0.10;   // = bloco churrasqueira
-                        const gE0 = 31.6, gE1 = 37.6, gN0 = 2.0, gN1 = 10.5; // mE/mN (código) da gourmet
+                        const gE0 = 31.6, gE1 = 36.6, gN0 = 2.0, gN1 = 10.5; // mE/mN (código) da gourmet
                         const gYt = e => gYW - gSL * (e - gE0);              // cota do telhado (mundo) em mE=e
                         const eaveE = (gE1 + 0.4) + OE;                      // X da calha (beiral leste c/ overhang)
                         const gTop = gYt(gE1 + 0.4) - 0.02, gBot = gTop - GD; // cotas da calha (mundo)
@@ -4855,7 +4860,7 @@
                     // APARENTE e entra na jardineira. Grupo `g` (chão) — alinha com o tronco na
                     // vista do sobrado (telhado erguido).
                     if (v === 'v34') {
-                        const jX0 = 21.8, jX1 = 38 + OE;           // do fim dos arbustos até a ponta do tronco
+                        const jX0 = 21.8, jX1 = 37 + OE;           // do fim dos arbustos até a ponta do tronco
                         const jNs = 10.6, jNn = 12.42, T = 0.12;   // LARGA (mesma faixa do canteiro) → muro; espessura
                         const jBase = grade(jX1), jTop = -0.40;    // bed BAIXO: o cano fica ACIMA (não dentro), entre as plantas
                         const soilMat = new THREE.MeshStandardMaterial({ color: 0x6b4f33, roughness: 1.0, metalness: 0 });
@@ -5031,7 +5036,7 @@
         // (chão) → não sobe/some com os toggles de 2º piso/telhado da casa.
         // Coords de CÓDIGO (mE); helpers locais somam OE (geometria manual).
         if (v === 'v34') {
-            const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 37.6;  // footprint (mN, mE cód.) — face norte alinhada à garagem (GN1=10,5)
+            const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 36.6;  // footprint (mN, mE cód.) — face norte alinhada à garagem (GN1=10,5); prof. 5,0 m (era 6,0; −1 m p/ o pátio dos fundos)
             const GFL = -0.30;                                 // piso acabado ELEVADO e plano (~2 degraus acima do quintal)
             const yWest = GFL + 3.50, slope = 0.10, RT = 0.12; // telhado: alto a oeste, 10% p/ leste (elevado)
             const yt = e => yWest - slope * (e - E0);          // cota do topo do telhado (e em cód.)
