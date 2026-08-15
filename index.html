@@ -3231,9 +3231,28 @@
     }
 
     // ── Móveis realistas por tipo (m3d) ─────────────────────────────────────
+    // Cache de materiais por build: fmat era chamado dentro de loops (livros da
+    // estante, puxadores, faróis…) criando dezenas de MeshStandardMaterial idênticos
+    // (V1: 241 materiais → só 87 assinaturas). Memoiza por assinatura → 1 objeto por
+    // combinação, reusado entre as peças. É por-build (resetado em buildBuilding3D):
+    // não vaza entre cenas e o dispose da reconstrução continua liberando tudo. Seguro
+    // porque materiais de fmat nunca são mutados após criados (a pintura do V4 mexe só
+    // em matWall/matEmbase, que não passam por aqui).
+    let _fmatCache = null;
+    function _matSig(m) {
+        return m.color.getHexString() + '|' + m.roughness + '|' + m.metalness + '|' +
+            m.transparent + '|' + m.opacity + '|' + m.side + '|' + (m.flatShading ? 1 : 0) + '|' +
+            m.envMapIntensity + '|' + m.emissive.getHexString() + '|' + m.emissiveIntensity + '|' +
+            (m.polygonOffset ? 1 : 0) + '|' + m.polygonOffsetFactor + '|' + m.polygonOffsetUnits;
+    }
     function fmat(color, extra) {
-        return new THREE.MeshStandardMaterial(Object.assign(
+        const m = new THREE.MeshStandardMaterial(Object.assign(
             { color: col3d(color), roughness: 0.6, metalness: 0.05, envMapIntensity: 0.4 }, extra || {}));
+        if (!_fmatCache) return m;
+        const k = _matSig(m);
+        const hit = _fmatCache.get(k);
+        if (hit) { m.dispose(); return hit; }   // descarta o recém-criado e reusa o idêntico
+        _fmatCache.set(k, m); return m;
     }
     function fbox(g, n, e, dn, de, z0, z1, color, extra) {
         const m = box3d(n, e, dn, de, z0, z1, (color && color.isMaterial) ? color : fmat(color, extra));
@@ -3595,6 +3614,7 @@
 
     // Constrói o grupo 3D do prédio a partir do modelo (paredes c/ vãos + móveis + lajes)
     function buildBuilding3D(v) {
+        _fmatCache = new Map();   // dedup de materiais de móveis dentro deste build (ver fmat)
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
         const rv = (v === 'v4' || v === 'v33' || v === 'v34') ? 'v32' : v; // V4 (obra), V3.3 (calhas) e V3.4 (churrasqueira) renderizam igual ao V3.2 (rv); `v` guarda a identidade (fases / calhas / churrasqueira)
         const model = captureModel(v);
