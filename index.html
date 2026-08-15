@@ -3214,6 +3214,8 @@
                                                        polygonOffset: true, polygonOffsetFactor: 4, polygonOffsetUnits: 4 });
         loadSatelliteTexture((tex, ok) => {   // CORS pode falhar → mantém verde (fallback)
             if (ok > 0) { satGroundMat.map = tex; satGroundMat.color.set(0xffffff); satGroundMat.needsUpdate = true; }
+            // async: com render sob demanda, precisa acordar as cenas p/ mostrar o satélite
+            Object.keys(scenes3d).forEach(k => { if (scenes3d[k]) scenes3d[k]._dirty = true; });
         });
         return satGroundMat;
     }
@@ -5292,6 +5294,7 @@
         if (S.scene) S.scene.background.setHSL(0.58, 0.5, 0.10 + 0.45 * day); // céu: noite→dia
         S.hour = hour; S.month = month;
         S.elevDeg = Math.asin(Math.max(-1, Math.min(1, U))) * 180/Math.PI;
+        S._dirty = true;   // sol/céu mudaram → redesenhar
         return S.elevDeg;
     }
 
@@ -5336,7 +5339,7 @@
             camera.position.set(8, 15, 10);   // sudoeste/acima — vê a frente (oeste) e a lateral sul
 
             const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));   // cap: DPR 3–4x renderiza 9–16x pixels sem ganho visível
             renderer.setSize(W, H);
             renderer.outputEncoding = THREE.sRGBEncoding;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -5374,14 +5377,23 @@
             sun.shadow.bias = -0.0004;
             sun.shadow.normalBias = 0.02;
 
-            S = scenes3d[v] = { scene, camera, renderer, controls, group: null, sun, hemi, month: 4, hour: 14.5 };
+            S = scenes3d[v] = { scene, camera, renderer, controls, group: null, sun, hemi, month: 4, hour: 14.5, _dirty: true };
             buildHud3D(v, host, S);     // bússola + slider de horário/mês
             setSun3D(S, 14.5, 4);       // posição solar inicial (~14h30, maio)
             syncHud3D(S);
 
+            // Render sob demanda: só desenha quando algo muda (câmera, sol, toggles,
+            // rebuild, satélite async). O evento 'change' do OrbitControls dispara a
+            // cada frame enquanto a câmera se move (inclusive na inércia do damping),
+            // mantendo o loop "aceso" até assentar. Cenas de painéis ocultos (outra
+            // versão ou aba 2D/Medidas) não renderizam nada.
+            controls.addEventListener('change', () => { S._dirty = true; });
             (function animate() {
                 S._raf = requestAnimationFrame(animate);
-                controls.update();
+                if (host.offsetParent === null) return;   // painel oculto → não renderiza
+                controls.update();                         // damping; emite 'change' enquanto move
+                if (!S._dirty) return;                     // nada mudou → pula o render
+                S._dirty = false;
                 updateCompass3D(S);
                 renderer.render(scene, camera);
             })();
@@ -5396,6 +5408,7 @@
         S.scene.add(S.group);
         applyBuildPhase(v);
         resize3D(v);
+        S._dirty = true;   // reconstruiu → precisa desenhar
     }
 
     function resize3D(v) {
@@ -5405,6 +5418,7 @@
         S.camera.aspect = host.clientWidth / host.clientHeight;
         S.camera.updateProjectionMatrix();
         S.renderer.setSize(host.clientWidth, host.clientHeight);
+        S._dirty = true;
     }
 
     // Fase da obra: oculta tudo que tem userData.ph > fase. Só V1; outras versões
@@ -5413,6 +5427,7 @@
     function applyBuildPhase(v) {
         const S = scenes3d[v];
         if (!S || !S.group) return;
+        S._dirty = true;
         // V4: sobrado solar com timeline de 11 fases. Tudo (inclusive os grupos
         // roof = telhado e floor2 = 2º pav) é carimbado com userData.ph; o slider
         // revela progressivamente. Os 2 grupos sobem para a posição de sobrado e
@@ -5482,6 +5497,7 @@
     function set3DEsperas(v, btn) {
         const S = scenes3d[v];
         if (!S || !S.group) return;
+        S._dirty = true;
         S.espRevealed = !S.espRevealed;
         const revealed = S.espRevealed;
         const ph = (v === 'v1') ? buildPhase : 7;
@@ -5501,6 +5517,7 @@
         if (!S || !S.group) return;
         const roof = S.group.getObjectByName('roof');
         if (!roof) return;
+        S._dirty = true;
         const ph = (v === 'v1') ? buildPhase : 7;
         const noun = (v === 'v31' || v === 'v32' || v === 'v33' || v === 'v34') ? 'Telhado' : 'Laje';
         // V1: a laje só pode existir sobre as colunas + vigas (fase ≥ 3); senão flutuaria
@@ -5524,6 +5541,7 @@
         if (!S || !S.group) return;
         const f2 = S.group.getObjectByName('floor2');
         if (!f2) return;
+        S._dirty = true;
         f2.visible = !f2.visible;
         btn.textContent = '2º piso: ' + (f2.visible ? 'visível' : 'oculto');
         const roof = S.group.getObjectByName('roof');
