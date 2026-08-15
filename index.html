@@ -5295,6 +5295,32 @@
         return S.elevDeg;
     }
 
+    // Libera GPU do grupo antigo antes de reconstruir (init3D reconstrói a cada
+    // abertura de aba). Preserva os singletons compartilhados entre rebuilds/cenas:
+    // texturas cacheadas (TEX3D.*) e o material/mapa do satélite (satGroundMat).
+    const _TEX_SLOTS = ['map','normalMap','roughnessMap','metalnessMap','emissiveMap',
+                        'aoMap','alphaMap','bumpMap','displacementMap','envMap','lightMap'];
+    function disposeObject3D(root) {
+        if (!root) return;
+        const keepMat = new Set();
+        if (satGroundMat) keepMat.add(satGroundMat);
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall].filter(Boolean));
+        if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
+        root.traverse(obj => {
+            if (obj.geometry && obj.geometry.dispose) obj.geometry.dispose();   // sempre único
+            const mats = obj.material
+                ? (Array.isArray(obj.material) ? obj.material : [obj.material]) : [];
+            for (const m of mats) {
+                if (!m || keepMat.has(m)) continue;
+                for (const slot of _TEX_SLOTS) {
+                    const t = m[slot];
+                    if (t && t.isTexture && !keepTex.has(t)) t.dispose();
+                }
+                m.dispose();
+            }
+        });
+    }
+
     function init3D(v) {
         const host = document.getElementById('scene3d-' + v);
         if (!host) return;
@@ -5365,7 +5391,7 @@
         }
 
         // (Re)constrói o prédio a cada abertura → 3D sempre reflete o 2D atual
-        if (S.group) S.scene.remove(S.group);
+        if (S.group) { S.scene.remove(S.group); disposeObject3D(S.group); }
         S.group = buildBuilding3D(v);
         S.scene.add(S.group);
         applyBuildPhase(v);
