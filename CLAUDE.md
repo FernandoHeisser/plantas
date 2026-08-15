@@ -366,6 +366,10 @@ const grade = mE => -mE * SLOPE;   // cota natural do solo (m), datum 0 = calça
 
 ### Cobertura
 
+> **V1/V2 = laje plana; V3 = telhado solar de uma água** (`SOLAR = rv === 'v3'`, ver
+> "Telhado solar do V3" abaixo). O texto desta seção descreve a **laje plana** (V1/V2). No V3 o
+> grupo `roof` recebe os *sheds* de telha metálica + usina FV no lugar da laje/platibanda.
+
 Laje plana de concreto (não telhado de duas águas) — **V3 recebe 2º pavimento sobre ela**.  
 Grupo `roof` = **fascia do beiral** (banda de 25 cm pendurada sob a laje, `fbb=CEIL3D+CPA−0,25
 → fbt=CEIL3D+CPA+0,16`, `BT=0,08`, faces sul/norte/leste) + laje (`CEIL3D+CPA → +0,16`) +
@@ -391,6 +395,32 @@ na junta de dilatação, sem mureta e sem vão entre elas**. A borda oeste da ca
   a laje termina rente à parede, p/ a expansão V2 (junta com a garagem) ser possível.
 - **Laje 1** (intermediária, `floor2` V3): a laje da casa começa em `Egar`
   (= junta), sem beiral oeste.
+
+### Telhado solar do V3 (uma água + usina FV)
+
+No **V3** o topo da casa **não é laje plana** — é um **telhado de uma água (shed) caindo p/ o
+NORTE** com módulos fotovoltaicos, no lugar da laje/platibanda. Duas águas **independentes**
+(casa + garagem), respeitando a **mesma junta de dilatação** — nada emendado. Bioclimática
+(lat −29,96°, hemisfério sul): água ao **norte** = sol; inclinação **~12°** (`PITCH`, realista
+p/ telha metálica ~21%; o ~28° "ótimo solar" ficaria surreal, e 12° colhe ~92–95% e auto-limpa).
+
+- **Flag:** `const SOLAR = (rv === 'v3')` em `buildBuilding3D`. Quando `SOLAR`, a casa e a
+  garagem chamam `addShed(...)` em vez da laje plana + platibanda. V1/V2 seguem com laje plana.
+- **Helpers (grupo `roof`):**
+  - `tiltedSlab(mat, n0,e0,n1,e1, yEaveN, t)` — água = box fino girado `rotation.x = −PITCH`
+    (eixo L-O); `yEaveN` = beiral norte (lado baixo); sul sobe `D·tan(PITCH)`.
+  - `gableEnd(mE, wn0,wn1, yBot, yTopN0,yTopN1, thk, mat)` — empena/frontão trapezoidal
+    (BufferGeometry) no plano `mE=cte`. Material `matGable = matWall.clone()` (DoubleSide).
+  - `addShed(grp, n0,e0,n1,e1, yEaveN, wn0,wn1, we0,we1, o)` — água (`matMetalRoof`) + 2 empenas
+    + fechamentos sul/norte + **grade de módulos FV** (`matPanel`), cada módulo girado `−PITCH`.
+    `o.inset` (recuo das bordas, default 0,55; menor adensa), `o.panW0/panW1` (limites O/L da grade).
+  - Casa: `addShed(roof, n0,e0,n1,e1, CEIL3D+CPA+0.16, 2.0,7.5, 22.5+OE,31.5+OE, { panW0: 24.5+OE })`
+    — painéis começam 2 m a leste da junta p/ sair da sombra de fim de tarde da garagem (mais alta).
+    Garagem: `addShed(roof, gn0,ge0,gn1,GE1j, GLAJE+0.16, GN0,GN1, GE0,GE1j, { inset: 0.45 })`
+    (adensa a grade, garagem nunca sombreada) + **beiral leste** (`tiltedSlab` extra na junta GE1j).
+  - **Sem platibanda na garagem quando `SOLAR`** (as empenas fecham o telhado; gate `if (!SOLAR)`).
+- Os sheds ficam no grupo `roof` → `set3DFloor2` os ergue sobre o 2º piso e `set3DRoof` os
+  alterna. Botão do V3 diz **"Telhado"** (`noun = (v==='v3') ? 'Telhado' : 'Laje'`).
 
 ### Bugs resolvidos / armadilhas conhecidas
 
@@ -725,7 +755,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 |---|---|---|---|
 | **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro + **esperas p/ V3**, botão revelar) | ✅ Completo |
 | **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) + **esperas p/ V3** | ✅ Preenchida (garagem + depósito + escada) |
-| **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
+| **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + **telhado solar (uma água + usina FV)** que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 | **V0.1–V0.6** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
 
 ---
@@ -818,8 +848,10 @@ extrapola o terreno (canto NE/pátio fora). Garagem vira **pilotis**. Sem divis�
 estrutura do térreo abaixo. Casa segue a face das **paredes** (centradas → linha∓EW/2);
 garagem segue a face das **colunas** (na própria linha). Mesmo padrão da parede do depósito.
 
-**Duas lajes (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
-piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, sólida (cobre tudo).
+**Duas coberturas (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
+piso), tem o **vão da escada** p/ subir; **"laje 2"** = teto do 2º piso — no V3 é o **telhado
+solar de uma água + usina FV** (grupo `roof`, `SOLAR`), não uma laje sólida (ver "Telhado solar
+do V3"). No 2D do 2º pav ainda é desenhada como laje sólida (esquemático).
 
 - **2D:** botão `Piso: térreo ↔ 2º pav.` (`.map-floortoggle`) chama `setV3Floor(btn)`,
   que troca `map._overlay` entre `buildLayers('v3')` (térreo) e `buildFloor2Layers()`.
@@ -830,11 +862,13 @@ piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, sólida
 - **3D:** grupo `floor2` (em `buildBuilding3D`, só `v==='v3'`) = **2 estruturas** (helpers
   locais `addWall`/`addSlab`): garagem (laje 1 c/ vão recortado + 4 paredes, leste = junta
   GE1j) e casa (laje 1 sólida + 4 paredes, oeste = junta em 22,40). Gap físico de 3 cm
-  entre elas. **Laje 2** = grupo `roof` (casa + garagem já separados pela junta; sólido no
-  V3). `set3DFloor2(v, btn)` mostra/oculta o 2º piso **e** reposiciona a laje 2
-  (`roof.position.y = visível ? CEIL3D+0,16 : 0`) — sobe sobre o 2º piso ou volta ao térreo.
-- **Botões 3D:** `2º piso: oculto/visível` (`set3DFloor2`) + `Laje: oculta/visível`
-  (`set3DRoof`, só alterna `roof.visible`). No **V2** a laje da garagem mantém o vão da escada.
+  entre elas. **Cobertura do 2º pav** = grupo `roof` (casa + garagem separados pela junta) =
+  **telhado solar** no V3 (`SOLAR`, ver seção própria). `set3DFloor2(v, btn)` mostra/oculta o
+  2º piso **e** reposiciona o `roof` (`roof.position.y = visível ? CEIL3D+0,16 : 0`) — sobe
+  sobre o 2º piso ou volta ao térreo.
+- **Botões 3D:** `2º piso: oculto/visível` (`set3DFloor2`) + `Telhado: oculto/visível`
+  (`set3DRoof`, só alterna `roof.visible`; rótulo "Laje" no V1/V2, "Telhado" no V3). No **V2**
+  a laje da garagem mantém o vão da escada.
 
 **Estrutura do 2º piso (no grupo `floor2`, some/aparece com o 2º piso):** espelha o
 térreo, com caminho de carga vertical contínuo e a junta subindo junto. **Garagem** =
