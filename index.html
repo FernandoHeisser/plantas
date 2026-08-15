@@ -5207,6 +5207,7 @@
         ctx.textBaseline = 'middle';
         ctx.fillText(txt, W / 2, H / 2);
         const tex = new THREE.CanvasTexture(cv);
+        tex.encoding = THREE.sRGBEncoding;   // canvas já é sRGB → evita dupla conversão (rótulo lavado)
         const mat = new THREE.SpriteMaterial({ map: tex, depthTest: false, sizeAttenuation: true });
         const sp = new THREE.Sprite(mat);
         sp.scale.set(0.55, 0.23, 1);
@@ -5230,8 +5231,10 @@
         ctx.font = 'bold 30px "JetBrains Mono",monospace';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(txt, W/2, H/2);
+        const _lt = new THREE.CanvasTexture(cv);
+        _lt.encoding = THREE.sRGBEncoding;   // canvas já é sRGB → evita dupla conversão
         const sp = new THREE.Sprite(new THREE.SpriteMaterial({
-            map: new THREE.CanvasTexture(cv), depthTest: false, transparent: true
+            map: _lt, depthTest: false, transparent: true
         }));
         sp.scale.set(W / 64 * 0.55, 0.55, 1);
         return sp;
