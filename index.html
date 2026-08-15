@@ -5408,10 +5408,15 @@
             sun.target.position.set(26, 1.0, -4.5);
             scene.add(sun, sun.target);
 
-            const d = 16;   // meia-extensão do frustum de sombra (cobre o lote da casa)
+            const d = 16;   // meia-extensão do frustum de sombra (cobre o cluster da casa)
             sun.shadow.camera.left = -d;  sun.shadow.camera.right = d;
             sun.shadow.camera.top  =  d;  sun.shadow.camera.bottom = -d;
-            sun.shadow.camera.near = 1;   sun.shadow.camera.far = 160;
+            // Sol fica a distância fixa R=90 do alvo (setSun3D). O conteúdo cai entre
+            // ~63 e ~115 ao longo da luz em TODOS os ângulos (medido no pior caso V3.4).
+            // Como o shadow camera do DirectionalLight é ortográfico (precisão LINEAR em
+            // [near,far]), apertar de 1..160 p/ 50..125 dá ~2,1× mais precisão de
+            // profundidade → menos shadow acne — sem cortar sombra (margem ~13/10).
+            sun.shadow.camera.near = 50;  sun.shadow.camera.far = 125;
             sun.shadow.mapSize.set(2048, 2048);
             sun.shadow.bias = -0.0004;
             sun.shadow.normalBias = 0.02;
