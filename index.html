@@ -2154,8 +2154,8 @@
             driveway2D().forEach(l => lys.push(l));
 
             // ── Carros (referência de escala no piso da frente) — SÓ no V2 ────
-            // V2 é a versão de análise da garagem/manobra. Nas demais (V3/V3.1/V3.2
-            // = renders finais, V4 = linha do tempo da obra) os carros são omitidos.
+            // V2 é a versão de análise da garagem/manobra. No V3 (render final) os
+            // carros são omitidos.
             // 2 carros lado a lado, frente p/ a garagem (leste), pegando sol no pátio.
             // Coords em mE de código (rect soma OE): pátio renderizado = scene mE 0→10.
             // Carro A scene mE 3,0→7,5 / mN 3,2→5,0 · Carro B mN 6,0→7,8.
@@ -3069,7 +3069,7 @@
         // V4 (11 fases, sobrado solar): números maiores, separando os 2 pavimentos +
         //   telhado. Os blocos compartilhados (casa) usam as chaves PH.* — assim o
         //   MESMO código carimba o número certo conforme a versão (V1 vs V4). As demais
-        //   versões ignoram o carimbo (applyBuildPhase só age em V1/V4).
+        //   versões ignoram o carimbo (applyBuildPhase só age em V1).
         // V4: 3 blocos cronológicos (casa V1 → garagem V2 → sobrado V3). Chaves com
         //   prefixo g* = garagem; *S = 2º pavimento. Demais versões: chaves da casa = as
         //   7 fases do V1; o resto não é usado (V1 não tem garagem/2º piso).
@@ -3219,8 +3219,7 @@
         };
         const extStairs = (topN, faceE, w, dir, baseY) => {
             // base = piso de chegada: terreno natural (padrão) OU cota explícita
-            // (ex.: deck da gourmet no V3.4, p/ a escada não descer abaixo do piso
-            // e o corrimão não extrapolar os degraus visíveis).
+            // (baseY, p/ a escada chegar num piso elevado sem descer abaixo dele).
             const base = (baseY !== undefined) ? baseY : grade(faceE) - 0.02;
             const rise = CPA - base;
             // ceil(rise/0.19) = mínimo de degraus p/ e ≤ 19 cm — sempre válido
@@ -3295,8 +3294,6 @@
 
         // Porta dos fundos (leste) — 6 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
         _ph = PH.found; // escada dos fundos = fundação
-        // No V3.4 a escada chega no deck da gourmet (GFL=−0,30), não no terreno:
-        // assim tem ~3 degraus e o corrimão acompanha os degraus (não extrapola).
         extStairs(4.70, 31.6 + OE, 1.20, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
         _ph = 0; // contorno do lote = entorno (sempre visível)
 
@@ -4300,7 +4297,7 @@
             sun.shadow.camera.left = -d;  sun.shadow.camera.right = d;
             sun.shadow.camera.top  =  d;  sun.shadow.camera.bottom = -d;
             // Sol fica a distância fixa R=90 do alvo (setSun3D). O conteúdo cai entre
-            // ~63 e ~115 ao longo da luz em TODOS os ângulos (medido no pior caso V3.4).
+            // ~63 e ~115 ao longo da luz em TODOS os ângulos (medido no pior caso).
             // Como o shadow camera do DirectionalLight é ortográfico (precisão LINEAR em
             // [near,far]), apertar de 1..160 p/ 50..125 dá ~2,1× mais precisão de
             // profundidade → menos shadow acne — sem cortar sombra (margem ~13/10).
