@@ -2135,7 +2135,7 @@
         }
 
         // ── V2: garagem (laje aberta — fundação + colunas + laje, sem paredes) ──
-        if (v === 'v2' || v === 'v3' || v === 'v31' || v === 'v32') {
+        if (v === 'v2' || v === 'v3') {
             const GN0 = 2.0,  GN1 = 10.5;  // 8,5 m de largura (2 m de cada muro lateral)
             const GE0 = 13.5, GE1 = 22.5; // extremidade nominal leste (= parede oeste da casa)
             const EW = 0.20;               // espessura parede externa (reutilizada aqui)
@@ -2236,7 +2236,7 @@
         //    alternável pelo botão "Piso" do mapa. Aqui o térreo é igual ao V2.
 
         // ── V1.1+: muro frontal (mE=0) + portão norte + cercas ──────────────
-        if (v === 'v11' || v === 'v2' || v === 'v3' || v === 'v31' || v === 'v32') {
+        if (v === 'v11' || v === 'v2' || v === 'v3') {
             frontWallsFences2D().forEach(l => lys.push(l));
         }
 
@@ -3086,20 +3086,13 @@
         const _origAdd = stampAdd(g);
 
         const floor = texFloor(); floor.repeat.set(8, 5);
-        // V3.2 = pintura da casa em marrom: tinge a textura de reboco (color multiplica o map).
-        // V4: nasce NATURAL (reboco branco / concreto cinza) e só pinta na última fase
-        // (PAINT_PHASE) — applyBuildPhase troca as cores. Por isso o V4 usa o tom natural aqui.
-        const WALL_BROWN = 0x7a5230, WALL_NAT = 0xffffff, EMBASE_BROWN = 0x6e4a2c, EMBASE_NAT = 0xb8b0a0;
-        const bornBrown = (rv === 'v32');   // V3.2 nasce pintado de marrom
-        const WALL_TINT = bornBrown ? WALL_BROWN : WALL_NAT;   // marrom terroso / branco (padrão)
-        const matWall   = new THREE.MeshStandardMaterial({ map: texWall(), color: WALL_TINT, roughness: 0.95, metalness: 0, envMapIntensity: 0.25,
+        // Reboco branco (color multiplica a textura) / concreto cinza no embasamento.
+        const matWall   = new THREE.MeshStandardMaterial({ map: texWall(), color: 0xffffff, roughness: 0.95, metalness: 0, envMapIntensity: 0.25,
                                                            polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
         const matFloor  = new THREE.MeshStandardMaterial({ map: floor, roughness: 0.55, metalness: 0, envMapIntensity: 0.35 });
         const matGlass  = new THREE.MeshStandardMaterial({ color: 0xaecadf, transparent: true, opacity: 0.3,
                                                            roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
-        // V3.2: colunas/baldrame também pintadas de marrom (matEmbase é cor sólida, sem map).
-        const EMBASE_COL = bornBrown ? EMBASE_BROWN : EMBASE_NAT;
-        const matEmbase = new THREE.MeshStandardMaterial({ color: EMBASE_COL, roughness: 0.92, metalness: 0,   envMapIntensity: 0.12 });
+        const matEmbase = new THREE.MeshStandardMaterial({ color: 0xb8b0a0, roughness: 0.92, metalness: 0,   envMapIntensity: 0.12 });
         const matWP     = new THREE.MeshStandardMaterial({ color: 0x1e1e2a, roughness: 0.60, metalness: 0.28, envMapIntensity: 0.35 });
 
         // ── Chão = imagem de satélite cobrindo o entorno, alinhada ao lote ───
@@ -3487,129 +3480,48 @@
         // Concreto + beiral + platibanda (mureta) no perímetro. Começa oculta.
         const lajeMat = new THREE.MeshStandardMaterial({ color: 0xc8c4bc, roughness: 0.9, metalness: 0, envMapIntensity: 0.2,
                                                          polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
-        // ── V3.1: telhado de uma água (shed) caindo p/ NORTE + usina solar ───
-        //   Duas águas INDEPENDENTES (casa + garagem), respeitando a junta de
-        //   dilatação — nada é emendado. Inclinação ~28° ≈ latitude (−29,96°):
-        //   ótimo de geração anual; a água vira o norte, painéis deitam rentes.
-        //   Telha metálica termoacústica (galvalume claro) + módulos FV.
-        const SOLAR = (rv === 'v31' || rv === 'v32');
-        const PITCH = 12 * Math.PI / 180;   // inclinação realista de telha metálica (~21%)
-        const tanP = Math.tan(PITCH);
-        const matMetalRoof = new THREE.MeshStandardMaterial({ color: 0x6b7177, roughness: 0.55, metalness: 0.5, envMapIntensity: 0.35, side: THREE.DoubleSide,
-                                                              polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
-        const matPanel      = new THREE.MeshStandardMaterial({ color: 0x111b30, roughness: 0.28, metalness: 0.25, envMapIntensity: 0.7 });
-        const matGable      = matWall.clone(); matGable.side = THREE.DoubleSide;   // empena (frontão)
-        // Empena (frontão) — parede triangular fina no plano mE=cte, fechando o vão
-        // entre o topo da parede (yBot, plano) e a água do telhado (segue a inclinação).
-        const gableEnd = (mE, wn0, wn1, yBot, yTopN0, yTopN1, thk, mat) => {
-            const x0 = mE - thk/2, x1 = mE + thk/2;
-            // perfil (mN,y) no plano vertical: SW, NW(baixo), NW(alto telhado), SW(alto telhado)
-            const prof = [[wn0, yBot], [wn1, yBot], [wn1, yTopN1], [wn0, yTopN0]];
-            const f = [], b = [], pos = [];
-            prof.forEach(([n,y]) => { f.push([x1,y,-n]); b.push([x0,y,-n]); });
-            const tri = (a,b2,c) => pos.push(...a, ...b2, ...c);
-            for (let i = 1; i < prof.length - 1; i++) { tri(f[0], f[i], f[i+1]); tri(b[0], b[i+1], b[i]); }
-            for (let i = 0; i < prof.length; i++) { const j = (i+1)%prof.length; tri(f[i], f[j], b[j]); tri(f[i], b[j], b[i]); }
-            const geo = new THREE.BufferGeometry();
-            geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-            geo.computeVertexNormals();
-            const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true;
-            return m;
-        };
-        // Água (plano de telha) inclinada — box fino girado em torno do eixo L-O.
-        // n0/n1 = mN sul→norte (com beiral), e0/e1 = mE de cena (com OE). yEaveN = beiral norte (baixo).
-        const tiltedSlab = (mat, n0, e0, n1, e1, yEaveN, t) => {
-            const D = n1 - n0, W = e1 - e0, yS = yEaveN + D * tanP;
-            const m = new THREE.Mesh(new THREE.BoxGeometry(W, t, D / Math.cos(PITCH)), mat);
-            m.rotation.x = -PITCH;
-            m.position.set((e0 + e1) / 2, (yEaveN + yS) / 2, -(n0 + n1) / 2);
-            m.castShadow = true; m.receiveShadow = true;
-            return m;
-        };
-        // Telhado de uma água REAL: água de telha + 2 empenas (frontões O/L) apoiadas nas
-        //   paredes (wn0/wn1 = mN da parede; we0/we1 = mE dos planos das paredes O/L) + usina FV.
-        const addShed = (grp, n0, e0, n1, e1, yEaveN, wn0, wn1, we0, we1, o = {}) => {
-            const yRoof = n => yEaveN + (n1 - n) * tanP;   // cota da água (plano central) no mN n
-            const yBot  = yEaveN - 0.16;                   // topo da parede (= laje do 2º piso)
-            grp.add(tiltedSlab(matMetalRoof, n0, e0, n1, e1, yEaveN, 0.10));
-            grp.add(gableEnd(we0, wn0, wn1, yBot, yRoof(wn0), yRoof(wn1), 0.15, matGable)); // empena oeste
-            grp.add(gableEnd(we1, wn0, wn1, yBot, yRoof(wn0), yRoof(wn1), 0.15, matGable)); // empena leste
-            // Fechamento sul (lado alto) e norte (lado baixo): parede do topo da laje até a água.
-            // Largura constante em mE → parede retangular vertical (box3d).
-            grp.add(box3d(wn0 - 0.075, we0, 0.15, we1 - we0, yBot, yRoof(wn0), matGable)); // sul (alto)
-            grp.add(box3d(wn1 - 0.075, we0, 0.15, we1 - we0, yBot, yRoof(wn1), matGable)); // norte (baixo)
-            // Módulos FV em grade na água norte, insetados das bordas/beiral.
-            // o.inset = recuo das bordas (default 0,55; menor = adensa). o.panW0/o.panW1 =
-            // limites O/L absolutos da grade (mE de cena) — usados p/ tirar a faixa oeste do
-            // telhado da casa que a garagem (mais alta, a oeste) sombreia no fim de tarde.
-            const mIn = o.inset !== undefined ? o.inset : 0.55, pw = 1.0, pl = 1.65, gap = 0.04, pth = 0.04;
-            const a0 = o.panW0 !== undefined ? o.panW0 : e0 + mIn;
-            const a1 = o.panW1 !== undefined ? o.panW1 : e1 - mIn;
-            const b0 = n0 + mIn, b1 = n1 - mIn;
-            for (let ec = a0; ec + pw <= a1 + 1e-6; ec += pw + gap)
-                for (let nc = b0; nc + pl <= b1 + 1e-6; nc += pl + gap) {
-                    const cn = nc + pl / 2;
-                    const pm = new THREE.Mesh(new THREE.BoxGeometry(pw, pth, pl / Math.cos(PITCH)), matPanel);
-                    pm.rotation.x = -PITCH;
-                    pm.position.set(ec + pw / 2, yRoof(cn) + 0.10, -cn);
-                    pm.castShadow = true; pm.receiveShadow = true;
-                    grp.add(pm);
-                }
-        };
 
         const roof = new THREE.Group();
         roof.name = 'roof';
         roof.visible = false;
-        stampAdd(roof);   // V4: carimba os filhos do telhado (revelados por fase)
-        // No V1 a laje (roof) é a fase 4; no V4 o telhado solar é a fase 9.
-        _ph = SOLAR ? PH.telhado : PH.laje2;
-        // Beiral: norte 0,90 m (autoregulador solar lat−30°), sul/leste/oeste 0,50 m (proteção chuva)
+        stampAdd(roof);   // carimba os filhos do telhado (revelados por fase no V1)
+        _ph = PH.laje2;   // laje plana da casa
+        // Beiral: norte 0,90 m (autoregulador solar lat−30°), sul/leste 0,50 m (proteção chuva)
         const BN_N = 0.90, BN_S = 0.50, BN_EW = 0.50;
         const n0 = 2 - BN_S, n1 = 7.5 + BN_N;
         // Oeste: a laje da casa termina SEMPRE rente à face da parede oeste, na linha da
         // junta de dilatação (22,5 − EW/2 − GAP = 22,37) — sem beiral nem platibanda oeste.
         // Vale também p/ o V1 standalone: senão o beiral de 0,5 m cavalgaria a futura
-        // garagem (V2) e impediria a junta. (Antes só V2/V3 paravam na junta; o V1 tinha
-        // beiral oeste.) O telhado solar (SOLAR/addShed) mantém o beiral oeste próprio.
-        const e0 = (22.5 - BN_EW) + OE, e1 = 31.5 + OE + BN_EW;  // e0 só p/ o addShed solar
+        // garagem (V2) e impediria a junta.
+        const e1 = 31.5 + OE + BN_EW;
         const eW = (22.5 - 0.10 - 0.03) + OE;                    // oeste da laje plana = junta
         const pb = CEIL3D + CPA + 0.16, pbTop = pb + 0.42, tt = 0.12; // platibanda
-        // Fascia/borda do beiral (= addBorda do V4): banda de 25 cm pendurada SOB a laje
-        // nas faces externas. Dá o "acabamento do lado inferior" (pingadeira) que protege
-        // a parede da chuva e, junto com a platibanda acima, fecha o beiral num plano
-        // vertical limpo — escondendo o topo da casa e a laje (igual ao V4).
+        // Fascia/borda do beiral: banda de 25 cm pendurada SOB a laje nas faces externas.
+        // Dá o "acabamento do lado inferior" (pingadeira) que protege a parede da chuva e,
+        // junto com a platibanda acima, fecha o beiral num plano vertical limpo.
         const fbb = CEIL3D + CPA - 0.25, fbt = CEIL3D + CPA + 0.16, BT = 0.08;
-        if (SOLAR) {
-            // Casa: painéis começam em mE 24,5 (2,0 m a leste da junta) p/ sair da sombra de
-            // fim de tarde projetada pelo telhado da garagem (mais alto, a oeste). Concentra a
-            // geração na garagem; na casa ficam só as colunas centro/leste, sempre iluminadas.
-            addShed(roof, n0, e0, n1, e1, CEIL3D + CPA + 0.16, 2.0, 7.5, 22.5 + OE, 31.5 + OE, { panW0: 24.5 + OE });
-        } else {
+        {
             roof.add(box3d(n0, eW, n1 - n0, e1 - eW, CEIL3D + CPA, CEIL3D + CPA + 0.16, lajeMat)); // slab (oeste = junta)
             // Fascia do beiral — 4 lados. No oeste (junta) a laje é rente à parede (sem
             // beiral), então a fascia fica RENTE ao slab (face em eW, espessura p/ dentro):
             // não projeta para fora, preservando a junta de dilatação da garagem (V2+), mas
-            // fecha a faixa do beiral na mesma altura dos outros lados (antes o oeste tinha
-            // só a mureta → faixa "menor" que os demais).
+            // fecha a faixa do beiral na mesma altura dos outros lados.
             roof.add(box3d(n0,      eW,      BT,       e1 - eW, fbb, fbt, lajeMat)); // fascia sul
             roof.add(box3d(n1 - BT, eW,      BT,       e1 - eW, fbb, fbt, lajeMat)); // fascia norte
             roof.add(box3d(n0,      e1 - BT, n1 - n0, BT,       fbb, fbt, lajeMat)); // fascia leste
             roof.add(box3d(n0,      eW,      n1 - n0, BT,       fbb, fbt, lajeMat)); // fascia oeste (rente à junta)
-            // Platibanda (mureta) acima da laje — 4 lados (igual ao V4). O oeste fica na
-            // junta de dilatação (eW): tem mureta, mas SEM fascia (laje rente à parede).
+            // Platibanda (mureta) acima da laje — 4 lados. O oeste fica na junta de
+            // dilatação (eW): tem mureta, mas SEM fascia (laje rente à parede).
             roof.add(box3d(n0,      eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // sul
             roof.add(box3d(n1 - tt, eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // norte
             roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
             // Oeste (junta): mureta ASSENTADA sobre a borda da laje, face externa em eW
-            // (coincidente com a fascia oeste e com o slab), espessura p/ DENTRO — igual
-            // aos lados sul/norte/leste (fascia e mureta sempre na mesma face). Antes ficava
-            // em eW−tt, 12 cm além da fascia → degrau/desnível no canto. A sobreposição com
-            // as bonecas/esperas dos pilares oeste (22,38→22,62) é resolvida pelo
-            // polygonOffset (matEmbase da boneca vence o lajeMat da mureta).
+            // (coincidente com a fascia oeste e com o slab), espessura p/ DENTRO. A sobreposição
+            // com as bonecas/esperas dos pilares oeste é resolvida pelo polygonOffset.
             // SÓ no V1 standalone: quando a garagem está anexada (V2+), o oeste deixa de
             // ser borda exposta — a laje da casa encontra a laje da garagem na junta e as
             // duas devem ler como uma superfície CONTÍNUA (sem mureta entre elas).
-            const hasGarage = (rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32');
+            const hasGarage = (rv === 'v2' || rv === 'v3');
             if (!hasGarage)
                 roof.add(box3d(n0,  eW,      n1 - n0, tt,      pb, pbTop, lajeMat)); // oeste (junta)
         }
@@ -3625,7 +3537,7 @@
         // Reutilizado pela casa (aqui) e pela garagem (bloco V2, mais abaixo). null se
         // a versão não tem esperas (V3+ embute no col2c).
         let addEspera = null;
-        if ((bv === 'v1' || bv === 'v2') && !SOLAR) {
+        if (bv === 'v1' || bv === 'v2') {
             const espBars = new THREE.Group(); espBars.name = 'esperasBars';
             const espCaps = new THREE.Group(); espCaps.name = 'esperasCaps';
             const matRebar = new THREE.MeshStandardMaterial({ color: 0x8a5a3a, roughness: 0.75, metalness: 0.45, envMapIntensity: 0.4 });
@@ -3663,7 +3575,7 @@
         // Footprint = união casa + garagem (L), sobre a laje do térreo (= piso do
         // 2º). NÃO extrapola o terreno. Começa oculto; a laje de cobertura (roof)
         // sobe sobre ele quando visível (set3DFloor2). Sem paredes internas (etapa 1).
-        if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
+        if (rv === 'v3') {
             // 2º pavimento = DUAS estruturas independentes, como no térreo: garagem e
             // casa separadas pela MESMA junta de dilatação do V2 (GE1j, isopor 3 cm).
             const F2 = new THREE.Group();
@@ -3901,7 +3813,7 @@
         }
 
         // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
-        if (rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32') {
+        if (rv === 'v2' || rv === 'v3') {
             const GN0 = 2.0, GN1 = 10.5, GE0 = 13.5 + OE, GE1 = 22.5 + OE;
             const GAP  = 0.03;            // junta estrutural: 3 cm de isopor
             const GE1j = GE1 - 0.10 - GAP; // face leste da garagem (para antes da face ext. da casa)
@@ -4011,20 +3923,8 @@
 
             // Laje + platibanda da garagem — para em GE1j (junta; não encosta na casa)
             const gn0 = GN0 - BN_S, gn1 = GN1 + BN_N, ge0 = GE0 - BN_EW; // beiral: sul 0,50 m, norte 0,90 m, oeste 0,50 m; leste = junta (sem beiral)
-            _ph = SOLAR ? PH.telhado : PH.laje2;   // V4: telhado solar da garagem = bloco V3 (telhado)
-            if (SOLAR) {
-                // V3.1: shed independente da garagem caindo p/ norte + painéis FV.
-                // Leste para na junta (GE1j); não encosta na casa.
-                // inset 0,45 (vs 0,55 padrão): adensa a grade FV — a garagem é o telhado mais
-                // alto, maior e nunca sombreado, então concentra a geração aqui (ganha 1 coluna).
-                addShed(roof, gn0, ge0, gn1, GE1j, GLAJE + 0.16, GN0, GN1, GE0, GE1j, { inset: 0.45 });
-                // Beiral leste da garagem — extensão TODA (gn0→gn1): a água avança 0,50 m a
-                // leste da empena (junta GE1j), como os demais beirais, protegendo a junta/parede
-                // ao longo de todo o comprimento. O telhado da garagem é ~0,64 m mais alto que o
-                // da casa, então esse beiral oversaila o telhado da casa na junta (detalhe normal
-                // de telhados em degrau: o mais alto joga a água sobre o mais baixo).
-                roof.add(tiltedSlab(matMetalRoof, gn0, GE1j, gn1, GE1j + BN_EW, GLAJE + 0.16, 0.10));
-            } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
+            _ph = PH.laje2;
+            if (rv === 'v3') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
                 // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
                 roof.add(box3d(gn0, ge0, gn1 - gn0, GE1j - ge0, GLAJE, GLAJE+0.16, lajeMat));
@@ -4038,7 +3938,7 @@
             // Garagem (V2 e V3): platibanda no perímetro EXPOSTO (sul/norte/oeste).
             // Leste = junta de dilatação com a casa → sem platibanda no trecho que
             // encosta (mN ≤ n1, lajes rente); só o trecho norte além da casa leva.
-            if (!SOLAR) {
+            {
                 const gpb = GLAJE + 0.16, gpbTop = gpb + 0.42;
                 roof.add(box3d(gn0,       ge0, tt,        GE1j-ge0, gpb, gpbTop, lajeMat)); // sul
                 roof.add(box3d(gn1-tt,    ge0, tt,        GE1j-ge0, gpb, gpbTop, lajeMat)); // norte
@@ -4094,7 +3994,7 @@
         //  que sombrearia o PH das fases se o acesso fosse feito aqui dentro)
         // Muro frontal + portão + cercas = V1.1 → só aparecem DEPOIS do V1 pronto.
         _ph = PH.muro;
-        if (rv === 'v11' || rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32') {
+        if (rv === 'v11' || rv === 'v2' || rv === 'v3') {
             const matMuro = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matPoste = fmat(0x334155, { roughness: 0.7, metalness: 0.12 });
             // Muro sul: mN 0→6,5 (até o alinhamento do poste na calçada)
@@ -4257,7 +4157,7 @@
 
     function buildDims3D(g, v) {
         const rv = v;
-        const hasGarage = (rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32');
+        const hasGarage = (rv === 'v2' || rv === 'v3');
         // Afastamentos — branco (mesmas cotas do 2D, seguem o OE)
         const eFrente = hasGarage ? 13.5 + OE : 22.5 + OE;
         _dimLine3D(g,  4.5,  0,        4.5,  eFrente,   fmtM(eFrente) + ' m — frente');
@@ -4521,7 +4421,7 @@
         if (!roof) return;
         S._dirty = true;
         const ph = (v === 'v1') ? buildPhase : 7;
-        const noun = (v === 'v31' || v === 'v32') ? 'Telhado' : 'Laje';
+        const noun = 'Laje';
         // V1: a laje só pode existir sobre as colunas + vigas (fase ≥ 3); senão flutuaria
         // no ar. Bloqueia o botão de revelá-la antes da estrutura estar pronta.
         if (v === 'v1' && ph < 3 && !roof.visible) {
@@ -4653,7 +4553,7 @@
             maxNativeZoom: 18, maxZoom: 25
         }).addTo(map);
 
-        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32') ? v3Layers() : buildLayers(v)).addTo(map);
+        const overlay = L.layerGroup((v === 'v3') ? v3Layers() : buildLayers(v)).addTo(map);
         maps[v] = map;
         map._overlay = overlay;
 
