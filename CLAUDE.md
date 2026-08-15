@@ -112,7 +112,7 @@ Config em `.claude/launch.json`.
 
 **Dependências externas (CDN):**
 - Leaflet.js 1.9.4 — mapas 2D
-- Three.js r128 + OrbitControls + RoomEnvironment — cena 3D
+- Three.js r128 + OrbitControls + RoomEnvironment + **BufferGeometryUtils** — cena 3D
 - ESRI World Imagery — tiles de satélite (sem API key)
 - Google Fonts — JetBrains Mono + Inter
 
@@ -471,6 +471,65 @@ g.add(box3d(n,       e - 0.10, len,  0.20, GCPA, GLAJE, matWall)); // parede N-S
 Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda sem largura.
 
 > **V1, V2 e V3** têm cena 3D ativa (`#scene3d-v1`, `#scene3d-v2`, `#scene3d-v3`). V2/V3 renderizam casa + garagem. **V3** tem 2 botões: `2º piso` (`set3DFloor2`) + `Laje` (`set3DRoof`) — ver seção "V3 — Sobrado (pilotis)".
+
+---
+
+## Performance 3D — padrões a NÃO regredir
+
+Revisão de performance/corretude do 3D (contra as skills Three.js em `.claude/skills/`).
+Ao mexer no 3D, respeitar estes padrões:
+
+### Render sob demanda (`_dirty`)
+O loop `animate` **só desenha quando `S._dirty` é true** (e o painel está visível —
+`host.offsetParent !== null`). Antes desenhava ~880 draw calls/frame a 60fps para sempre,
+inclusive em painéis ocultos.
+- **Câmera:** o evento `'change'` do OrbitControls seta `_dirty` (cobre a inércia do damping).
+- **REGRA:** qualquer coisa que mude a cena fora de um movimento de câmera **precisa setar
+  `S._dirty = true`** (ou o `scenes3d[v]._dirty`), senão a mudança só aparece quando o
+  usuário mexer a câmera. Já religados: `init3D` (rebuild), `setSun3D`, `applyBuildPhase`,
+  `set3DRoof`, `set3DFloor2`, `set3DEsperas`, `resize3D` e o callback async do satélite.
+  **Ao adicionar um novo botão/toggle/animação 3D, setar `_dirty` no fim dele.**
+- `renderer.setPixelRatio(Math.min(devicePixelRatio, 2))` — cap p/ telas hidpi.
+
+### Dispose ao reconstruir (`disposeObject3D`)
+`init3D` reconstrói o grupo a cada abertura e chama `disposeObject3D(grupoAntigo)` p/ liberar
+GPU. **Preserva os singletons compartilhados** entre cenas: texturas `TEX3D.*` e
+`satGroundMat` (+ seu mapa). **Ao criar um novo singleton de textura/material compartilhado
+entre rebuilds, adicioná-lo ao keep-set do `disposeObject3D`** (senão vira textura quebrada).
+
+### Materiais de móveis memoizados (`fmat`)
+`fmat()` memoiza por assinatura num cache **por-build** (`_fmatCache`, resetado no início de
+`buildBuilding3D`) → materiais idênticos de móveis são reusados (V1: 241 → 91 materiais).
+**Não mutar um material de `fmat` depois de criado** (ele é compartilhado). A pintura do V4
+mexe só em `matWall`/`matEmbase`, que não passam pelo `fmat` — ok.
+
+### Folhagem mesclada (V3.4)
+Os lóbulos de arbusto (`addShrub`) são coletados por cor e mesclados via
+`THREE.BufferGeometryUtils.mergeBufferGeometries` → ~5 meshes no lugar de ~950. Se mexer no
+`addShrub`, manter a ordem das chamadas `prnd()` (layout determinístico) e o flush do merge
+no fim do bloco `v33||v34`.
+
+### Sombra do sol
+`sun.shadow.camera.near/far = 50/125` cercam a distância fixa `R=90` do sol ao alvo (o
+conteúdo cai entre ~55 e ~117 ao longo da luz em todo o slider 5h–19h). Shadow camera
+ortográfico → precisão **linear** em `[near,far]`; não afrouxar sem re-medir. `d=16`
+(meia-extensão) é tradeoff cobertura×resolução — não expandir sem motivo (borra tudo).
+
+### Three.js r128 — APIs que MUDARAM no r160+ (skills assumem r160+)
+As skills em `.claude/skills/` (`cloudai-x/threejs-skills`) foram auditadas contra **r160+**,
+mas o projeto roda **r128**. Se copiar exemplo das skills, traduzir estas APIs:
+
+| r128 (nosso) | r152+ / r160 (skills) |
+|---|---|
+| `renderer.outputEncoding = THREE.sRGBEncoding` | `renderer.outputColorSpace = THREE.SRGBColorSpace` |
+| `texture.encoding = THREE.sRGBEncoding` | `texture.colorSpace = THREE.SRGBColorSpace` |
+| `THREE.LinearEncoding` (default de textura) | `THREE.LinearSRGBColorSpace` / `NoColorSpace` |
+| `BufferGeometryUtils.mergeBufferGeometries()` | `mergeGeometries()` |
+| `import` de `examples/jsm/…` | idem (as skills usam `three/addons/…`) |
+
+> **Encoding:** toda textura de **cor** (canvas/satélite) precisa de `encoding = sRGBEncoding`
+> no r128, senão sai lavada (dupla conversão). Já aplicado em `canvasTex`, satélite e nos
+> sprites de cota.
 
 ---
 
