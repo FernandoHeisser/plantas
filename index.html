@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
     <style>
         :root {
             --m: 13px;
@@ -4813,6 +4814,10 @@
                     // empilhados e afunilando p/ cima → silhueta orgânica de folhagem (não bola
                     // lisa). Cores variadas por lóbulo. Camufla o cano entre as folhas.
                     const leafMats = greens.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.93, metalness: 0, flatShading: true }));
+                    // Perf: em vez de 1 mesh por lóbulo (~950 no V3.4), coleta as geometrias
+                    // (já transladadas p/ a posição final) num bucket por cor e MESCLA no fim →
+                    // ~5 draws no lugar de ~950. Visualmente idêntico (folhagem estática).
+                    const shrubGeos = leafMats.map(() => []);
                     const MURO_N = 12.33;   // face interna do muro norte (12,35) − folga: folhagem não atravessa
                     // zMax/zMin (mN) = limites onde a folhagem NÃO pode passar (muro norte /
                     // cerca sul). Default: clampa só o muro norte (canteiro do norte).
@@ -4828,13 +4833,14 @@
                                               pa.getY(vi) * (1 + (prnd()-0.5)*0.45),
                                               pa.getZ(vi) * (1 + (prnd()-0.5)*0.45));
                             geo.computeVertexNormals();
-                            const m = new THREE.Mesh(geo, leafMats[Math.floor(prnd() * leafMats.length)]);
+                            // (ordem das chamadas prnd() preservada p/ manter o layout determinístico)
+                            const matIdx = Math.floor(prnd() * leafMats.length);
                             // clampa o lóbulo p/ NÃO atravessar o muro/cerca (raio efetivo c/ o jitter ≈ lr·1,25)
                             let lz = cz + (prnd()-0.5)*R*0.6;
                             if (lz + lr*1.25 > zMax) lz = zMax - lr*1.25;
                             if (lz - lr*1.25 < zMin) lz = zMin + lr*1.25;
-                            m.position.set(cx + (prnd()-0.5)*R*0.6, baseY + frac*H, -lz);
-                            m.castShadow = true; m.receiveShadow = true; g.add(m);
+                            geo.translate(cx + (prnd()-0.5)*R*0.6, baseY + frac*H, -lz);
+                            shrubGeos[matIdx].push(geo);   // mesclado no fim do bloco
                         }
                     };
                     // Canteiro LARGO: usa toda a faixa de grama do norte (entre as estruturas e o
@@ -4885,6 +4891,16 @@
                             }
                         }
                     }
+                    // Flush: mescla os lóbulos por cor → 1 mesh por material (folhagem estática).
+                    shrubGeos.forEach((geos, i) => {
+                        if (!geos.length) return;
+                        const merged = THREE.BufferGeometryUtils.mergeBufferGeometries(geos, false);
+                        geos.forEach(gg => gg.dispose());   // libera as geometrias-fonte
+                        if (!merged) return;
+                        const sm = new THREE.Mesh(merged, leafMats[i]);
+                        sm.castShadow = true; sm.receiveShadow = true;
+                        g.add(sm);
+                    });
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
