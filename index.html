@@ -1890,7 +1890,7 @@
     }
 
     function buildLayers(v) {
-        if (v === 'v4' || v === 'v33' || v === 'v34') v = 'v32';  // V4 (obra), V3.3 (calhas) e V3.4 (churrasqueira) = mesmo 2D do V3.2
+        if (v === 'v4') v = 'v32';  // V4 (obra) usa o mesmo 2D do V3.2
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
         const lys = [];
 
@@ -2539,72 +2539,9 @@
 
     // Alternância de pavimento no mapa 2D do V3 (térreo ↔ 2º piso)
     let v3floor = 1;
-    // ── V3.4: área gourmet / churrasqueira (esboço 2D) ──────────────────────
-    // Quintal leste, encostada na parede leste da casa (mE 31,6), em volta da
-    // porta dos fundos (mN 4,7→5,6). Coberta (telhado de uma água p/ leste).
-    // Coords de CÓDIGO (helpers somam OE); só 2D (GEO=null no caminho do mapa).
-    function buildChurras2D() {
-        const L_ = [];
-        // Footprint: largura COMPLETA da parede leste (mN 2,0→7,5) × 5,0 m de prof.
-        const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 36.6;  // footprint (mN, mE) cód. — face norte alinhada à garagem (GN1=10,5); prof. 5,0 m (era 6,0; −1 m p/ o pátio dos fundos)
-        const ln = (n1, e1, n2, e2, o) => L.polyline([rot(n1, e1 + OE), rot(n2, e2 + OE)],
-            { color: '#1f2937', weight: 1, interactive: false, ...o });
-
-        // Piso/deck da área coberta
-        L_.push(rect(N0, E0, N1 - N0, E1 - E0, '#e7dcc6',
-            { color: '#a8956b', weight: 1, no3d: true }));
-        // Braço do piso ao NORTE da casa → liga à escada da porta de correr (sala)
-        L_.push(rect(7.5, 26.8, N1 - 7.5, E0 - 26.8, '#e7dcc6',
-            { color: '#a8956b', weight: 1, no3d: true }));
-        // Contorno do telhado (beiral ~0,4 m a N/S/L; rente à casa a oeste) — tracejado
-        L_.push(L.polygon([rot(N0 - 0.4, E0 + OE), rot(N1 + 0.4, E0 + OE),
-                           rot(N1 + 0.4, E1 + 0.4 + OE), rot(N0 - 0.4, E1 + 0.4 + OE)],
-            { color: '#64748b', weight: 1.3, dashArray: '6 4', fill: false, interactive: false }));
-
-        // Parede de fundo (SUL) — alvenaria onde encostam churrasqueira + bancada
-        // (colinear com a fachada sul da casa, mN 2,0)
-        L_.push(rect(N0, E0, 0.20, E1 - E0, '#334155',
-            { color: '#0f172a', weight: 0.5, no3d: true }));
-
-        // ── Bancada com pia (parede SUL, lado oeste — perto da cozinha p/ água) ─
-        L_.push(rect(2.20, 32.00, 0.62, 2.00, '#e5e7eb', { color: '#475569', weight: 0.8, no3d: true })); // bancada
-        L_.push(rect(2.30, 32.55, 0.42, 0.85, '#dbeafe', { color: '#2563eb', weight: 0.6, no3d: true })); // cuba
-        L_.push(circ(2.51, 32.97, 0.03, '#94a3b8', { color: '#475569', weight: 0.3, no3d: true }));        // ralo
-        L_.push(circ(2.30, 33.70, 0.025, '#64748b', { color: '#334155', weight: 0.3, no3d: true }));       // torneira
-
-        // ── Churrasqueira de alvenaria com chaminé (parede SUL, lado leste) ──
-        L_.push(rect(2.20, 34.20, 1.00, 1.80, '#b45309', { color: '#7c2d12', weight: 1, no3d: true }));    // corpo (tijolo)
-        L_.push(rect(2.40, 34.40, 0.62, 1.40, '#3f3f46', { color: '#18181b', weight: 0.8, no3d: true }));  // boca/braseiro
-        for (let i = 1; i <= 4; i++) L_.push(ln(2.40 + i * 0.12, 34.40, 2.40 + i * 0.12, 35.80,
-            { color: '#a1a1aa', weight: 0.6 }));                                                            // grelha
-        L_.push(rect(2.20, 34.90, 0.40, 0.60, '#475569', { color: '#1e293b', weight: 0.9, no3d: true }));  // chaminé (duto)
-        L_.push(circ(2.40, 35.20, 0.10, '#1e293b', { color: '#0f172a', weight: 0.6, no3d: true }));        // saída da chaminé
-
-        // ── Mesa comprida com bancos (estilo gaúcho, eixo N-S, centro) ──
-        L_.push(rect(4.50, 34.15, 3.20, 0.90, '#c08a4a', { color: '#5b3a1a', weight: 1, no3d: true }));    // tampo (N-S)
-        L_.push(ln(4.50, 34.60, 7.70, 34.60, { color: '#5b3a1a', weight: 0.5, dashArray: '4 3' }));        // junta do tampo
-        L_.push(rect(4.50, 33.70, 3.20, 0.38, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco oeste
-        L_.push(rect(4.50, 35.12, 3.20, 0.38, '#9a6b30', { color: '#5b3a1a', weight: 0.8, no3d: true }));  // banco leste
-
-        // Degrau contínuo no lado LESTE (norte sem degrau — piso liga à escada da sala)
-        L_.push(rect(N0, E1, (N1 - N0), 0.45, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));        // leste
-
-        // Colunas da cobertura — linha leste (beiral baixo da água p/ leste)
-        [N0, (N0 + N1) / 2 - 0.10, N1 - 0.20].forEach(n => L_.push(rect(n, E1 - 0.20, 0.20, 0.20, '#334155',
-            { color: '#0f172a', weight: 0.5, no3d: true })));
-        // Coluna NW (área passa do canto norte da casa → sustenta o beiral alto)
-        L_.push(rect(N1 - 0.20, E0, 0.20, 0.20, '#334155', { color: '#0f172a', weight: 0.5, no3d: true }));
-
-        // Rótulo do ambiente (área livre ao norte da mesa)
-        L_.push(roomLabel(9.10, 34.10, 'Área Gourmet', 'churrasqueira + pia + mesa', '~43 m²'));
-        return L_;
-    }
-
     function v3Layers() {
         if (v3floor === 2) return buildFloor2Layers();
-        const lys = buildLayers('v3');
-        if (ver === 'v34') buildChurras2D().forEach(l => lys.push(l));   // V3.4 acrescenta a churrasqueira (esboço 2D)
-        return lys;
+        return buildLayers('v3');
     }
     function setV3Floor(btn) {
         v3floor = v3floor === 1 ? 2 : 1;
@@ -3137,7 +3074,7 @@
     function buildBuilding3D(v) {
         _fmatCache = new Map();   // dedup de materiais de móveis dentro deste build (ver fmat)
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
-        const rv = (v === 'v4' || v === 'v33' || v === 'v34') ? 'v32' : v; // V4 (obra), V3.3 (calhas) e V3.4 (churrasqueira) renderizam igual ao V3.2 (rv); `v` guarda a identidade (fases / calhas / churrasqueira)
+        const rv = (v === 'v4') ? 'v32' : v; // V4 (obra) renderiza igual ao V3.2 (rv); `v` guarda a identidade (fases)
         const model = captureModel(v);
         const g = new THREE.Group();
 
@@ -3307,81 +3244,6 @@
         // Piso retângulo completo (mN 2,0→7,5 × mE 22,5→31,5) — 1cm aquém das faces interiores
         g.add(box3d(2.11, 22.61 + OE, 5.28, 8.78, CPA - 0.025, CPA, matFloor));
 
-        // ── Path do CORREDOR SUL — caminho seco p/ dar a VOLTA na casa ──────────
-        // Calçada elevada ~12 cm sobre a grama p/ transitar sem molhar os pés
-        // (umidade/chuva). Em L: perna SUL (frente → leste, no recuo sul) + perna
-        // LESTE subindo p/ o NORTE (contorna a leste da gourmet até os fundos).
-        // Slab INCLINADO seguindo o declive (grade). Sem polygonOffset (causava
-        // z-fight com a grama) e mais alto → assenta nítido SOBRE o terreno.
-        // Só nas versões com paisagismo (v33/v34).
-        if (v === 'v33' || v === 'v34') {
-            const matPath = new THREE.MeshStandardMaterial({ color: 0xc2bbac, roughness: 0.9, metalness: 0, envMapIntensity: 0.25 });
-            const LIP = 0.12, TH = 0.10;                      // 12 cm acima da grama (anti z-fight); slab 10 cm
-            // slab axis-alinhado com o topo acompanhando o declive (grade linear em mE)
-            const pathSlab = (nS, nN, xW, xE) => {
-                const tW = grade(xW) + LIP, tE = grade(xE) + LIP, bW = tW - TH, bE = tE - TH;
-                const pv = [
-                    [xW, tW, -nS], [xW, tW, -nN], [xE, tE, -nN], [xE, tE, -nS],   // topo SW NW NE SE
-                    [xW, bW, -nS], [xW, bW, -nN], [xE, bE, -nN], [xE, bE, -nS],   // base SW NW NE SE
-                ];
-                const tr = (a, b, c) => [...pv[a], ...pv[b], ...pv[c]];
-                const pos = new Float32Array([
-                    ...tr(0,3,2), ...tr(0,2,1), ...tr(4,6,7), ...tr(4,5,6),
-                    ...tr(0,1,5), ...tr(0,5,4), ...tr(3,6,2), ...tr(3,7,6),
-                    ...tr(0,7,3), ...tr(0,4,7), ...tr(1,2,6), ...tr(1,6,5),
-                ]);
-                const geo = new THREE.BufferGeometry();
-                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-                geo.computeVertexNormals();
-                const m = new THREE.Mesh(geo, matPath);
-                m.castShadow = true; m.receiveShadow = true; g.add(m);
-            };
-            pathSlab(0.30, 1.75, 0.3,  31.6);   // perna SUL LARGA: cerca (0,12) → embasamento (1,77), recuo sul quase todo
-            pathSlab(0.30, 10.5, 31.6, 32.9);   // perna LESTE/curva NORTE (mais larga), até os fundos — encosta no degrau leste da gourmet (E1 36,6 +OE +0,45 ≈ 31,55)
-        }
-
-        // ── Cerca de contenção de animais — divide FRENTE × FUNDOS na junta (mE 17) ──
-        // O perímetro já é todo cercado; esta cerca interna impede os animais (que
-        // ficam nos fundos) de alcançar a garagem/pátio da frente. O vão da casa
-        // (mN 2→7,5) já é barrado pela parede oeste; fecham-se os 2 gaps: corredor
-        // SUL (mN 0→2, com PORTÃO onde o path cruza) + lado NORTE (mN 7,5→12,5).
-        // Só nas versões com paisagismo (v33/v34).
-        if (v === 'v33' || v === 'v34') {
-            const fX = 22.5 + OE;                          // junta (= parede oeste da casa) = mE 17 mundo
-            const gr = grade(fX);                          // declive constante nesta linha N-S
-            const matMour = new THREE.MeshStandardMaterial({ color: 0x7B3E28, roughness: 0.92, metalness: 0 });
-            const matRip  = new THREE.MeshStandardMaterial({ color: 0xC8823C, roughness: 0.88, metalness: 0 });
-            const matGate = new THREE.MeshStandardMaterial({ color: 0x556070, roughness: 0.5, metalness: 0.45 });
-            const PT = 0.12, FT = 0.03, FBOT = gr - 0.10, FTOP = gr + 1.95, FRAIL = gr + 1.80;
-            const gB = gr + 0.06, gT = gr + 1.70;          // cota dos portões (acima do solo)
-            // Mourões: pontas + divisórias do portãozinho, CENTRALIZADO no vão livre entre a
-            // parede da casa (mN 7,5) e a coluna do pilotis (~mN 10,3) → centro ~8,9. Portão LARGO
-            // (~1,3 m) p/ passar móveis/objetos maiores (mN 0, 2, 7,5, 8,2, 9,6, 12,5)
-            [0, 2.0, 7.5, 8.2, 9.6, 12.5].forEach(n => g.add(box3d(n - PT/2, fX - PT/2, PT, PT, FBOT, FTOP, matMour)));
-            // Painel de madeira (ripado vertical + travessa) entre n0 e n1
-            const ripPanel = (n0, n1) => {
-                const s = n0 + PT/2, e = n1 - PT/2, np = Math.max(1, Math.round((e - s)/0.13)), pw = (e - s)/np;
-                for (let j = 0; j < np; j++) g.add(box3d(s + j*pw, fX - FT/2, pw*0.72, FT, FBOT + 0.05, FRAIL, matRip));
-                g.add(box3d(n0, fX - FT/2, n1 - n0, FT, FRAIL - 0.08, FRAIL, matRip));   // travessa superior
-            };
-            ripPanel(7.5, 8.2);      // NORTE — trecho oeste (junto à casa)
-            ripPanel(9.6, 12.5);     // NORTE — trecho leste (passa a coluna até o muro)
-            // PORTÃO de pedestre LARGO, centralizado no vão livre (mN 8,26→9,54 ≈ 1,28 m)
-            {
-                const a = 8.26, b = 9.54;
-                g.add(box3d(a,        fX - 0.02, 0.06,  0.04, gB, gT, matGate));    // montante S
-                g.add(box3d(b - 0.06, fX - 0.02, 0.06,  0.04, gB, gT, matGate));    // montante N
-                g.add(box3d(a, fX - 0.02, b - a, 0.04, gT - 0.06, gT, matGate));    // travessa sup
-                g.add(box3d(a, fX - 0.02, b - a, 0.04, gB, gB + 0.06, matGate));    // travessa inf
-                for (let j = 1; j < 7; j++) g.add(box3d(a + (b - a - 0.06)*(j/7), fX - 0.015, 0.03, 0.03, gB, gT, matGate)); // barras
-            }
-            // PORTÃO SUL (mN 0→2): quadro metálico + barras verticais (path passa por baixo)
-            g.add(box3d(0.06, fX - 0.02, 0.06, 0.04, gB, gT, matGate));            // montante O
-            g.add(box3d(1.88, fX - 0.02, 0.06, 0.04, gB, gT, matGate));            // montante L
-            g.add(box3d(0.06, fX - 0.02, 1.88, 0.04, gT - 0.06, gT, matGate));     // travessa sup
-            g.add(box3d(0.06, fX - 0.02, 1.88, 0.04, gB, gB + 0.06, matGate));     // travessa inf
-            for (let j = 1; j < 9; j++) g.add(box3d(0.06 + 1.82*(j/9), fX - 0.015, 0.03, 0.03, gB, gT, matGate)); // barras
-        }
         // ── Escadas externas — NBR 9050 / Caixa ────────────────────────────────
         // Espelho (e) ≤ 19 cm (externas residenciais) · Blondel 2e+p = 0,64 m ·
         // degraus iguais · largura ≥ 1,20 m · corrimão bilateral em todas.
@@ -3508,7 +3370,7 @@
         _ph = PH.found; // escada dos fundos = fundação
         // No V3.4 a escada chega no deck da gourmet (GFL=−0,30), não no terreno:
         // assim tem ~3 degraus e o corrimão acompanha os degraus (não extrapola).
-        extStairs(4.70, 31.6 + OE, 1.20, 'E', v === 'v34' ? -0.30 : undefined); // nova parede leste mE=31,5 (face exterior 31,6)
+        extStairs(4.70, 31.6 + OE, 1.20, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
         _ph = 0; // contorno do lote = entorno (sempre visível)
 
         // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
@@ -4258,191 +4120,6 @@
                 // da casa, então esse beiral oversaila o telhado da casa na junta (detalhe normal
                 // de telhados em degrau: o mais alto joga a água sobre o mais baixo).
                 roof.add(tiltedSlab(matMetalRoof, gn0, GE1j, gn1, GE1j + BN_EW, GLAJE + 0.16, 0.10));
-                // ── V3.3: sistema de calhas/escoamento p/ a rua (só V3.3) ──────
-                // O telhado solar cai p/ NORTE → calha no beiral norte de cada bloco;
-                // descida no canto NO; condutor ELEVADO descendo p/ OESTE até a rua
-                // (mE=0 / boeiro). O pé do beiral do sobrado (~6 m de mundo) dá carga
-                // p/ vencer o aterro, que sobe em direção à rua (grade=−mE·2,5%): o
-                // condutor desce de ~+0,4 (no pé da descida) p/ +0,15 na sarjeta.
-                // Geometria no grupo roof (sobe com o 2º piso). Cotas em LOCAL do roof:
-                // world = local + LY quando o telhado está erguido sobre o sobrado.
-                if (v === 'v33' || v === 'v34') {            // V3.4 herda as calhas do V3.3
-                    const LY = CEIL3D + 0.16;                 // o roof sobe LY com o 2º piso
-                    const wl = yw => yw - LY;                 // altura de mundo → local do roof
-                    const matCalha = new THREE.MeshStandardMaterial({ color: 0xc9ccd1, roughness: 0.5, metalness: 0.35, envMapIntensity: 0.4 });
-                    const eaveL = CEIL3D + CPA + 0.16;        // beiral local (casa = garagem = 3,16)
-                    const GW = 0.14, GD = 0.13, drop = 0.02;  // calha: largura(mN) × altura, 2cm sob o beiral
-                    const PR  = 0.055;                        // raio dos tubos de queda (~Ø110)
-                    const PR2 = 0.075;                        // raio do TRONCO único (~Ø150) p/ a rua
-                    const gutTop = eaveL - drop, gutBot = gutTop - GD;   // cotas da calha (local)
-                    // tubo cilíndrico entre 2 pontos quaisquer (p/ conector diagonal calha→coluna)
-                    const pipeBetween = (x1,y1,z1, x2,y2,z2, r, mat) => {
-                        const a = new THREE.Vector3(x1,y1,z1), b = new THREE.Vector3(x2,y2,z2);
-                        const dir = new THREE.Vector3().subVectors(b,a);
-                        const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, Math.max(dir.length(),0.01), 12), mat);
-                        m.position.copy(a).add(b).multiplyScalar(0.5);
-                        m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone().normalize());
-                        m.castShadow = true; return m;
-                    };
-                    // ── Tronco único Ø150 enterrado, rente ao muro norte, até a rua ──
-                    // Todos os tubos de queda (2 casa + 2 garagem) descem nas COLUNAS, viram p/ o
-                    // norte sob o piso e despejam neste tronco, que corre rente ao muro (mN 12,30)
-                    // e desemboca na sarjeta da frente (mE 0). Declive baixo (a sarjeta é rasa);
-                    // a vazão da tempestade é vencida pelo Ø150 (~750 L/min), não pelo caimento.
-                    const nWall = 12.5 - 0.20;                // tronco rente ao muro norte (mN 12,30)
-                    const cl0 = 0.06, sSar = 0.006;           // centro do tronco na rua (mundo) + declive 0,6%
-                    const clW = e => cl0 + e * sSar;          // cota (mundo) do centro do tronco em X=e (cena; rua=0)
-                    // Calha no beiral norte de um bloco
-                    const calha = (nEave, gE0, gE1) =>
-                        roof.add(box3d(nEave - GW/2, gE0, GW, gE1 - gE0, gutBot, gutTop, matCalha));
-                    // Tubo de queda numa COLUNA (dN,dE): capta a calha (nEave), desce pela coluna
-                    // e despeja no tronco. `turnE` (opcional) = X onde o cano vira p/ o muro: quando
-                    // dado, o trecho horizontal corre JUNTO À PAREDE (E-O, em dN) até turnE e só ali
-                    // sobe p/ o muro — usado na casa NE p/ não cruzar o caminho perto da gourmet.
-                    // Tudo enterrado (sob o piso).
-                    const queda = (nEave, gE0, gE1, dN, dE, turnE) => {
-                        const jE = turnE === undefined ? dE : turnE;        // X de entrada no tronco
-                        const tapE = Math.max(gE0, Math.min(gE1, dE));      // ponto da calha junto à coluna
-                        roof.add(pipeBetween(tapE, gutBot, -nEave, dE, gutBot, -dN, PR, matCalha)); // conector calha→topo
-                        const yJoin = wl(clW(jE));                          // cota do tronco no ponto de entrada (local)
-                        const dn = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, gutBot - yJoin, 16), matCalha);
-                        dn.position.set(dE, (gutBot + yJoin) / 2, -dN); dn.castShadow = true; roof.add(dn); // vertical na coluna
-                        if (jE !== dE) roof.add(pipeBetween(dE, yJoin, -dN, jE, yJoin, -dN, PR, matCalha)); // corre junto à parede (E-O)
-                        roof.add(pipeBetween(jE, yJoin, -dN, jE, yJoin, -nWall, PR, matCalha));          // leg p/ o muro (em jE)
-                    };
-                    // Calhas + 4 tubos de queda nas colunas das DUAS extremidades de cada calha
-                    calha(gn1, ge0, GE1j);                                  // calha garagem
-                    queda(gn1, ge0, GE1j, GN1 + 0.06, GE0 + 0.10);         // garagem · coluna NO
-                    queda(gn1, ge0, GE1j, GN1 + 0.06, GE1j - 0.10);        // garagem · coluna NE (junta)
-                    calha(n1, e0, e1);                                      // calha casa
-                    const jUNTA = 22.5 + OE + 0.30;                         // entrada no muro junto aos outros tubos
-                    queda(n1, e0, e1, 7.66, 22.5 + OE);                     // casa · coluna NO (junta)
-                    queda(n1, e0, e1, 7.66, 31.5 + OE, jUNTA);             // casa · coluna NE (corre junto à parede → junta)
-                    // Tronco Ø150 até a sarjeta (X 0), rente ao muro. No V3.4 ESTENDE até a área
-                    // gourmet (X ~32,5) p/ receber a queda NE dela; no V3.3 para na junta.
-                    const xEast = (v === 'v34') ? (37 + OE) : jUNTA;        // X (cena) do feed mais a leste
-                    roof.add(pipeBetween(xEast, wl(clW(xEast)), -nWall, 0, wl(clW(0)), -nWall, PR2, matCalha));
-
-                    // ── V3.4: liga a ÁREA GOURMET ao tronco (calha leste + queda na coluna NE) ──
-                    // Telhado da gourmet cai p/ LESTE → calha no beiral leste (baixo) + tubo de queda
-                    // na coluna NE, descendo até o tronco. SEM tratamento p/ esconder (visualização crua).
-                    if (v === 'v34') {
-                        const gGFL = -0.30, gYW = gGFL + 3.50, gSL = 0.10;   // = bloco churrasqueira
-                        const gE0 = 31.6, gE1 = 36.6, gN0 = 2.0, gN1 = 10.5; // mE/mN (código) da gourmet
-                        const gYt = e => gYW - gSL * (e - gE0);              // cota do telhado (mundo) em mE=e
-                        const eaveE = (gE1 + 0.4) + OE;                      // X da calha (beiral leste c/ overhang)
-                        const gTop = gYt(gE1 + 0.4) - 0.02, gBot = gTop - GD; // cotas da calha (mundo)
-                        const cN0 = gN0 - 0.4, cN1 = gN1 + 0.4;             // extensão N-S do beiral
-                        roof.add(box3d(cN0, eaveE - GW/2, cN1 - cN0, GW, wl(gBot), wl(gTop), matCalha)); // calha leste (N-S)
-                        const dNg = gN1 - 0.10, dEg = (gE1 + 0.10) + OE;    // FACE LESTE da coluna NE (aparente, fora da coluna), sob a calha
-                        roof.add(pipeBetween(eaveE, wl(gBot), -dNg, dEg, wl(gBot), -dNg, PR, matCalha)); // conector calha→topo
-                        const yJg = wl(clW(dEg));                           // cota do tronco em dEg (local)
-                        const dng = new THREE.Mesh(new THREE.CylinderGeometry(PR, PR, wl(gBot) - yJg, 16), matCalha);
-                        dng.position.set(dEg, (wl(gBot) + yJg) / 2, -dNg); dng.castShadow = true; roof.add(dng); // queda na coluna NE
-                        roof.add(pipeBetween(dEg, yJg, -dNg, dEg, yJg, -nWall, PR, matCalha));            // leg p/ o muro → encaixa no tronco
-                    }
-
-                    // ── Canteiro contínuo na lateral norte (esconde o cano + paisagismo) ──
-                    // Arbustos assentados no TERRENO (grade) na faixa de grama ao longo do muro,
-                    // sobre o tronco. Grupo PRINCIPAL (g), no chão: NÃO sobem com o 2º piso.
-                    // A ALTURA cresce p/ os fundos acompanhando a subida do cano (clW) → cobre o
-                    // tronco em toda a faixa. No V3.4 vai até onde começa a jardineira (X ~21,8);
-                    // no V3.3 até o fim do tronco (junta, X ~17,6).
-                    const greens = [0x1d2912, 0x243318, 0x2c3e1c, 0x344a22, 0x202e15];  // folhagem oliva MUITO escura (verde quase mata) — ainda mais baixa que antes, lê escura mesmo sob sol cheio
-                    let pseed = 7;
-                    const prnd = () => { pseed = (pseed * 9301 + 49297) % 233280; return pseed / 233280; };
-                    // Arbusto realista: cluster de LÓBULOS (icosaedros jitterados, flat shading)
-                    // empilhados e afunilando p/ cima → silhueta orgânica de folhagem (não bola
-                    // lisa). Cores variadas por lóbulo. Camufla o cano entre as folhas.
-                    const leafMats = greens.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.93, metalness: 0, flatShading: true }));
-                    // Perf: em vez de 1 mesh por lóbulo (~950 no V3.4), coleta as geometrias
-                    // (já transladadas p/ a posição final) num bucket por cor e MESCLA no fim →
-                    // ~5 draws no lugar de ~950. Visualmente idêntico (folhagem estática).
-                    const shrubGeos = leafMats.map(() => []);
-                    const MURO_N = 12.33;   // face interna do muro norte (12,35) − folga: folhagem não atravessa
-                    // zMax/zMin (mN) = limites onde a folhagem NÃO pode passar (muro norte /
-                    // cerca sul). Default: clampa só o muro norte (canteiro do norte).
-                    const addShrub = (cx, baseY, cz, R, H, zMax = MURO_N, zMin = -1e9) => {
-                        const nL = 4 + Math.floor(prnd() * 2);                 // 4–5 lóbulos (mais cheio)
-                        for (let i = 0; i < nL; i++) {
-                            const frac = (i + 0.4) / nL;                       // base (0) → topo (1)
-                            const lr = R * (0.80 + prnd() * 0.30) * (1 - 0.28 * frac);  // maiores e + sobrepostos
-                            const geo = new THREE.IcosahedronGeometry(lr, 1);
-                            const pa = geo.attributes.position;
-                            for (let vi = 0; vi < pa.count; vi++)             // irregularidade (folhas)
-                                pa.setXYZ(vi, pa.getX(vi) * (1 + (prnd()-0.5)*0.45),
-                                              pa.getY(vi) * (1 + (prnd()-0.5)*0.45),
-                                              pa.getZ(vi) * (1 + (prnd()-0.5)*0.45));
-                            geo.computeVertexNormals();
-                            // (ordem das chamadas prnd() preservada p/ manter o layout determinístico)
-                            const matIdx = Math.floor(prnd() * leafMats.length);
-                            // clampa o lóbulo p/ NÃO atravessar o muro/cerca (raio efetivo c/ o jitter ≈ lr·1,25)
-                            let lz = cz + (prnd()-0.5)*R*0.6;
-                            if (lz + lr*1.25 > zMax) lz = zMax - lr*1.25;
-                            if (lz - lr*1.25 < zMin) lz = zMin + lr*1.25;
-                            geo.translate(cx + (prnd()-0.5)*R*0.6, baseY + frac*H, -lz);
-                            shrubGeos[matIdx].push(geo);   // mesclado no fim do bloco
-                        }
-                    };
-                    // Canteiro LARGO: usa toda a faixa de grama do norte (entre as estruturas e o
-                    // muro). Vários arbustos espalhados em PROFUNDIDADE, ESCALONADOS — baixos na
-                    // frente (sul) do canteiro, altos junto ao muro (norte) p/ cobrir o cano.
-                    const plantEnd = (v === 'v34') ? 21.8 : 17.6;
-                    const bandS = 10.6, bandN = 12.35;            // faixa do canteiro (sul → muro)
-                    for (let e = 0.6; e <= plantEnd; e += 0.38) {
-                        const nb = 2 + Math.floor(prnd() * 2);    // 2–3 arbustos por coluna (preenche a faixa)
-                        for (let k = 0; k < nb; k++) {
-                            const r = 0.28 + prnd() * 0.14;
-                            const nrow = bandS + r + prnd() * (bandN - bandS - 2 * r);   // profundidade aleatória
-                            const ej = e + (prnd() - 0.5) * 0.35;
-                            const t = (nrow - bandS) / (bandN - bandS);                  // 0 sul → 1 muro
-                            const cover = clW(ej) + 0.075 - grade(ej) + 0.28;            // +margem: sobe a linha de trás (cobre o cano)
-                            const Hp = Math.max(0.40, 0.40 + (cover - 0.40) * t) + (prnd() - 0.5) * 0.15;
-                            addShrub(ej, grade(ej), nrow, r, Hp);   // folhagem realista na grama
-                        }
-                    }
-
-                    // ── V3.4: jardineira de alvenaria embutindo o tronco elevado (gourmet) ──
-                    // No trecho da gourmet o tronco fica ~0,8–1,1 m acima do gramado (terreno cai
-                    // pros fundos, cano cai pra rua). Caixa de alvenaria (muro = parede norte) com
-                    // o cano por dentro + terra e plantas em cima. A queda na coluna NE segue
-                    // APARENTE e entra na jardineira. Grupo `g` (chão) — alinha com o tronco na
-                    // vista do sobrado (telhado erguido).
-                    if (v === 'v34') {
-                        const jX0 = 21.8, jX1 = 37 + OE;           // do fim dos arbustos até a ponta do tronco
-                        const jNs = 10.6, jNn = 12.42, T = 0.12;   // LARGA (mesma faixa do canteiro) → muro; espessura
-                        const jBase = grade(jX1), jTop = -0.40;    // bed BAIXO: o cano fica ACIMA (não dentro), entre as plantas
-                        const soilMat = new THREE.MeshStandardMaterial({ color: 0x6b4f33, roughness: 1.0, metalness: 0 });
-                        g.add(box3d(jNs,     jX0,     T,           jX1 - jX0,           jBase, jTop, matWall)); // borda sul (face gourmet)
-                        g.add(box3d(jNs,     jX0,     jNn - jNs,   T,                   jBase, jTop, matWall)); // tampa oeste
-                        g.add(box3d(jNs,     jX1 - T, jNn - jNs,   T,                   jBase, jTop, matWall)); // tampa leste
-                        g.add(box3d(jNs + T, jX0 + T, (jNn-jNs)-2*T, (jX1-jX0)-2*T,     jTop - 0.08, jTop - 0.01, soilMat)); // terra do bed
-                        // Arbustos plantados no bed, ALTOS o bastante p/ cobrir o cano (que passa
-                        // ACIMA, entre eles). Escalonados: baixos na frente (sul), altos no muro.
-                        for (let e = jX0 + 0.3; e <= jX1 - 0.3; e += 0.34) {
-                            const nb = 2 + Math.floor(prnd() * 2);
-                            for (let k = 0; k < nb; k++) {
-                                const r = 0.26 + prnd() * 0.14;
-                                const nrow = jNs + 0.2 + prnd() * (jNn - jNs - 0.35);
-                                const ej = e + (prnd() - 0.5) * 0.3;
-                                const tt = (nrow - jNs) / (jNn - jNs);                   // 0 sul → 1 muro
-                                const cover = (clW(ej) + 0.075) - jTop + 0.30;           // +margem: sobe a linha de trás
-                                const Hp = Math.max(0.45, 0.45 + (cover - 0.45) * tt) + (prnd() - 0.5) * 0.15;
-                                addShrub(ej, jTop, nrow, r, Hp);    // folhagem realista no bed
-                            }
-                        }
-                    }
-                    // Flush: mescla os lóbulos por cor → 1 mesh por material (folhagem estática).
-                    shrubGeos.forEach((geos, i) => {
-                        if (!geos.length) return;
-                        const merged = THREE.BufferGeometryUtils.mergeBufferGeometries(geos, false);
-                        geos.forEach(gg => gg.dispose());   // libera as geometrias-fonte
-                        if (!merged) return;
-                        const sm = new THREE.Mesh(merged, leafMats[i]);
-                        sm.castShadow = true; sm.receiveShadow = true;
-                        g.add(sm);
-                    });
-                }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
                 // laje 1 (intermediária, no grupo floor2), não no teto que cobre tudo.
@@ -4588,122 +4265,6 @@
 
         g.add = _origAdd; // cotas (buildDims3D) e qualquer add posterior sem carimbo → sempre visíveis
 
-        // ── V3.4: área gourmet / churrasqueira (extrusão do esboço 2D) ───────
-        // Quintal leste, encostada na parede leste da casa (cód. mE 31,6), em
-        // volta da porta dos fundos. Cocção na parede SUL; mesa E-O no centro.
-        // Telhado de uma água caindo p/ LESTE (longe da casa). No grupo `g`
-        // (chão) → não sobe/some com os toggles de 2º piso/telhado da casa.
-        // Coords de CÓDIGO (mE); helpers locais somam OE (geometria manual).
-        if (v === 'v34') {
-            const N0 = 2.0, N1 = 10.5, E0 = 31.6, E1 = 36.6;  // footprint (mN, mE cód.) — face norte alinhada à garagem (GN1=10,5); prof. 5,0 m (era 6,0; −1 m p/ o pátio dos fundos)
-            const GFL = -0.30;                                 // piso acabado ELEVADO e plano (~2 degraus acima do quintal)
-            const yWest = GFL + 3.50, slope = 0.10, RT = 0.12; // telhado: alto a oeste, 10% p/ leste (elevado)
-            const yt = e => yWest - slope * (e - E0);          // cota do topo do telhado (e em cód.)
-            const X = e => e + OE;                             // mE cód. → cena
-            // fbox/fcyl com OE embutido
-            const fb = (n, e, dn, de, z0, z1, c, ex) => fbox(g, n, e + OE, dn, de, z0, z1, c, ex);
-            const fc = (n, e, r, z0, z1, c, ex) => fcyl(g, n, e + OE, r, z0, z1, c, ex);
-            // BufferGeometry de quad extrudado (8 verts: 4 topo + 4 base)
-            const quad8 = (verts, mat) => {
-                const tri = (a, b, c) => [...verts[a], ...verts[b], ...verts[c]];
-                const pos = new Float32Array([
-                    ...tri(0, 2, 1), ...tri(0, 3, 2),   // topo
-                    ...tri(4, 5, 6), ...tri(4, 6, 7),   // base
-                    ...tri(0, 1, 5), ...tri(0, 5, 4),   // oeste
-                    ...tri(3, 7, 6), ...tri(3, 6, 2),   // leste
-                    ...tri(0, 4, 7), ...tri(0, 7, 3),   // sul
-                    ...tri(1, 2, 6), ...tri(1, 6, 5),   // norte
-                ]);
-                const geo = new THREE.BufferGeometry();
-                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-                geo.computeVertexNormals();
-                const m = new THREE.Mesh(geo, mat);
-                m.castShadow = true; m.receiveShadow = true; g.add(m);
-            };
-            // Materiais
-            const wallMat = new THREE.MeshStandardMaterial({ color: 0x7a5230, roughness: 0.9, side: THREE.DoubleSide }); // alvenaria (marrom, casa V3.2)
-            const deckMat = new THREE.MeshStandardMaterial({ color: 0xcdb78f, roughness: 0.9 });
-            const roofMat = new THREE.MeshStandardMaterial({ color: 0x7d8388, roughness: 0.55, metalness: 0.45, side: THREE.DoubleSide });
-            const brick = fmat(0xa9551f, { roughness: 0.92 });
-            const ember = fmat(0x2b2b30, { roughness: 0.8 });
-            const grate = fmat(0x9a9a9a, { metalness: 0.55, roughness: 0.45 });
-            const chimn = fmat(0x6b7480, { roughness: 0.75 });
-            const cMat  = fmat(0xe2dfd7, { roughness: 0.5, metalness: 0.1 });
-            const sinkM = fmat(0xb9c0c6, { metalness: 0.6, roughness: 0.3 });
-            const wood  = fmat(0xb07d3f, { roughness: 0.7 });
-            const woodD = fmat(0x7c5320, { roughness: 0.7 });
-
-            // Embasamento (contrapiso sobre o declive — não flutua) + deck
-            fb(N0, E0, N1 - N0, E1 - E0, grade(X(E1)), GFL - 0.03, matEmbase); // base até a cota natural mais baixa (leste)
-            fb(N0, E0, N1 - N0, E1 - E0, GFL - 0.03, GFL, deckMat);            // piso acabado
-
-            // Degrau CONTÍNUO no lado LESTE (desce do deck p/ o gramado).
-            // Norte SEM degrau: o piso se estende e liga à escada da porta de correr.
-            {
-                const stepMat = fmat(0xcfc9bd, { roughness: 0.9 });
-                const SD = 0.45, sTop = GFL - 0.20, sBase = grade(X(E1 + SD)) - 0.12;
-                fb(N0, E1, (N1 - N0), SD, sBase, sTop, stepMat);                 // lado leste
-            }
-            // Braço do piso ao NORTE da casa → liga à escada da porta de correr (sala)
-            {
-                const aN0 = 7.5, aE0 = 26.8;                                      // até a base da escada da porta de correr
-                fb(aN0, aE0, N1 - aN0, E0 - aE0, grade(X(E0)), GFL - 0.03, matEmbase); // embasamento
-                fb(aN0, aE0, N1 - aN0, E0 - aE0, GFL - 0.03, GFL, deckMat);            // piso
-            }
-
-            // Parede SUL raked (segue o telhado) — encosto da cocção.
-            // Base desce até a cota natural (grade leste, mais baixa) p/ NÃO flutuar.
-            {
-                const th = 0.20, yb = grade(X(E1)), yU = e => yt(e) - RT;
-                quad8([
-                    [X(E0), yb, -N0], [X(E1), yb, -N0], [X(E1), yU(E1), -N0], [X(E0), yU(E0), -N0],
-                    [X(E0), yb, -(N0 - th)], [X(E1), yb, -(N0 - th)], [X(E1), yU(E1), -(N0 - th)], [X(E0), yU(E0), -(N0 - th)],
-                ], wallMat);
-            }
-
-            // Colunas (linha leste — beiral baixo da água)
-            const colBot = grade(X(E1));
-            [N0, (N0 + N1) / 2 - 0.10, N1 - 0.20].forEach(n =>
-                fb(n, E1 - 0.20, 0.20, 0.20, colBot, yt(E1) - RT, matEmbase));
-            // Coluna NW: a borda alta (oeste) só encosta na casa até mN 7,5; com a área
-            // passando do canto norte da casa, esta coluna sustenta o beiral alto ali.
-            fb(N1 - 0.20, E0, 0.20, 0.20, grade(X(E0)), yt(E0) - RT, matEmbase);
-
-            // Telhado de uma água (overhang 0,4 m a N/S/L; rente à casa a oeste)
-            {
-                const oh = 0.4, e0 = E0, e1 = E1 + oh, n0 = N0 - oh, n1 = N1 + oh;
-                quad8([
-                    [X(e0), yt(e0), -n0], [X(e0), yt(e0), -n1], [X(e1), yt(e1), -n1], [X(e1), yt(e1), -n0],
-                    [X(e0), yt(e0) - RT, -n0], [X(e0), yt(e0) - RT, -n1], [X(e1), yt(e1) - RT, -n1], [X(e1), yt(e1) - RT, -n0],
-                ], roofMat);
-            }
-
-            // ── Bancada com pia (parede sul, oeste) ──────────────────────────
-            fb(2.20, 32.00, 0.62, 2.00, GFL, GFL + 0.90, cMat);                 // bancada
-            fb(2.32, 32.58, 0.40, 0.80, GFL + 0.80, GFL + 0.89, sinkM);          // cuba
-            fc(2.30, 33.70, 0.022, GFL + 0.90, GFL + 1.18, sinkM);               // torneira (haste)
-            fb(2.34, 33.55, 0.05, 0.18, GFL + 1.12, GFL + 1.18, sinkM);          // bica
-
-            // ── Churrasqueira de alvenaria com chaminé (parede sul, leste) ───
-            fb(2.20, 34.20, 1.00, 1.80, GFL, GFL + 1.10, brick);                 // corpo (tijolo)
-            fb(2.35, 34.40, 0.65, 1.40, GFL + 0.85, GFL + 1.06, ember);          // braseiro (recesso)
-            for (let i = 0; i < 5; i++)
-                fb(2.42 + i * 0.11, 34.42, 0.03, 1.36, GFL + 0.95, GFL + 0.98, grate); // grelha
-            const chimTop = yt(35.10) + 0.35;                                    // 0,35 m acima do telhado no ponto da chaminé
-            fb(2.20, 34.78, 0.50, 0.64, GFL + 1.10, chimTop, chimn);             // chaminé (duto, atravessa o telhado)
-            fb(2.13, 34.70, 0.64, 0.80, chimTop, chimTop + 0.15, chimn);         // capa da chaminé
-
-            // ── Mesa comprida com bancos (estilo gaúcho, eixo N-S) ───────────
-            fb(4.50, 34.15, 3.20, 0.90, GFL + 0.72, GFL + 0.78, wood);           // tampo
-            [[4.58, 34.25], [7.54, 34.25], [4.58, 34.87], [7.54, 34.87]].forEach(([n, e]) =>
-                fb(n, e, 0.08, 0.08, GFL, GFL + 0.72, woodD));                    // pernas da mesa
-            [33.70, 35.12].forEach(e => {                                         // 2 bancos (oeste/leste)
-                fb(4.50, e, 3.20, 0.38, GFL + 0.42, GFL + 0.47, wood);          // assento
-                [[4.65, e + 0.05], [6.00, e + 0.05], [7.50, e + 0.05]].forEach(([n, ee]) =>
-                    fb(n, ee, 0.06, 0.06, GFL, GFL + 0.42, woodD));               // pernas do banco
-            });
-        }
-
         buildDims3D(g, v);
         return g;
     }
@@ -4791,7 +4352,7 @@
     }
 
     function buildDims3D(g, v) {
-        const rv = (v === 'v4' || v === 'v33' || v === 'v34') ? 'v32' : v;
+        const rv = (v === 'v4') ? 'v32' : v;
         const hasGarage = (rv === 'v2' || rv === 'v3' || rv === 'v31' || rv === 'v32');
         // Afastamentos — branco (mesmas cotas do 2D, seguem o OE)
         const eFrente = hasGarage ? 13.5 + OE : 22.5 + OE;
@@ -5086,7 +4647,7 @@
         if (!roof) return;
         S._dirty = true;
         const ph = (v === 'v1') ? buildPhase : 7;
-        const noun = (v === 'v31' || v === 'v32' || v === 'v33' || v === 'v34') ? 'Telhado' : 'Laje';
+        const noun = (v === 'v31' || v === 'v32') ? 'Telhado' : 'Laje';
         // V1: a laje só pode existir sobre as colunas + vigas (fase ≥ 3); senão flutuaria
         // no ar. Bloqueia o botão de revelá-la antes da estrutura estar pronta.
         if (v === 'v1' && ph < 3 && !roof.visible) {
@@ -5219,7 +4780,7 @@
             maxNativeZoom: 18, maxZoom: 25
         }).addTo(map);
 
-        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32' || v === 'v33' || v === 'v34' || v === 'v4') ? v3Layers() : buildLayers(v)).addTo(map);
+        const overlay = L.layerGroup((v === 'v3' || v === 'v31' || v === 'v32' || v === 'v4') ? v3Layers() : buildLayers(v)).addTo(map);
         maps[v] = map;
         map._overlay = overlay;
 
