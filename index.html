@@ -4503,6 +4503,15 @@
         S._dirty = true;
         const ph = (v === 'v1') ? buildPhase : 7;
         const noun = (v === 'v3') ? 'Telhado' : 'Laje';
+        // V3: o telhado é EXCLUSIVO do 2º pavimento — não pode ser revelado com o 2º piso
+        // oculto (senão apareceria "solto" sobre o térreo). Mostre o 2º piso primeiro.
+        if (v === 'v3') {
+            const f2 = S.group.getObjectByName('floor2');
+            if (f2 && !f2.visible && !roof.visible) {
+                btn.textContent = noun + ': oculto (mostre o 2º piso)';
+                return;
+            }
+        }
         // V1: a laje só pode existir sobre as colunas + vigas (fase ≥ 3); senão flutuaria
         // no ar. Bloqueia o botão de revelá-la antes da estrutura estar pronta.
         if (v === 'v1' && ph < 3 && !roof.visible) {
@@ -4517,8 +4526,9 @@
         btn.textContent = noun + ': ' + (roof.visible ? 'visível' : 'oculto');
     }
 
-    // V3: mostra/oculta o 2º pavimento. Quando visível, a laje de cobertura (roof)
-    // sobe para cobri-lo (sobrado); quando oculto, volta ao topo do térreo.
+    // V3: mostra/oculta o 2º pavimento. O telhado é EXCLUSIVO do 2º piso — fica sempre
+    // na cota do sobrado (CEIL3D+0,16, nunca cai pro térreo) e some junto quando o 2º
+    // piso é ocultado (não existe sem o andar que ele cobre).
     function set3DFloor2(v, btn) {
         const S = scenes3d[v];
         if (!S || !S.group) return;
@@ -4528,7 +4538,17 @@
         f2.visible = !f2.visible;
         btn.textContent = '2º piso: ' + (f2.visible ? 'visível' : 'oculto');
         const roof = S.group.getObjectByName('roof');
-        if (roof) roof.position.y = f2.visible ? (CEIL3D + 0.16) : 0;
+        if (roof) {
+            roof.position.y = CEIL3D + 0.16;   // telhado sempre na cota do sobrado
+            if (!f2.visible && roof.visible) {
+                roof.visible = false;          // 2º piso oculto → telhado some junto
+                const noun = (v === 'v3') ? 'Telhado' : 'Laje';
+                const host = document.getElementById('scene3d-' + v);
+                const rbtn = host && [...host.querySelectorAll('.scene3d-toolbar button')]
+                    .find(b => /set3DRoof/.test(b.getAttribute('onclick') || ''));
+                if (rbtn) rbtn.textContent = noun + ': oculto';
+            }
+        }
     }
 
     // ── HUD: bússola + slider de horário/mês ────────────────────────────────
