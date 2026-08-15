@@ -10,6 +10,7 @@
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
     <style>
         :root {
             --m: 13px;
@@ -3214,6 +3215,8 @@
                                                        polygonOffset: true, polygonOffsetFactor: 4, polygonOffsetUnits: 4 });
         loadSatelliteTexture((tex, ok) => {   // CORS pode falhar → mantém verde (fallback)
             if (ok > 0) { satGroundMat.map = tex; satGroundMat.color.set(0xffffff); satGroundMat.needsUpdate = true; }
+            // async: com render sob demanda, precisa acordar as cenas p/ mostrar o satélite
+            Object.keys(scenes3d).forEach(k => { if (scenes3d[k]) scenes3d[k]._dirty = true; });
         });
         return satGroundMat;
     }
@@ -3228,9 +3231,28 @@
     }
 
     // ── Móveis realistas por tipo (m3d) ─────────────────────────────────────
+    // Cache de materiais por build: fmat era chamado dentro de loops (livros da
+    // estante, puxadores, faróis…) criando dezenas de MeshStandardMaterial idênticos
+    // (V1: 241 materiais → só 87 assinaturas). Memoiza por assinatura → 1 objeto por
+    // combinação, reusado entre as peças. É por-build (resetado em buildBuilding3D):
+    // não vaza entre cenas e o dispose da reconstrução continua liberando tudo. Seguro
+    // porque materiais de fmat nunca são mutados após criados (a pintura do V4 mexe só
+    // em matWall/matEmbase, que não passam por aqui).
+    let _fmatCache = null;
+    function _matSig(m) {
+        return m.color.getHexString() + '|' + m.roughness + '|' + m.metalness + '|' +
+            m.transparent + '|' + m.opacity + '|' + m.side + '|' + (m.flatShading ? 1 : 0) + '|' +
+            m.envMapIntensity + '|' + m.emissive.getHexString() + '|' + m.emissiveIntensity + '|' +
+            (m.polygonOffset ? 1 : 0) + '|' + m.polygonOffsetFactor + '|' + m.polygonOffsetUnits;
+    }
     function fmat(color, extra) {
-        return new THREE.MeshStandardMaterial(Object.assign(
+        const m = new THREE.MeshStandardMaterial(Object.assign(
             { color: col3d(color), roughness: 0.6, metalness: 0.05, envMapIntensity: 0.4 }, extra || {}));
+        if (!_fmatCache) return m;
+        const k = _matSig(m);
+        const hit = _fmatCache.get(k);
+        if (hit) { m.dispose(); return hit; }   // descarta o recém-criado e reusa o idêntico
+        _fmatCache.set(k, m); return m;
     }
     function fbox(g, n, e, dn, de, z0, z1, color, extra) {
         const m = box3d(n, e, dn, de, z0, z1, (color && color.isMaterial) ? color : fmat(color, extra));
@@ -3592,6 +3614,7 @@
 
     // Constrói o grupo 3D do prédio a partir do modelo (paredes c/ vãos + móveis + lajes)
     function buildBuilding3D(v) {
+        _fmatCache = new Map();   // dedup de materiais de móveis dentro deste build (ver fmat)
         const bv = v === 'v11' ? 'v1' : v; // v11 herda comportamento de v1
         const rv = (v === 'v4' || v === 'v33' || v === 'v34') ? 'v32' : v; // V4 (obra), V3.3 (calhas) e V3.4 (churrasqueira) renderizam igual ao V3.2 (rv); `v` guarda a identidade (fases / calhas / churrasqueira)
         const model = captureModel(v);
@@ -4811,6 +4834,10 @@
                     // empilhados e afunilando p/ cima → silhueta orgânica de folhagem (não bola
                     // lisa). Cores variadas por lóbulo. Camufla o cano entre as folhas.
                     const leafMats = greens.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.93, metalness: 0, flatShading: true }));
+                    // Perf: em vez de 1 mesh por lóbulo (~950 no V3.4), coleta as geometrias
+                    // (já transladadas p/ a posição final) num bucket por cor e MESCLA no fim →
+                    // ~5 draws no lugar de ~950. Visualmente idêntico (folhagem estática).
+                    const shrubGeos = leafMats.map(() => []);
                     const MURO_N = 12.33;   // face interna do muro norte (12,35) − folga: folhagem não atravessa
                     // zMax/zMin (mN) = limites onde a folhagem NÃO pode passar (muro norte /
                     // cerca sul). Default: clampa só o muro norte (canteiro do norte).
@@ -4826,13 +4853,14 @@
                                               pa.getY(vi) * (1 + (prnd()-0.5)*0.45),
                                               pa.getZ(vi) * (1 + (prnd()-0.5)*0.45));
                             geo.computeVertexNormals();
-                            const m = new THREE.Mesh(geo, leafMats[Math.floor(prnd() * leafMats.length)]);
+                            // (ordem das chamadas prnd() preservada p/ manter o layout determinístico)
+                            const matIdx = Math.floor(prnd() * leafMats.length);
                             // clampa o lóbulo p/ NÃO atravessar o muro/cerca (raio efetivo c/ o jitter ≈ lr·1,25)
                             let lz = cz + (prnd()-0.5)*R*0.6;
                             if (lz + lr*1.25 > zMax) lz = zMax - lr*1.25;
                             if (lz - lr*1.25 < zMin) lz = zMin + lr*1.25;
-                            m.position.set(cx + (prnd()-0.5)*R*0.6, baseY + frac*H, -lz);
-                            m.castShadow = true; m.receiveShadow = true; g.add(m);
+                            geo.translate(cx + (prnd()-0.5)*R*0.6, baseY + frac*H, -lz);
+                            shrubGeos[matIdx].push(geo);   // mesclado no fim do bloco
                         }
                     };
                     // Canteiro LARGO: usa toda a faixa de grama do norte (entre as estruturas e o
@@ -4883,6 +4911,16 @@
                             }
                         }
                     }
+                    // Flush: mescla os lóbulos por cor → 1 mesh por material (folhagem estática).
+                    shrubGeos.forEach((geos, i) => {
+                        if (!geos.length) return;
+                        const merged = THREE.BufferGeometryUtils.mergeBufferGeometries(geos, false);
+                        geos.forEach(gg => gg.dispose());   // libera as geometrias-fonte
+                        if (!merged) return;
+                        const sm = new THREE.Mesh(merged, leafMats[i]);
+                        sm.castShadow = true; sm.receiveShadow = true;
+                        g.add(sm);
+                    });
                 }
             } else if (rv === 'v3' || rv === 'v31' || rv === 'v32') {
                 // V3: laje 2 (teto do 2º piso) — SÓLIDA. O vão da escada fica na
@@ -5169,6 +5207,7 @@
         ctx.textBaseline = 'middle';
         ctx.fillText(txt, W / 2, H / 2);
         const tex = new THREE.CanvasTexture(cv);
+        tex.encoding = THREE.sRGBEncoding;   // canvas já é sRGB → evita dupla conversão (rótulo lavado)
         const mat = new THREE.SpriteMaterial({ map: tex, depthTest: false, sizeAttenuation: true });
         const sp = new THREE.Sprite(mat);
         sp.scale.set(0.55, 0.23, 1);
@@ -5192,8 +5231,10 @@
         ctx.font = 'bold 30px "JetBrains Mono",monospace';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(txt, W/2, H/2);
+        const _lt = new THREE.CanvasTexture(cv);
+        _lt.encoding = THREE.sRGBEncoding;   // canvas já é sRGB → evita dupla conversão
         const sp = new THREE.Sprite(new THREE.SpriteMaterial({
-            map: new THREE.CanvasTexture(cv), depthTest: false, transparent: true
+            map: _lt, depthTest: false, transparent: true
         }));
         sp.scale.set(W / 64 * 0.55, 0.55, 1);
         return sp;
@@ -5292,7 +5333,34 @@
         if (S.scene) S.scene.background.setHSL(0.58, 0.5, 0.10 + 0.45 * day); // céu: noite→dia
         S.hour = hour; S.month = month;
         S.elevDeg = Math.asin(Math.max(-1, Math.min(1, U))) * 180/Math.PI;
+        S._dirty = true;   // sol/céu mudaram → redesenhar
         return S.elevDeg;
+    }
+
+    // Libera GPU do grupo antigo antes de reconstruir (init3D reconstrói a cada
+    // abertura de aba). Preserva os singletons compartilhados entre rebuilds/cenas:
+    // texturas cacheadas (TEX3D.*) e o material/mapa do satélite (satGroundMat).
+    const _TEX_SLOTS = ['map','normalMap','roughnessMap','metalnessMap','emissiveMap',
+                        'aoMap','alphaMap','bumpMap','displacementMap','envMap','lightMap'];
+    function disposeObject3D(root) {
+        if (!root) return;
+        const keepMat = new Set();
+        if (satGroundMat) keepMat.add(satGroundMat);
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall].filter(Boolean));
+        if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
+        root.traverse(obj => {
+            if (obj.geometry && obj.geometry.dispose) obj.geometry.dispose();   // sempre único
+            const mats = obj.material
+                ? (Array.isArray(obj.material) ? obj.material : [obj.material]) : [];
+            for (const m of mats) {
+                if (!m || keepMat.has(m)) continue;
+                for (const slot of _TEX_SLOTS) {
+                    const t = m[slot];
+                    if (t && t.isTexture && !keepTex.has(t)) t.dispose();
+                }
+                m.dispose();
+            }
+        });
     }
 
     function init3D(v) {
@@ -5310,7 +5378,7 @@
             camera.position.set(8, 15, 10);   // sudoeste/acima — vê a frente (oeste) e a lateral sul
 
             const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));   // cap: DPR 3–4x renderiza 9–16x pixels sem ganho visível
             renderer.setSize(W, H);
             renderer.outputEncoding = THREE.sRGBEncoding;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -5328,6 +5396,8 @@
             const controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.maxPolarAngle = Math.PI / 2 - 0.02;   // não passar por baixo do chão
+            controls.minDistance = 3;     // não atravessar as paredes / entrar no near-plane
+            controls.maxDistance = 150;   // não perder a casa de vista (satélite ~140 m; far do camera = 500)
             controls.target.set(26, 1.2, -4.5);   // centro da casa (mE 26, mN 4,5 → Z −4,5)
 
             // Céu + ambiente
@@ -5340,22 +5410,36 @@
             sun.target.position.set(26, 1.0, -4.5);
             scene.add(sun, sun.target);
 
-            const d = 16;   // meia-extensão do frustum de sombra (cobre o lote da casa)
+            const d = 16;   // meia-extensão do frustum de sombra (cobre o cluster da casa)
             sun.shadow.camera.left = -d;  sun.shadow.camera.right = d;
             sun.shadow.camera.top  =  d;  sun.shadow.camera.bottom = -d;
-            sun.shadow.camera.near = 1;   sun.shadow.camera.far = 160;
+            // Sol fica a distância fixa R=90 do alvo (setSun3D). O conteúdo cai entre
+            // ~63 e ~115 ao longo da luz em TODOS os ângulos (medido no pior caso V3.4).
+            // Como o shadow camera do DirectionalLight é ortográfico (precisão LINEAR em
+            // [near,far]), apertar de 1..160 p/ 50..125 dá ~2,1× mais precisão de
+            // profundidade → menos shadow acne — sem cortar sombra (margem ~13/10).
+            sun.shadow.camera.near = 50;  sun.shadow.camera.far = 125;
             sun.shadow.mapSize.set(2048, 2048);
             sun.shadow.bias = -0.0004;
             sun.shadow.normalBias = 0.02;
 
-            S = scenes3d[v] = { scene, camera, renderer, controls, group: null, sun, hemi, month: 4, hour: 14.5 };
+            S = scenes3d[v] = { scene, camera, renderer, controls, group: null, sun, hemi, month: 4, hour: 14.5, _dirty: true };
             buildHud3D(v, host, S);     // bússola + slider de horário/mês
             setSun3D(S, 14.5, 4);       // posição solar inicial (~14h30, maio)
             syncHud3D(S);
 
+            // Render sob demanda: só desenha quando algo muda (câmera, sol, toggles,
+            // rebuild, satélite async). O evento 'change' do OrbitControls dispara a
+            // cada frame enquanto a câmera se move (inclusive na inércia do damping),
+            // mantendo o loop "aceso" até assentar. Cenas de painéis ocultos (outra
+            // versão ou aba 2D/Medidas) não renderizam nada.
+            controls.addEventListener('change', () => { S._dirty = true; });
             (function animate() {
                 S._raf = requestAnimationFrame(animate);
-                controls.update();
+                if (host.offsetParent === null) return;   // painel oculto → não renderiza
+                controls.update();                         // damping; emite 'change' enquanto move
+                if (!S._dirty) return;                     // nada mudou → pula o render
+                S._dirty = false;
                 updateCompass3D(S);
                 renderer.render(scene, camera);
             })();
@@ -5365,11 +5449,12 @@
         }
 
         // (Re)constrói o prédio a cada abertura → 3D sempre reflete o 2D atual
-        if (S.group) S.scene.remove(S.group);
+        if (S.group) { S.scene.remove(S.group); disposeObject3D(S.group); }
         S.group = buildBuilding3D(v);
         S.scene.add(S.group);
         applyBuildPhase(v);
         resize3D(v);
+        S._dirty = true;   // reconstruiu → precisa desenhar
     }
 
     function resize3D(v) {
@@ -5379,6 +5464,7 @@
         S.camera.aspect = host.clientWidth / host.clientHeight;
         S.camera.updateProjectionMatrix();
         S.renderer.setSize(host.clientWidth, host.clientHeight);
+        S._dirty = true;
     }
 
     // Fase da obra: oculta tudo que tem userData.ph > fase. Só V1; outras versões
@@ -5387,6 +5473,7 @@
     function applyBuildPhase(v) {
         const S = scenes3d[v];
         if (!S || !S.group) return;
+        S._dirty = true;
         // V4: sobrado solar com timeline de 11 fases. Tudo (inclusive os grupos
         // roof = telhado e floor2 = 2º pav) é carimbado com userData.ph; o slider
         // revela progressivamente. Os 2 grupos sobem para a posição de sobrado e
@@ -5456,6 +5543,7 @@
     function set3DEsperas(v, btn) {
         const S = scenes3d[v];
         if (!S || !S.group) return;
+        S._dirty = true;
         S.espRevealed = !S.espRevealed;
         const revealed = S.espRevealed;
         const ph = (v === 'v1') ? buildPhase : 7;
@@ -5475,6 +5563,7 @@
         if (!S || !S.group) return;
         const roof = S.group.getObjectByName('roof');
         if (!roof) return;
+        S._dirty = true;
         const ph = (v === 'v1') ? buildPhase : 7;
         const noun = (v === 'v31' || v === 'v32' || v === 'v33' || v === 'v34') ? 'Telhado' : 'Laje';
         // V1: a laje só pode existir sobre as colunas + vigas (fase ≥ 3); senão flutuaria
@@ -5498,6 +5587,7 @@
         if (!S || !S.group) return;
         const f2 = S.group.getObjectByName('floor2');
         if (!f2) return;
+        S._dirty = true;
         f2.visible = !f2.visible;
         btn.textContent = '2º piso: ' + (f2.visible ? 'visível' : 'oculto');
         const roof = S.group.getObjectByName('roof');
