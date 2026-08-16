@@ -3775,9 +3775,18 @@
             g.add(mkPipe(P1, P2));   // trecho ao longo da divisa até a frente
             // Joelhos no pé da prumada e na curva
             [P0, P1].forEach(p => { const j = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 8), pipeMat); j.position.copy(p); g.add(j); });
+        }
+
+        // ── Caixa de ligação + aterro gramado do canto sul: infra de SOLO que persiste da
+        // obra do V1 → aparece TAMBÉM no V3 (o telhado solar do V3 reusa exatamente esta
+        // caixa/ligação pública; o coletor norte novo termina nela). A prumada/aba SW e o
+        // dreno sul acima ficam SÓ no V1/V2 (obsoletos no V3: o telhado cai p/ o norte, sem
+        // telha sul p/ drenar aqui). Sempre visível no V3 (ph=7); no V1 segue o acabamento.
+        if (bv === 'v1' || bv === 'v2' || rv === 'v3') {
+            _ph = PH.acab;
             // Caixa de ligação à rede pública, na frente (tampa rente ao solo da calçada)
             const caixaMat = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, roughness: 0.9, metalness: 0 });
-            g.add(box3d(-DIV_Z - 0.25, -0.25, 0.5, 0.5, -0.90, grade(0) + 0.03, caixaMat));
+            g.add(box3d(0.15, -0.25, 0.5, 0.5, -0.90, grade(0) + 0.03, caixaMat));
 
             // ── Aterro do CANTO SUL: berma GRAMADA cobrindo o trecho EXPOSTO do dreno (a
             // garagem já tem o seu aterro em mN≥2). RECUADO p/ dentro da cerca sul (mN 0→0,12)
@@ -3837,7 +3846,6 @@
             const G_eaveN = 10.5 + 0.90, H_eaveN = 7.5 + 0.90;       // mN 11,4 / 8,4
             const gutMat   = new THREE.MeshStandardMaterial({ color: 0xb9bfc4, roughness: 0.5, metalness: 0.35 });
             const pipeMat3 = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 0.55, metalness: 0.1 });
-            const caixaMat3 = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, roughness: 0.9, metalness: 0 });
             // Calha (U raso) pendurada sob o beiral norte, straddling a pingadeira
             const calha = (e0, e1, eaveN) => drain.add(box3d(eaveN - 0.03, e0, 0.15, e1 - e0, EAVE_Y - 0.14, EAVE_Y - 0.02, gutMat));
             calha(G_e0, G_e1, G_eaveN);
@@ -3875,8 +3883,8 @@
             // Tronco: divisa norte (E→O) e travessia da frente até a caixa
             [[N_h, N_g2], [N_g2, N_g1], [N_g1, N_c], [N_c, N_k]].forEach(([a, b]) => drain.add(mkPipe3(a, b, RC)));
             [N_h, N_g2, N_g1, N_c].forEach(p => jball(p, 0.09));
-            // Caixa de ligação REUSADA do V1 (mesma posição, frente-sul) — ligação à rede pública
-            drain.add(box3d(0.15, -0.25, 0.5, 0.5, -0.90, grade(0) + 0.03, caixaMat3));
+            // A caixa de ligação (frente-sul) é infra de solo SEMPRE visível (bloco compartilhado
+            // V1/V2/V3 acima) — o coletor norte termina nela (N_k). Não duplicar aqui.
             g.add(drain);
         }
 
