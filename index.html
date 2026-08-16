@@ -3746,6 +3746,26 @@
             // Caixa de ligação à rede pública, na frente (tampa rente ao solo da calçada)
             const caixaMat = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, roughness: 0.9, metalness: 0 });
             g.add(box3d(-DIV_Z - 0.25, -0.25, 0.5, 0.5, -0.90, grade(0) + 0.03, caixaMat));
+
+            // ── Aterro do CANTO SUL: cobre o trecho EXPOSTO do dreno (a garagem já tem
+            // o seu aterro em mN≥2). Leira de terra no setback sul (mN 0→2), do canto da
+            // casa (leste, alto) blendando p/ o terreno natural na frente (oeste). Topo
+            // em rampa: −0,13 junto à casa (≈12 cm de cobertura sobre o cano) → grade na
+            // borda oeste. Base enterrada; só a parte acima do solo natural aparece.
+            const AT_Xw = 13.5, AT_Xe = 17.4;            // oeste (frente) / leste (casa)
+            const AT_Yte = -0.13, AT_Ytw = grade(AT_Xw); // topo: alto na casa → grade na frente
+            const AT_Yb = -0.70;                         // base enterrada
+            const atV = [
+                AT_Xw, AT_Yb, 0,   AT_Xe, AT_Yb, 0,   AT_Xe, AT_Yb, -2.0, AT_Xw, AT_Yb, -2.0, // base 0-3
+                AT_Xw, AT_Ytw, 0,  AT_Xe, AT_Yte, 0,  AT_Xe, AT_Yte, -2.0, AT_Xw, AT_Ytw, -2.0 // topo 4-7
+            ];
+            const atGeo = new THREE.BufferGeometry();
+            atGeo.setAttribute('position', new THREE.Float32BufferAttribute(atV, 3));
+            atGeo.setIndex([4,5,6, 4,6,7,  0,1,2, 0,2,3,  0,1,5, 0,5,4,  3,2,6, 3,6,7,  1,2,6, 1,6,5,  0,3,7, 0,7,4]);
+            atGeo.computeVertexNormals();
+            const aterro = new THREE.Mesh(atGeo, matSoil);
+            aterro.castShadow = true; aterro.receiveShadow = true;
+            g.add(aterro);
         }
 
         // ── V3: 2º pavimento (sobrado pilotis) — laje + paredes externas ─────

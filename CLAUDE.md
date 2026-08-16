@@ -418,6 +418,12 @@ chuva.
   sob a grama — esse trecho é o **CANTO SUL** que o ATERRO cobre (a garagem já tem o seu aterro).
   `joelho` (esfera) no pé da prumada e na curva + **caixa de ligação** (`box3d` 0,5×0,5,
   `−0,90→grade(0)+0,03`) na testada em mN 0,40, tampa rente ao solo.
+- **Aterro do canto sul (V1/V2, mesmo bloco):** leira de terra (`matSoil`, `BufferGeometry` wedge)
+  no setback sul (mN 0→2), cobrindo o trecho EXPOSTO do dreno (a garagem já tem o seu aterro em
+  mN≥2). Footprint cena X `AT_Xw=13,5` (frente) → `AT_Xe=17,4` (casa); **topo em rampa** `AT_Yte=−0,13`
+  junto à casa (~6–12 cm de cobertura sobre o cano) → `AT_Ytw=grade(AT_Xw)` na borda oeste (blenda ao
+  terreno natural, sem degrau na frente); base enterrada `AT_Yb=−0,70` (só a parte acima do solo
+  aparece; a grama opaca esconde o resto). 8 vértices / 12 triângulos, `computeVertexNormals`.
 Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
