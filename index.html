@@ -3718,6 +3718,28 @@
             pipe.position.set(22.58 + OE, 1.375, -1.79);
             pipe.castShadow = true; pipe.receiveShadow = true;
             g.add(pipe);
+
+            // ── Dreno pluvial: prumada → REDE PÚBLICA na frente do lote (oeste, mE=0) ──
+            // O terreno cai da calçada (frente, ALTA) p/ os fundos, então o dreno DESCE em
+            // direção à rua (caimento ~2%): do pé da prumada (~−0,30) até a caixa de ligação
+            // na frente (~−0,65). Como o solo SOBE p/ a frente (grade(0)=0 vs grade da casa
+            // ~−0,42), o trecho junto à casa (~2,8 m) fica ACIMA do solo (EXPOSTO) e o resto
+            // enterra sob a grama — é esse trecho exposto que o ATERRO (próximo passo) cobre.
+            const P_Z = -1.79;                                       // mN da prumada (constante)
+            const p1 = new THREE.Vector3(22.58 + OE, -0.30, P_Z);    // pé da prumada (casa)
+            const p2 = new THREE.Vector3(0, -0.65, P_Z);             // frente do lote (calçada/rede)
+            const dvec = new THREE.Vector3().subVectors(p2, p1);
+            const dreno = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, dvec.length(), 12), pipeMat);
+            dreno.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dvec.clone().normalize());
+            dreno.position.copy(p1.clone().add(p2).multiplyScalar(0.5));
+            dreno.castShadow = true; dreno.receiveShadow = true;
+            g.add(dreno);
+            // Joelho na base da prumada
+            const joelho = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 8), pipeMat);
+            joelho.position.copy(p1); g.add(joelho);
+            // Caixa de ligação à rede pública, na frente (tampa rente ao solo da calçada)
+            const caixaMat = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, roughness: 0.9, metalness: 0 });
+            g.add(box3d(-P_Z - 0.25, -0.25, 0.5, 0.5, -0.90, grade(0) + 0.03, caixaMat));
         }
 
         // ── V3: 2º pavimento (sobrado pilotis) — laje + paredes externas ─────
