@@ -380,16 +380,21 @@ topo da casa/laje e a fascia é o **acabamento inferior (pingadeira)** que prote
 chuva.
 
 **Telhado embutido + caixa d'água (só na laje plana, V1/V2 — bloco `else` do `if (SOLAR)`):**
-- **Telhado embutido, caimento p/ o sul:** plano de concreto leve inclinado (`rslab`, `lajeMat`)
-  ACIMA da laje de forro, escondido atrás da platibanda. Cotas: sul (baixa) `RH_S=3,03` → norte
-  (alta) `RH_N=3,38` sobre o vão `RD=n1−n0` (com beiral) → queda ~5% (`RPITCH=atan((RH_N−RH_S)/RD)`,
-  `rotation.x=+RPITCH` = norte alto/sul baixo). A borda norte (3,38) fica logo abaixo do topo da
-  platibanda (`pbTop`≈3,43) → **totalmente oculto de fora**; a água escorre p/ a calha atrás da
-  platibanda sul. `BoxGeometry(e1−eW, 0,07, RD/cos(RPITCH))`, centrado em `((eW+e1)/2, média, −(n0+n1)/2)`.
+- **Telhado embutido, caimento p/ o sul:** **telha metálica trapezoidal** (`rslab`, `name:'telha'`,
+  material `matTelha` com `map = texTelha()` — nervuras terracota que correm no sentido do caimento,
+  `repeat.set(10,3)`) ACIMA da laje de forro, escondida atrás da platibanda. Cotas: sul (baixa)
+  `RH_S=3,03` → norte (alta) `RH_N=3,38` sobre o vão `RD=n1−n0` (com beiral) → queda ~5%
+  (`RPITCH=atan((RH_N−RH_S)/RD)`, `rotation.x=+RPITCH` = norte alto/sul baixo). A borda norte (3,38)
+  fica logo abaixo do topo da platibanda (`pbTop`≈3,43) → **oculto da rua** (só aparece em vista
+  aérea/de cima); a água escorre p/ a calha atrás da platibanda sul. `BoxGeometry(e1−eW, 0,07,
+  RD/cos(RPITCH))`, centrado em `((eW+e1)/2, média, −(n0+n1)/2)`. **A telha é o que esconde os
+  ferros de espera** (ver "Esperas") → visível só quando o ferro NÃO está à mostra.
 - **Cubo da caixa d'água (centro):** casa de máquinas de concreto (`box3d`, `lajeMat`) no centro da
   laje (`CX_N=4,75`, `CX_E=27+OE`), base `CX_S=1,4` m, de `CEIL3D+CPA+0,16` (topo da laje) até
   `CX_TOP=4,4` (~1 m acima da platibanda). Abriga internamente o reservatório (~1000 L) elevado p/
   dar pressão. Ambos são filhos de `roof` (fase `PH.laje2`) → aparecem/somem com o botão "Laje".
+- **`texTelha()`** (singleton `TEX3D.telha`, no keep-set do `disposeObject3D`): telha metálica
+  trapezoidal procedural (base terracota `#a8552f` + gradientes de vale/crista + emenda transversal).
 Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
@@ -827,25 +832,29 @@ existem — ficam **embutidos** no pilar de cima.
 
 - **Casa:** 12 pilares, no **V1 e V2** (`bv` v1/v2).
 - **Garagem:** 12 pilares, **só no V2** (no V3 a garagem vira pilotis e os arranques ficam
-  embutidos no `col2`). Total no V2 = **24 esperas** (96 grupos de barra + 24 bonecas).
+  embutidos no `col2`). Total no V2 = **24 esperas** (96 grupos de barra). **Bonecas removidas**
+  — é a telha embutida que esconde o ferro (ver abaixo); `esperasCaps` fica um grupo **vazio**
+  (mantido só p/ os guards de visibilidade `if (espB && espC)`).
 - **Helper único** `addEspera(cn, e3)` (`cn`=centro mN, `e3`=centro mE já com OE): a casa
   chama no bloco do `roof`; a garagem chama no bloco `if (v==='v2'||…)` (consts `GE0/GEMc/
   GE1c/GN0/GNM/GN1/COL` em escopo). `box3d` dos pilares da garagem é por **canto** → centro
   = `n+COL/2, e+COL/2`. `null` quando a versão não tem esperas.
 
 - **Restrição Caixa:** o V1 é financiado e a Caixa **não aceita ferro de obra aparente**.
-  Solução real: o ferro fica embutido numa **boneca de concreto** (`esperasCaps`) sobre a
-  laje (casa com cara de pronta); o botão **"Esperas: revelar"** "demole" a proteção e expõe
-  o ferro (`esperasBars`) — "na hora certa" de puxar o andar.
-- **Geometria** (no grupo `roof`, após o slab; herdam a visibilidade da laje): por pilar,
-  4 barras nos cantos (±0,07, Ø~24, sobem 0,45 m do topo do pilar `CEIL3D+CPA=2,85`) com
-  dobra no topo + 1 boneca `box3d` 0,24×0,24 (`matEmbase`) cobrindo. Posições = mesmo grid
-  das colunas (mE 22,5/25,5/28,5/31,5 × mN 2/4,5/7,5, `+OE`).
-- **Visibilidade** (`applyBuildPhase`): ferro cru nas **fases de obra** (`ph<7`) ou quando
-  **revelado**; **capeado** (boneca) no **acabamento** (`ph≥7`) e não-revelado. Como são
-  filhos de `roof`, só aparecem com a **laje visível** — por isso `roof.visible` no V1 passa
-  a incluir `(ph≥7 && espRevealed)`, e `set3DEsperas` força a laje ligada + sincroniza o
-  rótulo do botão Laje. Flag `S.espRevealed` (por cena). Botão em V1/V11/V2.
+  Solução real: o ferro fica escondido **sob a telha embutida** (casa com cara de pronta); o
+  botão **"Esperas: revelar"** **tira a telha** e expõe o ferro (`esperasBars`) — "na hora
+  certa" de puxar o andar. (Antes havia uma "boneca" de concreto por pilar; foi removida
+  porque a telha já cobre o ferro e a boneca furava o caimento no lado sul baixo.)
+- **Geometria** (`esperasBars`, irmão do `roof`): por pilar, 4 barras nos cantos (±0,07,
+  Ø~24, sobem 0,45 m do topo do pilar `CEIL3D+CPA=2,85`) com dobra no topo. Posições = mesmo
+  grid das colunas (mE 22,5/25,5/28,5/31,5 × mN 2/4,5/7,5, `+OE`).
+- **Visibilidade** (`applyBuildPhase`/`set3DEsperas`/`set3DRoof`): o ferro (`esperasBars`)
+  aparece nas **fases de obra** (`ph 4–6`) ou quando **revelado**; `esperasCaps` sempre oculto
+  (vazio). A **telha** (`name:'telha'`, filha de `roof`) aparece **só quando o ferro NÃO está à
+  mostra** (`telha.visible = !esperasBars.visible`) — assim o ferro nunca atravessa a telha:
+  no acabamento não-revelado a telha cobre tudo; ao revelar (ou durante a obra) a telha some e o
+  ferro fica exposto sobre a laje, dentro da platibanda. `set3DEsperas` **não** mexe mais na laje
+  (só na telha). Flag `S.espRevealed` (por cena). Botão em V1/V11/V2.
 
 ---
 
