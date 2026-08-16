@@ -425,7 +425,11 @@ chuva.
   `AT_Ytw=grade(AT_Xw)=grade(0)=0` na frente (**alinha rente ao nível da calçada, sem degrau**); fica
   acima do grade natural em todo o trecho (o solo sobe p/ a frente). Base enterrada `AT_Yb=−0,70` (só
   a parte acima do solo aparece; a grama opaca esconde o resto). 8 vértices / 12 triângulos,
-  `computeVertexNormals`.
+  `computeVertexNormals`. **2 materiais via `addGroup`:** topo = **grama** (`atGrassMat`, `map=texGrass()`,
+  UV `=(x/40, mN/12,5)` = mesmo mapeamento do lote → gramado casa com a grama do lote); laterais/base
+  = **terra** (`atSoilMat = matSoil.clone()`). **`polygonOffset` NEGATIVO** (`factor/units −2`) nos dois
+  → o aterro vence o z-fight com o chão (grama do lote / saia de terra coplanares nas bordas mN=0 / X=0),
+  sem flicker.
 Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 

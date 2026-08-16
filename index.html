@@ -3762,9 +3762,24 @@
             ];
             const atGeo = new THREE.BufferGeometry();
             atGeo.setAttribute('position', new THREE.Float32BufferAttribute(atV, 3));
+            // UV planar (x/40, mN/12,5) = MESMO mapeamento da grama do lote → o gramado do
+            // topo casa/alinha com a grama do lote (mesma textura/densidade).
+            atGeo.setAttribute('uv', new THREE.Float32BufferAttribute([
+                0,0, 0.435,0, 0.435,0.16, 0,0.16,   // base 0-3
+                0,0, 0.435,0, 0.435,0.16, 0,0.16    // topo 4-7
+            ], 2));
             atGeo.setIndex([4,5,6, 4,6,7,  0,1,2, 0,2,3,  0,1,5, 0,5,4,  3,2,6, 3,6,7,  1,2,6, 1,6,5,  0,3,7, 0,7,4]);
+            atGeo.addGroup(0, 6, 1);     // topo → grama (material 1)
+            atGeo.addGroup(6, 30, 0);    // laterais/base → terra (material 0)
             atGeo.computeVertexNormals();
-            const aterro = new THREE.Mesh(atGeo, matSoil);
+            // Grama no TOPO (verde, como o resto do lote); terra nas laterais/base. polygonOffset
+            // NEGATIVO p/ o aterro VENCER o z-fight com o chão (grama do lote e saia de terra
+            // ficam coplanares nas bordas mN=0 / X=0) — sem flicker.
+            const atGrassMat = new THREE.MeshStandardMaterial({ map: texGrass(), roughness: 1, metalness: 0, envMapIntensity: 0.15, side: THREE.DoubleSide,
+                                                                polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+            const atSoilMat = matSoil.clone();
+            atSoilMat.polygonOffset = true; atSoilMat.polygonOffsetFactor = -2; atSoilMat.polygonOffsetUnits = -2;
+            const aterro = new THREE.Mesh(atGeo, [atSoilMat, atGrassMat]);
             aterro.castShadow = true; aterro.receiveShadow = true;
             g.add(aterro);
         }
