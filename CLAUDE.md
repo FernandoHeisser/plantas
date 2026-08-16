@@ -495,7 +495,8 @@ em `buildBuilding3D` (logo antes do 2º pavimento) monta o grupo **`drainV3`**:
   canto NORTE**, descendo coladas à coluna (`gColN=10,5+RP`, face norte): `g1` no canto **NW**
   (lote mE 13,60) e `g2` no canto **NE/junta** (lote mE 22,27). **A coluna do meio NÃO leva cano.**
   Ambos caem em pilar cego (fora das janelas norte da garagem) e no recuo. **casa 1×Ø100** na
-  **junta** (mE ~16,9, mN 8,4). Joelho (esfera) no pé de cada uma.
+  **coluna de canto NW / junta**, **colada na face norte da parede** (`mN 7,65`, não mais flutuando
+  em mN 8,4 à frente da janela do acesso / entrada). Joelho (esfera) no pé de cada uma.
 - **Coletor Ø150** (`RC=0,075`) rente à **divisa norte** (mN 11,9, `DZ=−11,9`): nós `N_h`(mE 16,9)→
   `N_g2`(16,77, junta)→`N_g1`(8,10, canto NW)→`N_c`(0,1, quina frente-norte)→`N_k`(0,1, mN 0,4). Laterais dos pés das
   prumadas sobem até o coletor. Invert **desce monotonicamente** (−0,55 → −0,88) = caimento contínuo

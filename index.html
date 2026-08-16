@@ -3881,7 +3881,9 @@
             const gColN = 10.5 + RP;   // face norte das colunas de canto da garagem (encosta o cano)
             const g1 = prumada(13.60 + OE, gColN,   -0.45);   // garagem Ø100 — coluna de canto NW (mE 13,60)
             const g2 = prumada(22.27 + OE, gColN,   -0.50);   // garagem Ø100 — coluna de canto NE / junta (mE 22,27)
-            const h1 = prumada(G_e1 + 0.03, H_eaveN, -0.55);   // casa Ø100 na junta (mN 8,4)
+            // Casa: encosta na coluna de canto NW (junta), na face norte da parede (mN 7,65)
+            // em vez de flutuar em mN 8,4 (0,9 m à frente, cruzando a janela do acesso e a entrada).
+            const h1 = prumada(G_e1 + 0.03, 7.65, -0.55);   // casa Ø100 — coluna de canto NW / junta (colada, mN 7,65)
             // Coletor Ø150 rente à divisa norte (mN 11,9); invert descendo p/ a frente/caixa.
             const DZ = -11.9;
             const N_h  = new THREE.Vector3(h1.x, -0.58, DZ);    // casa entra (leste/mais alto)
