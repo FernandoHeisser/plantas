@@ -97,7 +97,7 @@ Acesso: http://localhost:3131
 Config em `.claude/launch.json`.
 
 > **`--single` é obrigatório:** o app usa rotas resolvidas no cliente (`/v2` → V2,
-> `/v3` → V3, `/v3.1` → V3.1, `/v3.2` → V3.2, `/v1.1` → V1.1, `/v0.1`…`/v0.5` → V1 numa
+> `/v3` → V3, `/v1.1` → V1.1, `/v0.1`…`/v0.5` → V1 numa
 > **fase da obra** (3D), `/` ou qualquer outra → V1). Sem o modo SPA, o `serve` devolve **404**
 > em `/v2` e `/v3` (só `/` funciona). Na Vercel isso é tratado pelo rewrite catch-all
 > do `vercel.json`.
@@ -327,7 +327,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `wardrobeE` | Guarda-roupa com portas voltadas p/ **LESTE** (costas na parede oeste). Espelho do `wardrobe` — usado no quarto (parede oeste mE=28,5). |
 | `hood` | **Coifa**: canopy inox + boca de sucção escura + duto até o teto (z local **2,70**). Usa `z3d` como base (~1,55). Monta acima de uma janela-fita. |
 | `washer` | — (removido — ponto daquela posição virou tapete/capacho) |
-| `car` | **Carro** (referência de escala no piso da frente, V2+): carroceria + cabine de vidro + teto + 4 rodas (cilindros eixo N-S) + faróis/lanternas. `dn`=largura (~1,8 m), `de`=comprimento (~4,5 m); **frente aponta p/ LESTE** (+mE). `s.color` = cor da lataria. Assenta na base do piso (CPA=0,15 = topo do acesso GCPA). Não é parte da casa — só dimensiona o pátio/manobra. **Só no V2** (gate `if (v==='v2')` dentro do bloco da garagem): V3/V3.1/V3.2 são renders finais e V4 é a linha do tempo da obra, sem carros. |
+| `car` | **Carro** (referência de escala no piso da frente, V2+): carroceria + cabine de vidro + teto + 4 rodas (cilindros eixo N-S) + faróis/lanternas. `dn`=largura (~1,8 m), `de`=comprimento (~4,5 m); **frente aponta p/ LESTE** (+mE). `s.color` = cor da lataria. Assenta na base do piso (CPA=0,15 = topo do acesso GCPA). Não é parte da casa — só dimensiona o pátio/manobra. **Só no V2** (gate `if (v==='v2')` dentro do bloco da garagem): o V3 é render final, sem carros. |
 
 > **Atenção:** `counter` e `chair` recebem `(g, s, model)` — precisam do array model completo. O dispatch já passa: `FURN3D[s.m3d](g, s, model)`.
 
@@ -366,17 +366,21 @@ const grade = mE => -mE * SLOPE;   // cota natural do solo (m), datum 0 = calça
 
 ### Cobertura
 
+> **V1/V2 = laje plana; V3 = telhado solar de uma água** (`SOLAR = rv === 'v3'`, ver
+> "Telhado solar do V3" abaixo). O texto desta seção descreve a **laje plana** (V1/V2). No V3 o
+> grupo `roof` recebe os *sheds* de telha metálica + usina FV no lugar da laje/platibanda.
+
 Laje plana de concreto (não telhado de duas águas) — **V3 recebe 2º pavimento sobre ela**.  
 Grupo `roof` = **fascia do beiral** (banda de 25 cm pendurada sob a laje, `fbb=CEIL3D+CPA−0,25
 → fbt=CEIL3D+CPA+0,16`, `BT=0,08`, faces sul/norte/leste) + laje (`CEIL3D+CPA → +0,16`) +
 platibanda/mureta em **4 lados** (`pb=CEIL3D+CPA+0,16 → pbTop+0,42`, `tt=0,12`). Começa oculta.  
 A **fascia + platibanda** fecham o beiral num plano vertical limpo: a platibanda esconde o
 topo da casa/laje e a fascia é o **acabamento inferior (pingadeira)** que protege a parede da
-chuva. É a réplica do `addBorda` do V4 (laje 1) — V1 e V4 têm o mesmo acabamento de beiral.
-Oeste = junta de dilatação → no **V1 standalone** tem **platibanda** (igual ao V4), mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3/V3.1/V3.2)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3,v31,v32}`).  
+chuva.
+Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
-**Platibanda da garagem (V2 e V3):** gate `if (!SOLAR)` → platibanda no perímetro
+**Platibanda da garagem (V2 e V3):** platibanda no perímetro
 **exposto** (sul/norte/oeste) + trecho leste-norte além da casa. Na junta com a casa
 (leste, mN ≤ `n1`=7,5) fica **rente, sem platibanda** (lajes encostadas); só o trecho
 norte exposto (mN `n1`→`gn1`) leva platibanda na leste, parando na boneca da coluna NE
@@ -386,16 +390,37 @@ norte exposto (mN `n1`→`gn1`) leva platibanda na leste, parando na boneca da c
 na junta de dilatação, sem mureta e sem vão entre elas**. A borda oeste da casa vai até a
 **linha da junta `GE1j = 22,5 − EW/2 − GAP = 22,37 + OE`** (= face leste da garagem) em
 **todas as lajes**, encostando rente — sem beiral oeste, sem fresta, sem sobreposição:
-- **Teto** (laje plana não-SOLAR, **inclusive V1**): a borda oeste vai SEMPRE até a junta
-  (`eW = 22,37 + OE`), **sem beiral nem platibanda oeste**. (Antes `e0=22,0` cavalgava a
-  garagem → platibandas transpostas; depois `e0=22,4` deixou 3 cm de vão; agora `22,37`
-  encosta rente.) **O V1 não tem mais beiral oeste** — a laje termina rente à parede, p/ a
-  expansão V2 (junta com a garagem) ser possível. `e0 = 22,5 − BN_EW + OE` sobrou só para
-  o telhado solar (`addShed`), que mantém o beiral oeste próprio.
-- **Laje 1** (intermediária, `floor2` V3/V3.1/V3.2 **e V4**): a laje da casa começa em `Egar`
-  (= junta), sem beiral oeste. No **V4** a mureta de perímetro inclui o oeste **na junta**
-  desde a fase da laje (fase 4) — não há mais o trecho de beiral oeste simétrico (mE 22,0)
-  que existia só enquanto a casa era standalone.
+- **Teto** (laje plana, **inclusive V1**): a borda oeste vai SEMPRE até a junta
+  (`eW = 22,37 + OE`), **sem beiral nem platibanda oeste**. **O V1 não tem beiral oeste** —
+  a laje termina rente à parede, p/ a expansão V2 (junta com a garagem) ser possível.
+- **Laje 1** (intermediária, `floor2` V3): a laje da casa começa em `Egar`
+  (= junta), sem beiral oeste.
+
+### Telhado solar do V3 (uma água + usina FV)
+
+No **V3** o topo da casa **não é laje plana** — é um **telhado de uma água (shed) caindo p/ o
+NORTE** com módulos fotovoltaicos, no lugar da laje/platibanda. Duas águas **independentes**
+(casa + garagem), respeitando a **mesma junta de dilatação** — nada emendado. Bioclimática
+(lat −29,96°, hemisfério sul): água ao **norte** = sol; inclinação **~12°** (`PITCH`, realista
+p/ telha metálica ~21%; o ~28° "ótimo solar" ficaria surreal, e 12° colhe ~92–95% e auto-limpa).
+
+- **Flag:** `const SOLAR = (rv === 'v3')` em `buildBuilding3D`. Quando `SOLAR`, a casa e a
+  garagem chamam `addShed(...)` em vez da laje plana + platibanda. V1/V2 seguem com laje plana.
+- **Helpers (grupo `roof`):**
+  - `tiltedSlab(mat, n0,e0,n1,e1, yEaveN, t)` — água = box fino girado `rotation.x = −PITCH`
+    (eixo L-O); `yEaveN` = beiral norte (lado baixo); sul sobe `D·tan(PITCH)`.
+  - `gableEnd(mE, wn0,wn1, yBot, yTopN0,yTopN1, thk, mat)` — empena/frontão trapezoidal
+    (BufferGeometry) no plano `mE=cte`. Material `matGable = matWall.clone()` (DoubleSide).
+  - `addShed(grp, n0,e0,n1,e1, yEaveN, wn0,wn1, we0,we1, o)` — água (`matMetalRoof`) + 2 empenas
+    + fechamentos sul/norte + **grade de módulos FV** (`matPanel`), cada módulo girado `−PITCH`.
+    `o.inset` (recuo das bordas, default 0,55; menor adensa), `o.panW0/panW1` (limites O/L da grade).
+  - Casa: `addShed(roof, n0,e0,n1,e1, CEIL3D+CPA+0.16, 2.0,7.5, 22.5+OE,31.5+OE, { panW0: 24.5+OE })`
+    — painéis começam 2 m a leste da junta p/ sair da sombra de fim de tarde da garagem (mais alta).
+    Garagem: `addShed(roof, gn0,ge0,gn1,GE1j, GLAJE+0.16, GN0,GN1, GE0,GE1j, { inset: 0.45 })`
+    (adensa a grade, garagem nunca sombreada) + **beiral leste** (`tiltedSlab` extra na junta GE1j).
+  - **Sem platibanda na garagem quando `SOLAR`** (as empenas fecham o telhado; gate `if (!SOLAR)`).
+- Os sheds ficam no grupo `roof` → `set3DFloor2` os ergue sobre o 2º piso e `set3DRoof` os
+  alterna. Botão do V3 diz **"Telhado"** (`noun = (v==='v3') ? 'Telhado' : 'Laje'`).
 
 ### Bugs resolvidos / armadilhas conhecidas
 
@@ -500,14 +525,7 @@ entre rebuilds, adicioná-lo ao keep-set do `disposeObject3D`** (senão vira tex
 ### Materiais de móveis memoizados (`fmat`)
 `fmat()` memoiza por assinatura num cache **por-build** (`_fmatCache`, resetado no início de
 `buildBuilding3D`) → materiais idênticos de móveis são reusados (V1: 241 → 91 materiais).
-**Não mutar um material de `fmat` depois de criado** (ele é compartilhado). A pintura do V4
-mexe só em `matWall`/`matEmbase`, que não passam pelo `fmat` — ok.
-
-### Folhagem mesclada (V3.4)
-Os lóbulos de arbusto (`addShrub`) são coletados por cor e mesclados via
-`THREE.BufferGeometryUtils.mergeBufferGeometries` → ~5 meshes no lugar de ~950. Se mexer no
-`addShrub`, manter a ordem das chamadas `prnd()` (layout determinístico) e o flush do merge
-no fim do bloco `v33||v34`.
+**Não mutar um material de `fmat` depois de criado** (ele é compartilhado).
 
 ### Sombra do sol
 `sun.shadow.camera.near/far = 50/125` cercam a distância fixa `R=90` do sol ao alvo (o
@@ -737,12 +755,7 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 |---|---|---|---|
 | **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro + **esperas p/ V3**, botão revelar) | ✅ Completo |
 | **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) + **esperas p/ V3** | ✅ Preenchida (garagem + depósito + escada) |
-| **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + laje que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
-| **V3.1** | 🔶 Herda o 2D do V3 (mesmo `v3Layers`) | ✅ Herda o sobrado do V3 + **2 telhados de uma água reais (norte ~12°, com empenas) e usina FV** no lugar da laje plana | 🔶 Placeholder com resumo do telhado |
-| **V3.2** | 🔶 Herda o 2D do V3.1 | ✅ Herda o V3.1 + **pintura da casa em marrom** (`WALL_TINT` tinge o `matWall` só p/ `v32`) | 🔶 Placeholder com resumo |
-| **V3.3** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **sistema de calhas/escoamento** (calha no beiral norte → descida no canto NO → condutor à rua) — só `v33` | 🔶 Placeholder com resumo do escoamento |
-| **V3.4** | 🔶 Herda o 2D do V3.3 + **área gourmet/churrasqueira** no quintal leste (`buildChurras2D`, só `v34`) | 🔶 Herda **tudo do V3.3** (calhas inclusas) + **área gourmet 3D** (deck + parede sul + churrasqueira c/ chaminé + bancada/pia + mesa com bancos + telhado de uma água) — só `v34` | 🔶 Placeholder com resumo |
-| **V4** | 🔶 Herda o 2D do V3.2 (mesmo `v3Layers`) | ✅ Herda **tudo do V3.2** + **slider 🏗 de obra com 20 fases na ordem cronológica real** (V1 → cobre esperas → V1.1 muro → V2 garagem → V3 sobrado → pintura) | 🔶 Placeholder com resumo |
+| **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + **telhado solar (uma água + usina FV)** que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
 | **V0.1–V0.6** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
 
 ---
@@ -789,7 +802,7 @@ Para o V3 (sobrado) ser possível, os pilares do térreo deixam **ferros de espe
 (`col2c`/`col2`, que começam em `fz0=3,01`). Construídos só no **V1/V2**; no **V3** não
 existem — ficam **embutidos** no pilar de cima.
 
-- **Casa:** 12 pilares, no **V1 e V2** (`bv` v1/v2, `!SOLAR`).
+- **Casa:** 12 pilares, no **V1 e V2** (`bv` v1/v2).
 - **Garagem:** 12 pilares, **só no V2** (no V3 a garagem vira pilotis e os arranques ficam
   embutidos no `col2`). Total no V2 = **24 esperas** (96 grupos de barra + 24 bonecas).
 - **Helper único** `addEspera(cn, e3)` (`cn`=centro mN, `e3`=centro mE já com OE): a casa
@@ -835,8 +848,10 @@ extrapola o terreno (canto NE/pátio fora). Garagem vira **pilotis**. Sem divis�
 estrutura do térreo abaixo. Casa segue a face das **paredes** (centradas → linha∓EW/2);
 garagem segue a face das **colunas** (na própria linha). Mesmo padrão da parede do depósito.
 
-**Duas lajes (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
-piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, sólida (cobre tudo).
+**Duas coberturas (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
+piso), tem o **vão da escada** p/ subir; **"laje 2"** = teto do 2º piso — no V3 é o **telhado
+solar de uma água + usina FV** (grupo `roof`, `SOLAR`), não uma laje sólida (ver "Telhado solar
+do V3"). No 2D do 2º pav ainda é desenhada como laje sólida (esquemático).
 
 - **2D:** botão `Piso: térreo ↔ 2º pav.` (`.map-floortoggle`) chama `setV3Floor(btn)`,
   que troca `map._overlay` entre `buildLayers('v3')` (térreo) e `buildFloor2Layers()`.
@@ -847,11 +862,13 @@ piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, sólida
 - **3D:** grupo `floor2` (em `buildBuilding3D`, só `v==='v3'`) = **2 estruturas** (helpers
   locais `addWall`/`addSlab`): garagem (laje 1 c/ vão recortado + 4 paredes, leste = junta
   GE1j) e casa (laje 1 sólida + 4 paredes, oeste = junta em 22,40). Gap físico de 3 cm
-  entre elas. **Laje 2** = grupo `roof` (casa + garagem já separados pela junta; sólido no
-  V3). `set3DFloor2(v, btn)` mostra/oculta o 2º piso **e** reposiciona a laje 2
-  (`roof.position.y = visível ? CEIL3D+0,16 : 0`) — sobe sobre o 2º piso ou volta ao térreo.
-- **Botões 3D:** `2º piso: oculto/visível` (`set3DFloor2`) + `Laje: oculta/visível`
-  (`set3DRoof`, só alterna `roof.visible`). No **V2** a laje da garagem mantém o vão da escada.
+  entre elas. **Cobertura do 2º pav** = grupo `roof` (casa + garagem separados pela junta) =
+  **telhado solar** no V3 (`SOLAR`, ver seção própria). `set3DFloor2(v, btn)` mostra/oculta o
+  2º piso **e** reposiciona o `roof` (`roof.position.y = visível ? CEIL3D+0,16 : 0`) — sobe
+  sobre o 2º piso ou volta ao térreo.
+- **Botões 3D:** `2º piso: oculto/visível` (`set3DFloor2`) + `Telhado: oculto/visível`
+  (`set3DRoof`, só alterna `roof.visible`; rótulo "Laje" no V1/V2, "Telhado" no V3). No **V2**
+  a laje da garagem mantém o vão da escada.
 
 **Estrutura do 2º piso (no grupo `floor2`, some/aparece com o 2º piso):** espelha o
 térreo, com caminho de carga vertical contínuo e a junta subindo junto. **Garagem** =
@@ -886,281 +903,6 @@ independentes pela junta (vigas da garagem param em GE1j, da casa em 22,5). Help
 
 **Próximas etapas:** ligação acesso↔garagem cruzando a junta; guarda-corpo no vão da
 escada; uso do 2º piso da garagem; ficha de medidas V3.
-
-### V3.1 — Sobrado com telhado solar (usina FV)
-
-Variante do V3: **herda todo o sobrado** (2D e 3D) e **troca a laje plana por dois
-telhados de uma água independentes** (casa + garagem), respeitando a **mesma junta de
-dilatação** — não há cobertura emendada entre os blocos.
-
-- **Aba/rota:** `data-v="v31"`, rota `/v3.1`, painéis `p-v31-2d/3d/med`. Cena `scenes3d['v31']`,
-  mapa `maps['v31']` (genéricos por versão; nada hard-coded).
-- **Herança:** todo gate `v === 'v3'` (e `v2||v3`, `v11||v2||v3`) também aceita `v === 'v31'`.
-  `initMap` e `setV3Floor` usam `v3Layers()`/`maps[ver]` para o V3.1. O 2D é idêntico ao V3.
-- **Bioclimática solar (lat −29,96°, hemisfério sul):** água voltada ao **NORTE** (sol).
-  Inclinação **~12°** (`PITCH`) — realista para telha metálica (~21%); o ótimo solar seria
-  ~28° (≈ latitude), mas 28° fica surreal numa casa, então prioriza-se o realismo (12°
-  ainda colhe ~92–95% e auto-limpa com a chuva). Módulos deitam rentes.
-- **3D (`buildBuilding3D`, flag `const SOLAR = (v==='v31')`):** telhado de uma água REAL
-  (não é a laje plana inclinada): água de telha + 2 empenas apoiadas nas paredes.
-  - `tiltedSlab(mat, n0,e0,n1,e1, yEaveN, t)` — água como **box girado** `rotation.x = −PITCH`
-    em torno do eixo L-O; `yEaveN` = altura do **beiral norte** (lado baixo); sul sobe `D·tan(PITCH)`.
-  - `gableEnd(mE, wn0,wn1, yBot, yTopN0,yTopN1, thk, mat)` — **empena/frontão**: parede fina
-    trapezoidal (BufferGeometry) no plano `mE=cte`, do topo da parede (`yBot=yEaveN−0,16`) até a
-    água (segue `PITCH`). Material `matGable` = `matWall.clone()` com `side:DoubleSide`.
-  - `addShed(grp, n0,e0,n1,e1, yEaveN, wn0,wn1, we0,we1, o={})` — água (`matMetalRoof`, galvalume,
-    `DoubleSide`) + 2 empenas (planos das paredes O/L `we0`/`we1`, mN `wn0..wn1`) + **grade de
-    módulos FV** (`matPanel`) insetada, cada módulo girado `−PITCH`. `o` = opções da grade FV:
-    `o.inset` (recuo das bordas, default 0,55; menor = adensa), `o.panW0`/`o.panW1` (limites O/L
-    absolutos da grade em mE de cena, p/ recortar colunas).
-  - Casa: `addShed(roof, n0,e0,n1,e1, CEIL3D+CPA+0.16, 2.0,7.5, 22.5+OE,31.5+OE)`.
-    Garagem: `addShed(roof, gn0,ge0,gn1,GE1j, GLAJE+0.16, GN0,GN1, GE0,GE1j)`
-    (leste para na junta GE1j; **sem platibanda** quando `SOLAR`).
-  - **Beiral leste da garagem** (logo após o `addShed` da garagem): por **todo o comprimento**
-    (`gn0→gn1`) a água é estendida 0,50 m a leste da empena (junta `GE1j`) com um `tiltedSlab`
-    extra (`matMetalRoof`, mesma `yEaveN`/`PITCH` → coplanar e contíguo à água principal), como
-    os demais beirais — protege a junta/parede em toda a extensão. Como o telhado da garagem é
-    ~0,64 m mais alto que o da casa (vão maior, mN 1,5→11,4 vs 1,5→8,4), esse beiral **oversaila**
-    o telhado da casa na junta (detalhe normal de telhados em degrau: o mais alto joga a água
-    sobre o mais baixo). A empena leste (`gableEnd` em `we1=GE1j`) fica sob a água — é a parede;
-    a água cantilevera 0,50 m além dela.
-  - **Distribuição dos painéis FV (sombra da garagem na casa):** o telhado da garagem é ~0,64 m
-    mais alto e fica a **oeste** da casa → de tarde, com sol baixo (<~20°, hemisfério sul), projeta
-    sombra p/ **leste** sobre a faixa oeste (junta) do telhado da casa. Para concentrar a geração:
-    **garagem** `{ inset: 0.45 }` (adensa, +1 coluna ≈ **40 painéis**); **casa**
-    `{ panW0: 24.5 + OE }` — painéis começam 2,0 m a leste da junta, fora da sombra, só
-    centro/leste (≈ **18 painéis**). Total ≈ 58 (≈ inalterado vs. antes), todos em zona sem sombra.
-    No pico do dia (10–15h) a casa fica limpa de qualquer jeito; a sombra só toca a faixa nua oeste.
-  - Os sheds ficam no **grupo `roof`** → `set3DFloor2` os ergue sobre o 2º piso (mesmo mecanismo
-    da laje) e `set3DRoof` os alterna (botão diz **"Telhado"** quando `v==='v31'`).
-  - Beiral norte 0,90 m preservado. V1/V2/V3 inalterados (laje plana nos blocos não-`SOLAR`).
-
-**Próximas etapas V3.1:** cotas do telhado/altura de cumeeira; calha/condutores na borda norte;
-ficha de medidas (área de telhado, kWp estimado); opcional realce dos módulos no 2D.
-
-### V3.2 — Pintura da casa (marrom)
-
-Variante do V3.1: **herda tudo** (sobrado + telhado solar) e só **pinta as paredes de marrom**.
-Mesmo padrão de aba/rota/painéis (`data-v="v32"`, `/v3.2`, `p-v32-2d/3d/med`); todo gate que
-aceita `v31` também aceita `v32` (incl. `SOLAR` e o `noun` do botão "Telhado").
-
-- **Cor (3D):** `const WALL_TINT = (v==='v32') ? 0x7a5230 : 0xffffff;` aplicado no `color` do
-  `matWall` (multiplica a textura de reboco `texWall()`). Como `matGable = matWall.clone()`, as
-  empenas/fechamentos do telhado também ficam marrom. Embasamento/baldrame/laje mantêm a cor própria.
-  Só afeta o `v32` — `matWall` é recriado por versão em `buildBuilding3D(v)`.
-
-### V3.3 — Sistema de calhas / escoamento para a rua
-
-Variante do V3.2: **herda tudo** (sobrado + telhado solar + pintura marrom) e acrescenta o
-**sistema de calhas** que escoa a água do telhado para a **frente** (rua/boeiro a oeste, `mE=0`).
-Mesmo padrão de aba/rota/painéis (`/v3.3`, `p-v33-2d/3d/med`, `<option value="v33">`); o render
-**reusa o V3.2 via `rv`** — em `buildBuilding3D`, `buildLayers`, `buildDims3D` e `initMap` o
-gate mapeia `v33 → v32` (igual ao V4). Botão "Telhado" inclui `v33` no `noun`.
-
-- **Por que o telhado não cai para a rua:** o telhado solar é de **uma água caindo para o
-  NORTE** (geração FV, `addShed`), perpendicular à rua (oeste). Toda a água do telhado vai para o
-  **beiral norte**; quem decide frente×fundos é a **calha + condutor**, não o telhado.
-- **Geometria (gate `if (v === 'v33' || v === 'v34')`, após o beiral leste da garagem, dentro de
-  `if (SOLAR)`):** dois helpers locais montam o sistema por bloco (casa + garagem):
-  - **`calha(nEave, gE0, gE1)`** — `box3d` ao longo do beiral norte (largura `GW=0,14` × altura
-    `GD=0,13`, ~2 cm sob a água: `gutTop=eaveL−drop`, `gutBot=gutTop−GD`).
-  - **`queda(nEave, gE0, gE1, dN, dE, turnE?)`** — **tubo de queda Ø110 (`PR=0,055`) numa COLUNA**
-    `(dN,dE)`: conector da calha ao topo (`pipeBetween`, clamp ao vão), vertical descendo a coluna do
-    beiral (~5,7 m) e **leg** N-S levando o pé ao muro (`nWall`). `turnE` (opcional) = X onde o cano
-    vira p/ o muro: o trecho horizontal corre **junto à parede** (E-O, em `dN`) até `turnE` e só ali
-    sobe — usado na **casa NE** p/ o cano não cruzar o caminho perto da gourmet (vai pela parede até
-    a junta, `jUNTA = 22,5+OE+0,30`, e sai junto dos outros dois tubos).
-  - **Tronco único Ø150 (`PR2=0,075`):** UM `pipeBetween` rente ao muro norte (`nWall=12,30`), do
-    feed mais a leste (casa NE, `X=31,5+OE`) até a **sarjeta da frente** (`X=0`, rua/boeiro).
-    Cota do centro `clW(e)=cl0+e·sSar` (`cl0=0,06`, `sSar=0,006`/0,6%) → topo `<GCPA=0,30` (enterrado).
-- **4 tubos de queda — um em CADA extremidade de cada calha** (decidido com o cliente):
-  - **Garagem:** coluna **NO** (`GN1+0,06, GE0+0,10`) + coluna **NE/junta** (`GN1+0,06, GE1j−0,10`).
-  - **Casa:** coluna **NO/junta** (`7,66, 22,5+OE`) + coluna **NE/extremo leste** (`7,66, 31,5+OE`,
-    com `turnE=jUNTA`) — esta desce pela coluna NE e corre **junto à parede norte** (enterrado) até a
-    junta, saindo junto dos outros (pedido do cliente: não cruzar o caminho da gourmet; invisível).
-  - Os 4 legs despejam no **tronco Ø150** (X 0→jUNTA), que os leva juntos pela beirada do muro à rua.
-- **Dimensionamento (chuva POA, NBR 10844, i=150 mm/h; tempestade 180):** casa+garagem ≈ 461 L/min
-  (553 na tempestade). O **Ø150 a 0,6%** ≈ **750 L/min** → folga ~35 % até na tempestade. (O esquema
-  antigo — condutores únicos casa+garagem se unindo num só Ø110 — estourava: ~335 L/min.) Os tubos de
-  queda Ø110 e as calhas (14×10) têm folga; o **tronco era o gargalo**, resolvido pelo diâmetro.
-- **Tudo ABAIXO DO PISO:** o tronco corre com topo `<GCPA=0,30` (declive baixo porque a sarjeta é
-  rasa; a vazão é vencida pelo Ø150, não pelo caimento) → embutido no piso/área norte, descarregando
-  na sarjeta no nível da rua. As **quedas** descem do beiral (~6 m) até o tronco.
-- **Plantas no chão (escondem os canos):** arbustos (esferas achatadas, verdes variados)
-  assentados no **terreno** (`grade(mE)`, faixa de grama sem piso, mN ~12,3, mE 0,9→26,5) ao
-  longo do muro norte, sobre o tronco. Ficam no **grupo principal `g`** (no chão — NÃO no `roof`,
-  então não flutuam nem sobem com o 2º piso) e são altos o bastante p/ cobrir o cano (que sobe rumo
-  ao caimento). PRNG com seed fixa → layout estável entre reaberturas. (Não há canteiro elevado.)
-- **Cotas em LOCAL do `roof`** (`wl(yw)=yw−LY`, `LY=CEIL3D+0,16`): as calhas ficam no grupo
-  `roof` e **sobem com o 2º piso** (`set3DFloor2`); aparecem/somem com o botão **Telhado** (`set3DRoof`).
-  Otimizado para a vista do **sobrado completo** (2º piso + telhado visíveis).
-- **Escoamento:** ~100% da água do **telhado** vai para a frente (rua); a água de **quintal**
-  (terreno nu) continua para os **fundos** (cota −1,0 m) por gravidade. Ver `p-v33-med`.
-
-> **Nota:** o `OE` real no código é **−5,5** (não −3,5). O bloco de calhas usa as variáveis em
-> escopo (`e0/e1/ge0/GE1j`), então acompanha o `OE` automaticamente.
-
-### V3.4 — Área gourmet / churrasqueira (quintal leste)
-
-Variante do V3.3: **herda tudo** (sobrado + telhado solar + pintura marrom + calhas) e acrescenta
-uma **área gourmet coberta** no quintal, encostada na **parede leste da casa** (cód. mE 31,6), em
-volta da **porta dos fundos** da cozinha. Mesmo padrão de aba/rota/painéis (`/v3.4`, `p-v34-2d/3d/med`,
-`<option value="v34">`); o render base reusa o V3.2 via `rv` (`v34 → v32` em `buildLayers`,
-`buildBuilding3D`, `buildDims3D`, `initMap`) e **herda as calhas** (gate `v==='v33' || v==='v34'`).
-
-- **Partido (decidido com o cliente):** cobertura de **alvenaria (telhado próprio)**, **encostada na
-  casa** (saída da cozinha), pacote **leve** = churrasqueira c/ chaminé + bancada c/ pia + mesa com
-  bancos (estilo gaúcho). Cocção na **parede SUL**; convívio aberto ao **norte/leste**.
-- **Footprint:** mN 2,0→7,5 (largura COMPLETA da parede leste) × mE 31,6→36,6 ≈ **5,5 × 5,0 = ~27 m²**.
-- **2D (`buildChurras2D()`, só no caminho do mapa):** `v3Layers()` anexa as camadas quando
-  `ver==='v34'` e `v3floor===1` (térreo). Como `GEO` é null em `initMap`, **não vaza p/ o 3D**
-  (`captureModel('v34')` → `buildLayers` remapeia p/ `v32`). Deck + contorno do telhado (tracejado) +
-  parede sul (poché) + bancada/pia + churrasqueira/braseiro/grelha/chaminé + mesa E-O com 2 bancos +
-  3 colunas na borda leste + `roomLabel`. Coords de CÓDIGO (helpers somam OE).
-- **3D (`buildBuilding3D`, gate `if (v==='v34')`, no fim, adicionado ao grupo `g`):** fica no
-  **nível do chão** → **não** sobe nem some com os toggles de 2º piso/telhado da casa.
-  - **Piso:** `GFL = −0,55` (nível do quintal). Embasamento (`matEmbase`) desce de `GFL` até
-    `grade(mE leste)` (cota natural mais baixa) → não flutua, igual casa/garagem; deck por cima.
-  - **Telhado de uma água caindo p/ LESTE** (longe da casa): `yt(e) = yWest − slope·(e−E0)`,
-    `yWest = GFL+2,95`, `slope = 0,10` (~10%), espessura `RT=0,12`, beiral 0,4 m a N/S/L (rente à
-    casa a oeste). Quad extrudado por `quad8()` (BufferGeometry, 8 verts, como o `driveway`).
-  - **Parede sul raked** (`quad8`, topo segue `yt(e)−RT`): encosto da cocção, fecha o lado sul.
-  - **Colunas** (3, `matEmbase`) na borda leste, da `grade` ao sub-beiral leste (`yt(E1)−RT`).
-  - **Churrasqueira** (corpo tijolo + braseiro + 5 barras de grelha + **chaminé** que atravessa o
-    telhado + capa), **bancada com pia** (cuba + torneira), **mesa E-O** (tampo + 4 pernas) + **2
-    bancos** (assento + pernas). Helpers locais `fb`/`fc` = `fbox`/`fcyl` com OE embutido.
-- **Helpers/coords:** `quad8(verts, mat)` monta um sólido extrudado a partir de 8 vértices (mesmas 12
-  faces do `driveway`). Cota `y` independe do OE (a inclinação é E-O, OE cancela em `yt`); só o `X(e)=
-  e+OE` desloca em mE.
-
-**Escoamento + paisagismo da lateral norte (V3.4, no bloco das calhas `v33||v34`):**
-- **Ligação da gourmet ao tronco:** o telhado da gourmet cai p/ LESTE → **calha no beiral leste**
-  (baixo) + **tubo de queda Ø110 na coluna NE** (face leste, `gE1+0,10`, **aparente**) descendo até
-  o tronco; **leg** N-S até o muro. Só no V3.4 o **tronco Ø150 estende** até a gourmet (`xEast=38+OE`);
-  no V3.3 para na junta. O cano fica **~1 m acima do gramado** ali (terreno cai pros fundos, cano cai
-  pra rua) — daí o paisagismo o esconder.
-- **Canteiro contínuo (lateral norte):** faixa LARGA (mN 10,6→12,35) de arbustos da frente (X0,6) à
-  gourmet, ESCALONADOS — baixos na frente do canteiro, **altos junto ao muro** (fórmula `cover` segue
-  `clW`) p/ cobrir o cano. Helper **`addShrub(cx,baseY,cz,R,H)`**: arbusto realista = cluster de 4–5
-  **lóbulos** (icosaedros jitterados, **flat shading**, cores `leafMats`) empilhados e afunilando.
-  Grupo `g` (chão) — alinha com o tronco na vista do sobrado (telhado erguido).
-- **Jardineira (gourmet):** bed BAIXO de alvenaria (`matWall`, topo `jTop=−0,40`) — o **cano passa
-  ACIMA dela, entre os arbustos** (NÃO embutido na alvenaria). Arbustos plantados no bed cobrem o cano.
-- **Anti-bug muro:** `addShrub` clampa cada lóbulo em **mN ≤ `MURO_N`=12,33** (raio efetivo `lr·1,25`
-  c/ o jitter) → a folhagem encosta no muro mas **não o atravessa**. (Assinatura aceita `zMax/zMin`
-  opcionais p/ clampar os dois lados; default = só o muro norte.)
-
-**Path do corredor SUL (V3.4, gate `v33||v34`, no bloco base — perto do piso, após `grade`):**
-- Calçada para dar a **volta na casa** sem molhar os pés. Em **L**: perna SUL (mN 0,30→1,75 — recuo
-  sul quase todo, da cerca ao embasamento) de mE 0,3→32,6 + perna LESTE subindo p/ o NORTE
-  (mE 32,6→33,9, mN 0,30→10,5, contorna a leste da gourmet até os fundos).
-- Helper `pathSlab(nS,nN,xW,xE)` = slab inclinado seguindo o declive (`grade`), no estilo do `driveway`.
-- **Z-fight:** SEM `polygonOffset` (empurrava no depth-buffer) + topo **12 cm acima da grama** (`LIP`)
-  → assenta nítido sobre o terreno. Material `matPath` (pedra clara).
-
-**Cerca de contenção de animais (V3.4, gate `v33||v34`, no bloco base, após o path):**
-- Cerca INTERNA na **junta** (parede oeste da casa, `fX = 22,5+OE` = mE 17 mundo) separando
-  FRENTE (garagem/pátio/rua) × FUNDOS (casa + quintal) — os animais ficam nos fundos. O perímetro
-  já é todo cercado; isto divide o interior. O vão da casa (mN 2→7,5) é barrado pela própria parede.
-- **2 gaps fechados:** corredor SUL (mN 0→2) com **portão** metálico (sobre o path) + lado NORTE
-  (mN 7,5→12,5) com ripado de madeira (`ripPanel(n0,n1)`) e um **portão de pedestre LARGO (~1,3 m,
-  mN 8,26→9,54)** centralizado no **vão livre entre a parede e a coluna do pilotis** (centro ~8,9;
-  o centro geométrico do painel cairia na coluna ~mN 10,3). Mourões em mN 0,2,7,5,8,2,9,6,12,5.
-- **Folhagem (`greens`/`leafMats`)** mudada p/ verde **mais forte/saturado** (0x1f6b2a…0x49b855).
-
-**Próximas etapas V3.4:** abrir o braseiro na face norte (hoje o corpo lê meio sólido de frente);
-cotas 2D/3D da área; ficha de medidas (`p-v34-med`); opcional fechar o leste (privacidade do vizinho
-de fundo) e/ou esticar a profundidade; opcional sebe de fundo densa p/ esconder o cano 100%.
-
-### V4 — Evolução cronológica real da obra (20 fases: V1 → V2 → V3 → pintura)
-
-Variante do V3.2: **renderiza idêntico ao V3.2** (sobrado + telhado solar + pintura marrom) e
-adiciona o **slider 🏗 de fases da obra**, contando a **evolução cronológica REAL** do projeto em
-**blocos sequenciais** — a casa térrea (V1) sobe inteira até ficar pronta, **depois** a garagem (V2)
-da fundação à laje, **depois** o sobrado (V3) até o telhado, e **por fim a pintura** marrom de tudo.
-Aba `data-v="v4"`, rota `/v4`, painéis `p-v4-2d/3d/med`.
-
-**Cada fase mostra só o que faz sentido nela** (revisado por versão, incl. as X.X):
-- **Pintura é a última fase** (V3.2 é acabamento): no V4 as paredes/colunas/empenas **nascem em
-  reboco natural** (`WALL_NAT`/`EMBASE_NAT`) e só viram marrom na fase 18. `buildBuilding3D` guarda
-  os materiais em `g.userData.paint`; `applyBuildPhase` troca `m.color` p/ marrom quando
-  `buildPhase4 ≥ PAINT_PHASE`. (V3.2 segue nascendo marrom — `bornBrown = rv==='v32' && v!=='v4'`.)
-- **Esperas = ponta do pilar:** na vida real pilar e espera são a mesma peça (a espera é só a ponta
-  do ferro do pilar). `mkEsperas(cMN, cME, topZ)` cria 4 arranques saindo do **topo do pilar**
-  (`CEIL3D+CPA` na casa / `GLAJE` na garagem) → aparecem **na fase das colunas** (casa **2**, garagem
-  **11**), não depois da laje. A laje depois envolve a base; seguem espetadas até o pilar do 2º pav
-  cobri-las (fase 14, ocultos pelo pilar opaco).
-- **Cobertura das esperas (Caixa):** a Caixa não aceita ferro de espera aparente numa obra
-  concluída → a **fase 8** (entre o V1 pronto e o muro) capeia o ferro dos 12 pilares da casa com
-  **bonecas de concreto** (`box3d` 0,19×0,19, `matEmbase`, `_ph = PH.cap`). Boneca **0,19 < pilar
-  0,20** → some embutida quando o pilar do 2º pav sobe (fase 14). Para o ferro caber **inteiro**
-  dentro da boneca (e do pilar), `mkEsperas` usa `OFF=0,06` e a **dobra do topo bende p/ dentro**
-  (senão a ponta saía ±0,17, além da boneca). É a mesma ideia do `esperasCaps` do V1 standalone.
-- **Platibanda do V1 (cara de "casa quadrada com telhado embutido"):** o V4 ganha uma mureta
-  (0,42 m, = `/v1`) em **todo o perímetro** da casa, na laje 1 (`F2.add`, `_ph = PH.laje1`). Some
-  quando o sobrado sobe via **`userData.phEnd = PH.colS`** (o 2º pav a substitui). `applyBuildPhase`
-  trata `phEnd`: objeto visível só na janela `[ph, phEnd)`.
-  - **Face oeste = junta (sem beiral):** a laje oeste do V4 termina RENTE à parede oeste, na
-    junta (`Egar = 22,37`), **desde o V1 standalone** — sem beiral, sem stubs, sem fascia oeste.
-    A mureta oeste fica na junta (`pbAdd(cn0, ce0, …, PH.laje1, PH.colS)`) já na fase da laje.
-    Isso garante que a laje da casa nunca cavalga a futura garagem, viabilizando a junta de
-    dilatação da expansão V2. (Antes, enquanto standalone, o oeste tinha um beiral simétrico de
-    0,5 m que sumia quando a garagem anexava — removido.)
-- **Escadas das portas da frente (V1):** enquanto a casa é standalone, as portas **principal
-  (oeste)** e **da sala (norte)** ganham as MESMAS escadas externas do `/v1` (`extStairs 'W'` e
-  `'N'`), com `_phEnd = PH.gFound` — somem quando a plataforma/garagem assume o acesso (V2). O
-  `stampAdd` carrega `_phEnd` p/ carimbar a janela de fases também em geometria de helpers.
-- **Pivô da porta:** o marcador de dobradiça do `doorArc` (`circ` preto) leva `no3d:true` — senão o
-  pipeline o extruda numa **massa preta de 0,45 m** flutuando (corrigido em todas as versões).
-- **Muro = V1.1, não V1:** muro frontal + portão + cercas só aparecem **depois do V1 pronto**, na
-  **fase 8** (`PH.muro`). Durante a obra do V1 (fases 1–7) o lote fica sem muro.
-- **Plataforma de acesso (nível garagem)** sai da fundação da casa e entra no **bloco V2** (`gFound`):
-  senão aparecia um "piso norte" antes da garagem existir.
-- **Depósito sob a escada** (paredes no GEO a oeste da junta, `mE<16`, + sua porta) é detectado por
-  posição em `walls.forEach`/`openings.forEach` e jogado p/ o **bloco V2** (`gLaje`) — não sai mais
-  flutuando na alvenaria da casa.
-- **Janelas do 2º pav** (vidro + caixilho) entram nas **esquadrias** (17), não na alvenaria (15):
-  no `winWall`, o vidro/caixilho recebem `userData.ph = PH.esquadS`; a parede deixa o vão aberto.
-
-- **Clone do V3.2 sem repetir gates:** `buildBuilding3D(v)` define `const rv = v==='v4'?'v32':v;`
-  — todos os gates de **renderização** usam `rv` (SOLAR, `WALL_TINT`, `EMBASE_COL`, garagem,
-  `floor2`, telhado, muro). `v` continua `'v4'` só para a **identidade** (chave da cena, fases).
-  No 2D, `buildLayers` faz `if (v==='v4') v='v32'`; `initMap`/`v3Layers` tratam `v4` junto.
-- **`PH` = números de fase por versão.** O mesmo código compartilhado carimba o número certo
-  conforme a versão. Chaves: casa (`found,colT,vigaT,laje1,alven,esquad,acab` = 1–7), garagem
-  (`gFound,gColT,gVigaT,gLaje` = 8–11), sobrado (`colS,vigaS,laje2,alvenS,telhado,esquadS` = 12–17).
-  Demais versões: as chaves da casa = as 7 fases do V1, o resto não é usado.
-- **`stampAdd(grp)`:** carimba `userData.ph` também nos grupos `roof` (telhado) e `floor2`
-  (2º pav), que têm `.add` próprio. Cada subseção da garagem/`floor2`/`roof` seta `_ph` antes
-  dos `add`. **Cuidado:** a cerca dos fundos declara um `const PH = 2,20` (altura do mourão) que
-  sombrearia o `PH` das fases — por isso o `_ph = PH.muro` do muro é setado **fora** do bloco.
-- **`applyBuildPhase('v4')`** (estado `buildPhase4`, **abre na fase 1/20 — Fundação**; `setVersion`
-  reseta `buildPhase4=1` ao clicar a aba, p/ sempre começar do início da obra): percorre **toda** a árvore
-  (`traverse`), oculta `userData.ph > buildPhase4`, **ergue o telhado** (`roof.position.y =
-  CEIL3D+0.16`), força `roof`/`floor2` **sempre visíveis** (quem some é o filho, pelo `ph`) e
-  aplica a **pintura** na última fase (gatilho dinâmico `ph >= PHASE_LABELS_V4.length`). V4 **não
-  tem** os botões "2º piso/Telhado" — o slider é o controle único.
-- **Slider:** `buildHud3D` monta o `.phase-hud` para `v1` (7) **e** `v4` (20), usando
-  `PHASE_LABELS_V4`/`buildPhase4`.
-- **Laje de cobertura (forro):** no sobrado solar **não há laje plana** no `roof` (o telhado a
-  substitui). Para dar conteúdo à fase 16, o V4 adiciona uma **laje de forro** plana (2 boxes,
-  casa + garagem) em `fz1`, **oculta sob as águas** — não muda a aparência final vs. V3.2.
-- **A casa do V4 não tem a laje plana + platibanda do V1 standalone:** seu "telhado" no bloco 1 é
-  a **laje 1** (intermediária, com fascia `addBorda`), que vira o chão do 2º piso no bloco 3. No
-  fim do bloco 1 (fase 7) ela lê como um térreo de telhado plano acabado.
-- **Mapeamento das 20 fases → geometria:**
-  - **Bloco 1 — casa (V1):** 1 fundação casa · 2 pilares casa (**+ esperas = ponta dos pilares**) ·
-    3 vigas casa · 4 laje casa (laje 1 + fascia) · 5 alvenaria casa (paredes térreo) ·
-    6 esquadrias casa · 7 acabamento casa (mobiliário) = **V1 pronto** · 8 **cobertura das esperas**
-    (bonecas de concreto — Caixa).
-  - **V1.1:** 9 **muro frontal + portão + cercas**.
-  - **Bloco 2 — garagem (V2):** 10 fundação garagem (acesso, baldrame, piso, **plataforma**) ·
-    11 pilares (pilotis) (**+ esperas da garagem**) · 12 vigas · 13 laje da garagem (+ parede sul +
-    **depósito** + escada p/ o 2º) = **V2 pronto**.
-  - **Bloco 3 — sobrado (V3):** 14 pilares 2º pav · 15 vigas 2º pav · 16 laje de forro ·
-    17 alvenaria 2º pav (paredes + divisórias) · 18 telhado solar (águas + empenas + FV) ·
-    19 esquadrias 2º pav (vidros + caixilhos + folhas de porta) = **V3 pronto**.
-  - **Acabamento final:** 20 **pintura** marrom de toda a casa = **V3.2**.
 
 ---
 
