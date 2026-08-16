@@ -883,22 +883,22 @@
 
           <div class="med-room-card col-blue">
             <div class="med-room-name">Banheiro</div>
-            <div class="med-room-dims">1,85 × 2,53 m</div>
-            <div class="med-room-area">4,7 m²</div>
+            <div class="med-room-dims">1,55 × 2,53 m</div>
+            <div class="med-room-area">3,9 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Box 1,0×1,0 m</div>
           </div>
 
           <div class="med-room-card col-teal">
             <div class="med-room-name">Área de Serviço</div>
-            <div class="med-room-dims">1,85 × 2,53 m</div>
-            <div class="med-room-area">4,7 m²</div>
+            <div class="med-room-dims">1,55 × 2,53 m</div>
+            <div class="med-room-area">3,9 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Tanque + máquina + despensa</div>
           </div>
 
           <div class="med-room-card col-green">
             <div class="med-room-name">Quarto</div>
-            <div class="med-room-dims">3,33 × 2,53 m</div>
-            <div class="med-room-area">8,4 m²</div>
+            <div class="med-room-dims">3,93 × 2,53 m</div>
+            <div class="med-room-area">9,9 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul + Leste<br>Dim. menor: 2,53 m ≥ 2,40 ✓</div>
           </div>
 
@@ -1071,20 +1071,20 @@
           </div>
           <div class="med-room-card col-blue">
             <div class="med-room-name">Banheiro</div>
-            <div class="med-room-dims">1,85 × 2,53 m</div>
-            <div class="med-room-area">4,7 m²</div>
+            <div class="med-room-dims">1,55 × 2,53 m</div>
+            <div class="med-room-area">3,9 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Box 1,0×1,0 m</div>
           </div>
           <div class="med-room-card col-teal">
             <div class="med-room-name">Área de Serviço</div>
-            <div class="med-room-dims">1,85 × 2,53 m</div>
-            <div class="med-room-area">4,7 m²</div>
+            <div class="med-room-dims">1,55 × 2,53 m</div>
+            <div class="med-room-area">3,9 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Tanque + máquina + despensa</div>
           </div>
           <div class="med-room-card col-green">
             <div class="med-room-name">Quarto</div>
-            <div class="med-room-dims">3,33 × 2,53 m</div>
-            <div class="med-room-area">8,4 m²</div>
+            <div class="med-room-dims">3,93 × 2,53 m</div>
+            <div class="med-room-area">9,9 m²</div>
             <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul + Leste<br>Dim. menor: 2,53 m ≥ 2,40 ✓</div>
           </div>
           <div class="med-room-card col-orange">
@@ -1948,8 +1948,8 @@
             // quarto cresce p/ oeste (mE 28,0) e a faixa sul fica 0,2 m mais funda (mN 4,70)
             // p/ o quarto atender a Caixa (≥2,40 m livre e ~8 m² de casal).
             lys.push(wall(2.0, 24.0,  4.70, 24.0, IW)); // hall (leste) ↔ banheiro (oeste) — mE 24,0
-            lys.push(wall(2.0, 26.0,  4.70, 26.0, IW)); // banheiro ↔ á. serviço — mE 26,0
-            lys.push(wall(2.0, 28.0,  4.70, 28.0, IW)); // á. serviço ↔ quarto — mE 28,0 (quarto +0,5 m largura)
+            lys.push(wall(2.0, 25.7,  4.70, 25.7, IW)); // banheiro ↔ á. serviço — mE 25,7 (banheiro 1,7 m)
+            lys.push(wall(2.0, 27.4,  4.70, 27.4, IW)); // á. serviço ↔ quarto — mE 27,4 (serviço 1,7 m; quarto absorve o resto)
             lys.push(wall(4.70, 24.0, 4.70, 31.5, IW)); // norte da faixa sul (banheiro+serviço+quarto) — mN 4,70
 
             // Aberturas — cortam as paredes nas posições das portas
@@ -1968,13 +1968,13 @@
             cut(7.35, 23.00, 0.30, 2.00, 'glassdoor'); // Porta grande de vidro (lado da sala) — deslocada 0,3m p/ leste p/ equilíbrio
             cut(4.70, 31.40, 0.90, 0.20); // Fundos (leste) — parede leste mE=31,5
             cut(4.625, 28.60, 0.15, 0.9); // Quarto (interna) — parede norte mN=4,70, pela cozinha
-            cut(4.625, 26.55, 0.15, 0.9); // Á. serviço (interna) — parede norte mN=4,70, pela sala/cozinha
+            cut(4.625, 26.10, 0.15, 0.9); // Á. serviço (interna) — parede norte mN=4,70, pela sala/cozinha
 
             // Janelas
-            win(1.90, 24.60, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Banheiro — sul, centrada no cômodo (mE 24,0→26,0)
-            win(1.90, 26.60, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Á. serviço — sul, centrada (mE 26,0→28,0); ventila a umidade
+            win(1.90, 24.45, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Banheiro — sul, centrada no cômodo (mE 24,0→25,7)
+            win(1.90, 26.15, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Á. serviço — sul, centrada (mE 25,7→27,4); ventila a umidade
             win(2.65, 31.40, 1.40, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — leste, centrada (mN 2→4,70) — sol da manhã; 1,40 m → 1,54 m² (Caixa ≥1,5)
-            win(1.90, 29.15, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 28,0→31,5) — ventilação cruzada com a leste
+            win(1.90, 28.85, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 27,4→31,5) — ventilação cruzada com a leste
             win(1.90, 22.75, 0.20, 1.00, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall enxuto (mE 22,5→24,0)
             win(7.40, 26.10, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, centrada no vão N2(25,5)→N3(28,5): 26,1→27,9
             // Cozinha — janela-fita (peitoril 1,00 / verga 1,60); centrada no vão N3→N4 (col. mE 28,5 / 31,5; faces internas 28,6→31,4 = 2,8 m; margem 0,6 m)
@@ -2000,18 +2000,18 @@
             backStairs2D().forEach(l => lys.push(l));
             doorArc(5.60, 31.50, -0.90, 0.0, -1).forEach(l => lys.push(l)); // Fundos → abre p/ oeste (cozinha), hinge mN=5,60
             doorArc(4.70, 29.50,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
-            doorArc(4.70, 27.45,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Á. serviço → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
+            doorArc(4.70, 27.00,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Á. serviço → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
 
-            // ─── BANHEIRO ~1,85×2,55 (mN 2.0→4.70, mE 24.0→26.0) ───
-            // Box — canto SE (mN 2.10→3.10, mE 24.90→25.90): box 1,0×1,0, vidros N+O voltados p/ dentro
-            lys.push(rect(2.10, 24.90, 1.00, 1.00, '#eff6ff',
+            // ─── BANHEIRO ~1,55×2,53 (mN 2.0→4.70, mE 24.0→25.7) ───
+            // Box — canto SE (mN 2.10→3.10, mE 24.60→25.60): box 1,0×1,0, vidros N+O voltados p/ dentro
+            lys.push(rect(2.10, 24.60, 1.00, 1.00, '#eff6ff',
                 { color: '#3b82f6', weight: 1, dashArray: '3 2', h3d: 1.90, m3d: 'shower' }));
-            lys.push(circ(2.60, 25.40, 0.07, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
-            lys.push(circ(2.60, 25.40, 0.025, '#475569', { color: '#1e293b', weight: 0.3, no3d: true }));
-            // Vaso — parede leste (mE=26,0), virado para a porta (oeste)
-            lys.push(rect(3.25, 25.70, 0.50, 0.20, '#e5e7eb', { color: '#475569', weight: 0.6, h3d: 0.85, no3d: true })); // caixa
-            lys.push(rect(3.30, 25.40, 0.42, 0.45, '#ffffff', { color: '#475569', weight: 0.8, h3d: 0.40, m3d: 'toilet' })); // bacia
-            lys.push(circ(3.51, 25.60, 0.12, '#f8fafc', { color: '#475569', weight: 0.5, no3d: true })); // tampa
+            lys.push(circ(2.60, 25.10, 0.07, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+            lys.push(circ(2.60, 25.10, 0.025, '#475569', { color: '#1e293b', weight: 0.3, no3d: true }));
+            // Vaso — parede leste (mE=25,7), virado para a porta (oeste)
+            lys.push(rect(3.25, 25.40, 0.50, 0.20, '#e5e7eb', { color: '#475569', weight: 0.6, h3d: 0.85, no3d: true })); // caixa
+            lys.push(rect(3.30, 25.10, 0.42, 0.45, '#ffffff', { color: '#475569', weight: 0.8, h3d: 0.40, m3d: 'toilet' })); // bacia
+            lys.push(circ(3.51, 25.30, 0.12, '#f8fafc', { color: '#475569', weight: 0.5, no3d: true })); // tampa
             // Bancada com cuba — parede norte (mN=4.70), 0,95 m de largura
             lys.push(rect(4.30, 24.15, 0.32, 0.95, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.85, m3d: 'lavatory' }));
             lys.push(rect(4.37, 24.45, 0.18, 0.35, '#dbeafe', { color: '#475569', weight: 0.4, no3d: true }));
@@ -2028,22 +2028,22 @@
             // Linha do edredom (vinco ~0,65m abaixo da cabeceira)
             lys.push(L.polyline([rot(3.78, 29.90+OE), rot(3.78, 31.20+OE)],
                 { color: '#92400e', weight: 0.6, dashArray: '3 2', interactive: false }));
-            // Guarda-roupa — contra a parede OESTE (mE=28,0), portas p/ leste; canto SO, livre da porta
-            lys.push(rect(2.10, 28.10, 1.20, 0.55, '#a16207', { color: '#451a03', weight: 0.8, h3d: 2.00, m3d: 'wardrobeE' }));
-            lys.push(L.polyline([rot(2.70, 28.10+OE), rot(2.70, 28.65+OE)],
+            // Guarda-roupa — contra a parede OESTE (mE=27,4), portas p/ leste; canto SO, livre da porta
+            lys.push(rect(2.10, 27.50, 1.20, 0.55, '#a16207', { color: '#451a03', weight: 0.8, h3d: 2.00, m3d: 'wardrobeE' }));
+            lys.push(L.polyline([rot(2.70, 27.50+OE), rot(2.70, 28.05+OE)],
                 { color: '#451a03', weight: 0.5, interactive: false }));
-            lys.push(L.polyline([rot(2.10, 28.65+OE), rot(3.30, 28.65+OE)],
+            lys.push(L.polyline([rot(2.10, 28.05+OE), rot(3.30, 28.05+OE)],
                 { color: '#451a03', weight: 0.5, interactive: false }));
 
-            // ─── ÁREA DE SERVIÇO ~1,85×2,55 (mE 26,0→28,0) ───
+            // ─── ÁREA DE SERVIÇO ~1,55×2,53 (mE 25,7→27,4) ───
             // Tanque contra a parede sul (mN=2,0), sob a janela de ventilação
-            lys.push(rect(2.15, 26.10, 0.50, 0.55, '#bae6fd', { color: '#0369a1', weight: 0.8, h3d: 0.85, m3d: 'tank' }));
-            lys.push(rect(2.22, 26.17, 0.36, 0.40, '#7dd3fc', { color: '#0369a1', weight: 0.5, no3d: true }));
+            lys.push(rect(2.15, 25.80, 0.50, 0.55, '#bae6fd', { color: '#0369a1', weight: 0.8, h3d: 0.85, m3d: 'tank' }));
+            lys.push(rect(2.22, 25.87, 0.36, 0.40, '#7dd3fc', { color: '#0369a1', weight: 0.5, no3d: true }));
             // Máquina de lavar — ao lado do tanque, contra a parede sul (volume de massa)
-            lys.push(rect(2.15, 26.75, 0.50, 0.50, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 0.85 }));
-            lys.push(circ(2.40, 27.00, 0.15, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true })); // tampa
-            // Despensa / armário alto — canto NE (contra a parede leste mE=28,0), livre da porta
-            lys.push(rect(2.80, 27.35, 0.55, 0.50, '#a16207', { color: '#5a4422', weight: 0.8, h3d: 2.00 }));
+            lys.push(rect(2.15, 26.45, 0.50, 0.50, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 0.85 }));
+            lys.push(circ(2.40, 26.70, 0.15, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true })); // tampa
+            // Despensa / armário alto — canto NE (contra a parede leste mE=27,4), livre da porta
+            lys.push(rect(2.80, 26.80, 0.55, 0.45, '#a16207', { color: '#5a4422', weight: 0.8, h3d: 2.00 }));
 
             // ─── COZINHA — retângulo perfeito (mN 4,5→7,5 × mE 27,5→31,5) ──────
             // Bancada norte (parede norte mN=7,5, inner face 7,40) — mE 27,75→30,85
@@ -2124,9 +2124,9 @@
             // enxuto de 1,5 m não a comporta. Reavaliar posição com a planta da arquiteta.
 
             // ─── LABELS DOS CÔMODOS ──────────────────────────────────────────
-            lys.push(roomLabel(3.35, 25.00, 'Banheiro', '1,85 × 2,53 m', '4,7 m²'));
-            lys.push(roomLabel(3.35, 27.00, 'Á. Serviço', '1,85 × 2,53 m', '4,7 m²'));
-            lys.push(roomLabel(3.35, 29.75, 'Quarto',   '3,33 × 2,53 m', '8,4 m²'));
+            lys.push(roomLabel(3.35, 24.85, 'Banheiro', '1,55 × 2,53 m', '3,9 m²'));
+            lys.push(roomLabel(3.35, 26.55, 'Á. Serviço', '1,55 × 2,53 m', '3,9 m²'));
+            lys.push(roomLabel(3.35, 29.45, 'Quarto',   '3,93 × 2,53 m', '9,9 m²'));
             lys.push(roomLabel(3.00, 23.25, 'Hall',      '',         ''));
             lys.push(roomLabel(5.70, 24.30, 'Sala',      '',         ''));
             lys.push(roomLabel(6.30, 28.70, 'Cozinha',   '',         ''));
