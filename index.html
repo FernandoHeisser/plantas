@@ -2391,17 +2391,18 @@
         const styGard  = { color: '#3f6212', weight: 0.8, fillColor: '#4d7c0f', fillOpacity: 0.9, interactive: false };
 
         // ── Módulo 3 (SUL, mN 0→5,0): muro misto (base pedra) + jardineira + ponto técnico ──
+        // Detalhes da fachada na face OESTE = rua (mE<0); poste fica no interior do lote.
         lys.push(fbox(0, 5.0, 0, WT, styStone));
-        lys.push(fbox(0.15, 5.0, WT, WT + 0.45, styGard));                    // jardineira (lado do lote)
+        lys.push(fbox(0.15, 5.0, -0.45, 0, styGard));                         // jardineira (face rua)
         for (const pn of [0.7, 1.6, 2.6, 3.6, 4.5])                           // touceiras (capim-dos-texas / agaves)
-            lys.push(L.circleMarker(rot(pn, WT + 0.28),
+            lys.push(L.circleMarker(rot(pn, -0.25),
                 { radius: 3.5, color: '#365314', weight: 1, fillColor: '#65a30d', fillOpacity: 1, interactive: false }));
-        // Ponto técnico no canto sul: poste trifásico (dentro do lote) + medidores + limpa-fossa
+        // Ponto técnico no canto sul: poste trifásico (dentro do lote) + medidores + limpa-fossa (rua)
         lys.push(L.circleMarker(rot(0.35, 0.55),
             { radius: 4, color: '#0f172a', weight: 1.5, fillColor: '#334155', fillOpacity: 1, interactive: false }));   // poste trifásico
-        lys.push(fbox(0.25, 0.70, WT, WT + 0.16,
+        lys.push(fbox(0.25, 0.70, -0.16, 0,
             { color: '#334155', weight: 1, fillColor: '#cbd5e1', fillOpacity: 1, interactive: false }));                // quadro/medidores
-        lys.push(L.circleMarker(rot(1.15, 0.30),
+        lys.push(L.circleMarker(rot(1.15, -0.18),
             { radius: 3, color: '#334155', weight: 1, fillColor: '#cbd5e1', fillOpacity: 1, interactive: false }));     // portinhola limpa-fossa
 
         // ── Módulo 2 (CENTRO, mN 5,0→7,0): pórtico social recuado + porta pedestre ──
@@ -2411,8 +2412,8 @@
         lys.push(fbox(5.15, 5.85, RC, RC + WT, styPort));                     // fundo do recuo (sul)
         lys.push(fbox(6.55, 6.85, RC, RC + WT, styPort));                     // fundo do recuo (norte)
         lys.push(fbox(5.85, 6.55, RC, RC + 0.05, styWood));                   // folha da porta pedestre (0,70 m)
-        lys.push(fbox(5.20, 5.55, RC + WT, RC + WT + 0.10,
-            { color: '#334155', weight: 1, fillColor: '#e2e8f0', fillOpacity: 1, interactive: false }));                // correios + smart lock
+        lys.push(fbox(5.15, 5.70, -0.10, 0,
+            { color: '#334155', weight: 1, fillColor: '#e2e8f0', fillOpacity: 1, interactive: false }));                // correios + smart lock (face rua)
 
         // ── Módulo 1 (NORTE, mN 7,0→12,5): portão veicular basculante ("de subir") ──
         lys.push(fbox(7.0, 7.2, 0, WT, styPort));                             // pilar sul do portão
@@ -4243,6 +4244,8 @@
         _ph = PH.muro;
         if (rv === 'v11' || rv === 'v2' || rv === 'v3') {
             // ═══ Muro frontal em 3 módulos (esboço Rev. B) — norte à esquerda ═══
+            // Detalhes da fachada (jardineira, medidores, correios, frisos) ficam na
+            // face OESTE = rua (mE<0). O poste trifásico fica no interior do lote (esboço).
             const matConc  = fmat(0x94a3b8, { roughness: 0.9,  metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matStone = fmat(0x8c8478, { roughness: 0.95, metalness: 0.02 });
             const matWoodM = fmat(0xa86a34, { roughness: 0.8,  metalness: 0.04 });
@@ -4251,37 +4254,42 @@
             const matMeter = fmat(0xcbd5e1, { roughness: 0.7,  metalness: 0.10 });
             const matPlant = fmat(0x4d7c0f, { roughness: 1,    metalness: 0    });
             const G0 = grade(0), WT = 0.15, WH = 2.0;   // datum, espessura, altura do muro
+            // Frisos horizontais (ripado) na face OESTE de um trecho — mesmo estilo em
+            // portão, porta pedestre e muro misto. faceE = mE da face voltada p/ a rua.
+            const addFrisos = (n0, len, zBot, zTop, faceE, mat) => {
+                for (let z = zBot + 0.12; z < zTop - 0.04; z += 0.20)
+                    g.add(box3d(n0, faceE - 0.03, len, 0.04, z, z + 0.09, mat));
+            };
 
             // ── Módulo 3 (SUL, mN 0→5,0): muro misto = base de pedra + ripado de madeira ──
             g.add(box3d(0, 0, 5.0, WT, G0 - 0.02, G0 + 0.90, matStone));            // base de pedra (0,90 m)
             g.add(box3d(0, 0, 5.0, WT, G0 + 0.90, G0 + WH,  matWoodM));             // ripado de madeira (0,90→2,0)
-            g.add(box3d(0, WT, 5.0, 0.40, G0 - 0.02, G0 + 0.45, matStone));         // caixa da jardineira (lado do lote)
+            addFrisos(0, 5.0, G0 + 0.90, G0 + WH, 0, matWoodM);                     // frisos do ripado (face rua)
+            g.add(box3d(0, -0.45, 5.0, 0.42, G0 - 0.02, G0 + 0.45, matStone));      // jardineira (face rua)
             for (const cn of [0.7, 1.6, 2.6, 3.6, 4.5])                             // touceiras (capim-dos-texas / agaves)
-                g.add(box3d(cn - 0.06, WT + 0.12, 0.12, 0.12, G0 + 0.40, G0 + 0.95, matPlant));
-            // Ponto técnico no canto sul: poste trifásico (interior do lote) + medidores + limpa-fossa
+                g.add(box3d(cn - 0.06, -0.30, 0.12, 0.12, G0 + 0.40, G0 + 0.95, matPlant));
+            // Ponto técnico no canto sul: poste (interior do lote) + medidores/limpa-fossa (face rua)
             g.add(box3d(0.20, 0.45, 0.18, 0.18, G0 - 0.05, G0 + 4.60, matTech));    // poste trifásico
-            g.add(box3d(0.25, WT, 0.45, 0.16, G0 + 0.80, G0 + 1.55, matMeter));     // quadro/medidores na face do muro
-            g.add(box3d(1.05, WT, 0.30, 0.12, G0 + 0.05, G0 + 0.45, matMeter));     // portinhola limpa-fossa
+            g.add(box3d(0.25, -0.10, 0.45, 0.10, G0 + 0.80, G0 + 1.55, matMeter));  // quadro/medidores (leitura da rua)
+            g.add(box3d(1.05, -0.08, 0.30, 0.08, G0 + 0.05, G0 + 0.45, matMeter));  // portinhola limpa-fossa
 
             // ── Módulo 2 (CENTRO, mN 5,0→7,0): pórtico social recuado + porta pedestre ──
-            const RC = 0.55;                                  // profundidade do recuo
+            const RC = 0.55;                                  // profundidade do recuo (porta afastada da rua)
             g.add(box3d(5.0,  0,  0.15, RC + WT, G0 - 0.02, G0 + 2.30, matConc));    // jamba sul (pórtico mais alto)
             g.add(box3d(6.85, 0,  0.15, RC + WT, G0 - 0.02, G0 + 2.30, matConc));    // jamba norte
             g.add(box3d(5.0,  0,  2.0,  RC + WT, G0 + 2.30, G0 + 2.55, matConc));    // verga/travessa do pórtico
             g.add(box3d(5.15, RC, 0.70, WT, G0 - 0.02, G0 + 2.10, matConc));         // fundo do recuo (sul)
             g.add(box3d(6.55, RC, 0.30, WT, G0 - 0.02, G0 + 2.10, matConc));         // fundo do recuo (norte)
             g.add(box3d(5.85, RC, 0.70, 0.05, G0 + 0.02, G0 + 2.10, matWoodM));      // folha da porta pedestre (0,70 m)
-            g.add(box3d(5.20, RC + WT, 0.30, 0.08, G0 + 0.90, G0 + 1.60, matMeter)); // correios + smart lock
+            addFrisos(5.85, 0.70, G0 + 0.02, G0 + 2.10, RC, matWoodM);              // frisos da porta (voltados p/ a rua)
+            g.add(box3d(5.15, -0.10, 0.55, 0.10, G0 + 0.90, G0 + 1.60, matMeter));   // correios + smart lock (face rua)
 
             // ── Módulo 1 (NORTE, mN 7,0→12,5): portão veicular basculante ("de subir") ──
             g.add(box3d(7.0,  0, 0.20, WT, G0 - 0.02, G0 + 2.15, matConc));          // pilar sul
             g.add(box3d(12.3, 0, 0.20, WT, G0 - 0.02, G0 + 2.15, matConc));          // pilar norte (encosta na divisa)
             g.add(box3d(7.0,  0, 5.5,  WT, G0 + WH, G0 + WH + 0.15, matConc));       // verga superior do vão
-            g.add(box3d(7.2, 0.03, 5.1, 0.06, G0 + 0.05, G0 + WH, matGate));         // folha do portão (fechada)
-            for (let i = 0; i < 9; i++) {                                            // frisos horizontais do ripado
-                const zz = G0 + 0.15 + i * 0.20;
-                g.add(box3d(7.2, 0.10, 5.1, 0.03, zz, zz + 0.10, matGate));
-            }
+            g.add(box3d(7.2,  0, 5.0,  WT, G0 + 0.05, G0 + WH, matGate));            // folha do portão (fechada)
+            addFrisos(7.2, 5.0, G0 + 0.05, G0 + WH, 0, matGate);                     // frisos do ripado (face rua)
             // Muro norte: mN 12,35→12,5, mE 0→40, segmentado p/ seguir o declive
             const matNMuro  = fmat(0x64748b, { roughness: 0.85, metalness: 0.02, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
             const matPilar  = fmat(0x8c8478, { roughness: 0.88, metalness: 0.02 });

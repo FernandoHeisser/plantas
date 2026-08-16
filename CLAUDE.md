@@ -910,13 +910,19 @@ espessura `WT=0,15 m`. Fase `_ph=PH.muro` (só aparece no acabamento).
 | 2 · Pórtico social (CENTRO) | 5,0 → 7,0 | 2,0 m | pórtico de concreto **recuado `RC=0,55 m`** (jambas mN 5,0/6,85 até 2,30 + verga 2,30→2,55); porta pedestre de madeira 0,70 m no fundo do recuo + nicho de correios/smart lock |
 | 3 · Muro misto (SUL) | 0 → 5,0 | 5,0 m | base de pedra (`matStone`, 0→0,90) + ripado de madeira (`matWoodM`, 0,90→2,0) + jardineira (caixa + touceiras `matPlant`); **ponto técnico** no canto sul: poste trifásico (interior do lote, ~4,6 m), medidores na face, portinhola limpa-fossa |
 
+- **Orientação (importante):** todos os detalhes da fachada — jardineira/touceiras,
+  medidores, correios/smart lock, portinhola e **frisos** — ficam na face **OESTE (rua, mE<0)**,
+  não na face do lote. O **poste trifásico** é a exceção: fica **no interior do lote** (mE>0),
+  como no esboço. O pórtico é recuado (`RC=0,55 m`): a porta afasta-se da rua, alcova abre p/ oeste.
+- **Frisos consistentes:** helper `addFrisos(n0, len, zBot, zTop, faceE, mat)` desenha o ripado
+  horizontal na face **oeste** de um trecho — mesmo estilo em **portão + porta pedestre + muro
+  misto** (o cliente pediu ripado igual nos três).
 - **Materiais** (`fmat`, por-build): `matConc` (pórtico/pilares), `matStone`, `matWoodM`,
   `matGate`, `matTech` (poste/metal), `matMeter` (medidores/nichos), `matPlant`.
 - **Mantidos** do fechamento anterior: muro de divisa norte (mN 12,35, mE 0→40, colunas a
   cada 5 m), cerca sul (mN 0) e cerca dos fundos (mE 40) — ripado de madeira seguindo o declive.
 - **Ficha de Medidas V1.1** ("Fechamento do lote"): 3 cards de módulo + divisa norte + cercas.
-- **Refinos possíveis** (simplificado a pedido do cliente): mais contraste pedra×madeira,
-  frisos do portão mais marcados, folha da porta pedestre mais visível no recuo.
+- **Refinos possíveis** (simplificado a pedido do cliente): mais contraste pedra×madeira.
 
 ---
 
