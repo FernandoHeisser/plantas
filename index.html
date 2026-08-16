@@ -3749,11 +3749,12 @@
 
             // ── Aterro do CANTO SUL: cobre o trecho EXPOSTO do dreno (a garagem já tem
             // o seu aterro em mN≥2). Leira de terra no setback sul (mN 0→2), do canto da
-            // casa (leste, alto) blendando p/ o terreno natural na frente (oeste). Topo
-            // em rampa: −0,13 junto à casa (≈12 cm de cobertura sobre o cano) → grade na
-            // borda oeste. Base enterrada; só a parte acima do solo natural aparece.
-            const AT_Xw = 13.5, AT_Xe = 17.4;            // oeste (frente) / leste (casa)
-            const AT_Yte = -0.13, AT_Ytw = grade(AT_Xw); // topo: alto na casa → grade na frente
+            // casa (leste, alto) SEGUINDO ATÉ A FRENTE DO LOTE (oeste, X=0 = testada) e
+            // ALINHANDO rente ao nível da frente lá. Topo em rampa: −0,13 junto à casa
+            // (≈12 cm de cobertura sobre o cano) → grade(0)=0 na testada (flush com a
+            // calçada, sem degrau). Base enterrada; só a parte acima do solo aparece.
+            const AT_Xw = 0, AT_Xe = 17.4;               // oeste (testada/frente) / leste (casa)
+            const AT_Yte = -0.13, AT_Ytw = grade(AT_Xw); // topo: alto na casa → grade(0)=0 na frente
             const AT_Yb = -0.70;                         // base enterrada
             const atV = [
                 AT_Xw, AT_Yb, 0,   AT_Xe, AT_Yb, 0,   AT_Xe, AT_Yb, -2.0, AT_Xw, AT_Yb, -2.0, // base 0-3
