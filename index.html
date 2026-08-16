@@ -4716,7 +4716,7 @@
         S._dirty = true;
         const ph = (v === 'v1') ? buildPhase : 7;
         S.group.children.forEach(o => {
-            if (o.name === 'roof' || o.name === 'floor2') return; // tratados à parte
+            if (o.name === 'roof' || o.name === 'floor2' || o.name === 'drainV3') return; // tratados à parte (visibilidade só nos toggles)
             const p = o.userData ? o.userData.ph : null;
             if (p == null) return;                                // entorno/cotas → sempre visível
             o.visible = p <= ph;
