@@ -382,13 +382,17 @@ chuva.
 **Telhado embutido + caixa d'água (só na laje plana, V1/V2 — bloco `else` do `if (SOLAR)`):**
 - **Telhado embutido, caimento p/ o sul:** **telha metálica trapezoidal** (`rslab`, `name:'telha'`,
   material `matTelha` com `map = texTelha()` — nervuras terracota que correm no sentido do caimento,
-  `repeat.set(10,3)`) ACIMA da laje de forro, escondida atrás da platibanda. Cotas: sul (baixa)
-  `RH_S=3,03` → norte (alta) `RH_N=3,38` sobre o vão `RD=n1−n0` (com beiral) → queda ~5%
-  (`RPITCH=atan((RH_N−RH_S)/RD)`, `rotation.x=+RPITCH` = norte alto/sul baixo). A borda norte (3,38)
-  fica logo abaixo do topo da platibanda (`pbTop`≈3,43) → **oculto da rua** (só aparece em vista
-  aérea/de cima); a água escorre p/ a calha atrás da platibanda sul. `BoxGeometry(e1−eW, 0,07,
-  RD/cos(RPITCH))`, centrado em `((eW+e1)/2, média, −(n0+n1)/2)`. **A telha é o que esconde os
-  ferros de espera** (ver "Esperas") → visível só quando o ferro NÃO está à mostra.
+  `repeat.set(10,3)`) ACIMA da laje de forro (topo `slabTop = CEIL3D+CPA+0,16 ≈ 3,16`), **encaixada
+  dentro do anel da platibanda**. Cotas: sul `RH_S = slabTop+0,06 ≈ 3,22` (baixa, acima da laje) →
+  norte `RH_N = pbTop−0,10 ≈ 3,48` (alta, sob o topo da mureta `pbTop≈3,58`) → queda ~4%
+  (`RPITCH=atan((RH_N−RH_S)/RD)`, `rotation.x=+RPITCH` = norte alto/sul baixo). **Recuada até a face
+  INTERNA das platibandas** (`RGAP=0,015`): `tS=n0+tt+RGAP`, `tN=n1−tt−RGAP`, `tE=e1−tt−RGAP`, e
+  `tW = hasGarage ? eW : eW+tt+RGAP` (oeste = junta no V2/V3, interno no V1) → **não atravessa as
+  muretas** (sem z-fight na norte) e **cobre toda a laje interna** (sem cinza aparecendo).
+  `BoxGeometry(tE−tW, 0,07, RD/cos(RPITCH))`, `RD=tN−tS`, centrada em `((tW+tE)/2, média, −(tS+tN)/2)`.
+  **Cuidado:** a laje é `slabTop≈3,16` (NÃO 3,01) — a telha tem que ficar ACIMA disso, senão a
+  metade sul fica enterrada na laje e o cinza aparece. **A telha é o que esconde os ferros de
+  espera** (ver "Esperas") → visível só quando o ferro NÃO está à mostra.
 - **Cubo da caixa d'água (centro):** casa de máquinas de concreto (`box3d`, `lajeMat`) no centro da
   laje (`CX_N=4,75`, `CX_E=27+OE`), base `CX_S=1,4` m, de `CEIL3D+CPA+0,16` (topo da laje) até
   `CX_TOP=4,4` (~1 m acima da platibanda). Abriga internamente o reservatório (~1000 L) elevado p/

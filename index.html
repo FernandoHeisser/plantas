@@ -3621,23 +3621,29 @@
                 roof.add(box3d(n0,  eW,      n1 - n0, tt,      pb, pbTop, lajeMat)); // oeste (junta)
 
             // ── Telhado embutido (caimento p/ o SUL) ────────────────────────────
-            // Telha metálica trapezoidal inclinada ACIMA da laje de forro, escondida atrás
-            // da platibanda (topo 3,43). Borda norte (alta) ~3,38 fica logo abaixo do
-            // topo da mureta → totalmente oculto de fora; borda sul (baixa) ~3,03 recebe
-            // a água (calha atrás da platibanda sul). Queda ~5% sobre a projeção N-S.
+            // Telha metálica trapezoidal inclinada ACIMA da laje de forro (topo `slabTop`),
+            // ENCAIXADA dentro do anel da platibanda: sul (baixa) logo acima da laje; norte
+            // (alta) fica abaixo do topo da mureta (`pbTop`) → oculto da rua, só de cima
+            // aparece. A água escorre p/ a calha atrás da platibanda sul.
+            // Recuada até a FACE INTERNA das platibandas (S/N/E sempre; O só no V1 — no
+            // V2/V3 o oeste é a junta, então vai até `eW` p/ encostar na garagem) → não
+            // atravessa as muretas (fim do z-fight na norte) e cobre toda a laje interna.
             // É a telha (não mais a "boneca") que ESCONDE os ferros de espera → nome 'telha',
             // alternada pela visibilidade das esperas (ver applyBuildPhase/set3DEsperas).
-            const RH_S = 3.03, RH_N = 3.38;              // cota sul (baixa) → norte (alta)
-            const RD = n1 - n0;                          // vão N-S (com beiral, sob a platibanda)
+            const RGAP = 0.015, slabTop = CEIL3D + CPA + 0.16;      // topo da laje de forro
+            const tS = n0 + tt + RGAP, tN = n1 - tt - RGAP;         // sul/norte = faces internas
+            const tE = e1 - tt - RGAP, tW = hasGarage ? eW : (eW + tt + RGAP); // O: junta (V2) ou interno (V1)
+            const RH_S = slabTop + 0.06, RH_N = pbTop - 0.10;       // acima da laje → sob o topo da mureta
+            const RD = tN - tS;                          // vão N-S entre faces internas
             const RPITCH = Math.atan((RH_N - RH_S) / RD);
             const telhaTex = texTelha(); telhaTex.repeat.set(10, 3);
             const matTelha = new THREE.MeshStandardMaterial({ color: 0xffffff, map: telhaTex,
                 roughness: 0.5, metalness: 0.35, envMapIntensity: 0.4,
                 polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
-            const rslab = new THREE.Mesh(new THREE.BoxGeometry(e1 - eW, 0.07, RD / Math.cos(RPITCH)), matTelha);
+            const rslab = new THREE.Mesh(new THREE.BoxGeometry(tE - tW, 0.07, RD / Math.cos(RPITCH)), matTelha);
             rslab.name = 'telha';
             rslab.rotation.x = RPITCH;                   // +: norte alto, sul baixo → caimento p/ o sul
-            rslab.position.set((eW + e1) / 2, (RH_S + RH_N) / 2, -(n0 + n1) / 2);
+            rslab.position.set((tW + tE) / 2, (RH_S + RH_N) / 2, -(tS + tN) / 2);
             rslab.castShadow = true; rslab.receiveShadow = true;
             roof.add(rslab);
 
