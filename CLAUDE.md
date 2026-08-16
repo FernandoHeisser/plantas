@@ -408,13 +408,16 @@ chuva.
   **frente** (sul), livre nas duas versões (o oeste é junta no V2). O cano (`CylinderGeometry` Ø0,10,
   cinza) fica escondido no bolsão atrás da aba (mN 1,74–1,84, y −0,30→3,05). Carimbados `_ph=PH.acab`.
 - **Dreno pluvial até a rede pública (V1/V2, mesmo bloco):** do pé da prumada (canto SW) até a
-  **frente do lote** (oeste, `mE=0` de cena = calçada). O terreno cai da calçada (frente, ALTA,
-  `grade(0)=0`) p/ os fundos, então o dreno **desce em direção à rua** (`p1=(22,58+OE, −0,30, −1,79)`
-  → `p2=(0, −0,65, −1,79)`, caimento ~2%). `CylinderGeometry` orientado por
-  `quaternion.setFromUnitVectors((0,1,0), dir)`. Como o solo SOBE p/ a frente (`grade(casa)≈−0,43`),
-  o trecho junto à casa (~2,8 m) fica **acima do solo (exposto)** e o resto enterra sob a grama —
-  esse trecho exposto é a **zona de ATERRO** (próximo passo). `joelho` (esfera) no pé da prumada +
-  **caixa de ligação** (`box3d` 0,5×0,5, `−0,90→grade(0)+0,03`) na testada, tampa rente ao solo.
+  **frente do lote** (oeste, `mE=0` de cena = calçada), roteado em **"L" rente à DIVISA SUL**
+  (`DIV_Z=−0,40` → mN≈0,40) p/ **NÃO passar sob a estrutura da garagem** (mN≥2 no V2): `P0=(22,58+OE,
+  −0,30, −1,79)` [pé da prumada] → `P1=(22,58+OE, −0,33, DIV_Z)` [desce à divisa] → `P2=(0, −0,65,
+  DIV_Z)` [corre até a frente]. Segmentos via helper `mkPipe(a,b)` (cilindro orientado por
+  `quaternion.setFromUnitVectors((0,1,0), dir)`). O terreno cai da calçada (frente, ALTA, `grade(0)=0`)
+  p/ os fundos → o dreno **desce em direção à rua** (caimento ~2%). Como o solo SOBE p/ a frente
+  (`grade(casa)≈−0,43`), o trecho junto à casa fica **acima do solo (exposto)** e o resto enterra
+  sob a grama — esse trecho é o **CANTO SUL** que o ATERRO cobre (a garagem já tem o seu aterro).
+  `joelho` (esfera) no pé da prumada e na curva + **caixa de ligação** (`box3d` 0,5×0,5,
+  `−0,90→grade(0)+0,03`) na testada em mN 0,40, tampa rente ao solo.
 Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
