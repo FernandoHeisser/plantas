@@ -3718,6 +3718,64 @@
             pipe.position.set(22.58 + OE, 1.375, -1.79);
             pipe.castShadow = true; pipe.receiveShadow = true;
             g.add(pipe);
+
+            // ── Dreno pluvial: prumada → REDE PÚBLICA na frente do lote (oeste, mE=0) ──
+            // Roteado em "L" RENTE À DIVISA SUL (mN≈0,40) p/ NÃO passar sob a estrutura da
+            // garagem (mN≥2, V2): desce do pé da prumada (mN 1,79) até a divisa e corre p/ a
+            // frente colado nela. O terreno cai da calçada (frente, ALTA) p/ os fundos, então
+            // o dreno DESCE em direção à rua (caimento ~2%): pé da prumada (~−0,30) → caixa de
+            // ligação na frente (~−0,65). Como o solo SOBE p/ a frente (grade(0)=0 vs grade da
+            // casa ~−0,42), o trecho junto à casa fica ACIMA do solo (EXPOSTO) e o resto enterra
+            // sob a grama — esse trecho é o CANTO SUL que o ATERRO cobre (a garagem já tem o seu).
+            const DIV_Z = -0.40;                                     // mN da divisa (dreno colado nela)
+            const P0 = new THREE.Vector3(22.58 + OE, -0.30, -1.79);  // pé da prumada (casa)
+            const P1 = new THREE.Vector3(22.58 + OE, -0.33, DIV_Z);  // desce até a divisa sul
+            const P2 = new THREE.Vector3(0,          -0.65, DIV_Z);  // corre p/ a frente (rede pública)
+            const mkPipe = (a, b) => {
+                const d = new THREE.Vector3().subVectors(b, a);
+                const m = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, d.length(), 12), pipeMat);
+                m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize());
+                m.position.copy(a.clone().add(b).multiplyScalar(0.5));
+                m.castShadow = true; m.receiveShadow = true;
+                return m;
+            };
+            g.add(mkPipe(P0, P1));   // trecho de descida à divisa
+            g.add(mkPipe(P1, P2));   // trecho ao longo da divisa até a frente
+            // Joelhos no pé da prumada e na curva
+            [P0, P1].forEach(p => { const j = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 8), pipeMat); j.position.copy(p); g.add(j); });
+            // Caixa de ligação à rede pública, na frente (tampa rente ao solo da calçada)
+            const caixaMat = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, roughness: 0.9, metalness: 0 });
+            g.add(box3d(-DIV_Z - 0.25, -0.25, 0.5, 0.5, -0.90, grade(0) + 0.03, caixaMat));
+
+            // ── Aterro do CANTO SUL: berma GRAMADA cobrindo o trecho EXPOSTO do dreno (a
+            // garagem já tem o seu aterro em mN≥2). RECUADO p/ dentro da cerca sul (mN 0→0,12)
+            // e do muro frontal (X 0→0,15) → NÃO cruza cerca/muro. Base segue o grade (só
+            // ~15 cm enterrados, ocultos pelo terreno — sem polygonOffset, o chão volta a
+            // ocluir as laterais). Topo em rampa: −0,13 junto à casa (cobre o cano) até uma
+            // borda leve (grade+0,03) na frente. Toda a superfície é GRAMA (verde, como o lote).
+            const AT_Xw = 0.25, AT_Xe = 17.4;            // oeste (dentro do muro) / leste (casa)
+            const AT_Ns = 0.20, AT_Nn = 2.0;             // sul (dentro da cerca) / norte (casa)
+            const gW = grade(AT_Xw), gE = grade(AT_Xe);
+            const AT_TopW = gW + 0.03, AT_TopE = -0.13;  // topo: borda leve na frente → alto na casa
+            const AT_BotW = gW - 0.15, AT_BotE = gE - 0.15;  // base ~15 cm abaixo do grade (oculta)
+            const atV = [
+                AT_Xw, AT_BotW, -AT_Ns, AT_Xe, AT_BotE, -AT_Ns, AT_Xe, AT_BotE, -AT_Nn, AT_Xw, AT_BotW, -AT_Nn, // base 0-3
+                AT_Xw, AT_TopW, -AT_Ns, AT_Xe, AT_TopE, -AT_Ns, AT_Xe, AT_TopE, -AT_Nn, AT_Xw, AT_TopW, -AT_Nn  // topo 4-7
+            ];
+            const atGeo = new THREE.BufferGeometry();
+            atGeo.setAttribute('position', new THREE.Float32BufferAttribute(atV, 3));
+            // UV planar (x/40, mN/12,5) = MESMO mapeamento da grama do lote → o gramado casa
+            // com a grama do lote (mesma textura/densidade, sem emenda visível).
+            const uW = AT_Xw/40, uE = AT_Xe/40, vS = AT_Ns/12.5, vN = AT_Nn/12.5;
+            atGeo.setAttribute('uv', new THREE.Float32BufferAttribute([
+                uW,vS, uE,vS, uE,vN, uW,vN,   // base 0-3
+                uW,vS, uE,vS, uE,vN, uW,vN    // topo 4-7
+            ], 2));
+            atGeo.setIndex([4,5,6, 4,6,7,  0,1,2, 0,2,3,  0,1,5, 0,5,4,  3,2,6, 3,6,7,  1,2,6, 1,6,5,  0,3,7, 0,7,4]);
+            atGeo.computeVertexNormals();
+            const aterro = new THREE.Mesh(atGeo, new THREE.MeshStandardMaterial({ map: texGrass(), roughness: 1, metalness: 0, envMapIntensity: 0.15, side: THREE.DoubleSide }));
+            aterro.castShadow = true; aterro.receiveShadow = true;
+            g.add(aterro);
         }
 
         // ── V3: 2º pavimento (sobrado pilotis) — laje + paredes externas ─────

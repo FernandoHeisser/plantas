@@ -407,6 +407,31 @@ chuva.
   embasamento (−0,70) ao topo da platibanda, parando antes da janela da sala (mE 22,75). Fica na
   **frente** (sul), livre nas duas versões (o oeste é junta no V2). O cano (`CylinderGeometry` Ø0,10,
   cinza) fica escondido no bolsão atrás da aba (mN 1,74–1,84, y −0,30→3,05). Carimbados `_ph=PH.acab`.
+- **Dreno pluvial até a rede pública (V1/V2, mesmo bloco):** do pé da prumada (canto SW) até a
+  **frente do lote** (oeste, `mE=0` de cena = calçada), roteado em **"L" rente à DIVISA SUL**
+  (`DIV_Z=−0,40` → mN≈0,40) p/ **NÃO passar sob a estrutura da garagem** (mN≥2 no V2): `P0=(22,58+OE,
+  −0,30, −1,79)` [pé da prumada] → `P1=(22,58+OE, −0,33, DIV_Z)` [desce à divisa] → `P2=(0, −0,65,
+  DIV_Z)` [corre até a frente]. Segmentos via helper `mkPipe(a,b)` (cilindro orientado por
+  `quaternion.setFromUnitVectors((0,1,0), dir)`). O terreno cai da calçada (frente, ALTA, `grade(0)=0`)
+  p/ os fundos → o dreno **desce em direção à rua** (caimento ~2%). Como o solo SOBE p/ a frente
+  (`grade(casa)≈−0,43`), o trecho junto à casa fica **acima do solo (exposto)** e o resto enterra
+  sob a grama — esse trecho é o **CANTO SUL** que o ATERRO cobre (a garagem já tem o seu aterro).
+  `joelho` (esfera) no pé da prumada e na curva + **caixa de ligação** (`box3d` 0,5×0,5,
+  `−0,90→grade(0)+0,03`) na testada em mN 0,40, tampa rente ao solo.
+- **Aterro do canto sul (V1/V2, mesmo bloco):** leira de terra (`matSoil`, `BufferGeometry` wedge)
+  no setback sul (mN 0→2), cobrindo o trecho EXPOSTO do dreno (a garagem já tem o seu aterro em
+  mN≥2). Footprint cena X `AT_Xw=0` (**testada/frente**) → `AT_Xe=17,4` (casa) — corre o setback sul
+  inteiro; **topo em rampa** `AT_Yte=−0,13` junto à casa (~6–12 cm de cobertura sobre o cano) →
+  segue o grade natural na frente. Berma toda **GRAMADA** (um único material `MeshStandardMaterial`
+  `map=texGrass()`, `DoubleSide`), UV `=(x/40, mN/12,5)` = mesmo mapeamento do lote → o gramado casa
+  com a grama do lote (mesma textura/densidade, sem emenda).
+  **RECUADO p/ dentro da cerca/muro** (só V2/V3 têm): `AT_Xw=0,25` (muro frontal está em X 0→0,15),
+  `AT_Ns=0,20` (cerca sul está em mN 0→0,12), `AT_Xe=17,4` (casa), `AT_Nn=2,0`. **NÃO cruza cerca/muro.**
+  Topo em rampa `AT_TopE=−0,13` (casa, cobre o cano) → `AT_TopW=grade(AT_Xw)+0,03` (borda leve na frente,
+  sempre acima do grade → sem z-fight com a grama do lote no topo). **Base segue o grade**
+  (`AT_BotW/E=grade(x)−0,15`) → só ~15 cm enterrados, **ocultos pelo terreno**. **SEM `polygonOffset`**
+  (foi um erro: o negativo fazia as laterais atravessarem o chão/cerca; sem ele o terreno volta a
+  ocluir). 8 vértices / 12 triângulos, `computeVertexNormals`.
 Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
