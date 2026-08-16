@@ -3699,6 +3699,27 @@
         }
         g.add(roof);
 
+        // ── Aba da prumada (calha desce no canto SUDOESTE) — V1/V2 ──────────
+        // A telha embutida cai p/ o sul → a calha (atrás da platibanda sul) escoa
+        // até o canto SW e desce numa prumada Ø100 na fachada. Uma ABA (ressalto
+        // vertical de reboco, mesma cara da parede) no canto SW da FACHADA SUL
+        // esconde o cano da fachada. Fica na frente (sul), livre nas duas versões
+        // (o oeste é junta com a garagem no V2). Larga o bastante p/ o cano e
+        // parando antes da janela da sala (mE 22,75). Geometria manual (soma OE).
+        if (bv === 'v1' || bv === 'v2') {
+            _ph = PH.acab;                               // detalhe de acabamento da fachada
+            const pbTopF = CEIL3D + CPA + 0.16 + 0.42;   // topo da platibanda (~3,58)
+            // Aba: face oeste alinhada à face oeste da casa (mE 22,40); projeta ~0,25 m
+            // p/ o sul (da face sul 1,90 até 1,65), do embasamento ao topo da platibanda.
+            g.add(box3d(1.65, 22.40 + OE, 0.29, 0.32, -0.70, pbTopF, matWall));
+            // Prumada Ø100 escondida no bolsão atrás da aba (da calha ~3,0 até o ralo ~−0,3)
+            const pipeMat = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 0.55, metalness: 0.1 });
+            const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3.35, 12), pipeMat);
+            pipe.position.set(22.58 + OE, 1.375, -1.79);
+            pipe.castShadow = true; pipe.receiveShadow = true;
+            g.add(pipe);
+        }
+
         // ── V3: 2º pavimento (sobrado pilotis) — laje + paredes externas ─────
         // Footprint = união casa + garagem (L), sobre a laje do térreo (= piso do
         // 2º). NÃO extrapola o terreno. Começa oculto; a laje de cobertura (roof)

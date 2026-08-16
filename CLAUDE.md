@@ -399,6 +399,14 @@ chuva.
   dar pressão. Ambos são filhos de `roof` (fase `PH.laje2`) → aparecem/somem com o botão "Laje".
 - **`texTelha()`** (singleton `TEX3D.telha`, no keep-set do `disposeObject3D`): telha metálica
   trapezoidal procedural (base terracota `#a8552f` + gradientes de vale/crista + emenda transversal).
+- **Aba da prumada (canto SUDOESTE) — V1/V2, gate `if (bv==='v1'||bv==='v2')` após `g.add(roof)`:**
+  a calha (atrás da platibanda sul, lado baixo) escoa até o canto SW e desce numa prumada Ø100 na
+  fachada. Uma **aba** (ressalto vertical de reboco `matWall`) no canto SW da **fachada SUL** esconde
+  o cano — `box3d(1.65, 22.40+OE, 0.29, 0.32, −0.70, pbTopF)` (`pbTopF=CEIL3D+CPA+0,16+0,42≈3,58`):
+  face oeste alinhada à face oeste da casa (mE 22,40), projeta ~0,25 m da face sul (1,90→1,65), do
+  embasamento (−0,70) ao topo da platibanda, parando antes da janela da sala (mE 22,75). Fica na
+  **frente** (sul), livre nas duas versões (o oeste é junta no V2). O cano (`CylinderGeometry` Ø0,10,
+  cinza) fica escondido no bolsão atrás da aba (mN 1,74–1,84, y −0,30→3,05). Carimbados `_ph=PH.acab`.
 Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
