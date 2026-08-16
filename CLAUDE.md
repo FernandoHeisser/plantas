@@ -895,6 +895,31 @@ existem — ficam **embutidos** no pilar de cima.
 
 ---
 
+## Muro frontal da V1.1 (esboço Rev. B) — 3 módulos
+
+O fechamento da testada (mE=0, frente/oeste) é a **fachada em 3 módulos** do esboço do
+cliente, aplicada a partir da **V1.1** (herdada por V2/V3). Vista da rua = **norte à
+esquerda**. Fonte única: `frontWallsFences2D()` (2D) + bloco `if (rv==='v11'||…)` do muro
+frontal em `buildBuilding3D` (3D). O muro é 3D **manual** (`box3d`, não passa pelo GEO), fica
+em `mE=0` **sem OE** (ancorado ao lote), base no datum `grade(0)=0`, altura `WH=2,0 m`,
+espessura `WT=0,15 m`. Fase `_ph=PH.muro` (só aparece no acabamento).
+
+| Módulo | mN | Larg. | Conteúdo |
+|---|---|---|---|
+| 1 · Portão veicular (NORTE) | 7,0 → 12,5 | ~5,5 m | portão **basculante ("de subir")**, ripado de madeira (`matGate` + frisos horizontais); pilares nas pontas (mN 7,0 e 12,3, encosta na divisa) + verga superior |
+| 2 · Pórtico social (CENTRO) | 5,0 → 7,0 | 2,0 m | pórtico de concreto **recuado `RC=0,55 m`** (jambas mN 5,0/6,85 até 2,30 + verga 2,30→2,55); porta pedestre de madeira 0,70 m no fundo do recuo + nicho de correios/smart lock |
+| 3 · Muro misto (SUL) | 0 → 5,0 | 5,0 m | base de pedra (`matStone`, 0→0,90) + ripado de madeira (`matWoodM`, 0,90→2,0) + jardineira (caixa + touceiras `matPlant`); **ponto técnico** no canto sul: poste trifásico (interior do lote, ~4,6 m), medidores na face, portinhola limpa-fossa |
+
+- **Materiais** (`fmat`, por-build): `matConc` (pórtico/pilares), `matStone`, `matWoodM`,
+  `matGate`, `matTech` (poste/metal), `matMeter` (medidores/nichos), `matPlant`.
+- **Mantidos** do fechamento anterior: muro de divisa norte (mN 12,35, mE 0→40, colunas a
+  cada 5 m), cerca sul (mN 0) e cerca dos fundos (mE 40) — ripado de madeira seguindo o declive.
+- **Ficha de Medidas V1.1** ("Fechamento do lote"): 3 cards de módulo + divisa norte + cercas.
+- **Refinos possíveis** (simplificado a pedido do cliente): mais contraste pedra×madeira,
+  frisos do portão mais marcados, folha da porta pedestre mais visível no recuo.
+
+---
+
 ## Próximos passos
 
 ### V2 — Pendências
