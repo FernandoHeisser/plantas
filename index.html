@@ -1117,16 +1117,16 @@
             <div class="med-room-meta">Frente sul (mN 0→5,0)<br>Base de pedra + jardineira + ripado<br>Ponto técnico: poste, medidores, limpa-fossa</div>
           </div>
           <div class="med-room-card col-slate">
-            <div class="med-room-name">Muro divisa norte</div>
-            <div class="med-room-dims">40,0 m</div>
+            <div class="med-room-name">Muros divisa N + S</div>
+            <div class="med-room-dims">40,0 + 40,0 m</div>
             <div class="med-room-area">alvenaria</div>
-            <div class="med-room-meta">Divisa norte (mN 12,5)<br>Colunas a cada 5,0 m<br>Toda a profundidade do lote</div>
+            <div class="med-room-meta">Divisa norte (mN 12,5) + sul (mN 0)<br>Colunas a cada 5,0 m<br>Toda a profundidade do lote</div>
           </div>
           <div class="med-room-card col-teal">
-            <div class="med-room-name">Cercas (sul + fundos)</div>
-            <div class="med-room-dims">40,0 + 12,5 m</div>
+            <div class="med-room-name">Cerca (fundos)</div>
+            <div class="med-room-dims">12,5 m</div>
             <div class="med-room-area">madeira</div>
-            <div class="med-room-meta">Divisa sul (40 m) + fundos leste (12,5 m)<br>Cerca de madeira<br>Fecha o perímetro do lote</div>
+            <div class="med-room-meta">Fundos leste (mE 40)<br>Cerca de madeira<br>Fecha o perímetro do lote</div>
           </div>
         </div>
 
@@ -2430,9 +2430,15 @@
             lys.push(L.polygon([rot(12.28, ce-0.11), rot(12.5, ce-0.11), rot(12.5, ce+0.11), rot(12.28, ce+0.11)],
                 { color: '#1e293b', weight: 0.5, fillColor: '#64748b', fillOpacity: 1, interactive: false }));
         }
-        // Cerca sul (divisa): mN 0→0,10, mE 0→40
-        lys.push(L.polygon([rot(0, 0), rot(0.10, 0), rot(0.10, 40), rot(0, 40)],
-            { color: '#5c3a1e', weight: 1, fillColor: '#8B5E3C', fillOpacity: 1, interactive: false }));
+        // Muro sul (divisa): mN 0→0,15, mE 0→40 — igual ao muro norte
+        lys.push(L.polygon([rot(0, 0), rot(0.15, 0), rot(0.15, 40), rot(0, 40)],
+            { color: '#0f172a', weight: 1, fillColor: '#475569', fillOpacity: 1, interactive: false }));
+        // Colunas de divisa: canto mE=0 + emendas a cada 5m + canto mE=40 (salientes p/ dentro do lote)
+        for (let i = 0; i <= 8; i++) {
+            const ce = i * 5;
+            lys.push(L.polygon([rot(0, ce-0.11), rot(0.22, ce-0.11), rot(0.22, ce+0.11), rot(0, ce+0.11)],
+                { color: '#1e293b', weight: 0.5, fillColor: '#64748b', fillOpacity: 1, interactive: false }));
+        }
         // Cerca de madeira nos fundos: mE=40, mN 0→12,5
         lys.push(L.polygon([rot(0, 39.90), rot(12.5, 39.90), rot(12.5, 40), rot(0, 40)],
             { color: '#5c3a1e', weight: 1, fillColor: '#8B5E3C', fillOpacity: 1, interactive: false }));
@@ -4411,23 +4417,17 @@
                     g.add(box3d(bS + j * pw, CE, pw, FT, fz0c - 0.02, fz0c + FH, matRipado));
                 }
             }
-            // ── Cerca sul: mN=0, mE 0→40 (32 vãos de 1,25m) ────────────────
-            const PS_S = 1.25, N_BAYS_S = 32;   // 32 × 1,25 = 40 m exato
-            for (let i = 0; i <= N_BAYS_S; i++) {
-                const pe  = i * PS_S;
-                const fzs = grade(pe) - 0.10;
-                g.add(box3d(0, pe - PT/2, PT, PT, fzs, grade(pe) + PH, matMourao));
+            // ── Muro sul (divisa): mN 0→0,15, mE 0→40 — igual ao muro norte ──
+            for (let i = 0; i < 8; i++) {
+                const e0 = i * 5, e1 = e0 + 5;
+                const bot = grade(e1);
+                g.add(box3d(0, e0, 0.15, 5, bot - 0.02, bot + 2.0, matNMuro));
             }
-            for (let i = 0; i < N_BAYS_S; i++) {
-                const bS  = i * PS_S + PT/2;
-                const bE  = (i + 1) * PS_S - PT/2;
-                const bL  = bE - bS;
-                const nP  = Math.round(bL / 0.125);
-                const pw  = bL / nP;
-                for (let j = 0; j < nP; j++) {
-                    const ce = bS + j * pw + pw / 2;   // centro do ripado (mE)
-                    g.add(box3d(0, bS + j * pw, FT, pw, grade(ce) - 0.02, grade(ce) + FH, matRipado));
-                }
+            // Colunas: face sul = mN 0 (divisa); salientes p/ dentro do lote (norte)
+            for (let i = 0; i <= 8; i++) {
+                const ce  = i * 5;
+                const bot = grade(ce) - 0.02;
+                g.add(box3d(0, ce - CS/2, CS, CS, bot, bot + 2.15, matPilar));
             }
         }
 

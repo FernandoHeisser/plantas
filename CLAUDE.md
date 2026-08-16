@@ -432,7 +432,7 @@ chuva.
   `map=texGrass()`, `DoubleSide`), UV `=(x/40, mN/12,5)` = mesmo mapeamento do lote → o gramado casa
   com a grama do lote (mesma textura/densidade, sem emenda).
   **RECUADO p/ dentro da cerca/muro** (só V2/V3 têm): `AT_Xw=0,25` (muro frontal está em X 0→0,15),
-  `AT_Ns=0,20` (cerca sul está em mN 0→0,12), `AT_Xe=17,4` (casa), `AT_Nn=2,0`. **NÃO cruza cerca/muro.**
+  `AT_Ns=0,20` (muro sul está em mN 0→0,15, colunas até 0,22), `AT_Xe=17,4` (casa), `AT_Nn=2,0`. **NÃO cruza cerca/muro.**
   Topo em rampa `AT_TopE=−0,13` (casa, cobre o cano) → `AT_TopW=grade(AT_Xw)+0,03` (borda leve na frente,
   sempre acima do grade → sem z-fight com a grama do lote no topo). **Base segue o grade**
   (`AT_BotW/E=grade(x)−0,15`) → só ~15 cm enterrados, **ocultos pelo terreno**. **SEM `polygonOffset`**
@@ -953,9 +953,11 @@ espessura `WT=0,15 m`. Fase `_ph=PH.muro` (só aparece no acabamento).
   misto** (o cliente pediu ripado igual nos três).
 - **Materiais** (`fmat`, por-build): `matConc` (pórtico/pilares), `matStone`, `matWoodM`,
   `matGate`, `matTech` (poste/metal), `matMeter` (medidores/nichos), `matPlant`.
-- **Mantidos** do fechamento anterior: muro de divisa norte (mN 12,35, mE 0→40, colunas a
-  cada 5 m), cerca sul (mN 0) e cerca dos fundos (mE 40) — ripado de madeira seguindo o declive.
-- **Ficha de Medidas V1.1** ("Fechamento do lote"): 3 cards de módulo + divisa norte + cercas.
+- **Muros de divisa norte E sul** (alvenaria, iguais): norte (mN 12,35→12,5, mE 0→40) e sul
+  (mN 0→0,15, mE 0→40), ambos com colunas a cada 5 m (salientes p/ dentro do lote) seguindo o
+  declive. **A cerca sul de madeira foi substituída por muro igual ao norte.** Mantida só a
+  **cerca dos fundos** (mE 40, ripado de madeira).
+- **Ficha de Medidas V1.1** ("Fechamento do lote"): 3 cards de módulo + muros de divisa N+S + cerca dos fundos.
 - **Refinos possíveis** (simplificado a pedido do cliente): mais contraste pedra×madeira.
 
 ---
