@@ -422,14 +422,16 @@ chuva.
   no setback sul (mN 0→2), cobrindo o trecho EXPOSTO do dreno (a garagem já tem o seu aterro em
   mN≥2). Footprint cena X `AT_Xw=0` (**testada/frente**) → `AT_Xe=17,4` (casa) — corre o setback sul
   inteiro; **topo em rampa** `AT_Yte=−0,13` junto à casa (~6–12 cm de cobertura sobre o cano) →
-  `AT_Ytw=grade(AT_Xw)=grade(0)=0` na frente (**alinha rente ao nível da calçada, sem degrau**); fica
-  acima do grade natural em todo o trecho (o solo sobe p/ a frente). Base enterrada `AT_Yb=−0,70` (só
-  a parte acima do solo aparece; a grama opaca esconde o resto). 8 vértices / 12 triângulos,
-  `computeVertexNormals`. **2 materiais via `addGroup`:** topo = **grama** (`atGrassMat`, `map=texGrass()`,
-  UV `=(x/40, mN/12,5)` = mesmo mapeamento do lote → gramado casa com a grama do lote); laterais/base
-  = **terra** (`atSoilMat = matSoil.clone()`). **`polygonOffset` NEGATIVO** (`factor/units −2`) nos dois
-  → o aterro vence o z-fight com o chão (grama do lote / saia de terra coplanares nas bordas mN=0 / X=0),
-  sem flicker.
+  segue o grade natural na frente. Berma toda **GRAMADA** (um único material `MeshStandardMaterial`
+  `map=texGrass()`, `DoubleSide`), UV `=(x/40, mN/12,5)` = mesmo mapeamento do lote → o gramado casa
+  com a grama do lote (mesma textura/densidade, sem emenda).
+  **RECUADO p/ dentro da cerca/muro** (só V2/V3 têm): `AT_Xw=0,25` (muro frontal está em X 0→0,15),
+  `AT_Ns=0,20` (cerca sul está em mN 0→0,12), `AT_Xe=17,4` (casa), `AT_Nn=2,0`. **NÃO cruza cerca/muro.**
+  Topo em rampa `AT_TopE=−0,13` (casa, cobre o cano) → `AT_TopW=grade(AT_Xw)+0,03` (borda leve na frente,
+  sempre acima do grade → sem z-fight com a grama do lote no topo). **Base segue o grade**
+  (`AT_BotW/E=grade(x)−0,15`) → só ~15 cm enterrados, **ocultos pelo terreno**. **SEM `polygonOffset`**
+  (foi um erro: o negativo fazia as laterais atravessarem o chão/cerca; sem ele o terreno volta a
+  ocluir). 8 vértices / 12 triângulos, `computeVertexNormals`.
 Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
