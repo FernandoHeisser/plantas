@@ -1944,11 +1944,13 @@
 
             // Paredes internas — banheiro + quarto
             // Banheiro linear 1,5×2,5: parede norte alinhada ao quarto (mN=4,5), sem degrau
-            lys.push(wall(2.0, 25.5,  4.5, 25.5, IW)); // oeste do banheiro (mE 25,5 — banheiro 1,5 m, devolve largura ao hall)
-            lys.push(wall(4.5, 25.5,  4.5, 27.0, IW)); // norte do banheiro (mE 25,5→27,0)
-            lys.push(wall(2.0, 27.0,  4.5, 27.0, IW)); // leste banheiro / oeste á. serviço (mE 27,0)
-            lys.push(wall(2.0, 28.5,  4.5, 28.5, IW)); // leste á. serviço / oeste quarto (quarto intocado)
-            lys.push(wall(4.5, 27.0,  4.5, 31.5, IW)); // norte da á.serviço + quarto → nova parede leste (retângulo)
+            // Re-layout arquiteta: banheiro+serviço migram p/ oeste (hall enxuga p/ 1,5 m),
+            // quarto cresce p/ oeste (mE 28,0) e a faixa sul fica 0,2 m mais funda (mN 4,70)
+            // p/ o quarto atender a Caixa (≥2,40 m livre e ~8 m² de casal).
+            lys.push(wall(2.0, 24.0,  4.70, 24.0, IW)); // hall (leste) ↔ banheiro (oeste) — mE 24,0
+            lys.push(wall(2.0, 26.0,  4.70, 26.0, IW)); // banheiro ↔ á. serviço — mE 26,0
+            lys.push(wall(2.0, 28.0,  4.70, 28.0, IW)); // á. serviço ↔ quarto — mE 28,0 (quarto +0,5 m largura)
+            lys.push(wall(4.70, 24.0, 4.70, 31.5, IW)); // norte da faixa sul (banheiro+serviço+quarto) — mN 4,70
 
             // Aberturas — cortam as paredes nas posições das portas
             const cut = (n, e, dn, de, type) => {
@@ -1962,25 +1964,25 @@
                 lys.push(rect(2.15, 21.90, 1.20, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));
                 lys.push(rect(2.15, 22.20, 1.20, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
             }
-            cut(2.90, 25.40, 0.8, 0.20); // Banheiro (interna) — parede oeste mE=25,5
+            cut(2.90, 23.925, 0.8, 0.15); // Banheiro (interna) — parede oeste mE=24,0, acesso pelo hall
             cut(7.35, 23.00, 0.30, 2.00, 'glassdoor'); // Porta grande de vidro (lado da sala) — deslocada 0,3m p/ leste p/ equilíbrio
-            cut(4.70, 31.40, 0.90, 0.20); // Fundos (leste) — nova parede leste mE=31,5
-            cut(4.40, 28.90, 0.20, 0.9); // Quarto (interna) — pela cozinha
-            cut(4.40, 27.30, 0.20, 0.9); // Á. serviço (interna) — pela cozinha (recentrada no cômodo 1,5 m)
+            cut(4.70, 31.40, 0.90, 0.20); // Fundos (leste) — parede leste mE=31,5
+            cut(4.625, 28.60, 0.15, 0.9); // Quarto (interna) — parede norte mN=4,70, pela cozinha
+            cut(4.625, 26.55, 0.15, 0.9); // Á. serviço (interna) — parede norte mN=4,70, pela sala/cozinha
 
             // Janelas
-            win(1.90, 25.85, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Banheiro — sul, centrada no cômodo (mE 25,5→27,0)
-            win(1.90, 27.35, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Á. serviço — sul, centrada (mE 27,0→28,5); ventila a umidade
-            win(2.65, 31.40, 1.20, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — leste, centrada (mN 2→4,5) — sol da manhã
-            win(1.90, 29.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 28,5→31,5) — ventilação cruzada com a leste
-            win(1.90, 23.40, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall (mE 22,5→25,5)
+            win(1.90, 24.60, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Banheiro — sul, centrada no cômodo (mE 24,0→26,0)
+            win(1.90, 26.60, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Á. serviço — sul, centrada (mE 26,0→28,0); ventila a umidade
+            win(2.65, 31.40, 1.40, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — leste, centrada (mN 2→4,70) — sol da manhã; 1,40 m → 1,54 m² (Caixa ≥1,5)
+            win(1.90, 29.15, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 28,0→31,5) — ventilação cruzada com a leste
+            win(1.90, 22.75, 0.20, 1.00, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall enxuto (mE 22,5→24,0)
             win(7.40, 26.10, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, centrada no vão N2(25,5)→N3(28,5): 26,1→27,9
             // Cozinha — janela-fita (peitoril 1,00 / verga 1,60); centrada no vão N3→N4 (col. mE 28,5 / 31,5; faces internas 28,6→31,4 = 2,8 m; margem 0,6 m)
             win(7.40, 29.20, 0.20, 1.60, 'N', { sill: 1.00, head: 1.60 }).forEach(l => lys.push(l)); // cozinha — fita norte: mE 29,2→30,8
 
             // Portas — folha + arco de abertura + pivô
             doorArc(2.30, 22.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
-            doorArc(2.90, 25.50,  0.8,  0.0, -1).forEach(l => lys.push(l)); // Banheiro → folha aberta protege o box (privacidade) e olha p/ a pia
+            doorArc(2.90, 24.0,  0.8,  0.0, -1).forEach(l => lys.push(l)); // Banheiro → parede oeste mE=24,0, abre p/ dentro (protege o box)
             // Porta de correr 4 painéis — 2D: retângulo azul-claro + 3 divisórias verticais
             lys.push(rect(7.35, 23.00, 0.30, 2.00, '#dce8f5', { color: '#1f2937', weight: 1.5, m3d: 'slidingdoor4', h3d: 2.10 }));
             [23.50, 24.00, 24.50].forEach(me => lys.push(L.polyline(
@@ -1997,8 +1999,8 @@
             // Degraus externos fundos (leste) — nova parede leste mE=31,5 (face exterior 31,6)
             backStairs2D().forEach(l => lys.push(l));
             doorArc(5.60, 31.50, -0.90, 0.0, -1).forEach(l => lys.push(l)); // Fundos → abre p/ oeste (cozinha), hinge mN=5,60
-            doorArc(4.50, 29.80,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → abre para sul (dentro), hinge leste
-            doorArc(4.50, 28.20,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Á. serviço → abre para sul (dentro), hinge leste
+            doorArc(4.70, 29.50,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
+            doorArc(4.70, 27.45,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Á. serviço → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
 
             // ─── BANHEIRO LINEAR 1,5×2,5 (mN 2.0→4.5, mE 25.5→27.0) ───
             // Box — canto SE (mN 2.05→3.05, mE 26.00→27.00): box 1,0×1,0, vidros N+O voltados p/ dentro
