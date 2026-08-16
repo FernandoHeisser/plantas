@@ -3731,19 +3731,14 @@
         }
         g.add(roof);
 
-        // ── Aba da prumada (calha desce no canto SUDOESTE) — V1/V2 ──────────
-        // A telha embutida cai p/ o sul → a calha (atrás da platibanda sul) escoa
-        // até o canto SW e desce numa prumada Ø100 na fachada. Uma ABA (ressalto
-        // vertical de reboco, mesma cara da parede) no canto SW da FACHADA SUL
-        // esconde o cano da fachada. Fica na frente (sul), livre nas duas versões
-        // (o oeste é junta com a garagem no V2). Larga o bastante p/ o cano e
-        // parando antes da janela da sala (mE 22,75). Geometria manual (soma OE).
+        // ── Prumada + dreno sul da calha do V1 (canto SUDOESTE) — SÓ V1/V2 ──────
+        // A telha embutida do V1/V2 cai p/ o sul → a calha (atrás da platibanda sul)
+        // escoa até o canto SW e desce numa prumada Ø100 na fachada, escondida atrás
+        // do ABA de concreto. O ABA é infra construída (ressalto de reboco) → passou p/
+        // o bloco COMPARTILHADO abaixo e persiste no V3 (não se demole concreto). Aqui
+        // ficam só o CANO e o dreno sul — obsoletos no V3 (telhado cai p/ o norte).
         if (bv === 'v1' || bv === 'v2') {
             _ph = PH.acab;                               // detalhe de acabamento da fachada
-            const pbTopF = CEIL3D + CPA + 0.16 + 0.42;   // topo da platibanda (~3,58)
-            // Aba: face oeste alinhada à face oeste da casa (mE 22,40); projeta ~0,25 m
-            // p/ o sul (da face sul 1,90 até 1,65), do embasamento ao topo da platibanda.
-            g.add(box3d(1.65, 22.40 + OE, 0.29, 0.32, -0.70, pbTopF, matWall));
             // Prumada Ø100 escondida no bolsão atrás da aba (da calha ~3,0 até o ralo ~−0,3)
             const pipeMat = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 0.55, metalness: 0.1 });
             const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3.35, 12), pipeMat);
@@ -3784,6 +3779,13 @@
         // telha sul p/ drenar aqui). Sempre visível no V3 (ph=7); no V1 segue o acabamento.
         if (bv === 'v1' || bv === 'v2' || rv === 'v3') {
             _ph = PH.acab;
+            // Aba de concreto (ressalto de reboco no canto SW da FACHADA SUL) que embute o cano
+            // da prumada do V1. Estrutura JÁ CONSTRUÍDA → persiste no V3 (não se demole concreto):
+            // vira pilastra da fachada (o cano/dreno atrás dela some no V3, o vulto de concreto
+            // continua). Face oeste alinhada à face oeste da casa (mE 22,40), projeta ~0,25 m p/ o
+            // sul (1,90→1,65), do embasamento (−0,70) ao topo da platibanda (~3,58).
+            const pbTopF = CEIL3D + CPA + 0.16 + 0.42;
+            g.add(box3d(1.65, 22.40 + OE, 0.29, 0.32, -0.70, pbTopF, matWall));
             // Caixa de ligação à rede pública, na frente (tampa rente ao solo da calçada)
             const caixaMat = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, roughness: 0.9, metalness: 0 });
             g.add(box3d(0.15, -0.25, 0.5, 0.5, -0.90, grade(0) + 0.03, caixaMat));
