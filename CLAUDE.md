@@ -399,14 +399,15 @@ chuva.
   dar pressão. Ambos são filhos de `roof` (fase `PH.laje2`) → aparecem/somem com o botão "Laje".
 - **`texTelha()`** (singleton `TEX3D.telha`, no keep-set do `disposeObject3D`): telha metálica
   trapezoidal procedural (base terracota `#a8552f` + gradientes de vale/crista + emenda transversal).
-- **Aba da prumada (canto SUDOESTE) — V1/V2, gate `if (bv==='v1'||bv==='v2')` após `g.add(roof)`:**
-  a calha (atrás da platibanda sul, lado baixo) escoa até o canto SW e desce numa prumada Ø100 na
-  fachada. Uma **aba** (ressalto vertical de reboco `matWall`) no canto SW da **fachada SUL** esconde
-  o cano — `box3d(1.65, 22.40+OE, 0.29, 0.32, −0.70, pbTopF)` (`pbTopF=CEIL3D+CPA+0,16+0,42≈3,58`):
-  face oeste alinhada à face oeste da casa (mE 22,40), projeta ~0,25 m da face sul (1,90→1,65), do
-  embasamento (−0,70) ao topo da platibanda, parando antes da janela da sala (mE 22,75). Fica na
-  **frente** (sul), livre nas duas versões (o oeste é junta no V2). O cano (`CylinderGeometry` Ø0,10,
-  cinza) fica escondido no bolsão atrás da aba (mN 1,74–1,84, y −0,30→3,05). Carimbados `_ph=PH.acab`.
+- **Aba da prumada (canto SUDOESTE):** o **aba** (ressalto vertical de reboco `matWall` no canto SW
+  da **fachada SUL**) é infra de concreto CONSTRUÍDA → renderizado no **bloco compartilhado
+  V1/V2/V3** (mesmo `if (bv==='v1'||bv==='v2'||rv==='v3')` da caixa/aterro): persiste no V3 (não se
+  demole concreto — vira pilastra da fachada). `box3d(1.65, 22.40+OE, 0.29, 0.32, −0.70, pbTopF)`
+  (`pbTopF=CEIL3D+CPA+0,16+0,42≈3,58`): face oeste alinhada à face oeste da casa (mE 22,40), projeta
+  ~0,25 m da face sul (1,90→1,65), do embasamento ao topo da platibanda, parando antes da janela da
+  sala (mE 22,75). **O CANO e o dreno atrás dela ficam SÓ V1/V2** (`if (bv==='v1'||bv==='v2')`,
+  obsoletos no V3): prumada `CylinderGeometry` Ø0,10 cinza escondida no bolsão (mN 1,74–1,84,
+  y −0,30→3,05). Carimbados `_ph=PH.acab`.
 - **Dreno pluvial até a rede pública (V1/V2, mesmo bloco):** do pé da prumada (canto SW) até a
   **frente do lote** (oeste, `mE=0` de cena = calçada), roteado em **"L" rente à DIVISA SUL**
   (`DIV_Z=−0,40` → mN≈0,40) p/ **NÃO passar sob a estrutura da garagem** (mN≥2 no V2): `P0=(22,58+OE,
@@ -416,9 +417,14 @@ chuva.
   p/ os fundos → o dreno **desce em direção à rua** (caimento ~2%). Como o solo SOBE p/ a frente
   (`grade(casa)≈−0,43`), o trecho junto à casa fica **acima do solo (exposto)** e o resto enterra
   sob a grama — esse trecho é o **CANTO SUL** que o ATERRO cobre (a garagem já tem o seu aterro).
-  `joelho` (esfera) no pé da prumada e na curva + **caixa de ligação** (`box3d` 0,5×0,5,
-  `−0,90→grade(0)+0,03`) na testada em mN 0,40, tampa rente ao solo.
-- **Aterro do canto sul (V1/V2, mesmo bloco):** leira de terra (`matSoil`, `BufferGeometry` wedge)
+  `joelho` (esfera) no pé da prumada e na curva. **A prumada/aba SW e o dreno sul são SÓ V1/V2**
+  (obsoletos no V3: o telhado do V3 cai p/ o NORTE, sem telha sul p/ drenar aqui).
+- **Caixa de ligação + aterro — infra de SOLO compartilhada V1/V2/V3** (bloco `if (bv==='v1'||
+  bv==='v2'||rv==='v3')`, logo após o bloco do dreno sul): a caixa/ligação pública persiste da obra
+  do V1 e é **reusada pelo telhado solar do V3** (o coletor norte `drainV3` termina nela). **Caixa de
+  ligação** (`box3d` 0,5×0,5, `−0,90→grade(0)+0,03`) na testada em mN 0,40, tampa rente ao solo;
+  sempre visível no V3 (`_ph=PH.acab`; no V3 ph=7). No V1 segue o acabamento.
+- **Aterro do canto sul (V1/V2/V3, mesmo bloco da caixa):** leira de terra (`matSoil`, `BufferGeometry` wedge)
   no setback sul (mN 0→2), cobrindo o trecho EXPOSTO do dreno (a garagem já tem o seu aterro em
   mN≥2). Footprint cena X `AT_Xw=0` (**testada/frente**) → `AT_Xe=17,4` (casa) — corre o setback sul
   inteiro; **topo em rampa** `AT_Yte=−0,13` junto à casa (~6–12 cm de cobertura sobre o cano) →
@@ -476,6 +482,34 @@ p/ telha metálica ~21%; o ~28° "ótimo solar" ficaria surreal, e 12° colhe ~9
   - **Sem platibanda na garagem quando `SOLAR`** (as empenas fecham o telhado; gate `if (!SOLAR)`).
 - Os sheds ficam no grupo `roof` → `set3DFloor2` os ergue sobre o 2º piso e `set3DRoof` os
   alterna. Botão do V3 diz **"Telhado"** (`noun = (v==='v3') ? 'Telhado' : 'Laje'`).
+
+### Calhas + dreno pluvial do telhado solar (V3) — grupo `drainV3`
+
+Como os dois telhados do V3 caem p/ o **NORTE** (oposto ao caimento sul do V1), a água se
+junta nos **beirais norte** — lado oposto à frente/rede pública (mE 0). Bloco `if (rv === 'v3')`
+em `buildBuilding3D` (logo antes do 2º pavimento) monta o grupo **`drainV3`**:
+
+- **Calhas** (U raso, `box3d`, `gutMat`) sob cada beiral norte: **garagem** mN 11,4 (mE 7,5→16,87,
+  junta) e **casa** mN 8,4 (mE 16,5→26,5). Caem p/ o oeste (esquemático — sem inclinação visível).
+- **Prumadas** (`mkPipe3` Ø, cilindro): **garagem 2×Ø100** (`RP=0,05`) nas colunas norte (mE ~7,6 e
+  ~12,5, descem em `gDrop=10,4`); **casa 1×Ø100** na **junta** (mE ~16,9, mN 8,4). Joelho (esfera)
+  no pé de cada uma.
+- **Coletor Ø150** (`RC=0,075`) rente à **divisa norte** (mN 11,9, `DZ=−11,9`): nós `N_h`(mE 16,9)→
+  `N_g2`(12,5)→`N_g1`(7,6)→`N_c`(0,1, quina frente-norte)→`N_k`(0,1, mN 0,4). Laterais dos pés das
+  prumadas sobem até o coletor. Invert **desce monotonicamente** (−0,55 → −0,88) = caimento contínuo
+  p/ a frente; a cobertura (`grade−invert`) é **positiva em todos os nós** (0,13→0,88 m) → tubo
+  sempre enterrado, nunca flutuando.
+- **Caixa de ligação REUSADA do V1** (mesma posição frente-sul, mN 0,4; `box3d` `caixaMat3`): a água
+  do V3 atravessa a frente (atrás do muro frontal) e cai na caixa/ligação pública existente — **1 só
+  conexão no lote**. Só o trecho novo telhado→caixa é redimensionado (Ø150 vs Ø100 do V1).
+- **Dimensionamento** (NBR 10844, i=150 mm/h): garagem ~270 L/min, casa ~190 L/min, total ~460 L/min.
+  O Ø100 do V1 (~124 L/min) não carrega o V3 → coletor novo Ø150.
+- **Cotas absolutas:** o telhado sobe p/ a cota do sobrado (`roof.position.y = CEIL3D+0,16`), então o
+  `drainV3` (filho de `g`, ancorado ao solo) usa `EAVE_Y = (CEIL3D+CPA+0,16)+(CEIL3D+0,16) ≈ 6,02`.
+  No V3 o telhado só é visível já elevado, então `EAVE_Y` é constante.
+- **Visibilidade:** `drainV3.visible` acompanha o telhado — ligado em `set3DRoof` (`drain.visible =
+  roof.visible`) e ocultado em `set3DFloor2` quando o 2º piso some (força o telhado a sumir junto).
+- **Só V3** (gate `rv === 'v3'`) — não afeta V1/V2, que mantêm a prumada SW + dreno sul.
 
 ### Bugs resolvidos / armadilhas conhecidas
 

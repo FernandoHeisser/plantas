@@ -3731,19 +3731,14 @@
         }
         g.add(roof);
 
-        // ── Aba da prumada (calha desce no canto SUDOESTE) — V1/V2 ──────────
-        // A telha embutida cai p/ o sul → a calha (atrás da platibanda sul) escoa
-        // até o canto SW e desce numa prumada Ø100 na fachada. Uma ABA (ressalto
-        // vertical de reboco, mesma cara da parede) no canto SW da FACHADA SUL
-        // esconde o cano da fachada. Fica na frente (sul), livre nas duas versões
-        // (o oeste é junta com a garagem no V2). Larga o bastante p/ o cano e
-        // parando antes da janela da sala (mE 22,75). Geometria manual (soma OE).
+        // ── Prumada + dreno sul da calha do V1 (canto SUDOESTE) — SÓ V1/V2 ──────
+        // A telha embutida do V1/V2 cai p/ o sul → a calha (atrás da platibanda sul)
+        // escoa até o canto SW e desce numa prumada Ø100 na fachada, escondida atrás
+        // do ABA de concreto. O ABA é infra construída (ressalto de reboco) → passou p/
+        // o bloco COMPARTILHADO abaixo e persiste no V3 (não se demole concreto). Aqui
+        // ficam só o CANO e o dreno sul — obsoletos no V3 (telhado cai p/ o norte).
         if (bv === 'v1' || bv === 'v2') {
             _ph = PH.acab;                               // detalhe de acabamento da fachada
-            const pbTopF = CEIL3D + CPA + 0.16 + 0.42;   // topo da platibanda (~3,58)
-            // Aba: face oeste alinhada à face oeste da casa (mE 22,40); projeta ~0,25 m
-            // p/ o sul (da face sul 1,90 até 1,65), do embasamento ao topo da platibanda.
-            g.add(box3d(1.65, 22.40 + OE, 0.29, 0.32, -0.70, pbTopF, matWall));
             // Prumada Ø100 escondida no bolsão atrás da aba (da calha ~3,0 até o ralo ~−0,3)
             const pipeMat = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 0.55, metalness: 0.1 });
             const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3.35, 12), pipeMat);
@@ -3775,9 +3770,25 @@
             g.add(mkPipe(P1, P2));   // trecho ao longo da divisa até a frente
             // Joelhos no pé da prumada e na curva
             [P0, P1].forEach(p => { const j = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 8), pipeMat); j.position.copy(p); g.add(j); });
+        }
+
+        // ── Caixa de ligação + aterro gramado do canto sul: infra de SOLO que persiste da
+        // obra do V1 → aparece TAMBÉM no V3 (o telhado solar do V3 reusa exatamente esta
+        // caixa/ligação pública; o coletor norte novo termina nela). A prumada/aba SW e o
+        // dreno sul acima ficam SÓ no V1/V2 (obsoletos no V3: o telhado cai p/ o norte, sem
+        // telha sul p/ drenar aqui). Sempre visível no V3 (ph=7); no V1 segue o acabamento.
+        if (bv === 'v1' || bv === 'v2' || rv === 'v3') {
+            _ph = PH.acab;
+            // Aba de concreto (ressalto de reboco no canto SW da FACHADA SUL) que embute o cano
+            // da prumada do V1. Estrutura JÁ CONSTRUÍDA → persiste no V3 (não se demole concreto):
+            // vira pilastra da fachada (o cano/dreno atrás dela some no V3, o vulto de concreto
+            // continua). Face oeste alinhada à face oeste da casa (mE 22,40), projeta ~0,25 m p/ o
+            // sul (1,90→1,65), do embasamento (−0,70) ao topo da platibanda (~3,58).
+            const pbTopF = CEIL3D + CPA + 0.16 + 0.42;
+            g.add(box3d(1.65, 22.40 + OE, 0.29, 0.32, -0.70, pbTopF, matWall));
             // Caixa de ligação à rede pública, na frente (tampa rente ao solo da calçada)
             const caixaMat = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, roughness: 0.9, metalness: 0 });
-            g.add(box3d(-DIV_Z - 0.25, -0.25, 0.5, 0.5, -0.90, grade(0) + 0.03, caixaMat));
+            g.add(box3d(0.15, -0.25, 0.5, 0.5, -0.90, grade(0) + 0.03, caixaMat));
 
             // ── Aterro do CANTO SUL: berma GRAMADA cobrindo o trecho EXPOSTO do dreno (a
             // garagem já tem o seu aterro em mN≥2). RECUADO p/ dentro da cerca sul (mN 0→0,12)
@@ -3808,6 +3819,75 @@
             const aterro = new THREE.Mesh(atGeo, new THREE.MeshStandardMaterial({ map: texGrass(), roughness: 1, metalness: 0, envMapIntensity: 0.15, side: THREE.DoubleSide }));
             aterro.castShadow = true; aterro.receiveShadow = true;
             g.add(aterro);
+        }
+
+        // ── V3: CALHAS + PRUMADAS + COLETOR do telhado solar (caimento NORTE) ──────
+        // Os dois telhados do V3 (garagem + casa) caem p/ o NORTE (orientação solar),
+        // oposto ao V1 (caimento sul). Logo a água se junta nos BEIRAIS NORTE (garagem
+        // mN 11,4 / casa mN 8,4), lado oposto à frente/rede (mE 0). Coleta:
+        //   1) calha em cada beiral norte, caída p/ o oeste;
+        //   2) prumadas nas quinas NW (garagem 2×Ø100 nas colunas norte; casa 1×Ø100
+        //      escondida na junta entre o telhado alto da garagem e o baixo da casa);
+        //   3) coletor Ø150 rente à DIVISA NORTE (mN 11,9), depois atravessando a frente
+        //      (atrás do muro frontal) até a CAIXA DE LIGAÇÃO EXISTENTE do V1 (frente-sul).
+        // Dimensionamento (NBR 10844, i=150 mm/h): garagem ~270 L/min, casa ~190 L/min,
+        // total ~460 L/min → coletor Ø150 (V1 era Ø100, p/ ~124 L/min). REUSA a ligação
+        // pública + a caixa do V1; só o trecho novo (telhado→caixa) é redimensionado.
+        // Grupo próprio ancorado ao solo em cota ABSOLUTA (o telhado sobe p/ o sobrado):
+        // aparece junto com o telhado (set3DRoof / set3DFloor2).
+        if (rv === 'v3') {
+            _ph = PH.acab;
+            const drain = new THREE.Group();
+            drain.name = 'drainV3';
+            drain.visible = false;
+            // Beiral norte na cota do sobrado (roof.position.y = CEIL3D+0,16 quando visível)
+            const EAVE_Y = (CEIL3D + CPA + 0.16) + (CEIL3D + 0.16);   // ~6,02
+            // mE de cena (com OE) das águas: garagem 7,5→16,87(junta) · casa 16,5→26,5
+            const G_e0 = (13.5 - 0.5) + OE,  G_e1 = (22.5 - 0.10 - 0.03) + OE;
+            const H_e0 = (22.5 - 0.5) + OE,  H_e1 = 31.5 + OE + 0.5;
+            const G_eaveN = 10.5 + 0.90, H_eaveN = 7.5 + 0.90;       // mN 11,4 / 8,4
+            const gutMat   = new THREE.MeshStandardMaterial({ color: 0xb9bfc4, roughness: 0.5, metalness: 0.35 });
+            const pipeMat3 = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 0.55, metalness: 0.1 });
+            // Calha (U raso) pendurada sob o beiral norte, straddling a pingadeira
+            const calha = (e0, e1, eaveN) => drain.add(box3d(eaveN - 0.03, e0, 0.15, e1 - e0, EAVE_Y - 0.14, EAVE_Y - 0.02, gutMat));
+            calha(G_e0, G_e1, G_eaveN);
+            calha(H_e0, H_e1, H_eaveN);
+            const mkPipe3 = (a, b, r) => {
+                const d = new THREE.Vector3().subVectors(b, a);
+                const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, d.length(), 12), pipeMat3);
+                m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize());
+                m.position.copy(a.clone().add(b).multiplyScalar(0.5));
+                m.castShadow = true; m.receiveShadow = true;
+                return m;
+            };
+            const RP = 0.05, RC = 0.075;   // prumada Ø100 / coletor Ø150
+            const jball = (p, r) => { const j = new THREE.Mesh(new THREE.SphereGeometry(r, 12, 8), pipeMat3); j.position.copy(p); drain.add(j); };
+            // Prumada vertical do beiral (topo) até o pé (perto do solo), com joelho no pé
+            const prumada = (e, n, footY) => {
+                const top = new THREE.Vector3(e, EAVE_Y - 0.08, -n);
+                const bot = new THREE.Vector3(e, footY, -n);
+                drain.add(mkPipe3(top, bot, RP)); jball(bot, 0.07);
+                return bot;
+            };
+            const gDrop = 10.4;   // mN da linha de colunas norte da garagem (prumadas descem aqui)
+            const g1 = prumada(G_e0 + 0.10,             gDrop,   -0.45);   // garagem Ø100 #1 (mE ~7,6)
+            const g2 = prumada((13.5 + 22.5) / 2 + OE,  gDrop,   -0.50);   // garagem Ø100 #2 (mE ~12,5)
+            const h1 = prumada(G_e1 + 0.03,             H_eaveN, -0.55);   // casa Ø100 na junta (mN 8,4)
+            // Coletor Ø150 rente à divisa norte (mN 11,9); invert descendo p/ a frente/caixa.
+            const DZ = -11.9;
+            const N_h  = new THREE.Vector3(h1.x, -0.58, DZ);    // casa entra (leste/mais alto)
+            const N_g2 = new THREE.Vector3(g2.x, -0.63, DZ);    // garagem #2 entra
+            const N_g1 = new THREE.Vector3(g1.x, -0.68, DZ);    // garagem #1 entra
+            const N_c  = new THREE.Vector3(0.10, -0.80, DZ);    // quina frente-norte (curva)
+            const N_k  = new THREE.Vector3(0.10, -0.88, -0.40); // entrada na caixa reusada (frente-sul)
+            // Laterais dos pés das prumadas até o coletor na divisa
+            drain.add(mkPipe3(h1, N_h, RC)); drain.add(mkPipe3(g2, N_g2, RC)); drain.add(mkPipe3(g1, N_g1, RC));
+            // Tronco: divisa norte (E→O) e travessia da frente até a caixa
+            [[N_h, N_g2], [N_g2, N_g1], [N_g1, N_c], [N_c, N_k]].forEach(([a, b]) => drain.add(mkPipe3(a, b, RC)));
+            [N_h, N_g2, N_g1, N_c].forEach(p => jball(p, 0.09));
+            // A caixa de ligação (frente-sul) é infra de solo SEMPRE visível (bloco compartilhado
+            // V1/V2/V3 acima) — o coletor norte termina nela (N_k). Não duplicar aqui.
+            g.add(drain);
         }
 
         // ── V3: 2º pavimento (sobrado pilotis) — laje + paredes externas ─────
@@ -4646,7 +4726,7 @@
         S._dirty = true;
         const ph = (v === 'v1') ? buildPhase : 7;
         S.group.children.forEach(o => {
-            if (o.name === 'roof' || o.name === 'floor2') return; // tratados à parte
+            if (o.name === 'roof' || o.name === 'floor2' || o.name === 'drainV3') return; // tratados à parte (visibilidade só nos toggles)
             const p = o.userData ? o.userData.ph : null;
             if (p == null) return;                                // entorno/cotas → sempre visível
             o.visible = p <= ph;
@@ -4734,6 +4814,9 @@
         const espB = S.group.getObjectByName('esperasBars');
         const telha = roof.getObjectByName('telha');
         if (telha) telha.visible = !(espB && espB.visible);
+        // V3: o dreno pluvial (calhas + prumadas + coletor) aparece junto com o telhado.
+        const drain = S.group.getObjectByName('drainV3');
+        if (drain) drain.visible = roof.visible;
         btn.textContent = noun + ': ' + (roof.visible ? 'visível' : 'oculto');
     }
 
@@ -4753,6 +4836,8 @@
             roof.position.y = CEIL3D + 0.16;   // telhado sempre na cota do sobrado
             if (!f2.visible && roof.visible) {
                 roof.visible = false;          // 2º piso oculto → telhado some junto
+                const drain = S.group.getObjectByName('drainV3');
+                if (drain) drain.visible = false;   // dreno some com o telhado
                 const noun = (v === 'v3') ? 'Telhado' : 'Laje';
                 const host = document.getElementById('scene3d-' + v);
                 const rbtn = host && [...host.querySelectorAll('.scene3d-toolbar button')]
