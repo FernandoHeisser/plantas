@@ -491,11 +491,13 @@ em `buildBuilding3D` (logo antes do 2º pavimento) monta o grupo **`drainV3`**:
 
 - **Calhas** (U raso, `box3d`, `gutMat`) sob cada beiral norte: **garagem** mN 11,4 (mE 7,5→16,87,
   junta) e **casa** mN 8,4 (mE 16,5→26,5). Caem p/ o oeste (esquemático — sem inclinação visível).
-- **Prumadas** (`mkPipe3` Ø, cilindro): **garagem 2×Ø100** (`RP=0,05`) nas colunas norte (mE ~7,6 e
-  ~12,5, descem em `gDrop=10,4`); **casa 1×Ø100** na **junta** (mE ~16,9, mN 8,4). Joelho (esfera)
-  no pé de cada uma.
+- **Prumadas** (`mkPipe3` Ø, cilindro): **garagem 2×Ø100** (`RP=0,05`) — **uma em cada coluna de
+  canto NORTE**, descendo coladas à coluna (`gColN=10,5+RP`, face norte): `g1` no canto **NW**
+  (lote mE 13,60) e `g2` no canto **NE/junta** (lote mE 22,27). **A coluna do meio NÃO leva cano.**
+  Ambos caem em pilar cego (fora das janelas norte da garagem) e no recuo. **casa 1×Ø100** na
+  **junta** (mE ~16,9, mN 8,4). Joelho (esfera) no pé de cada uma.
 - **Coletor Ø150** (`RC=0,075`) rente à **divisa norte** (mN 11,9, `DZ=−11,9`): nós `N_h`(mE 16,9)→
-  `N_g2`(12,5)→`N_g1`(7,6)→`N_c`(0,1, quina frente-norte)→`N_k`(0,1, mN 0,4). Laterais dos pés das
+  `N_g2`(16,77, junta)→`N_g1`(8,10, canto NW)→`N_c`(0,1, quina frente-norte)→`N_k`(0,1, mN 0,4). Laterais dos pés das
   prumadas sobem até o coletor. Invert **desce monotonicamente** (−0,55 → −0,88) = caimento contínuo
   p/ a frente; a cobertura (`grade−invert`) é **positiva em todos os nós** (0,13→0,88 m) → tubo
   sempre enterrado, nunca flutuando.

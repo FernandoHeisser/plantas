@@ -3875,10 +3875,13 @@
                 drain.add(mkPipe3(top, bot, RP)); jball(bot, 0.07);
                 return bot;
             };
-            const gDrop = 10.4;   // mN da linha de colunas norte da garagem (prumadas descem aqui)
-            const g1 = prumada(G_e0 + 0.10,             gDrop,   -0.45);   // garagem Ø100 #1 (mE ~7,6)
-            const g2 = prumada((13.5 + 22.5) / 2 + OE,  gDrop,   -0.50);   // garagem Ø100 #2 (mE ~12,5)
-            const h1 = prumada(G_e1 + 0.03,             H_eaveN, -0.55);   // casa Ø100 na junta (mN 8,4)
+            // Prumadas da garagem: uma em CADA coluna de canto NORTE (NW + NE), descendo
+            // COLADAS à coluna (mN 10,55 = face norte das colunas). A coluna do MEIO não leva
+            // cano. Ambos os cantos caem em pilar cego (fora das janelas norte) e no recuo.
+            const gColN = 10.5 + RP;   // face norte das colunas de canto da garagem (encosta o cano)
+            const g1 = prumada(13.60 + OE, gColN,   -0.45);   // garagem Ø100 — coluna de canto NW (mE 13,60)
+            const g2 = prumada(22.27 + OE, gColN,   -0.50);   // garagem Ø100 — coluna de canto NE / junta (mE 22,27)
+            const h1 = prumada(G_e1 + 0.03, H_eaveN, -0.55);   // casa Ø100 na junta (mN 8,4)
             // Coletor Ø150 rente à divisa norte (mN 11,9); invert descendo p/ a frente/caixa.
             const DZ = -11.9;
             const N_h  = new THREE.Vector3(h1.x, -0.58, DZ);    // casa entra (leste/mais alto)
