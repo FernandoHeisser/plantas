@@ -150,10 +150,10 @@ A rotação de `LOT_ANGLE` (−1,95°) é ignorada no 3D (irrelevante para a cen
 ### Deslocamento da casa — constante `OE`
 
 ```javascript
-const OE = -3.5;   // −3,5 m: casa encostada na garagem (GE1=22,5 exibido=19,0)
+const OE = -5.5;   // −5,5 m: conjunto avançado +1 m p/ a frente → pátio 8 m, menos aterro no fundo
 ```
 
-A casa/garagem inteira está deslocada **3,5 m para o oeste** em relação ao lote.
+A casa/garagem inteira está deslocada **5,5 m para o oeste** em relação ao lote.
 O **lote/terreno não se move** (continua mE 0→40, ancorado ao satélite).
 
 **Como é aplicado (fonte única):** os helpers métricos (`rect`, `circ`, `wall`,
@@ -198,7 +198,7 @@ circ(n, e, r, fill, opts?)
 
 wall(n1, e1, n2, e2, t, opts?)
   Parede grossa centrada na linha (n1,e1)→(n2,e2), espessura t.
-  Paredes externas: EW = 0.20m. Internas: IW = 0.10m.
+  Paredes externas: EW = 0.20m. Internas: IW = 0.15m.
   Registra automaticamente em GEO quando GEO !== null.
   opts.z0 = base da parede no 3D (padrão 0 = datum/calçada). Use p/ paredes que
     assentam num piso elevado — ex.: depósito da garagem sobre GCPA=0,15 (senão a
@@ -558,38 +558,46 @@ mas o projeto roda **r128**. Se copiar exemplo das skills, traduzir estas APIs:
 - **Frente:** mE=0 (oeste/rua)
 
 ### Casa — posição no lote e área total
-- **Posição real no lote:** mN 2,0→8,0 × mE 22,0→30,0 (corpo principal) + saliência quarto mE 29,5→31,0 (já com OE)
-- Recuo sul: 2,0 m | Recuo norte: ~5,0 m | **Recuo frente: 22 m | Recuo fundo: ~9,5 m (cozinha) / ~8,5 m (quarto)**
-- **Área total V1: ~44 m²** — enxugada de 49,5 m² p/ caber no orçamento Caixa de R$ 140k (banheiro/serviço 1,5 m + fachada oeste recuada 1 m). Acima do mínimo Caixa (36 m²).
+- **Envelope (retângulo):** mN 2,0→7,5 × mE 22,5→31,5 (código) = 5,5 × 9,0 m
+- Recuo sul: 2,0 m | Recuo norte: 5,0 m | recuos frente/fundo seguem o `OE` (ver cotas)
+- **Área V1: ~44 m² útil / ~49,5 m² construída** (envelope). Acima do mínimo Caixa (36 m²).
+  A arquiteta informou 47 m² construída — a planta atual é **aproximação** dela (reconciliar).
 
 > **Coordenadas das tabelas abaixo:** valores de `mE` são pré-`OE` (código). A posição renderizada subtrai 0,5 m. Ver seção **"Deslocamento da casa — constante `OE`"**.
 
 ### Cômodos
 
-| Cômodo | mN | mE (código) | Dimensão | Área |
+| Cômodo | mN | mE (código) | Dim. útil | Área útil |
 |---|---|---|---|---|
-| Hall | 2,0 → 7,5 | 22,5 → 25,5 | ~3,0 m aberto | — |
-| Banheiro | 2,0 → 4,5 | 25,5 → 27,0 | 1,5 × 2,5 m | 3,75 m² |
-| Á. Serviço | 2,0 → 4,5 | 27,0 → 28,5 | 1,5 × 2,5 m | 3,75 m² |
-| Quarto | 2,0 → 4,5 | 28,5 → 31,5 | 3,0 × 2,5 m | 7,5 m² (saliência mE 30→31,5) |
-| Sala | 2,0 → 7,5 | 22,5 → 27,5 | — | ~14,5 m² |
-| Cozinha | 4,5 → 8,0 | 27,5 → 30,5 | 3,0 × 3,5 m | ~10,5 m² (+ bump-out) |
+| Hall | 2,0 → 7,5 | 22,5 → 24,0 | ~1,5 m (enxuto) | — |
+| Banheiro | 2,0 → 4,70 | 24,0 → 26,0 | 1,85 × 2,53 m | 4,7 m² |
+| Á. Serviço | 2,0 → 4,70 | 26,0 → 28,0 | 1,85 × 2,53 m | 4,7 m² |
+| Quarto | 2,0 → 4,70 | 28,0 → 31,5 | 3,33 × 2,53 m | 8,4 m² (Caixa ✓) |
+| Sala | 4,70 → 7,5 | 22,5 → 27,5 | 5,0 × 2,8 m | ~14 m² |
+| Cozinha | 4,70 → 7,5 | 27,5 → 31,5 | 4,0 × 2,8 m | ~11 m² |
 
-> **Enxugamento p/ R$ 140k (branch terreno-sul-declive):** banheiro/serviço voltaram a 1,5 m (devolveram largura ao hall) e a **fachada oeste recuou 1 m** (mE 21,5→22,5) — hall mantém 3,0 m, sala 1 m mais estreita. Footprint −5,5 m² → menos fundação/laje p/ o futuro 2º piso (V3). Quarto e cozinha intocados.
+> **Re-layout arquiteta (branch feat/v1-planta-arquiteta):** a planta preliminar media
+> os cômodos eixo-a-eixo (parede zero). Descontando parede real, o quarto reprovava na Caixa
+> (2,35 m livre < 2,40 mín.; ~6,7 m² < ~8 m² casal). Correções: **paredes internas 0,10 → 0,15 m**;
+> **banheiro + á. serviço migram p/ oeste** (mE 24→26 e 26→28), **hall enxuga de 3,0 → 1,5 m**;
+> **quarto cresce p/ oeste** (parede oeste 28,5 → 28,0) e a **faixa sul fica 0,2 m mais funda**
+> (parede norte 4,5 → 4,70) → quarto **3,33 × 2,53 m = 8,4 m² útil** (dim. menor 2,53 ≥ 2,40 ✓).
+> Envelope inalterado (5,5 × 9,0 m ≈ 49,5 m² construída; ~44 m² útil). **É aproximação** da
+> planta da arquiteta (47 m² construída informados) — reconciliar quando a planta dela chegar.
 
-### Mobiliário — Banheiro (1,5×2,5, mE 25,5→27,0)
-- Box chuveiro (`shower`): mN 2,05→3,05, mE 26,00→27,00 — canto SE, 1,0×1,0 m
-- Vaso (`toilet`): mN 3,20→3,62, mE 26,45→26,90 — parede leste (mE=27,0)
-- Bancada/cuba (`lavatory`): mN 4,13→4,45, mE 25,55→26,50 — parede norte, 0,95 m de largura
+### Mobiliário — Banheiro (~1,85×2,53, mE 24,0→26,0)
+- Box chuveiro (`shower`): mN 2,10→3,10, mE 24,90→25,90 — canto SE, 1,0×1,0 m
+- Vaso (`toilet`): mN 3,30→3,72, mE 25,40→25,85 — parede leste (mE=26,0)
+- Bancada/cuba (`lavatory`): mN 4,30→4,62, mE 24,15→25,10 — parede norte, 0,95 m de largura
 
-### Mobiliário — Área de Serviço (1,5×2,5, mE 27,0→28,5)
-- Tanque (`tank`): mN 2,15→2,65, mE 27,05→27,55 — parede sul, sob janela de ventilação
-- Máquina de lavar: mN 2,15→2,65, mE 27,65→28,15 — ao lado do tanque, parede sul
-- Despensa/armário alto: mN 2,80→3,35, mE 27,95→28,40 — canto NE (contra parede leste, livre da porta)
+### Mobiliário — Área de Serviço (~1,85×2,53, mE 26,0→28,0)
+- Tanque (`tank`): mN 2,15→2,65, mE 26,10→26,65 — parede sul, sob janela de ventilação
+- Máquina de lavar: mN 2,15→2,65, mE 26,75→27,25 — ao lado do tanque, parede sul
+- Despensa/armário alto: mN 2,80→3,35, mE 27,35→27,85 — canto NE (contra parede leste, livre da porta)
 
-### Mobiliário — Quarto (3,0×2,5, mE 28,5→31,5)
-- Cama (`bed`): mN 2,60→4,50, mE 29,90→31,30 — pé p/ sul, cabeceira ao norte; deslocada p/ leste (livra a porta)
-- Guarda-roupa (`wardrobeE`, portas p/ leste): mN 2,10→3,30, mE 28,60→29,15 — parede oeste, abre p/ dentro do quarto
+### Mobiliário — Quarto (~3,33×2,53, mE 28,0→31,5)
+- Cama (`bed`): mN 2,63→4,53, mE 29,85→31,25 — pé p/ sul, cabeceira ao norte; deslocada p/ leste (livra a porta)
+- Guarda-roupa (`wardrobeE`, portas p/ leste): mN 2,10→3,30, mE 28,10→28,65 — parede oeste, abre p/ dentro do quarto
 
 ### Mobiliário — Sala (parede oeste recuou p/ mE 22,5)
 - Rack (`rack`): mN 5,15→6,55, mE 22,65→23,00, h=0,50 m — parede oeste
@@ -597,10 +605,10 @@ mas o projeto roda **r128**. Se copiar exemplo das skills, traduzir estas APIs:
 - Sofá (`sofa`): mN 4,975→6,725, mE 24,20→25,05, h=0,75 m — frente p/ TV (oeste)
 - Mesa de centro (`coffee`): mN 5,35→6,35, mE 23,40→23,95
 
-### Mobiliário — Hall de entrada (canto SO, aberto à sala)
-- Estante divisória vazada (`shelf`): mN 3,83→4,18, mE 23,35→24,85, h=1,80 m
-- Sapateira/console (`rack`): mN 2,10→2,45, mE 23,90→24,85, h=0,85 m — parede sul
-- Tapete entrada (`rug`): mN 2,80→3,80, mE 23,45→24,40
+### Mobiliário — Hall de entrada (strip oeste enxuto, mE 22,5→24,0)
+- Sapateira/console (`rack`): mN 2,10→2,45, mE 22,90→23,80, h=0,85 m — parede sul
+- Tapete entrada (`rug`): mN 2,80→3,70, mE 22,65→23,45
+- **Estante vazada divisória removida** — o hall de 1,5 m não comporta o biombo hall↔sala; reavaliar com a planta da arquiteta.
 
 ### Mobiliário — Cozinha em U (mE 27,5→30,5)
 O cozinheiro fica no "poço" central e acessa fogão/pia pela parede norte; a geladeira fecha o leste; a península fecha o oeste (encosto do canto alemão). Passagem sala→cozinha em mN 4,5→5,8.
@@ -626,21 +634,21 @@ Banco em **L** maior (cozinha cresceu 0,5 m p/ leste, liberando espaço). Passag
 | Porta | Tipo | Hinge | Swing |
 |---|---|---|---|
 | Principal | madeira | mN=2,30, mE=22,5 | −1 (leste) |
-| Banheiro | madeira | mN=2,90, mE=25,5 | −1 (leste) |
-| Á. Serviço | madeira | mN=4,50, mE=28,20 | +1 (sul) |
-| Quarto | madeira | mN=4,50, mE=28,90 | +1 (sul) |
+| Banheiro | madeira | mN=2,90, mE=24,0 | −1 (abre p/ dentro) |
+| Á. Serviço | madeira | mN=4,70, mE=27,45 | +1 (sul) |
+| Quarto | madeira | mN=4,70, mE=29,50 | +1 (sul) |
 | Porta sala norte | **correr 4 painéis** (`slidingdoor4`, 2,0 m) | mE 23,00→25,00, mN=7,5 | fechada; frame preto; divisória horizontal no meio |
-| Fundos | madeira | mN=4,70, mE=30,5 | +1 (oeste) |
+| Fundos | madeira | mN=5,60, mE=31,5 | −1 (oeste, cozinha) |
 
 ### Janelas (centradas e proporcionais ao ambiente)
 
 | Janela | Parede | mE ou mN (centro) | Largura |
 |---|---|---|---|
-| Banheiro | Sul (mN=2,0) | mE 25,85→26,65 | 0,80 m |
-| Á. Serviço | Sul (mN=2,0) | mE 27,35→28,15 | 0,80 m |
-| Quarto (sol manhã) | Leste (mE=31,5) | mN 2,65→3,85 | 1,20 m |
-| Quarto (cruzada) | Sul (mN=2,0) | mE 29,40→30,60 | 1,20 m |
-| Sala/hall | Sul (mN=2,0) | mE 23,40→24,60 | 1,20 m |
+| Banheiro | Sul (mN=2,0) | mE 24,60→25,40 | 0,80 m |
+| Á. Serviço | Sul (mN=2,0) | mE 26,60→27,40 | 0,80 m |
+| Quarto (sol manhã) | Leste (mE=31,5) | mN 2,65→4,05 | 1,40 m (1,54 m² — Caixa ≥1,5) |
+| Quarto (cruzada) | Sul (mN=2,0) | mE 29,15→30,35 | 1,20 m |
+| Sala/hall | Sul (mN=2,0) | mE 22,75→23,75 | 1,00 m |
 | Sala | Norte (mN=7,5) | mE 25,20→27,00 | 1,80 m |
 | Cozinha (fita) | Norte (mN=7,5) | mE 29,20→30,80 | 1,60 m — peitoril 1,00 / verga 1,60 — alinhado com a sala (sill=1,0) |
 
