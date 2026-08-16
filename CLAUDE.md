@@ -646,7 +646,7 @@ Banco em **L** maior (cozinha cresceu 0,5 m p/ leste, liberando espaço). Passag
 
 | Janela | Parede | mE ou mN (centro) | Largura |
 |---|---|---|---|
-| Banheiro | Sul (mN=2,0) | mE 24,80→25,60 | 0,80 m |
+| Banheiro | Sul (mN=2,0) | mE 24,50→25,30 | 0,80 m (desviada do pilar mE 25,5) |
 | Á. Serviço | Sul (mN=2,0) | mE 26,50→27,30 | 0,80 m |
 | Quarto (sol manhã) | Leste (mE=31,5) | mN 2,65→4,05 | 1,40 m (1,54 m² — Caixa ≥1,5) |
 | Quarto (cruzada) | Sul (mN=2,0) | mE 29,00→30,20 | 1,20 m |
