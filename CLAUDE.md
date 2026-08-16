@@ -416,9 +416,14 @@ chuva.
   p/ os fundos → o dreno **desce em direção à rua** (caimento ~2%). Como o solo SOBE p/ a frente
   (`grade(casa)≈−0,43`), o trecho junto à casa fica **acima do solo (exposto)** e o resto enterra
   sob a grama — esse trecho é o **CANTO SUL** que o ATERRO cobre (a garagem já tem o seu aterro).
-  `joelho` (esfera) no pé da prumada e na curva + **caixa de ligação** (`box3d` 0,5×0,5,
-  `−0,90→grade(0)+0,03`) na testada em mN 0,40, tampa rente ao solo.
-- **Aterro do canto sul (V1/V2, mesmo bloco):** leira de terra (`matSoil`, `BufferGeometry` wedge)
+  `joelho` (esfera) no pé da prumada e na curva. **A prumada/aba SW e o dreno sul são SÓ V1/V2**
+  (obsoletos no V3: o telhado do V3 cai p/ o NORTE, sem telha sul p/ drenar aqui).
+- **Caixa de ligação + aterro — infra de SOLO compartilhada V1/V2/V3** (bloco `if (bv==='v1'||
+  bv==='v2'||rv==='v3')`, logo após o bloco do dreno sul): a caixa/ligação pública persiste da obra
+  do V1 e é **reusada pelo telhado solar do V3** (o coletor norte `drainV3` termina nela). **Caixa de
+  ligação** (`box3d` 0,5×0,5, `−0,90→grade(0)+0,03`) na testada em mN 0,40, tampa rente ao solo;
+  sempre visível no V3 (`_ph=PH.acab`; no V3 ph=7). No V1 segue o acabamento.
+- **Aterro do canto sul (V1/V2/V3, mesmo bloco da caixa):** leira de terra (`matSoil`, `BufferGeometry` wedge)
   no setback sul (mN 0→2), cobrindo o trecho EXPOSTO do dreno (a garagem já tem o seu aterro em
   mN≥2). Footprint cena X `AT_Xw=0` (**testada/frente**) → `AT_Xe=17,4` (casa) — corre o setback sul
   inteiro; **topo em rampa** `AT_Yte=−0,13` junto à casa (~6–12 cm de cobertura sobre o cano) →
