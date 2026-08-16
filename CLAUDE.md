@@ -366,9 +366,10 @@ const grade = mE => -mE * SLOPE;   // cota natural do solo (m), datum 0 = calça
 
 ### Cobertura
 
-> **V1/V2 = laje plana; V3 = telhado solar de uma água** (`SOLAR = rv === 'v3'`, ver
-> "Telhado solar do V3" abaixo). O texto desta seção descreve a **laje plana** (V1/V2). No V3 o
-> grupo `roof` recebe os *sheds* de telha metálica + usina FV no lugar da laje/platibanda.
+> **V1/V2 = laje plana + telhado embutido (caimento sul) + caixa d'água; V3 = telhado solar
+> de uma água** (`SOLAR = rv === 'v3'`, ver "Telhado solar do V3" abaixo). O texto desta seção
+> descreve a **laje plana** (V1/V2). No V3 o grupo `roof` recebe os *sheds* de telha metálica +
+> usina FV no lugar da laje/platibanda.
 
 Laje plana de concreto (não telhado de duas águas) — **V3 recebe 2º pavimento sobre ela**.  
 Grupo `roof` = **fascia do beiral** (banda de 25 cm pendurada sob a laje, `fbb=CEIL3D+CPA−0,25
@@ -377,6 +378,18 @@ platibanda/mureta em **4 lados** (`pb=CEIL3D+CPA+0,16 → pbTop+0,42`, `tt=0,12`
 A **fascia + platibanda** fecham o beiral num plano vertical limpo: a platibanda esconde o
 topo da casa/laje e a fascia é o **acabamento inferior (pingadeira)** que protege a parede da
 chuva.
+
+**Telhado embutido + caixa d'água (só na laje plana, V1/V2 — bloco `else` do `if (SOLAR)`):**
+- **Telhado embutido, caimento p/ o sul:** plano de concreto leve inclinado (`rslab`, `lajeMat`)
+  ACIMA da laje de forro, escondido atrás da platibanda. Cotas: sul (baixa) `RH_S=3,03` → norte
+  (alta) `RH_N=3,38` sobre o vão `RD=n1−n0` (com beiral) → queda ~5% (`RPITCH=atan((RH_N−RH_S)/RD)`,
+  `rotation.x=+RPITCH` = norte alto/sul baixo). A borda norte (3,38) fica logo abaixo do topo da
+  platibanda (`pbTop`≈3,43) → **totalmente oculto de fora**; a água escorre p/ a calha atrás da
+  platibanda sul. `BoxGeometry(e1−eW, 0,07, RD/cos(RPITCH))`, centrado em `((eW+e1)/2, média, −(n0+n1)/2)`.
+- **Cubo da caixa d'água (centro):** casa de máquinas de concreto (`box3d`, `lajeMat`) no centro da
+  laje (`CX_N=4,75`, `CX_E=27+OE`), base `CX_S=1,4` m, de `CEIL3D+CPA+0,16` (topo da laje) até
+  `CX_TOP=4,4` (~1 m acima da platibanda). Abriga internamente o reservatório (~1000 L) elevado p/
+  dar pressão. Ambos são filhos de `roof` (fase `PH.laje2`) → aparecem/somem com o botão "Laje".
 Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
