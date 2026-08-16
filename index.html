@@ -839,7 +839,7 @@
           <div class="med-sum-item">
             <span class="med-sum-label">Pé-direito</span>
             <span class="med-sum-value">2,70 m</span>
-            <span class="med-sum-sub">laje plana</span>
+            <span class="med-sum-sub">telhado embutido + caixa d'água</span>
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo frente</span>
@@ -1032,7 +1032,7 @@
           <div class="med-sum-item">
             <span class="med-sum-label">Pé-direito</span>
             <span class="med-sum-value">2,70 m</span>
-            <span class="med-sum-sub">laje plana</span>
+            <span class="med-sum-sub">telhado embutido + caixa d'água</span>
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo frente</span>
@@ -1182,7 +1182,7 @@
           <div class="med-sum-item">
             <span class="med-sum-label">Pé-direito</span>
             <span class="med-sum-value">2,70 m</span>
-            <span class="med-sum-sub">laje plana</span>
+            <span class="med-sum-sub">telhado solar (uma água)</span>
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo frente</span>
@@ -2618,6 +2618,27 @@
             noise2d(ctx, w, 0, 0, 0, 10, 0.5);
         }, 256));
     }
+    // Telha metálica trapezoidal (telhado embutido) — nervuras verticais que correm
+    // no sentido do caimento (N→S). Cor terracota p/ ler claramente como telhado e
+    // contrastar com o concreto da laje/platibanda.
+    function texTelha() {
+        return TEX3D.telha || (TEX3D.telha = canvasTex((ctx, w) => {
+            ctx.fillStyle = '#a8552f'; ctx.fillRect(0, 0, w, w);   // base terracota
+            const ribs = 4, rw = w / ribs;                         // 4 nervuras por ladrilho
+            for (let i = 0; i < ribs; i++) {
+                const g = ctx.createLinearGradient(i * rw, 0, (i + 1) * rw, 0);
+                g.addColorStop(0.00, 'rgba(0,0,0,0.30)');          // vale (sombra)
+                g.addColorStop(0.20, 'rgba(255,255,255,0.10)');
+                g.addColorStop(0.50, 'rgba(255,255,255,0.20)');    // crista (luz)
+                g.addColorStop(0.80, 'rgba(255,255,255,0.10)');
+                g.addColorStop(1.00, 'rgba(0,0,0,0.30)');
+                ctx.fillStyle = g; ctx.fillRect(i * rw, 0, rw, w);
+            }
+            noise2d(ctx, w, 0, 0, 0, 9);
+            ctx.strokeStyle = 'rgba(0,0,0,0.12)'; ctx.lineWidth = 2; // emenda transversal
+            ctx.beginPath(); ctx.moveTo(0, w * 0.5); ctx.lineTo(w, w * 0.5); ctx.stroke();
+        }, 256));
+    }
 
     // ── Chão de satélite (tiles ESRI, mesma fonte do mapa 2D) ───────────────
     // Parâmetros geográficos do plano centrado no lote, em Web Mercator z=19.
@@ -3598,15 +3619,49 @@
             const hasGarage = (rv === 'v2' || rv === 'v3');
             if (!hasGarage)
                 roof.add(box3d(n0,  eW,      n1 - n0, tt,      pb, pbTop, lajeMat)); // oeste (junta)
+
+            // ── Telhado embutido (caimento p/ o SUL) ────────────────────────────
+            // Telha metálica trapezoidal inclinada ACIMA da laje de forro (topo `slabTop`),
+            // ENCAIXADA dentro do anel da platibanda: sul (baixa) logo acima da laje; norte
+            // (alta) fica abaixo do topo da mureta (`pbTop`) → oculto da rua, só de cima
+            // aparece. A água escorre p/ a calha atrás da platibanda sul.
+            // Recuada até a FACE INTERNA das platibandas (S/N/E sempre; O só no V1 — no
+            // V2/V3 o oeste é a junta, então vai até `eW` p/ encostar na garagem) → não
+            // atravessa as muretas (fim do z-fight na norte) e cobre toda a laje interna.
+            // É a telha (não mais a "boneca") que ESCONDE os ferros de espera → nome 'telha',
+            // alternada pela visibilidade das esperas (ver applyBuildPhase/set3DEsperas).
+            const RGAP = 0.015, slabTop = CEIL3D + CPA + 0.16;      // topo da laje de forro
+            const tS = n0 + tt + RGAP, tN = n1 - tt - RGAP;         // sul/norte = faces internas
+            const tE = e1 - tt - RGAP, tW = hasGarage ? eW : (eW + tt + RGAP); // O: junta (V2) ou interno (V1)
+            const RH_S = slabTop + 0.06, RH_N = pbTop - 0.10;       // acima da laje → sob o topo da mureta
+            const RD = tN - tS;                          // vão N-S entre faces internas
+            const RPITCH = Math.atan((RH_N - RH_S) / RD);
+            const telhaTex = texTelha(); telhaTex.repeat.set(10, 3);
+            const matTelha = new THREE.MeshStandardMaterial({ color: 0xffffff, map: telhaTex,
+                roughness: 0.5, metalness: 0.35, envMapIntensity: 0.4,
+                polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
+            const rslab = new THREE.Mesh(new THREE.BoxGeometry(tE - tW, 0.07, RD / Math.cos(RPITCH)), matTelha);
+            rslab.name = 'telha';
+            rslab.rotation.x = RPITCH;                   // +: norte alto, sul baixo → caimento p/ o sul
+            rslab.position.set((tW + tE) / 2, (RH_S + RH_N) / 2, -(tS + tN) / 2);
+            rslab.castShadow = true; rslab.receiveShadow = true;
+            roof.add(rslab);
+
+            // ── Cubo da caixa d'água (centro da laje) ───────────────────────────
+            // Casa de máquinas de concreto sobre a laje, no centro (mN 4,75 × mE 27+OE),
+            // abrigando internamente o reservatório (~1000 L) elevado p/ dar pressão.
+            // Base 1,4×1,4 m; sobe acima da platibanda (topo ~4,4 m ≈ 1 m exposto).
+            const CX_N = 4.75, CX_E = 27 + OE, CX_S = 1.4, CX_TOP = 4.4;
+            roof.add(box3d(CX_N - CX_S / 2, CX_E - CX_S / 2, CX_S, CX_S, CEIL3D + CPA + 0.16, CX_TOP, lajeMat));
         }
 
         // ── Esperas (arranques p/ o sobrado V3) — só V1/V2 (sem 2º piso ainda) ──
-        // Ferros de espera no topo dos 12 pilares, atravessando a laje. A Caixa exige
-        // a casa com cara de pronta → ficam embutidos numa "boneca" de concreto
-        // rebocada (esperasCaps); o botão "Esperas: revelar" demole a proteção e expõe
-        // o ferro (esperasBars) p/ dar continuidade ao pilar do 2º pav. Filhos de
-        // `roof` → herdam a visibilidade da laje. Visíveis crus nas fases de obra;
-        // capeados no acabamento (V1 Caixa). No V3 não existem (ficam embutidos no col2c).
+        // Ferros de espera no topo dos 12 pilares. A Caixa exige a casa com cara de
+        // pronta → agora é a TELHA embutida que esconde o ferro (a antiga "boneca" de
+        // concreto foi removida). O botão "Esperas: revelar" tira a telha e expõe o
+        // ferro (esperasBars) p/ dar continuidade ao pilar do 2º pav. O grupo
+        // `esperasCaps` fica vazio (mantido só p/ compatibilidade dos guards de
+        // visibilidade). No V3 as esperas não existem (ficam embutidas no col2c).
         // `addEspera(cn, e3)` cria a espera de UM pilar (centro mN=cn, mE já com OE=e3).
         // Reutilizado pela casa (aqui) e pela garagem (bloco V2, mais abaixo). null se
         // a versão não tem esperas (V3+ embute no col2c).
@@ -3629,9 +3684,8 @@
             addEspera = (cn, e3) => {               // cn = centro mN; e3 = centro mE (com OE)
                 const z = -cn;
                 [[-OFF,-OFF],[OFF,-OFF],[-OFF,OFF],[OFF,OFF]].forEach(([dx, dz]) => espBars.add(mkBar(e3 + dx, z + dz)));
-                // Boneca de proteção: stub de concreto rebocado sobre a laje, escondendo o ferro
-                espCaps.add(box3d(cn - 0.12, e3 - 0.12, 0.24, 0.24, LTOP, ETOP + BAR_H + 0.05, matEmbase));
             };
+            void LTOP;   // (boneca removida — a telha embutida esconde o ferro; ver abaixo)
             // Esperas são irmãs do `roof` (não filhas) → o botão "Esperas" controla só
             // o ferro/boneca, independente da laje (botão "Laje"). Antes eram filhas do
             // roof e o reveal forçava a laje a aparecer/sumir junto.
@@ -3644,6 +3698,27 @@
             ].forEach(([cn, ce]) => addEspera(cn, ce + OE));
         }
         g.add(roof);
+
+        // ── Aba da prumada (calha desce no canto SUDOESTE) — V1/V2 ──────────
+        // A telha embutida cai p/ o sul → a calha (atrás da platibanda sul) escoa
+        // até o canto SW e desce numa prumada Ø100 na fachada. Uma ABA (ressalto
+        // vertical de reboco, mesma cara da parede) no canto SW da FACHADA SUL
+        // esconde o cano da fachada. Fica na frente (sul), livre nas duas versões
+        // (o oeste é junta com a garagem no V2). Larga o bastante p/ o cano e
+        // parando antes da janela da sala (mE 22,75). Geometria manual (soma OE).
+        if (bv === 'v1' || bv === 'v2') {
+            _ph = PH.acab;                               // detalhe de acabamento da fachada
+            const pbTopF = CEIL3D + CPA + 0.16 + 0.42;   // topo da platibanda (~3,58)
+            // Aba: face oeste alinhada à face oeste da casa (mE 22,40); projeta ~0,25 m
+            // p/ o sul (da face sul 1,90 até 1,65), do embasamento ao topo da platibanda.
+            g.add(box3d(1.65, 22.40 + OE, 0.29, 0.32, -0.70, pbTopF, matWall));
+            // Prumada Ø100 escondida no bolsão atrás da aba (da calha ~3,0 até o ralo ~−0,3)
+            const pipeMat = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 0.55, metalness: 0.1 });
+            const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3.35, 12), pipeMat);
+            pipe.position.set(22.58 + OE, 1.375, -1.79);
+            pipe.castShadow = true; pipe.receiveShadow = true;
+            g.add(pipe);
+        }
 
         // ── V3: 2º pavimento (sobrado pilotis) — laje + paredes externas ─────
         // Footprint = união casa + garagem (L), sobre a laje do térreo (= piso do
@@ -4315,7 +4390,7 @@
         if (!root) return;
         const keepMat = new Set();
         if (satGroundMat) keepMat.add(satGroundMat);
-        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall].filter(Boolean));
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha].filter(Boolean));
         if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
         root.traverse(obj => {
             if (obj.geometry && obj.geometry.dispose) obj.geometry.dispose();   // sempre único
@@ -4461,15 +4536,19 @@
         // no acabamento e não-revelado.
         const espB = S.group.getObjectByName('esperasBars');
         const espC = S.group.getObjectByName('esperasCaps');
+        const telha = S.group.getObjectByName('telha');
         if (espB && espC) {
             const revealed = !!S.espRevealed;
-            const roofVis = !!(roof && roof.visible);
             // Esperas saem do topo dos pilares → só existem se há coluna (V1: fase ≥ 2 = Colunas).
             // Sem isso, "revelar" deixava o ferro flutuando na Fundação (fase 1, sem colunas).
             const colsExist = (v === 'v1') ? (ph >= 2) : true;
             espB.visible = colsExist && ((ph >= 4 && ph <= 6) || revealed);
-            espC.visible = roofVis && (ph >= 7) && !revealed;
+            espC.visible = false;   // bonecas removidas — a telha embutida esconde o ferro
         }
+        // Telha embutida: aparece só quando o ferro NÃO está à mostra (durante a obra ou
+        // revelado), senão o ferro atravessaria a telha. Filha de `roof` → efetiva só com
+        // a laje visível.
+        if (telha) telha.visible = !(espB && espB.visible);
         // Mantém o slider em sincronia quando a fase muda por URL (popstate/boot)
         if (v === 'v1' && S.phaseRange) {
             S.phaseRange.value = String(ph);
@@ -4489,11 +4568,14 @@
         const roof = S.group.getObjectByName('roof');
         const espB = S.group.getObjectByName('esperasBars');
         const espC = S.group.getObjectByName('esperasCaps');
-        // Só alterna ferro↔boneca; NÃO mexe na laje (botão "Laje" é independente).
+        const telha = S.group.getObjectByName('telha');
+        // Revelar = tirar a TELHA e expor o ferro; ocultar = telha de volta (esconde o ferro).
+        // NÃO mexe na laje/platibanda/cubo (botão "Laje" é independente da telha).
         // Ferro só existe se há coluna (V1: fase ≥ 2); senão "revelar" flutua sem pilar.
         const colsExist = (v === 'v1') ? (ph >= 2) : true;
         if (espB) espB.visible = colsExist && ((ph >= 4 && ph <= 6) || revealed);
-        if (espC) espC.visible = !!(roof && roof.visible) && (ph >= 7) && !revealed;
+        if (espC) espC.visible = false;                          // bonecas removidas
+        if (telha) telha.visible = !(espB && espB.visible);      // telha some quando o ferro aparece
         btn.textContent = 'Esperas: ' + (revealed ? 'reveladas' : 'ocultas');
     }
 
@@ -4521,10 +4603,11 @@
             return;
         }
         roof.visible = !roof.visible;
-        // A boneca das esperas acompanha a laje (só aparece com a laje, no acabamento e
-        // não-revelada); o ferro cru independe da laje.
-        const espC = S.group.getObjectByName('esperasCaps');
-        if (espC) { espC.visible = roof.visible && (ph >= 7) && !S.espRevealed; }
+        // A telha embutida (filha de roof) só aparece quando o ferro NÃO está revelado;
+        // as bonecas foram removidas (a telha esconde o ferro). O ferro cru independe da laje.
+        const espB = S.group.getObjectByName('esperasBars');
+        const telha = roof.getObjectByName('telha');
+        if (telha) telha.visible = !(espB && espB.visible);
         btn.textContent = noun + ': ' + (roof.visible ? 'visível' : 'oculto');
     }
 
