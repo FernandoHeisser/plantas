@@ -2,8 +2,17 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Projeto Casa</title>
+    <!-- PWA: manifest + ícones + tela cheia no iPhone -->
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Casa">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -47,6 +56,10 @@
             background: var(--construido);
             color: white;
             padding: 14px 24px 12px;
+            /* tela cheia (PWA): não ficar sob o entalhe/barra de status */
+            padding-top: calc(14px + env(safe-area-inset-top));
+            padding-left: max(24px, env(safe-area-inset-left));
+            padding-right: max(24px, env(safe-area-inset-right));
         }
         .header-top { display: flex; justify-content: space-between; align-items: center; }
         .header-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.2px; }
@@ -5012,6 +5025,14 @@
     });
     // Botões voltar/avançar do navegador respeitam a rota (versão + fase)
     window.addEventListener('popstate', () => { buildPhase = phaseFromPath(); setVersion(versionFromPath(), false); });
+</script>
+<script>
+    // PWA: service worker só no site publicado (em localhost o cache atrapalharia o desenvolvimento).
+    // Para testar local: abrir com ?sw=1.
+    if ('serviceWorker' in navigator &&
+        (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || /[?&]sw=1/.test(location.search))) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+    }
 </script>
 
 </body>
