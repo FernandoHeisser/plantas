@@ -106,7 +106,20 @@ Config em `.claude/launch.json`.
 
 ---
 
-## Arquitetura
+## PWA (app instalável)
+
+- `manifest.webmanifest` + `icons/` (192, 512, maskable 512, apple-touch 180, favicon 32) +
+  `sw.js` na raiz. Ícones gerados por `python tools/gen_icons.py` (Pillow; `tools/` fora do deploy).
+- **`sw.js`**: navegação = rede primeiro, reserva `"/"` (todas as rotas SPA são a mesma
+  index.html); arquivos do site = cache primeiro + atualização em 2º plano (nunca o `sw.js`);
+  libs unpkg/Google Fonts = cache primeiro. Tiles ESRI **não** são cacheados (offline abre sem satélite).
+- **Mudou a lista de pré-cache (ex.: nova lib CDN no `<head>`) ou a estratégia → subir `CACHE`**
+  (`casa-v1` → `casa-v2`); o `activate` apaga o antigo. Nova lib CDN → adicionar em `CDN` também.
+- Registro só **fora de localhost** (dev sem cache). Testar local: `http://localhost:3131/?sw=1`
+  e depois desregistrar (DevTools → Application → Service workers).
+- `vercel.json`: `no-cache` no `/sw.js`, `application/manifest+json` no manifest.
+  Header usa `env(safe-area-inset-*)` + `viewport-fit=cover` (tela cheia no iPhone).
+
 
 **Arquivo único:** `index.html` — toda a lógica, estilos e conteúdo numa página só, sem build step, sem dependências locais.
 
