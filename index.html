@@ -1599,9 +1599,11 @@
         O: FACE.O - OE + ESP.ext / 2, HALL: 18.375 - OE, BANHO: 19.825 - OE, SERV: 21.275 - OE, L: FACE.L - OE - ESP.ext / 2,  // mE: oeste → leste
     };
     // Cobertura: laje, platibanda, beirais, junta com a garagem
-    const COB = { laje: 0.10, platAlt: 0.42, platEsp: 0.12, beiralN: 0.90, beiralS: 0.50, beiralEW: 0.50, junta: 0.03 };
+    // beiral/caimento: casa V1/V2 (A01). beiralN/S/EW: valores antigos, ainda usados por garagem e V3.
+    const COB = { laje: 0.10, platAlt: 0.85, platEsp: 0.15, beiral: 0.60, caimento: 0.10, beiralN: 0.90, beiralS: 0.50, beiralEW: 0.50, junta: 0.03 };
     // Volume da caixa d'água: centro (código, sem OE), planta e topo
-    const CAIXA_DAGUA = { n: 4.75, e: 27, dn: 1.4, de: 1.4, topo: 4.4 };
+    // E-W provisório: sobre o banho, até a arquiteta confirmar (C8).
+    const CAIXA_DAGUA = { n: 3.40, e: 19.10 - OE, dn: 2.80, de: 1.60, topo: 5.50 };
     const COTA_LAT_E = (EIXO.O + EIXO.L) / 2;                                       // mE das cotas laterais
     const COTA_FUNDO_E = EIXO.L - 1.5;                               // mE de origem da cota de fundo
 
@@ -2708,12 +2710,12 @@
             noise2d(ctx, w, 0, 0, 0, 10, 0.5);
         }, 256));
     }
-    // Telha metálica trapezoidal (telhado embutido) — nervuras verticais que correm
-    // no sentido do caimento (N→S). Cor terracota p/ ler claramente como telhado e
-    // contrastar com o concreto da laje/platibanda.
+    // Telha de fibrocimento ondulada (telhado embutido) — ondas que correm
+    // no sentido do caimento (N→S). Cinza de fibrocimento, sem pintura, destacada
+    // do concreto da laje/platibanda pelas ondas.
     function texTelha() {
         return TEX3D.telha || (TEX3D.telha = canvasTex((ctx, w) => {
-            ctx.fillStyle = '#a8552f'; ctx.fillRect(0, 0, w, w);   // base terracota
+            ctx.fillStyle = '#a9aca8'; ctx.fillRect(0, 0, w, w);   // base fibrocimento
             const ribs = 4, rw = w / ribs;                         // 4 nervuras por ladrilho
             for (let i = 0; i < ribs; i++) {
                 const g = ctx.createLinearGradient(i * rw, 0, (i + 1) * rw, 0);
@@ -3667,18 +3669,17 @@
         _ph = PH.laje2;   // laje plana da casa
         // Beiral: norte 0,90 m (autoregulador solar lat−30°), sul/leste 0,50 m (proteção chuva)
         const BN_N = COB.beiralN, BN_S = COB.beiralS, BN_EW = COB.beiralEW;
-        const n0 = EIXO.S - BN_S, n1 = EIXO.N + BN_N;
+        const n0 = SOLAR ? EIXO.S - BN_S : FACE.S - COB.beiral, n1 = SOLAR ? EIXO.N + BN_N : FACE.N + COB.beiral;
         // Oeste: a laje da casa termina SEMPRE rente à face da parede oeste, na linha da
         // junta de dilatação (22,5 − EW/2 − GAP = 22,37) — sem beiral nem platibanda oeste.
         // Vale também p/ o V1 standalone: senão o beiral de 0,5 m cavalgaria a futura
         // garagem (V2) e impediria a junta.
-        const e0 = (EIXO.O - BN_EW) + OE, e1 = EIXO.L + OE + BN_EW;  // e0 = beiral oeste do telhado solar
-        const eW = (EIXO.O - ESP.ext / 2 - COB.junta) + OE;                    // oeste da laje plana = junta
+        const e0 = (EIXO.O - BN_EW) + OE, e1 = SOLAR ? EIXO.L + OE + BN_EW : FACE.L + COB.beiral;  // e0 = beiral oeste do telhado solar
+        const eW = FACE.O;                    // oeste da laje plana = junta
         const pb = TOPO_LAJE, pbTop = pb + COB.platAlt, tt = COB.platEsp; // platibanda
         // Fascia/borda do beiral: banda de 25 cm pendurada SOB a laje nas faces externas.
         // Dá o "acabamento do lado inferior" (pingadeira) que protege a parede da chuva e,
         // junto com a platibanda acima, fecha o beiral num plano vertical limpo.
-        const fbb = CEIL3D + CPA - 0.25, fbt = TOPO_LAJE, BT = 0.08;
         if (SOLAR) {
             // Casa: painéis começam em mE 24,5 (2,0 m a leste da junta) p/ sair da sombra de
             // fim de tarde projetada pelo telhado da garagem (mais alto, a oeste). Concentra a
@@ -3690,15 +3691,11 @@
             // beiral), então a fascia fica RENTE ao slab (face em eW, espessura p/ dentro):
             // não projeta para fora, preservando a junta de dilatação da garagem (V2+), mas
             // fecha a faixa do beiral na mesma altura dos outros lados.
-            roof.add(box3d(n0,      eW,      BT,       e1 - eW, fbb, fbt, lajeMat)); // fascia sul
-            roof.add(box3d(n1 - BT, eW,      BT,       e1 - eW, fbb, fbt, lajeMat)); // fascia norte
-            roof.add(box3d(n0,      e1 - BT, n1 - n0, BT,       fbb, fbt, lajeMat)); // fascia leste
-            roof.add(box3d(n0,      eW,      n1 - n0, BT,       fbb, fbt, lajeMat)); // fascia oeste (rente à junta)
             // Platibanda (mureta) acima da laje — 4 lados. O oeste fica na junta de
             // dilatação (eW): tem mureta, mas SEM fascia (laje rente à parede).
-            roof.add(box3d(n0,      eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // sul
-            roof.add(box3d(n1 - tt, eW, tt,       e1 - eW, pb, pbTop, lajeMat)); // norte
-            roof.add(box3d(n0,  e1 - tt, n1 - n0, tt,      pb, pbTop, lajeMat)); // leste
+            roof.add(box3d(FACE.S, FACE.O, tt, FACE.L - FACE.O, pb, pbTop, lajeMat)); // sul (sobre a parede)
+            roof.add(box3d(FACE.N - tt, FACE.O, tt, FACE.L - FACE.O, pb, pbTop, lajeMat)); // norte
+            roof.add(box3d(FACE.S, FACE.L - tt, FACE.N - FACE.S, tt, pb, pbTop, lajeMat)); // leste
             // Oeste (junta): mureta ASSENTADA sobre a borda da laje, face externa em eW
             // (coincidente com a fascia oeste e com o slab), espessura p/ DENTRO. A sobreposição
             // com as bonecas/esperas dos pilares oeste é resolvida pelo polygonOffset.
@@ -3707,7 +3704,7 @@
             // duas devem ler como uma superfície CONTÍNUA (sem mureta entre elas).
             const hasGarage = (rv === 'v2' || rv === 'v3');
             if (!hasGarage)
-                roof.add(box3d(n0,  eW,      n1 - n0, tt,      pb, pbTop, lajeMat)); // oeste (junta)
+                roof.add(box3d(FACE.S, FACE.O, FACE.N - FACE.S, tt, pb, pbTop, lajeMat)); // oeste
 
             // ── Telhado embutido (caimento p/ o SUL) ────────────────────────────
             // Telha metálica trapezoidal inclinada ACIMA da laje de forro (topo `slabTop`),
@@ -3720,14 +3717,14 @@
             // É a telha (não mais a "boneca") que ESCONDE os ferros de espera → nome 'telha',
             // alternada pela visibilidade das esperas (ver applyBuildPhase/set3DEsperas).
             const RGAP = 0.015, slabTop = TOPO_LAJE;      // topo da laje de forro
-            const tS = n0 + tt + RGAP, tN = n1 - tt - RGAP;         // sul/norte = faces internas
-            const tE = e1 - tt - RGAP, tW = hasGarage ? eW : (eW + tt + RGAP); // O: junta (V2) ou interno (V1)
-            const RH_S = slabTop + 0.06, RH_N = pbTop - 0.10;       // acima da laje → sob o topo da mureta
+            const tS = FACE.S + tt + RGAP, tN = FACE.N - tt - RGAP;         // sul/norte = faces internas
+            const tE = FACE.L - tt - RGAP, tW = hasGarage ? eW : (eW + tt + RGAP); // O: junta (V2) ou interno (V1)
+            const RH_N = pbTop - 0.05, RH_S = RH_N - (tN - tS) * COB.caimento;       // acima da laje → sob o topo da mureta
             const RD = tN - tS;                          // vão N-S entre faces internas
             const RPITCH = Math.atan((RH_N - RH_S) / RD);
             const telhaTex = texTelha(); telhaTex.repeat.set(10, 3);
             const matTelha = new THREE.MeshStandardMaterial({ color: 0xffffff, map: telhaTex,
-                roughness: 0.5, metalness: 0.35, envMapIntensity: 0.4,
+                roughness: 0.85, metalness: 0, envMapIntensity: 0.3,
                 polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 8 });
             const rslab = new THREE.Mesh(new THREE.BoxGeometry(tE - tW, 0.07, RD / Math.cos(RPITCH)), matTelha);
             rslab.name = 'telha';
@@ -3738,10 +3735,17 @@
 
             // ── Cubo da caixa d'água (centro da laje) ───────────────────────────
             // Casa de máquinas de concreto sobre a laje, no centro (mN 4,75 × mE 27+OE),
-            // abrigando internamente o reservatório (~1000 L) elevado p/ dar pressão.
+            // abrigando internamente o reservatório (500 L) elevado p/ dar pressão.
             // Base 1,4×1,4 m; sobe acima da platibanda (topo ~4,4 m ≈ 1 m exposto).
             const CX_N = CAIXA_DAGUA.n, CX_E = CAIXA_DAGUA.e + OE, CX_DN = CAIXA_DAGUA.dn, CX_DE = CAIXA_DAGUA.de, CX_TOP = CAIXA_DAGUA.topo;
             roof.add(box3d(CX_N - CX_DN / 2, CX_E - CX_DE / 2, CX_DN, CX_DE, TOPO_LAJE, CX_TOP, lajeMat));
+
+            // Calhas (esquemáticas): face interna da platibanda sul, dos dois lados do volume, e leste do volume
+            const matCalha = new THREE.MeshStandardMaterial({ color: 0xb9bfc4, roughness: 0.5, metalness: 0.35 });
+            const CAL = 0.18, cxO = CX_E - CX_DE / 2, cxL = CX_E + CX_DE / 2, cxNt = CX_N + CX_DN / 2;
+            roof.add(box3d(tS, tW,  CAL, cxO - tW, RH_S - 0.02, RH_S + 0.06, matCalha));
+            roof.add(box3d(tS, cxL, CAL, tE - cxL, RH_S - 0.02, RH_S + 0.06, matCalha));
+            roof.add(box3d(tS + CAL, cxL, cxNt - tS - CAL, CAL, RH_S - 0.02, RH_S + (cxNt - tS) * COB.caimento + 0.06, matCalha));
         }
 
         // ── Esperas (arranques p/ o sobrado V3) — só V1/V2 (sem 2º piso ainda) ──
@@ -3795,23 +3799,6 @@
             _ph = PH.acab;                               // detalhe de acabamento da fachada
             // Prumada Ø100 escondida no bolsão atrás da aba (da calha ~3,0 até o ralo ~−0,3)
             const pipeMat = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 0.55, metalness: 0.1 });
-            const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3.35, 12), pipeMat);
-            pipe.position.set(EIXO.O + 0.08 + OE, 1.375, -(EIXO.S - 0.21));
-            pipe.castShadow = true; pipe.receiveShadow = true;
-            g.add(pipe);
-
-            // ── Dreno pluvial: prumada → REDE PÚBLICA na frente do lote (oeste, mE=0) ──
-            // Roteado em "L" RENTE À DIVISA SUL (mN≈0,40) p/ NÃO passar sob a estrutura da
-            // garagem (mN≥2, V2): desce do pé da prumada (mN 1,79) até a divisa e corre p/ a
-            // frente colado nela. O terreno cai da calçada (frente, ALTA) p/ os fundos, então
-            // o dreno DESCE em direção à rua (caimento ~2%): pé da prumada (~−0,30) → caixa de
-            // ligação na frente (~−0,65). Como o solo SOBE p/ a frente (grade(0)=0 vs grade da
-            // casa ~−0,42), o trecho junto à casa fica ACIMA do solo (EXPOSTO) e o resto enterra
-            // sob a grama — esse trecho é o CANTO SUL que o ATERRO cobre (a garagem já tem o seu).
-            const DIV_Z = -0.40;                                     // mN da divisa (dreno colado nela)
-            const P0 = new THREE.Vector3(EIXO.O + 0.08 + OE, -0.30, -(EIXO.S - 0.21));  // pé da prumada (casa)
-            const P1 = new THREE.Vector3(EIXO.O + 0.08 + OE, -0.33, DIV_Z);  // desce até a divisa sul
-            const P2 = new THREE.Vector3(0,          -0.65, DIV_Z);  // corre p/ a frente (rede pública)
             const mkPipe = (a, b) => {
                 const d = new THREE.Vector3().subVectors(b, a);
                 const m = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, d.length(), 12), pipeMat);
@@ -3820,10 +3807,19 @@
                 m.castShadow = true; m.receiveShadow = true;
                 return m;
             };
-            g.add(mkPipe(P0, P1));   // trecho de descida à divisa
-            g.add(mkPipe(P1, P2));   // trecho ao longo da divisa até a frente
-            // Joelhos no pé da prumada e na curva
-            [P0, P1].forEach(p => { const j = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 8), pipeMat); j.position.copy(p); g.add(j); });
+            const V3d = (x, y, n) => new THREE.Vector3(x, y, -n);
+            // Duas descidas Ø100 na face sul (A01) -> ramal -> coletor rente à divisa -> rede pública.
+            // Cota do fundo desce em direção à rua; ramais e coletor ficam sob o solo.
+            const DIV_N = 0.40, DESC_N = 1.94, TOPO_DESC = 3.30;
+            const descidas = [[20.07, -0.50], [17.22, -0.55]];        // mE com OE, cota do pé
+            const joelho = p => { const j = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 8), pipeMat); j.position.copy(p); g.add(j); };
+            descidas.forEach(([x, y]) => {
+                g.add(mkPipe(V3d(x, TOPO_DESC, DESC_N), V3d(x, y, DESC_N)));
+                g.add(mkPipe(V3d(x, y, DESC_N), V3d(x, y, DIV_N)));
+                joelho(V3d(x, y, DESC_N)); joelho(V3d(x, y, DIV_N));
+            });
+            g.add(mkPipe(V3d(20.07, -0.50, DIV_N), V3d(17.22, -0.55, DIV_N)));
+            g.add(mkPipe(V3d(17.22, -0.55, DIV_N), V3d(0, -0.65, DIV_N)));
         }
 
         // ── Caixa de ligação + aterro gramado do canto sul: infra de SOLO que persiste da
