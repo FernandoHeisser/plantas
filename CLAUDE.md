@@ -118,6 +118,30 @@ orçamentos, exigências da Caixa, fotos da visita). Não é funcionalidade da a
 
 ---
 
+## Retrato da geometria — `tools/geo-*`
+
+Prova objetiva de que uma mudança alterou só o que devia. Exporta 2D, GEO e 3D (inclusive o
+`box3d` manual) de V1, V1.1, V2, V3 e do 2º piso, e compara com o retrato de referência
+`tools/geo-baseline/pre-v1-oficial/` (mesmo estado da tag `pre-v1-oficial`).
+
+```bash
+node tools/geo-sink.mjs
+```
+
+Com o preview aberto, rodar na página `await (await import('/tools/geo-snapshot.js')).run('check-1')`:
+
+```bash
+node tools/geo-diff.mjs pre-v1-oficial check-1
+```
+
+- **Refatoração:** o resultado tem que ser `idênticos`. Qualquer diferença é regressão.
+- **Migração:** a diferença tem que ser exatamente a esperada para a etapa.
+- `check*` fica fora do git. Precisão: ~1 mm. Não cobre o CSS, a ficha de Medidas nem a
+  pixelagem do render; para isso, screenshot.
+- `import()` fica em cache na página: recarregar antes de rodar de novo se o script mudar.
+
+---
+
 ## PWA (app instalável)
 
 - `manifest.webmanifest` + `icons/` (192, 512, maskable 512, apple-touch 180, favicon 32) +
