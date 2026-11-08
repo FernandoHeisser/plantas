@@ -10,6 +10,9 @@ node_modules/
 # Documentos reais da obra (matrícula, planta da arquiteta, orçamentos) — só local
 docs/reais/
 
+# Retratos de conferência da geometria (o baseline de referência é versionado)
+tools/geo-baseline/check*/
+
 # OS / editor cruft
 Thumbs.db
 .DS_Store
