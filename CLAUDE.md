@@ -250,9 +250,8 @@ mexer nelas; não reintroduzir número solto em `buildLayers`/`buildBuilding3D`.
 - **Móveis e rótulos** usam coordenadas relativas ao canto SO (eixos) do ambiente: `HAL`, `BAN`, `SER`,
   `QUA`, `SAL`, `COZ` (`.rect`, `.circ`, `.rot`, `.rotulo`). Móvel encostado na parede leste do ambiente
   precisa ser reposicionado se a largura do ambiente mudar.
-- **Ainda em literal:** V2/V3 (garagem, 2º piso, drenagem do V3) e `COTA_FUNDO_E`/`COTA_LAT_E`,
-  mantidos iguais para o retrato não mudar. A cota "fundo" parte de `EIXO.L − 1,5`, não da face leste;
-  corrigir na migração (camada L).
+- **Ainda em literal:** V2/V3 (garagem, 2º piso, drenagem do V3). `COTA_FUNDO_E` só divide o polígono do chão no 2D.
+- **Migração do V1 em andamento:** ver o estado em `docs/RECONCILIACAO-V1.md`. As tabelas de "Layout V1" descrevem a planta antiga até o fim da migração.
 
 ---
 
