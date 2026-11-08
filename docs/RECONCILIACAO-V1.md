@@ -65,7 +65,7 @@ salvo indicação.
 | D3 | Banho | 3,9 m² | **3,25 m²** | A01·c | — | A | adotar |
 | D4 | Lavanderia | "Á. Serviço", 3,9 m² | **"Lavanderia", 3,25 m²** | A01·c | — | A | adotar |
 | D5 | Sala + cozinha | ~14 + ~11 m², separados | **ambiente único, 24,88 m²** | A01·c | — | A | adotar |
-| D6 | Nome do quarto | "Quarto" | "Dormitório" | A01·c | — | A | decidir |
+| D6 | Nome do quarto | "Quarto" | "Dormitório" | A01·c | — | A | **Dormitório** |
 | D7 | Responsável técnica | pendência "M² Engenharia (CREA)" | arquiteta com registro CAU | RRT, A01·c | — | — | adotar |
 
 ### L · Lote e implantação
@@ -76,8 +76,8 @@ salvo indicação.
 | L2 | Face leste | mE 26,10 | **mE 25,10** | A01·c | — | A | adotar |
 | L3 | Face sul | mN 1,90 | **mN 2,00** | A01·c | — | Q | adotar |
 | L4 | Face norte | mN 7,60 | **mN 7,75** | A01·c | — | A | adotar |
-| L5 | Faixa permeável | não modelada | 6,00 m × 12,50 m nos fundos, 75 m² | A01·c | — | — | decidir |
-| L6 | Rebaixo do meio-fio | não modelado | extremo norte da testada, ≈3 m | A01·m | — | — | decidir |
+| L5 | Faixa permeável | não modelada | 6,00 m × 12,50 m nos fundos, 75 m² | A01·c | — | — | 2D e ficha |
+| L6 | Rebaixo do meio-fio | não modelado | extremo norte da testada, ≈3 m | A01·m | — | — | não representar |
 
 Recuos oficiais, todos fechando: frente 17,00 · fundos 14,90 · norte 4,75 · sul 2,00.
 
@@ -87,7 +87,7 @@ Recuos oficiais, todos fechando: frente 17,00 · fundos 14,90 · norte 4,75 · s
 |---|---|---|---|---|---|---|---|
 | N1 | Solo junto às faces norte e oeste | `grade(17)` = −0,43 | **−0,30** na planta, **00** em cortes e fachadas | A01·? | — | A | **perguntar** |
 | N2 | Solo na face leste | `grade(25,1)` = −0,63 | **−0,50** | A01·c | — | A | adotar |
-| N3 | Declive | 2,5 % constante até os fundos | 00 na testada → −0,30 a 17 m → −0,50 a 25,1 m; fundos sem cota | A01·c | N1 | A | decidir |
+| N3 | Declive | 2,5 % constante até os fundos | 00 na testada → −0,30 a 17 m → −0,50 a 25,1 m; fundos sem cota | A01·c | N1 | A | pontos oficiais até 25,1 m, depois até **−0,80** nos fundos |
 | N4 | Rua | não modelada | −0,15 | A01·c | — | — | manter |
 | N5 | Escada oeste (entrada) | largura 1,20, em mN 2,15 | **0,98**, mN 2,93→3,91; 4 espelhos de 15, 3 pisos de 30 | A01·c/m | P1, N1 | — | adotar |
 | N6 | Escada norte | largura 2,00, em mE 17,5 | **1,60**, mE 17,65→19,25; 4 espelhos de 15, 3 pisos de 30 | A01·c/m | P6, N1 | A | adotar |
@@ -171,7 +171,7 @@ Todas com 2,10 de altura, como na app.
 |---|---|---|---|---|---|---|---|
 | C1 | Telha | metálica trapezoidal terracota | **fibrocimento ondulada** | Mem, A01·m | — | — | adotar |
 | C2 | Inclinação | ≈4 % | **≈10 %** (sem cota escrita) | A01·m | — | — | adotar |
-| C3 | Estrutura do telhado | sem | tesouras e terças sobre a laje | A01·m | — | — | decidir |
+| C3 | Estrutura do telhado | sem | tesouras e terças sobre a laje | A01·m | — | — | não modelar |
 | C4 | Beirais | N 0,90 · S 0,50 · L 0,50 · O 0 | **N 0,60 · S 0,60 · L 0,60 · O 0** | A01·m | E1 | A | adotar |
 | C5 | Platibanda | 0,12 esp., 0,42 acima da laje | **0,15 esp., 0,85 acima da laje** | A01·c | E6 | Q | adotar |
 | C6 | Topo da platibanda | +3,58 | **+3,95** | A01·c | C5, E6 | Q | adotar |
@@ -180,17 +180,17 @@ Todas com 2,10 de altura, como na app.
 | C9 | Reservatório | ~1000 L | **500 L**, sobre laje de apoio +1,00 acima da laje | A01·c | C8 | — | adotar |
 | C10 | Descidas pluviais | 1 prumada Ø100, SW | **2 × Ø100 na face sul**, mE ≈20,07 e ≈17,22 | A01·c/m | E8 | A | adotar |
 | C11 | Coletor pluvial | em mN 0,40 | em mN ≈0,20 (a 16–22 cm da divisa) | A01·m | — | — | manter |
-| C12 | Calhas | sem | 3 rótulos, ao longo da platibanda sul e no volume da caixa | A01·c/m | C7 | — | decidir |
+| C12 | Calhas | sem | 3 rótulos, ao longo da platibanda sul e no volume da caixa | A01·c/m | C7 | — | modelar simples |
 
 ### S · Saneamento no terreno (hoje não modelado)
 
 | ID | Item | Oficial | Fonte | Dep. | Decisão |
 |---|---|---|---|---|---|
-| S1 | Fossa séptica | Ø0,80, h 1,20 · centro mN 1,90, mE 30,50 | A01·c/m, Mem | — | decidir |
-| S2 | Filtro anaeróbio | Ø0,80, h 1,20 · centro mN 3,10, mE 30,50 | A01·c/m, Mem | — | decidir |
-| S3 | Sumidouro | Ø1,00, h 1,50 · centro mN 4,30, mE 30,60 | A01·c/m, Mem | — | decidir |
-| S4 | Caixas de inspeção e de gordura | 7 CI + gordura externa na face norte, mE ≈23,75 | A01·m | — | decidir |
-| S5 | Cisterna | **não consta** nos documentos; prevista nas notas do projeto | A01, Mem | — | **decidir** |
+| S1 | Fossa séptica | Ø0,80, h 1,20 · centro mN 1,90, mE 30,50 | A01·c/m, Mem | — | 2D e ficha |
+| S2 | Filtro anaeróbio | Ø0,80, h 1,20 · centro mN 3,10, mE 30,50 | A01·c/m, Mem | — | 2D e ficha |
+| S3 | Sumidouro | Ø1,00, h 1,50 · centro mN 4,30, mE 30,60 | A01·c/m, Mem | — | 2D e ficha |
+| S4 | Caixas de inspeção e de gordura | 7 CI + gordura externa na face norte, mE ≈23,75 | A01·m | — | 2D e ficha |
+| S5 | Cisterna | **não consta** nos documentos; prevista nas notas do projeto | A01, Mem | — | etapa futura, fora do projeto atual; não entra no V1 |
 
 ### M · Móveis e materiais
 
@@ -199,17 +199,17 @@ decisão do cliente**, mas tudo precisa caber nos ambientes novos.
 
 | ID | Item | App | Oficial | Fonte | Dep. | Decisão |
 |---|---|---|---|---|---|---|
-| M1 | Cozinha | em U, com península, fogão, coifa, geladeira | só bancada 0,60 × 1,20 na parede norte, sob J7 | A01·c | J7 | **decidir** |
-| M2 | Canto alemão, mesa | presentes | sem mobília indicada | A01 | I1, J6 | **decidir** |
+| M1 | Cozinha | em U, com península, fogão, coifa, geladeira | só bancada 0,60 × 1,20 na parede norte, sob J7 | A01·c | J7 | **linear na parede norte**: pia sob J7, fogão, bancada, geladeira |
+| M2 | Canto alemão, mesa | presentes | sem mobília indicada | A01 | I1, J6 | **em aberto**: decidir ao ver a cozinha no novo layout |
 | M3 | Banho: lavatório | 0,95 × 0,32, parede norte | **0,90 × 0,45**, canto nordeste | A01·m | I1, I3 | adotar |
 | M4 | Banho: vaso | mN 3,30, parede leste | parede leste, **mN 3,16→3,53** | A01·m | I3 | adotar |
 | M5 | Banho: box | 1,00 × 1,00, canto SE | linha fina em mN 2,95; lado sul livre, ≈0,80 × 1,30 | A01·? | I2, I3 | **perguntar** |
 | M6 | Lavanderia: tanque | parede sul | parede oeste, **mN 3,90→4,37** | A01·m | I3 | adotar |
 | M7 | Lavanderia: máquina | parede sul | parede oeste, **mN 2,87→3,41** | A01·m | I3 | adotar |
-| M8 | Lavanderia: armário alto | presente | não indicado | A01 | I3, I4 | decidir |
-| M9 | Dormitório: cama e guarda-roupa | presentes | não indicados; ambiente 3,60 × 2,50 | A01 | I4, P4 | decidir |
-| M10 | Sala: sofá, rack, TV, centro | presentes | não indicados; ponto de TV na parede oeste | A01·m | I1, I2, P1 | decidir |
-| M11 | Hall: sapateira, tapete | presentes em ≈1,68 m | hall de 1,15 m | A01 | I2, P1 | decidir |
+| M8 | Lavanderia: armário alto | presente | não indicado | A01 | I3, I4 | remover |
+| M9 | Dormitório: cama e guarda-roupa | presentes | não indicados; ambiente 3,60 × 2,50 | A01 | I4, P4 | manter; **cama definida pelas tomadas**, ver seção 3 |
+| M10 | Sala: sofá, rack, TV, centro | presentes | não indicados; ponto de TV na parede oeste | A01·m | I1, I2, P1 | manter; TV na parede oeste |
+| M11 | Hall: sapateira, tapete | presentes em ≈1,68 m | hall de 1,15 m | A01 | I2, P1 | só o tapete; tirar a sapateira |
 | M12 | Piso | textura genérica | cerâmico, PEI 4; calçada de concreto | Mem | — | adotar |
 | M13 | Banheiro | sem azulejo | azulejo cerâmico até o forro | Mem | — | adotar |
 | M14 | Paredes | textura genérica | reboco e tinta acrílica | Mem | — | manter |
@@ -228,15 +228,33 @@ decisão do cliente**, mas tudo precisa caber nos ambientes novos.
 | E8 | Qual é a função do prolongamento de 0,60 da parede oeste ao sul? Hipótese: esconder a descida pluvial, como a "aba" da app. |
 | M5 | A linha em mN 2,95 no banho é o box? |
 
-**Para o cliente:**
+**Decisões do cliente (2026-11-08, em [PERGUNTAS-V1.md](PERGUNTAS-V1.md)):** já anotadas nas tabelas
+acima. O projeto R00 **ainda não foi protocolado** nem enviado à Caixa, então as respostas da
+arquiteta ainda podem alterá-lo. A migração fica na branch `feat/v1-oficial` até o V1 estar completo.
 
-| Ref. | Decisão |
-|---|---|
-| M1, M2 | Manter cozinha em U e canto alemão, adaptados à nova sala de 24,88 m² e às janelas menores, ou simplificar? |
-| N3 | Usar os níveis oficiais perto da casa e manter 2,5 % até os fundos? |
-| S1–S4, C3, C12, L5, L6 | Modelar no 3D ou deixar só na ficha? |
-| S5 | A cisterna continua nos planos? Não está no projeto oficial. |
-| D6 | Rótulo "Quarto" ou "Dormitório"? |
+**Perfil do terreno (N3):** segmentos retos por 00 (testada) → −0,30 (mE 17,00) → −0,50 (mE 25,10) →
+−0,80 (mE 40,00). O último trecho mantém os cerca de 2 % do conjunto oficial. O ponto de 17 m depende de N1.
+
+**Dormitório (M9), posição lida da planta elétrica (±5 cm, conferir na geometria ao migrar):**
+
+| Ponto | Parede | mE | Leitura |
+|---|---|---|---|
+| Tomada baixa + ponto "H" | norte | ≈24,64 | criado-mudo leste |
+| 2 tomadas baixas | norte | ≈22,67 | criado-mudo oeste |
+| Ponto "H" | norte | ≈22,40 | junto ao criado-mudo oeste |
+| TV a 1,20 m + AC | sul | ≈24,1 | em frente à cama |
+
+Daí resulta **cabeceira na parede norte, pés para o sul**:
+
+| Item | mN | mE | Situação |
+|---|---|---|---|
+| Cama de casal 1,40 × 1,90 | 2,68→4,58 | 22,90→24,30 | definida pelas tomadas |
+| Criado-mudo leste | ≈4,20→4,58 | 24,30→24,75 | definida pelas tomadas |
+| Criado-mudo oeste | ≈4,20→4,58 | 22,45→22,90 | definida pelas tomadas |
+| Guarda-roupa, portas para leste | 2,15→3,75 | 21,35→21,95 | **proposta**, a confirmar na camada M |
+
+Sobram cerca de 0,53 m entre os pés da cama e a parede sul, e 0,95 m entre o guarda-roupa e a cama.
+O guarda-roupa termina antes da folha da porta aberta (mN 3,85).
 
 **Fora da app, para acompanhar com a arquiteta:** os RRTs divergem no término previsto da obra
 (2028 × 2027), e o documento de resíduos não informa transportador nem destino final.

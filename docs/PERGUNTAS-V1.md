@@ -15,7 +15,7 @@ A indicação **Sugestão** é a minha recomendação; a decisão é sua.
 **1. O projeto R00 já foi protocolado na prefeitura ou enviado à Caixa?**
 Define se as respostas da Parte 2 ainda podem mudar o projeto ou só esclarecem o que já está lá.
 
-- [ ] Ainda não
+- [X] Ainda não
 - [ ] Protocolado ou enviado, em análise
 - [ ] Já aprovado
 
@@ -24,7 +24,7 @@ Define se as respostas da Parte 2 ainda podem mudar o projeto ou só esclarecem 
 **2. Posso manter tudo na branch `feat/v1-oficial` até o V1 estar completo?**
 Durante a migração, V2 e V3 ficam desalinhados. Numa branch separada, o site continua mostrando a versão atual até você dizer "concluído".
 
-- [ ] Sim (**Sugestão**)
+- [X] Sim (**Sugestão**)
 - [ ] Não, prefiro publicar a cada etapa, aceitando V2/V3 desalinhados no site
 
 **Resposta:**
@@ -34,7 +34,7 @@ Durante a migração, V2 e V3 ficam desalinhados. Numa branch separada, o site c
 **3. Como fica a cozinha? (M1)**
 O projeto desenha só uma bancada de 0,60 × 1,20 m na parede norte, sob a janela. A cozinha tem cerca de 3,75 × 2,80 m, com a porta dos fundos na parede leste e a porta do dormitório na parede sul, o que dificulta fechar um U.
 
-- [ ] Linear na parede norte: pia sob a janela, fogão, bancada e geladeira (**Sugestão**)
+- [X] Linear na parede norte: pia sob a janela, fogão, bancada e geladeira (**Sugestão**)
 - [ ] Em L, parede norte + parede leste, até a porta dos fundos
 - [ ] Manter o U com península, adaptado, mesmo reduzindo a passagem
 - [ ] Outra
@@ -45,21 +45,21 @@ O projeto desenha só uma bancada de 0,60 × 1,20 m na parede norte, sob a janel
 
 - [ ] Sim, adaptado ao novo espaço
 - [ ] Trocar por mesa com cadeiras, mais simples de encaixar (**Sugestão**)
-- [ ] Decidir depois de ver a cozinha no novo layout
+- [X] Decidir depois de ver a cozinha no novo layout
 
 **Resposta:**
 
 **5. Sala: mantenho sofá, rack, TV e mesa de centro, reposicionados? (M10)**
 O projeto indica ponto de TV na parede oeste, como já é na app.
 
-- [ ] Sim, com a TV na parede oeste (**Sugestão**)
+- [X] Sim, com a TV na parede oeste (**Sugestão**)
 - [ ] Mudar. Como:
 
 **Resposta:**
 
 **6. O hall encolhe para 1,15 m. O que fica nele? (M11)**
 
-- [ ] Só o tapete; tirar a sapateira (**Sugestão**)
+- [X] Só o tapete; tirar a sapateira (**Sugestão**)
 - [ ] Manter tapete e uma sapateira rasa
 - [ ] Nada
 
@@ -71,14 +71,14 @@ O projeto indica ponto de TV na parede oeste, como já é na app.
 As janelas ficam nas paredes leste e sul, e a porta na parede norte, perto do canto oeste.
 
 - [ ] Sim, e me proponha opções de posição (**Sugestão**)
-- [ ] Sim, com esta disposição:
+- [X] Sim, com esta disposição:
 
-**Resposta:**
+**Resposta:** Na planta oficial já estão localizadas as tomadas dos criados mudos. Então a posição da cama já está definida lá.
 
 **8. Lavanderia: mantenho o armário alto? (M8)**
 O tanque e a máquina passam para a parede oeste, seguindo o projeto. O ambiente tem 1,30 m de largura.
 
-- [ ] Remover (**Sugestão**)
+- [X] Remover (**Sugestão**)
 - [ ] Manter, raso, na parede leste
 
 **Resposta:**
@@ -89,7 +89,7 @@ O tanque e a máquina passam para a parede oeste, seguindo o projeto. O ambiente
 O projeto dá 00 na testada, −0,30 a 17 m e −0,50 a 25,1 m, sem cota nos fundos. A app usa 2,5 % constante, vindo da sua visita (−1,00 m nos fundos).
 
 - [ ] Passar pelos pontos oficiais e manter −1,00 m nos fundos (**Sugestão**)
-- [ ] Seguir o mesmo declive oficial até os fundos (cerca de −0,80 m)
+- [X] Seguir o mesmo declive oficial até os fundos (cerca de −0,80 m)
 
 **Resposta:**
 
@@ -97,7 +97,7 @@ O projeto dá 00 na testada, −0,30 a 17 m e −0,50 a 25,1 m, sem cota nos fun
 Ela constava nas notas do projeto, mas não aparece na A01 nem no Memorial.
 
 - [ ] Sim, e vou pedir para incluir no projeto
-- [ ] Sim, mas como etapa futura, fora do projeto atual
+- [X] Sim, mas como etapa futura, fora do projeto atual
 - [ ] Não
 
 **Resposta:**
@@ -106,16 +106,16 @@ Ela constava nas notas do projeto, mas não aparece na A01 nem no Memorial.
 
 **11. Fossa, filtro, sumidouro, caixas de inspeção e de gordura (S1–S4)**
 
-- [ ] Só no 2D e na ficha de Medidas, por estarem enterrados (**Sugestão**)
+- [X] Só no 2D e na ficha de Medidas, por estarem enterrados (**Sugestão**)
 - [ ] Também no 3D, como volumes simples
 - [ ] Não representar
 
-**Resposta:**
+**Resposta:** Tambem quero documentado o que é suportado, quantas pessoas esse sistema suporta.
 
 **12. Faixa permeável de 6,00 × 12,50 m nos fundos (L5)**
 Ela tem exatamente o mínimo exigido (15 %), então não sobra margem para pavimentar ali.
 
-- [ ] Mostrar no 2D e na ficha (**Sugestão**)
+- [X] Mostrar no 2D e na ficha (**Sugestão**)
 - [ ] Não representar
 
 **Resposta:**
@@ -124,28 +124,28 @@ Ela tem exatamente o mínimo exigido (15 %), então não sobra margem para pavim
 
 - [ ] Mostrar só no 2D (**Sugestão**)
 - [ ] Mostrar no 2D e no 3D
-- [ ] Não representar
+- [X] Não representar
 
 **Resposta:**
 
 **14. Tesouras e terças do telhado, sobre a laje (C3)**
 Só apareceriam no 3D com a telha oculta.
 
-- [ ] Não modelar (**Sugestão**)
+- [X] Não modelar (**Sugestão**)
 - [ ] Modelar de forma simples
 
 **Resposta:**
 
 **15. Calhas (C12)**
 
-- [ ] Modelar de forma simples (**Sugestão**)
+- [X] Modelar de forma simples (**Sugestão**)
 - [ ] Não modelar
 
 **Resposta:**
 
 **16. Rótulo do quarto na app (D6)**
 
-- [ ] "Dormitório", como no projeto (**Sugestão**)
+- [X] "Dormitório", como no projeto (**Sugestão**)
 - [ ] "Quarto"
 
 **Resposta:**
