@@ -1635,6 +1635,29 @@
     // somam OE explicitamente. O lote/terreno NÃO se desloca.
     const OE = -5.5;   // −5,5 m: conjunto avançado +1 m p/ a frente → pátio 8 m, menos aterro no fundo (era −4,5)
 
+    // ── Planta do térreo: fonte única das cotas da casa (V1, herdada por V2/V3) ──
+    // EIXO = LINHA DE CENTRO de cada parede, em metros de código (sem OE: os helpers
+    // 2D somam OE, e o 3D manual soma explicitamente). A prancha oficial cota FACES:
+    // face = eixo ± espessura/2. Mudou um eixo → paredes, vãos e móveis acompanham.
+    const EIXO = {
+        S: 2.0, LONG: 4.70, N: 7.5,                                  // mN: sul, longitudinal, norte
+        O: 22.5, HALL: 24.35, BANHO: 26.05, SERV: 27.75, L: 31.5,    // mE: oeste → leste
+    };
+    const ESP = { ext: 0.20, int: 0.15 };                            // espessura das paredes
+    const COTA_LAT_E = 26.5;                                         // mE das cotas laterais
+    const COTA_FUNDO_E = EIXO.L - 1.5;                               // mE de origem da cota de fundo
+
+    const PAREDES_TERREO = [
+        { a: [EIXO.S, EIXO.O],    b: [EIXO.S, EIXO.L],    t: ESP.ext }, // sul
+        { a: [EIXO.N, EIXO.O],    b: [EIXO.N, EIXO.L],    t: ESP.ext }, // norte
+        { a: [EIXO.S, EIXO.O],    b: [EIXO.N, EIXO.O],    t: ESP.ext }, // oeste (frente)
+        { a: [EIXO.S, EIXO.L],    b: [EIXO.N, EIXO.L],    t: ESP.ext }, // leste (fundos)
+        { a: [EIXO.S, EIXO.HALL], b: [EIXO.LONG, EIXO.HALL], t: ESP.int }, // hall × banheiro
+        { a: [EIXO.S, EIXO.BANHO], b: [EIXO.LONG, EIXO.BANHO], t: ESP.int }, // banheiro × serviço
+        { a: [EIXO.S, EIXO.SERV], b: [EIXO.LONG, EIXO.SERV], t: ESP.int }, // serviço × quarto
+        { a: [EIXO.LONG, EIXO.HALL], b: [EIXO.LONG, EIXO.L], t: ESP.int }, // longitudinal
+    ];
+
     // Formata metro em pt-BR p/ rótulos de cota: inteiro quando exato, senão vírgula
     // (ex.: 9 → "9", 14,5 → "14,5"). Usado nas cotas que dependem do OE.
     const fmtM = x => (Math.round(x * 10) / 10).toString().replace('.', ',');
@@ -1911,11 +1934,11 @@
             // Casa MVP — retângulo (mN 2.0→7.5 × mE 22.0→29.5); parede norte reta em mN 7.5
             // (deslocada 0,5 m p/ oeste em relação ao lote — ver OE; fachada oeste recuada 1 m p/ leste)
             lys.push(L.polygon(
-                [rot(2.0,22.5+OE), rot(7.5,22.5+OE), rot(7.5,30+OE), rot(2.0,30+OE)],
+                [rot(EIXO.S,EIXO.O+OE), rot(EIXO.N,EIXO.O+OE), rot(EIXO.N,COTA_FUNDO_E+OE), rot(EIXO.S,COTA_FUNDO_E+OE)],
                 { color: 'transparent', weight: 0, fillColor: '#fafafa', fillOpacity: 1, interactive: false }
             ));
             // Chão retângulo leste completo (mN 2→7,5 × mE 30→31,5) — retângulo perfeito
-            lys.push(rect(2.0, 30, 5.5, 1.5, '#fafafa', { color: 'transparent', weight: 0, fillOpacity: 1, no3d: true }));
+            lys.push(rect(EIXO.S, COTA_FUNDO_E, EIXO.N - EIXO.S, EIXO.L - COTA_FUNDO_E, '#fafafa', { color: 'transparent', weight: 0, fillOpacity: 1, no3d: true }));
 
             // Contorno âmbar do lote
             lys.push(L.polygon(
@@ -1931,19 +1954,19 @@
             // Frente: V1 → face oeste da casa (22,5+OE); V2/V3 → frente da garagem (13,5+OE).
             // Endpoint e rótulo seguem o OE (recuo = distância da rua mE=0 até a face).
             if (bv === 'v1') {
-                dimLine(4.5, 0, 4.5, 22.5 + OE, fmtM(22.5 + OE) + ' m — frente').forEach(l => lys.push(l));
+                dimLine(4.5, 0, 4.5, EIXO.O + OE, fmtM(EIXO.O + OE) + ' m — frente').forEach(l => lys.push(l));
             } else {
                 dimLine(4.5, 0, 4.5, 13.5 + OE, fmtM(13.5 + OE) + ' m — frente').forEach(l => lys.push(l));
             }
 
             // Fundo: parede traseira (mE 30+OE) → limite do fundo (mE 40). Cresce ao avançar.
-            dimLine(4.5, 30 + OE, 4.5, 40, fmtM(40 - (30 + OE)) + ' m — fundo').forEach(l => lys.push(l));
+            dimLine(4.5, COTA_FUNDO_E + OE, 4.5, 40, fmtM(40 - (COTA_FUNDO_E + OE)) + ' m — fundo').forEach(l => lys.push(l));
 
             // Lat. direita (sul): limite sul → parede sul (2 m). Linha no centro da casa.
-            dimLine(0, 26.5 + OE, 2.0, 26.5 + OE, '2 m — sul').forEach(l => lys.push(l));
+            dimLine(0, COTA_LAT_E + OE, EIXO.S, COTA_LAT_E + OE, '2 m — sul').forEach(l => lys.push(l));
 
             // Lat. esquerda (norte): parede norte → limite norte
-            dimLine(7.5, 26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte').forEach(l => lys.push(l));
+            dimLine(EIXO.N, COTA_LAT_E + OE, 12.5, COTA_LAT_E + OE, '5,0 m — norte').forEach(l => lys.push(l));
 
             // ── Cotas totais do lote (beiradas externas) ─────────────────────
             // Âmbar para diferenciar das cotas de afastamento (brancas).
@@ -1953,23 +1976,11 @@
             dimLine(0, 42, 12.5, 42, '12,5 m', '#f59e0b').forEach(l => lys.push(l));
 
             // ─── PAREDES — externas 20cm, internas 15cm ──────────────────────
-            const EW = 0.20, IW = 0.15, FL = '#fafafa';
+            const FL = '#fafafa';
 
             // Paredes externas (centradas em mN=1.5/6.5, mE=22/30)
-            lys.push(wall(2.0, 22.5,  2.0, 31.5, EW)); // sul (estende ao quarto avançado a leste)
-            lys.push(wall(7.5, 22.5,  7.5, 31.5, EW)); // norte — retângulo completo (mE 22,5→31,5)
-            lys.push(wall(2.0, 22.5,  7.5, 22.5, EW)); // oeste (frente)
-            lys.push(wall(2.0, 31.5,  7.5, 31.5, EW)); // leste — fachada completa (mN 2,0→7,5)
-
-            // Paredes internas — banheiro + quarto
-            // Banheiro linear 1,5×2,5: parede norte alinhada ao quarto (mN=4,5), sem degrau
-            // Re-layout arquiteta: banheiro+serviço migram p/ oeste (hall enxuga p/ 1,5 m),
-            // quarto cresce p/ oeste (mE 28,0) e a faixa sul fica 0,2 m mais funda (mN 4,70)
-            // p/ o quarto atender a Caixa (≥2,40 m livre e ~8 m² de casal).
-            lys.push(wall(2.0, 24.35,  4.70, 24.35, IW)); // hall (leste) ↔ banheiro (oeste) — mE 24,35 (hall 1,85 m)
-            lys.push(wall(2.0, 26.05,  4.70, 26.05, IW)); // banheiro ↔ á. serviço — mE 26,05 (banheiro 1,7 m)
-            lys.push(wall(2.0, 27.75,  4.70, 27.75, IW)); // á. serviço ↔ quarto — mE 27,75 (serviço 1,7 m; quarto 9,0 m²)
-            lys.push(wall(4.70, 24.35, 4.70, 31.5, IW)); // norte da faixa sul (banheiro+serviço+quarto) — mN 4,70
+            // Paredes do térreo: tabela PAREDES_TERREO (eixos nomeados)
+            PAREDES_TERREO.forEach(p => lys.push(wall(p.a[0], p.a[1], p.b[0], p.b[1], p.t)));
 
             // Aberturas — cortam as paredes nas posições das portas
             const cut = (n, e, dn, de, type) => {
@@ -2249,8 +2260,8 @@
             dimLine(GN1, 18 + OE, 12.5, 18 + OE, '2,0 m — norte').forEach(l => lys.push(l));
 
             // Cotas da casa — linha no centro da casa (mE 26,5)
-            dimLine(0, 26.5 + OE, 2.0, 26.5 + OE, '2 m — sul').forEach(l => lys.push(l));
-            dimLine(7.5, 26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte').forEach(l => lys.push(l));
+            dimLine(0, COTA_LAT_E + OE, EIXO.S, COTA_LAT_E + OE, '2 m — sul').forEach(l => lys.push(l));
+            dimLine(EIXO.N, COTA_LAT_E + OE, 12.5, COTA_LAT_E + OE, '5,0 m — norte').forEach(l => lys.push(l));
         }
 
         // ── V3: 2º pavimento — desenhado em camada própria (buildFloor2Layers),
@@ -2554,9 +2565,9 @@
 
         // Cotas de afastamento do edifício às margens do lote (mesmas do térreo) — seguem o OE
         dimLine(4.5, 0, 4.5, 13.5 + OE, fmtM(13.5 + OE) + ' m — frente').forEach(l => lys.push(l));  // frente garagem
-        dimLine(4.5, 30 + OE, 4.5, 40, fmtM(40 - (30 + OE)) + ' m — fundo').forEach(l => lys.push(l)); // fundo casa
-        dimLine(0, 26.5 + OE, 2.0, 26.5 + OE, '2 m — sul').forEach(l => lys.push(l));      // casa sul
-        dimLine(7.5, 26.5 + OE, 12.5, 26.5 + OE, '5,0 m — norte').forEach(l => lys.push(l)); // casa norte
+        dimLine(4.5, COTA_FUNDO_E + OE, 4.5, 40, fmtM(40 - (COTA_FUNDO_E + OE)) + ' m — fundo').forEach(l => lys.push(l)); // fundo casa
+        dimLine(0, COTA_LAT_E + OE, EIXO.S, COTA_LAT_E + OE, '2 m — sul').forEach(l => lys.push(l));      // casa sul
+        dimLine(EIXO.N, COTA_LAT_E + OE, 12.5, COTA_LAT_E + OE, '5,0 m — norte').forEach(l => lys.push(l)); // casa norte
         dimLine(0, 18 + OE, 2.0, 18 + OE, '2,0 m — sul').forEach(l => lys.push(l));    // garagem sul
         dimLine(10.5, 18 + OE, 12.5, 18 + OE, '2,0 m — norte').forEach(l => lys.push(l)); // garagem norte
 
