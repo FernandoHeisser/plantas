@@ -1591,7 +1591,7 @@
     // EIXO = LINHA DE CENTRO de cada parede, em metros de código (sem OE: os helpers
     // 2D somam OE, e o 3D manual soma explicitamente). A prancha oficial cota FACES:
     // face = eixo ± espessura/2. Mudou um eixo → paredes, vãos e móveis acompanham.
-    const ESP = { ext: 0.20, int: 0.15 };                            // espessura das paredes
+    const ESP = { ext: 0.15, int: 0.15 };                            // espessura das paredes
     // Faces externas da casa na prancha A01: metros do lote, como renderizado (já com OE).
     const FACE = { S: 2.00, N: 7.75, O: 17.00, L: 25.10 };
     const EIXO = {
@@ -1599,7 +1599,7 @@
         O: FACE.O - OE + ESP.ext / 2, HALL: 18.375 - OE, BANHO: 19.825 - OE, SERV: 21.275 - OE, L: FACE.L - OE - ESP.ext / 2,  // mE: oeste → leste
     };
     // Cobertura: laje, platibanda, beirais, junta com a garagem
-    const COB = { laje: 0.16, platAlt: 0.42, platEsp: 0.12, beiralN: 0.90, beiralS: 0.50, beiralEW: 0.50, junta: 0.03 };
+    const COB = { laje: 0.10, platAlt: 0.42, platEsp: 0.12, beiralN: 0.90, beiralS: 0.50, beiralEW: 0.50, junta: 0.03 };
     // Volume da caixa d'água: centro (código, sem OE), planta e topo
     const CAIXA_DAGUA = { n: 4.75, e: 27, dn: 1.4, de: 1.4, topo: 4.4 };
     const COTA_LAT_E = (EIXO.O + EIXO.L) / 2;                                       // mE das cotas laterais
@@ -1608,10 +1608,10 @@
     // Vãos de porta: parede (chave de EIXO), início ao longo dela, largura, profundidade do
     // recorte; dob/giro definem o arco (dobradiça na ponta 'ini' ou 'fim' do vão).
     const VAOS = {
-        entrada: { p: 'O',    ini: 2.97,         larg: 0.90, prof: 0.30, dob: 'ini', giro: -1 },
+        entrada: { p: 'O',    ini: 2.97,         larg: 0.90, prof: ESP.ext, dob: 'ini', giro: -1 },
         banho:   { p: 'HALL', ini: 3.95,         larg: 0.60, prof: 0.15, dob: 'fim', giro: +1 },
-        vidro:   { p: 'N',    ini: 17.65 - OE,   larg: 1.60, prof: 0.30, tipo: 'glassdoor', folhas: 2 },
-        fundos:  { p: 'L',    ini: 4.90,         larg: 0.80, prof: 0.20, dob: 'ini', giro: +1 },
+        vidro:   { p: 'N',    ini: 17.65 - OE,   larg: 1.60, prof: ESP.ext, tipo: 'glassdoor', folhas: 2 },
+        fundos:  { p: 'L',    ini: 4.90,         larg: 0.80, prof: ESP.ext, dob: 'ini', giro: +1 },
         quarto:  { p: 'LONG', ini: 21.45 - OE,   larg: 0.80, prof: 0.15, dob: 'ini', giro: -1 },
         servico: { p: 'LONG', ini: 20.40 - OE,   larg: 0.70, prof: 0.15, dob: 'fim', giro: +1 },
     };
@@ -1647,12 +1647,21 @@
 
     // Estrutura do térreo. Pilares: centro (código, sem OE) e seção em cada eixo; não
     // precisam formar grade. Vigas: { n, e0, e1 } correm em mE; { e, n0, n1 } correm em mN.
-    const SEC_PILAR = 0.20;
-    const LINHAS_N = [EIXO.S, 4.5, EIXO.N], LINHAS_E = [EIXO.O, 25.5, 28.5, EIXO.L];
-    const PILARES = LINHAS_N.flatMap(n => LINHAS_E.map(e => ({ n, e, dn: SEC_PILAR, de: SEC_PILAR })));
-    const VIGA = { h: 0.45, l: 0.20 };
-    const VIGAS_EO = LINHAS_N.flatMap(n => LINHAS_E.slice(0, -1).map((e0, i) => ({ n, e0, e1: LINHAS_E[i + 1] })));
-    const VIGAS_NS = LINHAS_E.flatMap(e => LINHAS_N.slice(0, -1).map((n0, i) => ({ e, n0, n1: LINHAS_N[i + 1] })));
+    const PILARES = [                                   // [n0, n1, e0, e1]: faces na A01, lote com OE
+        [7.60, 7.75, 24.85, 25.10], [4.65, 4.80, 24.85, 25.10], [2.00, 2.15, 24.85, 25.10],  // P1-P3, leste
+        [7.60, 7.75, 21.20, 21.45], [4.55, 4.80, 21.20, 21.35], [2.00, 2.25, 21.20, 21.35],  // P4-P6
+        [4.55, 4.80, 19.75, 19.90], [2.00, 2.25, 19.75, 19.90],                              // P7-P8
+        [4.65, 4.80, 18.30, 18.55], [2.00, 2.25, 18.30, 18.45],                              // P9-P10
+        [7.60, 7.75, 17.00, 17.25], [2.00, 2.15, 17.00, 17.25], [4.55, 4.80, 17.00, 17.15],  // P11-P13, oeste
+    ].map(([n0, n1, e0, e1]) => ({ n: (n0 + n1) / 2, e: (e0 + e1) / 2 - OE, dn: n1 - n0, de: e1 - e0 }));
+    const VIGA = { h: 0.20, l: 0.15 };
+    const VIGAS_EO = [EIXO.S, EIXO.LONG, EIXO.N].map(n => ({ n, e0: EIXO.O, e1: EIXO.L }));
+    const VIGAS_NS = [
+        { e: EIXO.O, n0: EIXO.S, n1: EIXO.N }, { e: EIXO.HALL, n0: EIXO.S, n1: EIXO.LONG },
+        { e: EIXO.BANHO, n0: EIXO.S, n1: EIXO.LONG }, { e: EIXO.SERV, n0: EIXO.S, n1: EIXO.N }, // SERV: viga aparente no estar
+        { e: EIXO.L, n0: EIXO.S, n1: EIXO.N },
+    ];
+    const BLOCO = { lado: 0.40, topo: -0.55, base: -0.95 };             // bloco de coroamento sob cada pilar
 
     const PAREDES_TERREO = [
         { a: [EIXO.S, EIXO.O],    b: [EIXO.S, EIXO.L],    t: ESP.ext }, // sul
@@ -3270,14 +3279,14 @@
         //    que o aterramento futuro vai preencher. ──
         const EM_P = 0.03;
         const baseBot = (e, de) => grade(e + de);
-        const EN0 = EIXO.S - ESP.ext - EM_P, EN1 = EIXO.N + ESP.ext + EM_P;
-        const EE0 = EIXO.O + OE - ESP.ext - EM_P, EE1 = EIXO.L + OE + ESP.ext + EM_P; // retângulo perfeito: leste agora em mE=31,5
+        const EN0 = FACE.S - EM_P, EN1 = FACE.N + EM_P;
+        const EE0 = FACE.O - EM_P, EE1 = FACE.L + EM_P; // retângulo perfeito: leste agora em mE=31,5
         _ph = PH.found; // ── fundação (baldrame, manta, contrapiso, escadas) ──
         const emSides = [
             [EN0,                EE0, ESP.ext + EM_P, EE1 - EE0],  // sul
             [EN1 - ESP.ext - EM_P, EE0, ESP.ext + EM_P, EE1 - EE0],  // norte (mN=7,5, retângulo completo)
             [EN0, EE0,           EN1 - EN0, ESP.ext + EM_P],        // oeste
-            [EN0, EIXO.L + OE,   EN1 - EN0, ESP.ext + EM_P],        // leste (mE=31,5, mN 2,0→7,5 — retângulo)
+            [EN0, EE1 - ESP.ext - EM_P, EN1 - EN0, ESP.ext + EM_P],        // leste (mE=31,5, mN 2,0→7,5 — retângulo)
         ];
         emSides.forEach(([n, e, dn, de]) => g.add(box3d(n, e, dn, de, baseBot(e, de), CPA, matEmbase)));
 
@@ -3383,6 +3392,10 @@
         // Mesmo grid marcado em vermelho no 2D; embedded nas paredes (Z-fight
         // evitado: seção 0,15 m fica 2,5 cm atrás das faces da parede 0,20 m).
         _ph = PH.colT; // ── colunas/pilares do térreo ──
+        // Blocos de coroamento (enterrados: só aparecem com o terreno cortado)
+        _ph = PH.found;
+        PILARES.forEach(p => g.add(box3d(p.n - BLOCO.lado / 2, p.e + OE - BLOCO.lado / 2, BLOCO.lado, BLOCO.lado, BLOCO.base, BLOCO.topo, matEmbase)));
+        _ph = PH.colT;
         // Tabela PILARES: seções independentes em cada eixo
         PILARES.forEach(p => {
             const e3 = p.e + OE;

@@ -243,7 +243,9 @@ mexer nelas; não reintroduzir número solto em `buildLayers`/`buildBuilding3D`.
 | `VAOS` | Portas: parede, início, largura, profundidade do recorte, dobradiça e giro |
 | `JANELAS` | Janelas: parede, início, largura e `opts` de `win()` |
 | `ESCADAS` | Início e largura das escadas externas (2D e 3D) |
-| `PILARES` | Centro e seção em cada eixo; não precisam formar grade |
+| `PILARES` | 13 pilares a partir das faces da A01 (centro e seção em cada eixo) |
+| `BLOCO` | Blocos de coroamento sob os pilares (enterrados) |
+| `PERFIL` | Pontos do terreno; `grade(mE)` interpola entre eles. Grama, saias e contorno seguem os trechos |
 | `VIGA`, `VIGAS_EO`, `VIGAS_NS` | Seção e trechos das vigas |
 | `COB`, `CAIXA_DAGUA`, `TOPO_LAJE` | Laje, platibanda, beirais, junta e volume da caixa d'água |
 
