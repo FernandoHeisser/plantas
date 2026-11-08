@@ -1603,8 +1603,8 @@
     // Faces externas da casa na prancha A01: metros do lote, como renderizado (já com OE).
     const FACE = { S: 2.00, N: 7.75, O: 17.00, L: 25.10 };
     const EIXO = {
-        S: FACE.S + ESP.ext / 2, LONG: 4.70, N: FACE.N - ESP.ext / 2,    // mN: sul, longitudinal, norte
-        O: FACE.O - OE + ESP.ext / 2, HALL: 24.35, BANHO: 26.05, SERV: 27.75, L: FACE.L - OE - ESP.ext / 2,  // mE: oeste → leste
+        S: FACE.S + ESP.ext / 2, LONG: 4.725, N: FACE.N - ESP.ext / 2,    // mN: sul, longitudinal, norte
+        O: FACE.O - OE + ESP.ext / 2, HALL: 18.375 - OE, BANHO: 19.825 - OE, SERV: 21.275 - OE, L: FACE.L - OE - ESP.ext / 2,  // mE: oeste → leste
     };
     // Cobertura: laje, platibanda, beirais, junta com a garagem
     const COB = { laje: 0.16, platAlt: 0.42, platEsp: 0.12, beiralN: 0.90, beiralS: 0.50, beiralEW: 0.50, junta: 0.03 };
@@ -1670,7 +1670,7 @@
         { a: [EIXO.S, EIXO.HALL], b: [EIXO.LONG, EIXO.HALL], t: ESP.int }, // hall × banheiro
         { a: [EIXO.S, EIXO.BANHO], b: [EIXO.LONG, EIXO.BANHO], t: ESP.int }, // banheiro × serviço
         { a: [EIXO.S, EIXO.SERV], b: [EIXO.LONG, EIXO.SERV], t: ESP.int }, // serviço × quarto
-        { a: [EIXO.LONG, EIXO.HALL], b: [EIXO.LONG, EIXO.L], t: ESP.int }, // longitudinal
+        { a: [EIXO.LONG, EIXO.HALL - ESP.int / 2], b: [EIXO.LONG, EIXO.L], t: ESP.int }, // longitudinal (ponta oeste na face oeste do banho)
     ];
 
     // Formata metro em pt-BR p/ rótulos de cota: inteiro quando exato, senão vírgula
