@@ -1691,6 +1691,15 @@
         return PAREDE_E_O[v.p] ? [EIXO[v.p], s, 0, d, v.giro] : [s, EIXO[v.p], d, 0, v.giro];
     }
 
+    // Estrutura do térreo. Pilares: centro (código, sem OE) e seção em cada eixo; não
+    // precisam formar grade. Vigas: { n, e0, e1 } correm em mE; { e, n0, n1 } correm em mN.
+    const SEC_PILAR = 0.20;
+    const LINHAS_N = [EIXO.S, 4.5, EIXO.N], LINHAS_E = [EIXO.O, 25.5, 28.5, EIXO.L];
+    const PILARES = LINHAS_N.flatMap(n => LINHAS_E.map(e => ({ n, e, dn: SEC_PILAR, de: SEC_PILAR })));
+    const VIGA = { h: 0.45, l: 0.20 };
+    const VIGAS_EO = LINHAS_N.flatMap(n => LINHAS_E.slice(0, -1).map((e0, i) => ({ n, e0, e1: LINHAS_E[i + 1] })));
+    const VIGAS_NS = LINHAS_E.flatMap(e => LINHAS_N.slice(0, -1).map((n0, i) => ({ e, n0, n1: LINHAS_N[i + 1] })));
+
     const PAREDES_TERREO = [
         { a: [EIXO.S, EIXO.O],    b: [EIXO.S, EIXO.L],    t: ESP.ext }, // sul
         { a: [EIXO.N, EIXO.O],    b: [EIXO.N, EIXO.L],    t: ESP.ext }, // norte
@@ -3422,16 +3431,11 @@
         // Mesmo grid marcado em vermelho no 2D; embedded nas paredes (Z-fight
         // evitado: seção 0,15 m fica 2,5 cm atrás das faces da parede 0,20 m).
         _ph = PH.colT; // ── colunas/pilares do térreo ──
-        { const CS = 0.10; // meia-seção 20×20 cm (NBR 6118 mín.)
-          // Grid perfeito 4×3: mE=22,5/25,5/28,5/31,5 × mN=2,0/4,5/7,5
-          [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
-           [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
-           [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
-          ].forEach(([cn,ce]) => {
-              const e3 = ce + OE;
-              g.add(box3d(cn-CS, e3-CS, 2*CS, 2*CS, baseBot(e3, 2*CS), CEIL3D+CPA, matEmbase));
-          });
-        }
+        // Tabela PILARES: seções independentes em cada eixo
+        PILARES.forEach(p => {
+            const e3 = p.e + OE;
+            g.add(box3d(p.n - p.dn / 2, e3 - p.de / 2, p.dn, p.de, baseBot(e3, p.de), CEIL3D + CPA, matEmbase));
+        });
 
         // Porta dos fundos (leste) — 6 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
         _ph = PH.found; // escada dos fundos = fundação
@@ -3809,11 +3813,8 @@
             // roof e o reveal forçava a laje a aparecer/sumir junto.
             g.add(espBars);
             g.add(espCaps);
-            // Esperas dos 12 pilares da CASA
-            [[2.0,22.5],[2.0,25.5],[2.0,28.5],[2.0,31.5],
-             [4.5,22.5],[4.5,25.5],[4.5,28.5],[4.5,31.5],
-             [7.5,22.5],[7.5,25.5],[7.5,28.5],[7.5,31.5]
-            ].forEach(([cn, ce]) => addEspera(cn, ce + OE));
+            // Esperas dos pilares da CASA
+            PILARES.forEach(p => addEspera(p.n, p.e + OE));
         }
         g.add(roof);
 
@@ -4203,23 +4204,10 @@
         // VH=0,45m (p/ suportar V3 — regra L/10: 3m/10=30cm mín, 45cm c/ folga)
         // VW=0,20m (= seção das colunas, NBR 6118). Nível: CPA+CEIL3D−VH → CPA+CEIL3D.
         _ph = PH.vigaT; // ── vigas do térreo (grade horizontal) ──
-        { const VH = 0.45, VW = 0.20;
-          const BZ0 = CPA + CEIL3D - VH, BZ1 = CPA + CEIL3D; // y 2,50→2,85
-          // Vigas E-O — grid do retângulo perfeito (3 linhas × 3 vãos de 3m)
-          [
-            [2.0, 22.5, 25.5], [2.0, 25.5, 28.5], [2.0, 28.5, 31.5],  // sul
-            [4.5, 22.5, 25.5], [4.5, 25.5, 28.5], [4.5, 28.5, 31.5],  // meio
-            [7.5, 22.5, 25.5], [7.5, 25.5, 28.5], [7.5, 28.5, 31.5],  // norte
-          ].forEach(([n, e0, e1]) =>
-              g.add(box3d(n - VW/2, e0 + OE, VW, e1 - e0, BZ0, BZ1, lajeMat)));
-          // Vigas N-S — 4 linhas completas (mN 2,0→7,5 em cada mE)
-          [
-            [22.5, 2.0, 4.5], [22.5, 4.5, 7.5],  // oeste (espera V2)
-            [25.5, 2.0, 4.5], [25.5, 4.5, 7.5],  // div. hall/banheiro
-            [28.5, 2.0, 4.5], [28.5, 4.5, 7.5],  // div. serviço/quarto — agora completa!
-            [31.5, 2.0, 4.5], [31.5, 4.5, 7.5],  // fachada leste — completa!
-          ].forEach(([e, n0, n1]) =>
-              g.add(box3d(n0, e + OE - VW/2, n1 - n0, VW, BZ0, BZ1, lajeMat)));
+        { const VH = VIGA.h, VW = VIGA.l;
+          const BZ0 = CPA + CEIL3D - VH, BZ1 = CPA + CEIL3D;
+          VIGAS_EO.forEach(({ n, e0, e1 }) => g.add(box3d(n - VW/2, e0 + OE, VW, e1 - e0, BZ0, BZ1, lajeMat)));
+          VIGAS_NS.forEach(({ e, n0, n1 }) => g.add(box3d(n0, e + OE - VW/2, n1 - n0, VW, BZ0, BZ1, lajeMat)));
         }
 
         // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
