@@ -236,6 +236,7 @@ mexer nelas; não reintroduzir número solto em `buildLayers`/`buildBuilding3D`.
 
 | Tabela | Conteúdo |
 |---|---|
+| `FACE` | Faces externas oficiais da casa (A01), em metros do lote, já com `OE`. `EIXO.S/N/O/L` derivam delas e de `ESP.ext` |
 | `EIXO` | Linha de centro de cada parede, em metros de código (sem `OE`). A prancha cota **faces**: face = eixo ± espessura/2 |
 | `ESP` | Espessura das paredes externas e internas |
 | `PAREDES_TERREO` | Paredes (extremidades em eixos) |

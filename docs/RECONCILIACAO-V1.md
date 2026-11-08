@@ -7,7 +7,7 @@ ainda.** Sem dados pessoais: este arquivo é versionado.
 **Regra:** no V1, o documento oficial vence. O que os documentos não definem continua sendo
 decisão do cliente.
 
-**Ordem:** inventário → refatoração média (retrato idêntico) → migração por camadas → depois V2 e V3. Inventário e refatoração concluídos em 2026-11-08; a migração ainda não começou.
+**Ordem:** inventário → refatoração média (retrato idêntico) → migração por camadas → depois V2 e V3. Inventário e refatoração concluídos em 2026-11-08. **Camadas migradas: D e L.** Até as camadas I, J e M, o interior ainda usa as posições antigas: janela norte da cozinha, cama, geladeira e bancadas ultrapassam a nova parede leste.
 
 ## Como ler
 

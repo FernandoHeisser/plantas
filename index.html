@@ -861,7 +861,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo frente</span>
-            <span class="med-sum-value">17,0 m</span>
+            <span class="med-sum-value">17,00 m</span>
             <span class="med-sum-sub">da rua (oeste)</span>
           </div>
           <div class="med-sum-item">
@@ -871,12 +871,12 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo norte</span>
-            <span class="med-sum-value">5,0 m</span>
+            <span class="med-sum-value">4,75 m</span>
             <span class="med-sum-sub">limite norte</span>
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo fundos</span>
-            <span class="med-sum-value">15,5 m</span>
+            <span class="med-sum-value">14,90 m</span>
             <span class="med-sum-sub">leste (quintal)</span>
           </div>
         </div>
@@ -1045,7 +1045,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo frente</span>
-            <span class="med-sum-value">17,0 m</span>
+            <span class="med-sum-value">17,00 m</span>
             <span class="med-sum-sub">da rua (oeste)</span>
           </div>
           <div class="med-sum-item">
@@ -1055,12 +1055,12 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo norte</span>
-            <span class="med-sum-value">5,0 m</span>
+            <span class="med-sum-value">4,75 m</span>
             <span class="med-sum-sub">limite norte</span>
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo fundos</span>
-            <span class="med-sum-value">15,5 m</span>
+            <span class="med-sum-value">14,90 m</span>
             <span class="med-sum-sub">leste (quintal)</span>
           </div>
         </div>
@@ -1205,7 +1205,7 @@
           </div>
           <div class="med-sum-item">
             <span class="med-sum-label">Recuo fundos</span>
-            <span class="med-sum-value">15,5 m</span>
+            <span class="med-sum-value">14,90 m</span>
             <span class="med-sum-sub">leste (quintal)</span>
           </div>
         </div>
@@ -1599,16 +1599,18 @@
     // EIXO = LINHA DE CENTRO de cada parede, em metros de código (sem OE: os helpers
     // 2D somam OE, e o 3D manual soma explicitamente). A prancha oficial cota FACES:
     // face = eixo ± espessura/2. Mudou um eixo → paredes, vãos e móveis acompanham.
-    const EIXO = {
-        S: 2.0, LONG: 4.70, N: 7.5,                                  // mN: sul, longitudinal, norte
-        O: 22.5, HALL: 24.35, BANHO: 26.05, SERV: 27.75, L: 31.5,    // mE: oeste → leste
-    };
     const ESP = { ext: 0.20, int: 0.15 };                            // espessura das paredes
+    // Faces externas da casa na prancha A01: metros do lote, como renderizado (já com OE).
+    const FACE = { S: 2.00, N: 7.75, O: 17.00, L: 25.10 };
+    const EIXO = {
+        S: FACE.S + ESP.ext / 2, LONG: 4.70, N: FACE.N - ESP.ext / 2,    // mN: sul, longitudinal, norte
+        O: FACE.O - OE + ESP.ext / 2, HALL: 24.35, BANHO: 26.05, SERV: 27.75, L: FACE.L - OE - ESP.ext / 2,  // mE: oeste → leste
+    };
     // Cobertura: laje, platibanda, beirais, junta com a garagem
     const COB = { laje: 0.16, platAlt: 0.42, platEsp: 0.12, beiralN: 0.90, beiralS: 0.50, beiralEW: 0.50, junta: 0.03 };
     // Volume da caixa d'água: centro (código, sem OE), planta e topo
     const CAIXA_DAGUA = { n: 4.75, e: 27, dn: 1.4, de: 1.4, topo: 4.4 };
-    const COTA_LAT_E = 26.5;                                         // mE das cotas laterais
+    const COTA_LAT_E = (EIXO.O + EIXO.L) / 2;                                       // mE das cotas laterais
     const COTA_FUNDO_E = EIXO.L - 1.5;                               // mE de origem da cota de fundo
 
     // Vãos de porta: parede (chave de EIXO), início ao longo dela, largura, profundidade do
@@ -1673,7 +1675,7 @@
 
     // Formata metro em pt-BR p/ rótulos de cota: inteiro quando exato, senão vírgula
     // (ex.: 9 → "9", 14,5 → "14,5"). Usado nas cotas que dependem do OE.
-    const fmtM = x => (Math.round(x * 10) / 10).toString().replace('.', ',');
+    const fmtM = x => (Math.round(x * 100) / 100).toString().replace('.', ',');
 
     // Constantes pré-calculadas para a rotação
     const _θ    = LOT_ANGLE * Math.PI / 180;
@@ -1967,19 +1969,19 @@
             // Frente: V1 → face oeste da casa (22,5+OE); V2/V3 → frente da garagem (13,5+OE).
             // Endpoint e rótulo seguem o OE (recuo = distância da rua mE=0 até a face).
             if (bv === 'v1') {
-                dimLine(4.5, 0, 4.5, EIXO.O + OE, fmtM(EIXO.O + OE) + ' m — frente').forEach(l => lys.push(l));
+                dimLine(4.5, 0, 4.5, FACE.O, fmtM(FACE.O) + ' m — frente').forEach(l => lys.push(l));
             } else {
                 dimLine(4.5, 0, 4.5, 13.5 + OE, fmtM(13.5 + OE) + ' m — frente').forEach(l => lys.push(l));
             }
 
             // Fundo: parede traseira (mE 30+OE) → limite do fundo (mE 40). Cresce ao avançar.
-            dimLine(4.5, COTA_FUNDO_E + OE, 4.5, 40, fmtM(40 - (COTA_FUNDO_E + OE)) + ' m — fundo').forEach(l => lys.push(l));
+            dimLine(4.5, FACE.L, 4.5, 40, fmtM(40 - FACE.L) + ' m — fundo').forEach(l => lys.push(l));
 
             // Lat. direita (sul): limite sul → parede sul (2 m). Linha no centro da casa.
-            dimLine(0, COTA_LAT_E + OE, EIXO.S, COTA_LAT_E + OE, '2 m — sul').forEach(l => lys.push(l));
+            dimLine(0, COTA_LAT_E + OE, FACE.S, COTA_LAT_E + OE, fmtM(FACE.S) + ' m — sul').forEach(l => lys.push(l));
 
             // Lat. esquerda (norte): parede norte → limite norte
-            dimLine(EIXO.N, COTA_LAT_E + OE, 12.5, COTA_LAT_E + OE, '5,0 m — norte').forEach(l => lys.push(l));
+            dimLine(FACE.N, COTA_LAT_E + OE, 12.5, COTA_LAT_E + OE, fmtM(12.5 - FACE.N) + ' m — norte').forEach(l => lys.push(l));
 
             // ── Cotas totais do lote (beiradas externas) ─────────────────────
             // Âmbar para diferenciar das cotas de afastamento (brancas).
@@ -2283,8 +2285,8 @@
             dimLine(GN1, 18 + OE, 12.5, 18 + OE, '2,0 m — norte').forEach(l => lys.push(l));
 
             // Cotas da casa — linha no centro da casa (mE 26,5)
-            dimLine(0, COTA_LAT_E + OE, EIXO.S, COTA_LAT_E + OE, '2 m — sul').forEach(l => lys.push(l));
-            dimLine(EIXO.N, COTA_LAT_E + OE, 12.5, COTA_LAT_E + OE, '5,0 m — norte').forEach(l => lys.push(l));
+            dimLine(0, COTA_LAT_E + OE, FACE.S, COTA_LAT_E + OE, fmtM(FACE.S) + ' m — sul').forEach(l => lys.push(l));
+            dimLine(FACE.N, COTA_LAT_E + OE, 12.5, COTA_LAT_E + OE, fmtM(12.5 - FACE.N) + ' m — norte').forEach(l => lys.push(l));
         }
 
         // ── V3: 2º pavimento — desenhado em camada própria (buildFloor2Layers),
@@ -2588,9 +2590,9 @@
 
         // Cotas de afastamento do edifício às margens do lote (mesmas do térreo) — seguem o OE
         dimLine(4.5, 0, 4.5, 13.5 + OE, fmtM(13.5 + OE) + ' m — frente').forEach(l => lys.push(l));  // frente garagem
-        dimLine(4.5, COTA_FUNDO_E + OE, 4.5, 40, fmtM(40 - (COTA_FUNDO_E + OE)) + ' m — fundo').forEach(l => lys.push(l)); // fundo casa
-        dimLine(0, COTA_LAT_E + OE, EIXO.S, COTA_LAT_E + OE, '2 m — sul').forEach(l => lys.push(l));      // casa sul
-        dimLine(EIXO.N, COTA_LAT_E + OE, 12.5, COTA_LAT_E + OE, '5,0 m — norte').forEach(l => lys.push(l)); // casa norte
+        dimLine(4.5, FACE.L, 4.5, 40, fmtM(40 - FACE.L) + ' m — fundo').forEach(l => lys.push(l)); // fundo casa
+        dimLine(0, COTA_LAT_E + OE, FACE.S, COTA_LAT_E + OE, fmtM(FACE.S) + ' m — sul').forEach(l => lys.push(l));      // casa sul
+        dimLine(FACE.N, COTA_LAT_E + OE, 12.5, COTA_LAT_E + OE, fmtM(12.5 - FACE.N) + ' m — norte').forEach(l => lys.push(l)); // casa norte
         dimLine(0, 18 + OE, 2.0, 18 + OE, '2,0 m — sul').forEach(l => lys.push(l));    // garagem sul
         dimLine(10.5, 18 + OE, 12.5, 18 + OE, '2,0 m — norte').forEach(l => lys.push(l)); // garagem norte
 
@@ -4555,11 +4557,11 @@
         const rv = v;
         const hasGarage = (rv === 'v2' || rv === 'v3');
         // Afastamentos — branco (mesmas cotas do 2D, seguem o OE)
-        const eFrente = hasGarage ? 13.5 + OE : EIXO.O + OE;
+        const eFrente = hasGarage ? 13.5 + OE : FACE.O;
         _dimLine3D(g,  4.5,  0,        4.5,  eFrente,   fmtM(eFrente) + ' m — frente');
-        _dimLine3D(g,  4.5,  COTA_FUNDO_E + OE,  4.5,  40,        fmtM(40 - (COTA_FUNDO_E + OE)) + ' m — fundo');
-        _dimLine3D(g,  0,    COTA_LAT_E + OE, EIXO.S, COTA_LAT_E + OE, '2 m — sul');
-        const nNorte  = hasGarage ? 10.5 : EIXO.N;
+        _dimLine3D(g,  4.5,  FACE.L,  4.5,  40,        fmtM(40 - FACE.L) + ' m — fundo');
+        _dimLine3D(g,  0,    COTA_LAT_E + OE, FACE.S, COTA_LAT_E + OE, fmtM(FACE.S) + ' m — sul');
+        const nNorte  = hasGarage ? 10.5 : FACE.N;
         const recuoN  = 12.5 - nNorte;
         _dimLine3D(g,  nNorte, COTA_LAT_E + OE, 12.5, COTA_LAT_E + OE, fmtM(recuoN) + ' m — norte');
         // Totais do lote — âmbar
