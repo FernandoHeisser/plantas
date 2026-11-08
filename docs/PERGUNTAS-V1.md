@@ -191,3 +191,8 @@ Os documentos divergem entre 2027 e 2028.
 Esses campos não constam no documento.
 
 **Resposta:**
+
+**25. Para quantas pessoas a fossa, o filtro e o sumidouro foram dimensionados? (S6)**
+A prancha traz fossa e filtro de Ø0,80 × 1,20 m (cerca de 603 L cada) e sumidouro de Ø1,00 × 1,50 m, sem informar número de pessoas, contribuição, volume útil nem teste de percolação. Pela antiga NBR 7229, a fórmula dá mais de 1.000 L para qualquer ocupação, e o diâmetro mínimo citado é 1,10 m. Essas cotas são internas? O dimensionamento atende à NBR 17076:2024 e ao código municipal? O sistema comporta a ampliação do V3?
+
+**Resposta:**

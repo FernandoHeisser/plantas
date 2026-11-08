@@ -192,6 +192,27 @@ Todas com 2,10 de altura, como na app.
 | S4 | Caixas de inspeção e de gordura | 7 CI + gordura externa na face norte, mE ≈23,75 | A01·m | — | 2D e ficha |
 | S5 | Cisterna | **não consta** nos documentos; prevista nas notas do projeto | A01, Mem | — | etapa futura, fora do projeto atual; não entra no V1 |
 
+**S6 · O que o sistema suporta** (pedido do cliente, com destaque para a ficha de Medidas):
+
+A prancha e o Memorial **não informam** número de pessoas, contribuição diária, volume útil, intervalo
+de limpeza nem teste de percolação do solo. A capacidade não pode ser afirmada a partir deles.
+
+| Unidade | Dimensões na A01 | Volume geométrico |
+|---|---|---|
+| Fossa séptica | Ø0,80 × 1,20 | ≈603 L |
+| Filtro anaeróbio | Ø0,80 × 1,20 | ≈603 L |
+| Sumidouro | Ø1,00 × 1,50 | ≈1.178 L; parede ≈4,7 m² + fundo ≈0,8 m² |
+
+- **Ocupação de referência:** 2 pessoas por dormitório, logo **2 pessoas** no V1, conforme prática citada
+  para a NBR 7229. Não é número escrito no projeto.
+- **Alerta para a arquiteta:** pela NBR 7229/1993, `V = 1000 + N(CT + K·Lf)` dá mais de 1.000 L para
+  qualquer ocupação, e o diâmetro interno mínimo citado é 1,10 m. A fossa desenhada tem ≈603 L e
+  Ø0,80, supondo que essas cotas sejam internas e a altura seja útil.
+- **Norma vigente:** a NBR 17076:2024 substituiu as NBR 7229 e 13969. Não tive acesso aos seus valores,
+  e o código municipal também se aplica. Por isso é pergunta (Parte 2, nº 25), não erro confirmado.
+- **Ficha da app:** mostrar dimensões, ocupação de projeto e a fonte. Enquanto a arquiteta não
+  confirmar, indicar "capacidade a confirmar".
+
 ### M · Móveis e materiais
 
 A A01 só desenha o que é fixo. **Sala e dormitório não têm mobília no projeto: continuam sendo
@@ -227,6 +248,7 @@ decisão do cliente**, mas tudo precisa caber nos ambientes novos.
 | C8 | O volume da caixa d'água fica sobre o banho ou sobre a lavanderia? |
 | E8 | Qual é a função do prolongamento de 0,60 da parede oeste ao sul? Hipótese: esconder a descida pluvial, como a "aba" da app. |
 | M5 | A linha em mN 2,95 no banho é o box? |
+| S6 | Para quantas pessoas fossa, filtro e sumidouro foram dimensionados, e por qual norma? |
 
 **Decisões do cliente (2026-11-08, em [PERGUNTAS-V1.md](PERGUNTAS-V1.md)):** já anotadas nas tabelas
 acima. O projeto R00 **ainda não foi protocolado** nem enviado à Caixa, então as respostas da
@@ -273,7 +295,7 @@ Preliminar: o V3 existe a partir das versões da app; o projeto oficial não fal
 | Platibanda | a definir | — |
 | Prolongamento da parede oeste | permanece (já é assim na "aba" da app) | hipótese |
 | Descidas e coletor sul | a definir: o telhado solar cai para o norte | CLAUDE.md |
-| Fossa, filtro, sumidouro | permanece | — |
+| Fossa, filtro, sumidouro | **a redimensionar**: o V3 tem mais dormitórios e banheiros | S6 |
 
 ---
 
