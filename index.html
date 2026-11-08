@@ -1647,6 +1647,46 @@
     const COTA_LAT_E = 26.5;                                         // mE das cotas laterais
     const COTA_FUNDO_E = EIXO.L - 1.5;                               // mE de origem da cota de fundo
 
+    // Vãos de porta: parede (chave de EIXO), início ao longo dela, largura, profundidade do
+    // recorte; dob/giro definem o arco (dobradiça na ponta 'ini' ou 'fim' do vão).
+    const VAOS = {
+        entrada: { p: 'O',    ini: 2.30,  larg: 0.90, prof: 0.30, dob: 'ini', giro: -1 },
+        banho:   { p: 'HALL', ini: 2.90,  larg: 0.80, prof: 0.15, dob: 'ini', giro: -1 },
+        vidro:   { p: 'N',    ini: 23.00, larg: 2.00, prof: 0.30, tipo: 'glassdoor' },
+        fundos:  { p: 'L',    ini: 4.70,  larg: 0.90, prof: 0.20, dob: 'fim', giro: -1 },
+        quarto:  { p: 'LONG', ini: 28.60, larg: 0.90, prof: 0.15, dob: 'fim', giro: +1 },
+        servico: { p: 'LONG', ini: 26.45, larg: 0.90, prof: 0.15, dob: 'fim', giro: +1 },
+    };
+    // Janelas: mesma ideia; prof = espessura da parede; opts vai direto p/ win().
+    const JANELAS = [
+        { p: 'S', ini: 24.50, larg: 0.80, opts: { vpanes: true } },        // banheiro
+        { p: 'S', ini: 26.50, larg: 0.80, opts: { vpanes: true } },        // á. serviço
+        { p: 'L', ini: 2.65,  larg: 1.40 },                                // quarto, leste
+        { p: 'S', ini: 29.00, larg: 1.20 },                                // quarto, sul
+        { p: 'S', ini: 22.75, larg: 1.00 },                                // hall
+        { p: 'N', ini: 26.10, larg: 1.80 },                                // sala
+        { p: 'N', ini: 29.20, larg: 1.60, opts: { sill: 1.00, head: 1.60 } }, // cozinha (fita)
+    ];
+    // Escadas externas: início e largura ao longo da parede (2D e 3D).
+    const ESCADAS = {
+        entrada: { ini: 2.15, larg: 1.20 },
+        vidro:   { ini: VAOS.vidro.ini, larg: VAOS.vidro.larg },
+        fundos:  { ini: 4.70, larg: 1.20, larg2D: VAOS.fundos.larg },
+    };
+    const PAREDE_E_O = { S: 1, LONG: 1, N: 1 };                      // paredes que correm em mE
+    // Retângulo do vão no lote (código): centrado no eixo da parede
+    function vaoRet(v, prof) {
+        const c = EIXO[v.p] - prof / 2;
+        return PAREDE_E_O[v.p] ? { n: c, e: v.ini, dn: prof, de: v.larg, eixo: 'N' }
+                               : { n: v.ini, e: c, dn: v.larg, de: prof, eixo: 'E' };
+    }
+    // Argumentos de doorArc(): dobradiça sobre o eixo, folha fechada ao longo da parede
+    function vaoArco(v) {
+        const s = v.dob === 'ini' ? v.ini : v.ini + v.larg;
+        const d = v.dob === 'ini' ? v.larg : -v.larg;
+        return PAREDE_E_O[v.p] ? [EIXO[v.p], s, 0, d, v.giro] : [s, EIXO[v.p], d, 0, v.giro];
+    }
+
     const PAREDES_TERREO = [
         { a: [EIXO.S, EIXO.O],    b: [EIXO.S, EIXO.L],    t: ESP.ext }, // sul
         { a: [EIXO.N, EIXO.O],    b: [EIXO.N, EIXO.L],    t: ESP.ext }, // norte
@@ -1988,49 +2028,48 @@
                 if (GEO) GEO.push({ k: 'opening', type: type || 'door', n, e: e + OE, dn, de, sill: 0, head: 2.1 });
                 lys.push(rect(n, e, dn, de, FL, { color: 'transparent', weight: 0, no3d: true }));
             };
-            cut(2.30, 22.35, 0.9, 0.30); // Principal (parede oeste mE=22,5) — alinhada com a escada da garagem
+            const corteVao = v => { const r = vaoRet(v, v.prof); cut(r.n, r.e, r.dn, r.de, v.tipo); };
+            const arcoVao = v => doorArc(...vaoArco(v)).forEach(l => lys.push(l));
+            corteVao(VAOS.entrada); // // Principal (parede oeste mE=22,5) — alinhada com a escada da garagem
             // Degraus externos — só V1 (no V2/V3 a garagem cobre essa área)
             if (bv === 'v1') {
-                lys.push(rect(2.15, 21.90, 1.20, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));
-                lys.push(rect(2.15, 22.20, 1.20, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
+                lys.push(rect(ESCADAS.entrada.ini, EIXO.O - 0.60, ESCADAS.entrada.larg, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));
+                lys.push(rect(ESCADAS.entrada.ini, EIXO.O - 0.30, ESCADAS.entrada.larg, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
             }
-            cut(2.90, 24.275, 0.8, 0.15); // Banheiro (interna) — parede oeste mE=24,35, acesso pelo hall
-            cut(7.35, 23.00, 0.30, 2.00, 'glassdoor'); // Porta grande de vidro (lado da sala) — deslocada 0,3m p/ leste p/ equilíbrio
-            cut(4.70, 31.40, 0.90, 0.20); // Fundos (leste) — parede leste mE=31,5
-            cut(4.625, 28.60, 0.15, 0.9); // Quarto (interna) — parede norte mN=4,70, pela cozinha
-            cut(4.625, 26.45, 0.15, 0.9); // Á. serviço (interna) — parede norte mN=4,70, pela sala/cozinha
+            corteVao(VAOS.banho); // // Banheiro (interna) — parede oeste mE=24,35, acesso pelo hall
+            corteVao(VAOS.vidro); // // Porta grande de vidro (lado da sala) — deslocada 0,3m p/ leste p/ equilíbrio
+            corteVao(VAOS.fundos); // // Fundos (leste) — parede leste mE=31,5
+            corteVao(VAOS.quarto); // // Quarto (interna) — parede norte mN=4,70, pela cozinha
+            corteVao(VAOS.servico); // // Á. serviço (interna) — parede norte mN=4,70, pela sala/cozinha
 
             // Janelas
-            win(1.90, 24.50, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Banheiro — sul, no trecho a OESTE do pilar mE 25,5 (25,40→25,60); vão mE 24,50→25,30
-            win(1.90, 26.50, 0.20, 0.80, 'N', { vpanes: true }).forEach(l => lys.push(l)); // Á. serviço — sul, centrada (mE 26,05→27,75); ventila a umidade
-            win(2.65, 31.40, 1.40, 0.20, 'E').forEach(l => lys.push(l)); // Quarto — leste, centrada (mN 2→4,70) — sol da manhã; 1,40 m → 1,54 m² (Caixa ≥1,5)
-            win(1.90, 29.00, 0.20, 1.20, 'N').forEach(l => lys.push(l)); // Quarto — sul, centrada (mE 27,75→31,5) — ventilação cruzada com a leste
-            win(1.90, 22.75, 0.20, 1.00, 'N').forEach(l => lys.push(l)); // Sala/hall — sul, centrada no hall enxuto (mE 22,5→24,0)
-            win(7.40, 26.10, 0.20, 1.80, 'N').forEach(l => lys.push(l)); // Sala — norte, centrada no vão N2(25,5)→N3(28,5): 26,1→27,9
-            // Cozinha — janela-fita (peitoril 1,00 / verga 1,60); centrada no vão N3→N4 (col. mE 28,5 / 31,5; faces internas 28,6→31,4 = 2,8 m; margem 0,6 m)
-            win(7.40, 29.20, 0.20, 1.60, 'N', { sill: 1.00, head: 1.60 }).forEach(l => lys.push(l)); // cozinha — fita norte: mE 29,2→30,8
+            JANELAS.forEach(j => {
+                const r = vaoRet(j, ESP.ext);
+                win(r.n, r.e, r.dn, r.de, r.eixo, j.opts).forEach(l => lys.push(l));
+            });
 
             // Portas — folha + arco de abertura + pivô
-            doorArc(2.30, 22.50,  0.9,  0.0, -1).forEach(l => lys.push(l)); // Principal → leste
-            doorArc(2.90, 24.35,  0.8,  0.0, -1).forEach(l => lys.push(l)); // Banheiro → parede oeste mE=24,35, abre p/ dentro (protege o box)
+            arcoVao(VAOS.entrada); // Principal → leste
+            arcoVao(VAOS.banho); // Banheiro → parede oeste mE=24,35, abre p/ dentro (protege o box)
             // Porta de correr 4 painéis — 2D: retângulo azul-claro + 3 divisórias verticais
-            lys.push(rect(7.35, 23.00, 0.30, 2.00, '#dce8f5', { color: '#1f2937', weight: 1.5, m3d: 'slidingdoor4', h3d: 2.10 }));
-            [23.50, 24.00, 24.50].forEach(me => lys.push(L.polyline(
-                [rot(7.35, me + OE), rot(7.65, me + OE)],
+            const rVidro = vaoRet(VAOS.vidro, VAOS.vidro.prof);
+            lys.push(rect(rVidro.n, rVidro.e, rVidro.dn, rVidro.de, '#dce8f5', { color: '#1f2937', weight: 1.5, m3d: 'slidingdoor4', h3d: 2.10 }));
+            [0.25, 0.50, 0.75].map(f => rVidro.e + rVidro.de * f).forEach(me => lys.push(L.polyline(
+                [rot(rVidro.n, me + OE), rot(rVidro.n + rVidro.dn, me + OE)],
                 { color: '#1f2937', weight: 1, interactive: false }
             )));
             // Degraus porta grande (parede norte) — só V1; no V2/V3 o piso é nivelado à garagem
             if (bv === 'v1') {
-                lys.push(rect(7.60, 23.00, 0.30, 2.00, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
-                lys.push(rect(7.90, 23.00, 0.30, 2.00, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
+                lys.push(rect(EIXO.N + 0.10, ESCADAS.vidro.ini, 0.30, ESCADAS.vidro.larg, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
+                lys.push(rect(EIXO.N + 0.40, ESCADAS.vidro.ini, 0.30, ESCADAS.vidro.larg, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
             }
             // ── Esperas para garagem V2 — fachada oeste (mE=22,5), só V1 ─────────
             // Garagem é estrutura INDEPENDENTE. Conexões reais com a casa:
             // Degraus externos fundos (leste) — nova parede leste mE=31,5 (face exterior 31,6)
             backStairs2D().forEach(l => lys.push(l));
-            doorArc(5.60, 31.50, -0.90, 0.0, -1).forEach(l => lys.push(l)); // Fundos → abre p/ oeste (cozinha), hinge mN=5,60
-            doorArc(4.70, 29.50,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Quarto → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
-            doorArc(4.70, 27.35,  0.0, -0.9, +1).forEach(l => lys.push(l)); // Á. serviço → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
+            arcoVao(VAOS.fundos); // Fundos → abre p/ oeste (cozinha), hinge mN=5,60
+            arcoVao(VAOS.quarto); // Quarto → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
+            arcoVao(VAOS.servico); // Á. serviço → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
 
             // ─── BANHEIRO ~1,55×2,53 (mN 2.0→4.70, mE 24.35→26.05) ───
             // Box — canto SE (mN 2.10→3.10, mE 24.95→25.95): box 1,0×1,0, vidros N+O voltados p/ dentro
@@ -2472,8 +2511,8 @@
     // Degraus externos da porta dos fundos (leste, mE=31,5 → quintal).
     function backStairs2D() {
         return [
-            rect(4.70, 31.60, 0.90, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }), // patim
-            rect(4.70, 31.90, 0.90, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }), // degrau
+            rect(ESCADAS.fundos.ini, EIXO.L + ESP.ext / 2, ESCADAS.fundos.larg2D, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }), // patim
+            rect(ESCADAS.fundos.ini, EIXO.L + ESP.ext / 2 + 0.30, ESCADAS.fundos.larg2D, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }), // degrau
         ];
     }
 
