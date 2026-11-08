@@ -7,6 +7,9 @@ node_modules/
 # Claude Code local settings (machine-specific)
 .claude/settings.local.json
 
+# Documentos reais da obra (matrícula, planta da arquiteta, orçamentos) — só local
+docs/reais/
+
 # OS / editor cruft
 Thumbs.db
 .DS_Store

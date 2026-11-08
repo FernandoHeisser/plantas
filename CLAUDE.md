@@ -106,6 +106,18 @@ Config em `.claude/launch.json`.
 
 ---
 
+## Documentos reais da obra — `docs/reais/`
+
+Pasta **só local** para consulta durante o desenvolvimento (matrícula, planta da arquiteta,
+orçamentos, exigências da Caixa, fotos da visita). Não é funcionalidade da app.
+
+- **Fora do git** (`.gitignore`) e **fora do deploy** (`.vercelignore` já exclui `docs/`).
+  Nunca copiar o conteúdo sensível (CPF, dados do financiamento) para arquivos versionados.
+- **Quando a tarefa depender de um dado real** (medida, área, recuo, norma), olhar aqui antes
+  de assumir. Se um documento contradisser este CLAUDE.md, apontar a divergência ao cliente.
+
+---
+
 ## PWA (app instalável)
 
 - `manifest.webmanifest` + `icons/` (192, 512, maskable 512, apple-touch 180, favicon 32) +
