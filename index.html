@@ -1626,10 +1626,11 @@
     ];
     // Escadas externas: início e largura ao longo da parede (2D e 3D).
     const ESCADAS = {
-        entrada: { ini: 2.93, larg: 0.98 },
-        vidro:   { ini: VAOS.vidro.ini, larg: VAOS.vidro.larg },
-        fundos:  { ini: 4.86, larg: 0.88 },
+        entrada: { ini: 2.93, larg: 0.98, n: 4, e: 0.15, p: 0.30 },   // n = espelhos; pisos = n-1
+        vidro:   { ini: VAOS.vidro.ini, larg: VAOS.vidro.larg, n: 4, e: 0.15, p: 0.30 },
+        fundos:  { ini: 4.86, larg: 0.88, n: 5, e: 0.16, p: 0.30 },
     };
+    const pisos2D = esc => Array.from({ length: esc.n - 1 });
     const PAREDE_E_O = { S: 1, LONG: 1, N: 1 };                      // paredes que correm em mE
     // Retângulo do vão no lote (código): centrado no eixo da parede
     function vaoRet(v, prof) {
@@ -1999,8 +2000,7 @@
             corteVao(VAOS.entrada); // // Principal (parede oeste mE=22,5) — alinhada com a escada da garagem
             // Degraus externos — só V1 (no V2/V3 a garagem cobre essa área)
             if (bv === 'v1') {
-                lys.push(rect(ESCADAS.entrada.ini, EIXO.O - 0.60, ESCADAS.entrada.larg, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }));
-                lys.push(rect(ESCADAS.entrada.ini, EIXO.O - 0.30, ESCADAS.entrada.larg, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
+                pisos2D(ESCADAS.entrada).forEach((_, i, a) => lys.push(rect(ESCADAS.entrada.ini, FACE.O - OE - (a.length - i) * ESCADAS.entrada.p, ESCADAS.entrada.larg, ESCADAS.entrada.p, i % 2 ? '#dedede' : '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })));
             }
             corteVao(VAOS.banho); // // Banheiro (interna) — parede oeste mE=24,35, acesso pelo hall
             corteVao(VAOS.vidro); // // Porta grande de vidro (lado da sala) — deslocada 0,3m p/ leste p/ equilíbrio
@@ -2026,8 +2026,7 @@
             )));
             // Degraus porta grande (parede norte) — só V1; no V2/V3 o piso é nivelado à garagem
             if (bv === 'v1') {
-                lys.push(rect(EIXO.N + 0.10, ESCADAS.vidro.ini, 0.30, ESCADAS.vidro.larg, '#dedede', { color: '#6b7280', weight: 1, no3d: true })); // patim
-                lys.push(rect(EIXO.N + 0.40, ESCADAS.vidro.ini, 0.30, ESCADAS.vidro.larg, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true })); // degrau
+                pisos2D(ESCADAS.vidro).forEach((_, i) => lys.push(rect(FACE.N + i * ESCADAS.vidro.p, ESCADAS.vidro.ini, ESCADAS.vidro.p, ESCADAS.vidro.larg, i % 2 ? '#c8c8c8' : '#dedede', { color: '#6b7280', weight: 1, no3d: true })));
             }
             // ── Esperas para garagem V2 — fachada oeste (mE=22,5), só V1 ─────────
             // Garagem é estrutura INDEPENDENTE. Conexões reais com a casa:
@@ -2487,10 +2486,7 @@
 
     // Degraus externos da porta dos fundos (leste, mE=31,5 → quintal).
     function backStairs2D() {
-        return [
-            rect(ESCADAS.fundos.ini, EIXO.L + ESP.ext / 2, ESCADAS.fundos.larg, 0.30, '#dedede', { color: '#6b7280', weight: 1, no3d: true }), // patim
-            rect(ESCADAS.fundos.ini, EIXO.L + ESP.ext / 2 + 0.30, ESCADAS.fundos.larg, 0.30, '#c8c8c8', { color: '#6b7280', weight: 1, no3d: true }), // degrau
-        ];
+        return pisos2D(ESCADAS.fundos).map((_, i) => rect(ESCADAS.fundos.ini, FACE.L - OE + i * ESCADAS.fundos.p, ESCADAS.fundos.larg, ESCADAS.fundos.p, i % 2 ? '#c8c8c8' : '#dedede', { color: '#6b7280', weight: 1, no3d: true }));
     }
 
     // Camadas 2D do 2º pavimento (laje + paredes externas + contexto do térreo)
@@ -2631,8 +2627,14 @@
     // ── Declive do terreno (visita): ~1 m em 40 m = 2,5%, descendo da frente
     //    (calçada, mE=0 = datum 0) para os fundos (mE=40 → −1,0 m). Cota natural
     //    do solo, relativa à calçada, em função de mE. Usada só no 3D.
-    const SLOPE = 1.0 / 40;                 // 2,5%
-    const grade = mE => -mE * SLOPE;        // y do solo natural (m) p/ dado mE
+    // Perfil oficial: 00 na testada, -0,30 e -0,50 nas faces O e L (A01); -0,80 nos fundos (decisão do cliente).
+    const PERFIL = [[0, 0], [FACE.O, -0.30], [FACE.L, -0.50], [40, -0.80]];
+    const grade = mE => {                   // y do solo natural (m) p/ dado mE
+        let i = 1;
+        while (i < PERFIL.length - 1 && mE > PERFIL[i][0]) i++;
+        const [x0, y0] = PERFIL[i - 1], [x1, y1] = PERFIL[i];
+        return y0 + (mE - x0) * (y1 - y0) / (x1 - x0);
+    };
     const scenes3d = {};
 
     // Coleta o modelo geométrico rodando o MESMO buildLayers do 2D
@@ -3230,14 +3232,9 @@
         const matGrass = new THREE.MeshStandardMaterial({ map: grass, roughness: 1, metalness: 0, envMapIntensity: 0.15, side: THREE.DoubleSide });
         // cantos (mE, mN) → (x=mE, y=grade(mE), z=−mN)
         const gGeo = new THREE.BufferGeometry();
-        gGeo.setAttribute('position', new THREE.Float32BufferAttribute([
-            0,  grade(0),  0,        // SO (frente-sul)
-            40, grade(40), 0,        // SE (fundo-sul)
-            40, grade(40), -12.5,    // NE (fundo-norte)
-            0,  grade(0),  -12.5,    // NO (frente-norte)
-        ], 3));
-        gGeo.setAttribute('uv', new THREE.Float32BufferAttribute([0,0, 1,0, 1,1, 0,1], 2));
-        gGeo.setIndex([0, 2, 1, 0, 3, 2]);
+        gGeo.setAttribute('position', new THREE.Float32BufferAttribute(PERFIL.flatMap(([x, y]) => [x, y, 0, x, y, -12.5]), 3));
+        gGeo.setAttribute('uv', new THREE.Float32BufferAttribute(PERFIL.flatMap(([x]) => [x / 40, 0, x / 40, 1]), 2));
+        gGeo.setIndex(PERFIL.slice(1).flatMap((_, i) => { const a = 2 * i; return [a, a + 3, a + 2, a, a + 1, a + 3]; }));
         gGeo.computeVertexNormals();
         const lawn = new THREE.Mesh(gGeo, matGrass);
         lawn.receiveShadow = true; lawn.castShadow = false;
@@ -3260,9 +3257,11 @@
         // frente (oeste, mE=0): topo 0 → base −1,05 (face da calçada/corte)
         skirtQuad([0,grade(0),0,  0,SKIRT_B,0,  0,SKIRT_B,-12.5,  0,grade(0),-12.5]);
         // sul (mN=0): topo grade(mE) de 0→−1,0
-        skirtQuad([0,grade(0),0,  40,grade(40),0,  40,SKIRT_B,0,  0,SKIRT_B,0]);
-        // norte (mN=12,5)
-        skirtQuad([0,grade(0),-12.5,  0,SKIRT_B,-12.5,  40,SKIRT_B,-12.5,  40,grade(40),-12.5]);
+        PERFIL.slice(1).forEach(([x1, y1], i) => {
+            const [x0, y0] = PERFIL[i];
+            skirtQuad([x0,y0,0,  x1,y1,0,  x1,SKIRT_B,0,  x0,SKIRT_B,0]);                 // sul (mN=0)
+            skirtQuad([x0,y0,-12.5,  x0,SKIRT_B,-12.5,  x1,SKIRT_B,-12.5,  x1,y1,-12.5]); // norte (mN=12,5)
+        });
 
         // ── Embasamento/aterro: base de concreto até a CPA, agora DESCENDO até a
         //    cota natural do terreno em declive. baseBot usa a grade da borda LESTE
@@ -3319,23 +3318,24 @@
             mesh.castShadow = true;
             g.add(mesh);
         };
-        const extStairs = (topN, faceE, w, dir, baseY) => {
+        const extStairs = (topN, faceE, w, dir, baseY, spec) => {
             // base = piso de chegada: terreno natural (padrão) OU cota explícita
             // (baseY, p/ a escada chegar num piso elevado sem descer abaixo dele).
-            const base = (baseY !== undefined) ? baseY : grade(faceE) - 0.02;
+            const base = spec ? CPA - spec.n * spec.e : (baseY !== undefined) ? baseY : grade(faceE) - 0.02;
+            const zBase = spec ? base - 0.10 : base;   // embute no solo: a cota oficial é pontual
             const rise = CPA - base;
             // ceil(rise/0.19) = mínimo de degraus p/ e ≤ 19 cm — sempre válido
             let NS = Math.ceil(rise / 0.19);
-            NS = Math.max(2, NS);
-            const e = rise / NS;                   // espelho igual em todos os degraus
+            NS = spec ? spec.n - 1 : Math.max(2, NS);   // spec: o último espelho chega ao piso
+            const e = spec ? spec.e : rise / NS;                   // espelho igual em todos os degraus
             // Blondel 2e+p = 0,64 m; piso mín 0,26 m (externo), máx 0,32 m
-            const p = Math.min(0.32, Math.max(0.26, 0.64 - 2 * e));
+            const p = spec ? spec.p : Math.min(0.32, Math.max(0.26, 0.64 - 2 * e));
             // Degraus
             for (let i = 1; i <= NS; i++) {
                 const top = base + i * e;
-                if      (dir === 'W') g.add(box3d(topN, faceE - (NS - i + 1)*p, w, p, base, top, matEmbase));
-                else if (dir === 'E') g.add(box3d(topN, faceE + (NS - i)*p,     w, p, base, top, matEmbase));
-                else                  g.add(box3d(topN + (NS - i)*p, faceE,     p, w, base, top, matEmbase));
+                if      (dir === 'W') g.add(box3d(topN, faceE - (NS - i + 1)*p, w, p, zBase, top, matEmbase));
+                else if (dir === 'E') g.add(box3d(topN, faceE + (NS - i)*p,     w, p, zBase, top, matEmbase));
+                else                  g.add(box3d(topN + (NS - i)*p, faceE,     p, w, zBase, top, matEmbase));
             }
             // Corrimão bilateral — poste no topo, poste na base, trilho inclinado
             // Poste intermediário quando NS ≥ 5 (≈ no meio do lance)
@@ -3361,10 +3361,10 @@
             }
         };
         // Porta principal (oeste) — só V1 (no V2/V3 a garagem ocupa a frente; acesso pela garagem)
-        if (bv === 'v1') extStairs(ESCADAS.entrada.ini, EE0, ESCADAS.entrada.larg, 'W');
+        if (bv === 'v1') extStairs(ESCADAS.entrada.ini, FACE.O, ESCADAS.entrada.larg, 'W', undefined, ESCADAS.entrada);
         // Porta de vidro (norte, lado da sala)
         if (bv === 'v1') {
-            extStairs(EIXO.N + 0.05, ESCADAS.vidro.ini + OE, ESCADAS.vidro.larg, 'N'); // V1: escada desce p/ o jardim
+            extStairs(FACE.N, ESCADAS.vidro.ini + OE, ESCADAS.vidro.larg, 'N', undefined, ESCADAS.vidro); // V1: escada desce p/ o jardim
         } else {
             // V2/V3: plataforma 3×3 m nivelada à garagem (GCPA=0,30) + escada norte e leste.
             // É acesso ligado à GARAGEM (nível GCPA) → no V4 entra no bloco V2 (gFound),
@@ -3391,15 +3391,15 @@
 
         // Porta dos fundos (leste) — 6 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
         _ph = PH.found; // escada dos fundos = fundação
-        extStairs(ESCADAS.fundos.ini, EIXO.L + ESP.ext / 2 + OE, ESCADAS.fundos.larg, 'E'); // nova parede leste mE=31,5 (face exterior 31,6)
+        extStairs(ESCADAS.fundos.ini, FACE.L, ESCADAS.fundos.larg, 'E', undefined, ESCADAS.fundos); // nova parede leste mE=31,5 (face exterior 31,6)
         _ph = 0; // contorno do lote = entorno (sempre visível)
 
         // Contorno do lote (âmbar) acompanhando o declive — frente em y≈0,02,
         // fundos em y≈−0,98 (grade(mE) + 2 cm)
         g.add(new THREE.LineLoop(
             new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(0, grade(0) + 0.02, 0), new THREE.Vector3(40, grade(40) + 0.02, 0),
-                new THREE.Vector3(40, grade(40) + 0.02, -12.5), new THREE.Vector3(0, grade(0) + 0.02, -12.5)]),
+                ...PERFIL.map(([x, y]) => new THREE.Vector3(x, y + 0.02, 0)),
+                ...PERFIL.slice().reverse().map(([x, y]) => new THREE.Vector3(x, y + 0.02, -12.5))]),
             new THREE.LineBasicMaterial({ color: 0xf59e0b })));
 
         const walls    = model.filter(o => o.k === 'wall');
@@ -4572,7 +4572,7 @@
             seg(new THREE.Vector3(x, yTop, z), new THREE.Vector3(x, yBot, z));               // queda vertical
             seg(new THREE.Vector3(x - 0.8, yTop, z), new THREE.Vector3(x + 0.4, yTop, z));   // nível frente
             seg(new THREE.Vector3(x - 0.8, yBot, z), new THREE.Vector3(x + 0.4, yBot, z));   // nível fundos
-            const lbl = _makeLabel3D('declive 1,0 m (2,5%)', '#38bdf8', 420); // canvas mais largo: 21 chars × 18px ≈ 378px
+            const lbl = _makeLabel3D('declive ' + fmtM(-grade(40)) + ' m (' + fmtM(-grade(40) / 40 * 100) + '%)', '#38bdf8', 420); // canvas mais largo: 21 chars × 18px ≈ 378px
             lbl.position.set(x + 1.7, (yTop + yBot) / 2, z);
             g.add(lbl);
         })();
