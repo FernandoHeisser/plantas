@@ -1123,7 +1123,6 @@ escada; uso do 2º piso da garagem; ficha de medidas V3.
 ## Pendências conhecidas
 
 - [ ] `@media print` para memorial imprimível
-- [ ] Dados da M² Engenharia (CREA) para incluir no app
 - [ ] Acabamentos por fase (piso, esquadrias, cobertura)
 - [ ] V2: portão oeste da garagem (mE=GE0=13,5+OE; abertura ~5 m; tipo glassdoor ou aço)
 - [ ] V2: cotas 2D/3D da garagem (`dimLine` + `buildDims3D` parametrizado por versão)
