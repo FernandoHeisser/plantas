@@ -7,7 +7,7 @@ ainda.** Sem dados pessoais: este arquivo é versionado.
 **Regra:** no V1, o documento oficial vence. O que os documentos não definem continua sendo
 decisão do cliente.
 
-**Ordem:** inventário → refatoração média (retrato idêntico) → migração por camadas → depois V2 e V3. Inventário e refatoração concluídos em 2026-11-08. **Camadas migradas: D, L, I, P, J, N e E.** Provisório até a arquiteta responder: solo −0,30 nas faces norte e oeste (N1) e "aba" sudoeste antiga (E8). Pendentes: C, S e M. Até a camada M, móveis estão fora de posição: bancada, geladeira e aéreos encostam ou entram na parede leste, e o guarda-roupa invade a parede oeste do dormitório.
+**Ordem:** inventário → refatoração média (retrato idêntico) → migração por camadas → depois V2 e V3. Inventário e refatoração concluídos em 2026-11-08. **Camadas migradas: D, L, I, P, J, N, E, C e S.** Provisório até a arquiteta responder: solo −0,30 nas faces norte e oeste (N1), "aba" sudoeste antiga (E8) e caixa d'água sobre o banho (C8). Pendente: M. Até a camada M, móveis estão fora de posição: bancada, geladeira e aéreos encostam ou entram na parede leste, e o guarda-roupa invade a parede oeste do dormitório.
 
 ## Como ler
 
