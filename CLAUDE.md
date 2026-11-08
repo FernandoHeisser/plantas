@@ -229,6 +229,32 @@ móveis, folhas de porta) acompanha automaticamente.
 
 ---
 
+## Planta do térreo como dados — tabelas no topo do script
+
+As cotas da casa (V1, herdada por V2/V3) ficam em tabelas logo após `OE`. **Para mudar a planta,
+mexer nelas; não reintroduzir número solto em `buildLayers`/`buildBuilding3D`.**
+
+| Tabela | Conteúdo |
+|---|---|
+| `EIXO` | Linha de centro de cada parede, em metros de código (sem `OE`). A prancha cota **faces**: face = eixo ± espessura/2 |
+| `ESP` | Espessura das paredes externas e internas |
+| `PAREDES_TERREO` | Paredes (extremidades em eixos) |
+| `VAOS` | Portas: parede, início, largura, profundidade do recorte, dobradiça e giro |
+| `JANELAS` | Janelas: parede, início, largura e `opts` de `win()` |
+| `ESCADAS` | Início e largura das escadas externas (2D e 3D) |
+| `PILARES` | Centro e seção em cada eixo; não precisam formar grade |
+| `VIGA`, `VIGAS_EO`, `VIGAS_NS` | Seção e trechos das vigas |
+| `COB`, `CAIXA_DAGUA`, `TOPO_LAJE` | Laje, platibanda, beirais, junta e volume da caixa d'água |
+
+- **Móveis e rótulos** usam coordenadas relativas ao canto SO (eixos) do ambiente: `HAL`, `BAN`, `SER`,
+  `QUA`, `SAL`, `COZ` (`.rect`, `.circ`, `.rot`, `.rotulo`). Móvel encostado na parede leste do ambiente
+  precisa ser reposicionado se a largura do ambiente mudar.
+- **Ainda em literal:** V2/V3 (garagem, 2º piso, drenagem do V3) e `COTA_FUNDO_E`/`COTA_LAT_E`,
+  mantidos iguais para o retrato não mudar. A cota "fundo" parte de `EIXO.L − 1,5`, não da face leste;
+  corrigir na migração (camada L).
+
+---
+
 ## Funções helper do mapa 2D
 
 Todas retornam `Array<L.Layer>` — usar com `.forEach(l => lys.push(l))`.
