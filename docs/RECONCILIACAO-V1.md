@@ -7,7 +7,7 @@ ainda.** Sem dados pessoais: este arquivo é versionado.
 **Regra:** no V1, o documento oficial vence. O que os documentos não definem continua sendo
 decisão do cliente.
 
-**Ordem:** inventário → refatoração média (retrato idêntico) → migração por camadas → depois V2 e V3. Inventário e refatoração concluídos em 2026-11-08. **Camadas migradas: D e L.** Até as camadas I, J e M, o interior ainda usa as posições antigas: janela norte da cozinha, cama, geladeira e bancadas ultrapassam a nova parede leste.
+**Ordem:** inventário → refatoração média (retrato idêntico) → migração por camadas → depois V2 e V3. Inventário e refatoração concluídos em 2026-11-08. **Camadas migradas: D, L, I, P e J** (J8 inclui alumínio branco nas janelas do térreo; escadas oeste e leste já nas posições de N5 e N7, faltando os degraus). Até as camadas E e M, as paredes externas seguem com 0,20 m e os móveis estão fora de posição: bancada, geladeira e aéreos ultrapassam a parede leste, e o guarda-roupa invade a parede oeste do dormitório.
 
 ## Como ler
 
