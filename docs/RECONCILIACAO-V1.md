@@ -98,7 +98,7 @@ Recuos oficiais, todos fechando: frente 17,00 · fundos 14,90 · norte 4,75 · s
 | ID | Item | App | Oficial | Fonte | Dep. | Impacto | Decisão |
 |---|---|---|---|---|---|---|---|
 | E1 | Paredes externas | 0,20 | **0,15** | A01·c | L1–L4 | Q | adotar |
-| E2 | Pilares | 12 de 0,15 × 0,15, grade regular | **13 de 0,15 × 0,25**, ver tabela abaixo | A01·m | L1–L4, I1–I4 | Q | adotar |
+| E2 | Pilares | 12 de 0,20 × 0,20, grade regular | **13 de 0,15 × 0,25**, ver tabela abaixo | A01·m | L1–L4, I1–I4 | Q | adotar |
 | E3 | Vigas | altura 0,45, largura 0,20 | **0,20 abaixo da laje**, largura 0,15 | A01·c/m | E2 | Q | adotar |
 | E4 | Viga aparente no estar | não existe | mE 21,20→21,35, atravessa o estar de norte a sul, entre P4 e P5 | A01·m | E2 | A | adotar |
 | E5 | Viga sobre o hall | não existe | mN 4,65→4,80, mE 17,15→18,30 | A01·m | E2, I1 | A | adotar |
