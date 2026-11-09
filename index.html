@@ -2291,6 +2291,15 @@
             // Enterrados: só no 2D e na ficha de Medidas.
             lys.push(rect(0, 34 - OE, 12.5, 6, '#22c55e', { color: '#16a34a', weight: 1, dashArray: '5 4', fillOpacity: 0.22, no3d: true }));
             lys.push(roomLabel(9.5, 37 - OE, 'Faixa permeável', '6,00 × 12,50 m', '75 m²'));
+            // Rede enterrada, leitura do traçado da planta hidrossanitária (sem rótulos na prancha)
+            const redeE = { color: '#7c2d12', weight: 1.5, dashArray: '4 3', interactive: false };
+            const redeP = { color: '#0369a1', weight: 1.5, dashArray: '4 3', interactive: false };
+            const rede = (pts, sty) => lys.push(L.polyline(pts.map(([n, e]) => rot(n, e)), sty));
+            rede([[3.345, 19.40], [1.05, 19.30], [1.05, 30.50], [1.90, 30.50], [3.10, 30.50], [4.30, 30.60]], redeE);   // vaso → fossa → filtro → sumidouro
+            rede([[FACE.S, 19.77], [0.68, 19.77], [0.68, 30.96], [4.30, 30.96], [4.30, 30.60]], redeE);                 // águas de banho e lavanderia → sumidouro
+            rede([[7.30, 23.75], [7.95, 23.75], [7.96, 30.51], [4.30, 30.60]], redeE);                                  // pia → caixa de gordura → sumidouro
+            rede([[1.94, 20.07], [0.22, 20.05], [0.22, 17.21], [0.22, 0]], redeP);                                      // descida leste → CI → rede pública
+            rede([[1.94, 17.22], [0.22, 17.21]], redeP);                                                                // descida oeste → CI
             const ESGOTO = { color: '#7c2d12', weight: 1, fillOpacity: 0.75, no3d: true };
             const CI_E = { color: '#57534e', weight: 1, fillOpacity: 0.9, no3d: true };
             const CI_P = { color: '#0369a1', weight: 1, fillOpacity: 0.9, no3d: true };
