@@ -253,6 +253,7 @@ mexer nelas; não reintroduzir número solto em `buildLayers`/`buildBuilding3D`.
   `QUA`, `SAL`, `COZ` (`.rect`, `.circ`, `.rot`, `.rotulo`). Móvel encostado na parede leste do ambiente
   precisa ser reposicionado se a largura do ambiente mudar.
 - **Ainda em literal:** V2/V3 (garagem, 2º piso, drenagem do V3). `COTA_FUNDO_E` só divide o polígono do chão no 2D.
+- **Pilares:** `userData.pilar` guarda o material de obra (concreto) e o pronto (reboco); `applyBuildPhase` troca na fase 5. Azulejo do banho: painéis finos em `buildBuilding3D`, com UV em tamanho real.
 - **Migração do V1 em andamento:** ver o estado em `docs/RECONCILIACAO-V1.md`. As tabelas de "Layout V1" descrevem a planta antiga até o fim da migração.
 
 ---
@@ -501,20 +502,7 @@ chuva.
   do V1 e é **reusada pelo telhado solar do V3** (o coletor norte `drainV3` termina nela). **Caixa de
   ligação** (`box3d` 0,5×0,5, `−0,90→grade(0)+0,03`) na testada em mN 0,40, tampa rente ao solo;
   sempre visível no V3 (`_ph=PH.acab`; no V3 ph=7). No V1 segue o acabamento.
-- **Aterro do canto sul (V1/V2/V3, mesmo bloco da caixa):** leira de terra (`matSoil`, `BufferGeometry` wedge)
-  no setback sul (mN 0→2), cobrindo o trecho EXPOSTO do dreno (a garagem já tem o seu aterro em
-  mN≥2). Footprint cena X `AT_Xw=0` (**testada/frente**) → `AT_Xe=17,4` (casa) — corre o setback sul
-  inteiro; **topo em rampa** `AT_Yte=−0,13` junto à casa (~6–12 cm de cobertura sobre o cano) →
-  segue o grade natural na frente. Berma toda **GRAMADA** (um único material `MeshStandardMaterial`
-  `map=texGrass()`, `DoubleSide`), UV `=(x/40, mN/12,5)` = mesmo mapeamento do lote → o gramado casa
-  com a grama do lote (mesma textura/densidade, sem emenda).
-  **RECUADO p/ dentro da cerca/muro** (só V2/V3 têm): `AT_Xw=0,25` (muro frontal está em X 0→0,15),
-  `AT_Ns=0,20` (muro sul está em mN 0→0,15, colunas até 0,22), `AT_Xe=17,4` (casa), `AT_Nn=2,0`. **NÃO cruza cerca/muro.**
-  Topo em rampa `AT_TopE=−0,13` (casa, cobre o cano) → `AT_TopW=grade(AT_Xw)+0,03` (borda leve na frente,
-  sempre acima do grade → sem z-fight com a grama do lote no topo). **Base segue o grade**
-  (`AT_BotW/E=grade(x)−0,15`) → só ~15 cm enterrados, **ocultos pelo terreno**. **SEM `polygonOffset`**
-  (foi um erro: o negativo fazia as laterais atravessarem o chão/cerca; sem ele o terreno volta a
-  ocluir). 8 vértices / 12 triângulos, `computeVertexNormals`.
+- **Aterro do canto sul:** removido na migração do V1 (o projeto oficial não o mostra; os ramais pluviais ficam enterrados).
 Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
