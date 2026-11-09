@@ -889,14 +889,14 @@
             <div class="med-room-name">Cozinha e sala de estar</div>
             <div class="med-room-dims">ambiente único, inclui o hall</div>
             <div class="med-room-area">24,88 m²</div>
-            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Oeste<br>Porta de correr ao norte</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Oeste<br>Porta de correr ao norte · piso cerâmico PEI 4</div>
           </div>
 
           <div class="med-room-card col-blue">
             <div class="med-room-name">Banho</div>
             <div class="med-room-dims">1,30 × 2,50 m</div>
             <div class="med-room-area">3,25 m²</div>
-            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Box a confirmar</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Box a confirmar · azulejo até o forro</div>
           </div>
 
           <div class="med-room-card col-teal">
@@ -1100,14 +1100,14 @@
             <div class="med-room-name">Cozinha e sala de estar</div>
             <div class="med-room-dims">ambiente único, inclui o hall</div>
             <div class="med-room-area">24,88 m²</div>
-            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Oeste<br>Porta de correr ao norte</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Oeste<br>Porta de correr ao norte · piso cerâmico PEI 4</div>
           </div>
 
           <div class="med-room-card col-blue">
             <div class="med-room-name">Banho</div>
             <div class="med-room-dims">1,30 × 2,50 m</div>
             <div class="med-room-area">3,25 m²</div>
-            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Box a confirmar</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Sul<br>Box a confirmar · azulejo até o forro</div>
           </div>
           <div class="med-room-card col-teal">
             <div class="med-room-name">Lavanderia</div>
@@ -1282,7 +1282,7 @@
             <div class="med-room-name">Cozinha e sala de estar</div>
             <div class="med-room-dims">ambiente único, inclui o hall</div>
             <div class="med-room-area">24,88 m²</div>
-            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Oeste<br>Porta de correr ao norte</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Oeste<br>Porta de correr ao norte · piso cerâmico PEI 4</div>
           </div>
 
           <div class="med-room-card col-blue">
@@ -1460,7 +1460,7 @@
             <div class="med-room-name">Cozinha e sala de estar</div>
             <div class="med-room-dims">ambiente único, inclui o hall</div>
             <div class="med-room-area">24,88 m²</div>
-            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Oeste<br>Porta de correr ao norte</div>
+            <div class="med-room-meta">Pé-direito: 2,70 m<br>Orientação: Norte + Oeste<br>Porta de correr ao norte · piso cerâmico PEI 4</div>
           </div>
 
           <div class="med-room-card col-blue">
@@ -1759,7 +1759,7 @@
     };
     // Janelas: mesma ideia; prof = espessura da parede; opts vai direto p/ win().
     const JANELAS = [
-        { p: 'S', ini: 18.70 - OE, larg: 0.80, opts: { vpanes: true, sill: 1.50, head: 2.10 } }, // banho
+        { id: 'banho', p: 'S', ini: 18.70 - OE, larg: 0.80, opts: { vpanes: true, sill: 1.50, head: 2.10 } }, // banho
         { p: 'S', ini: 20.13 - OE, larg: 0.80, opts: { vpanes: true, sill: 1.50, head: 2.10 } }, // lavanderia
         { p: 'L', ini: 2.70,       larg: 1.40, opts: { sill: 0.90, head: 2.10 } },               // dormitório, leste
         { p: 'S', ini: 22.45 - OE, larg: 1.40, opts: { sill: 0.90, head: 2.10 } },               // dormitório, sul
@@ -2795,11 +2795,19 @@
     }
     function texFloor() {
         return TEX3D.floor || (TEX3D.floor = canvasTex((ctx, w) => {
-            ctx.fillStyle = '#e8e2d6'; ctx.fillRect(0, 0, w, w);   // porcelanato claro (1 placa = 1 m)
+            ctx.fillStyle = '#e8e2d6'; ctx.fillRect(0, 0, w, w);   // cerâmico claro (1 placa por repetição; PLACA_PISO)
             noise2d(ctx, w, 0, 0, 0, 14);
             ctx.strokeStyle = 'rgba(120,110,95,0.55)'; ctx.lineWidth = 3;   // rejunte na borda
             ctx.strokeRect(0, 0, w, w);
         }, 256));
+    }
+    function texAzulejo() {
+        return TEX3D.azulejo || (TEX3D.azulejo = canvasTex((ctx, w) => {
+            ctx.fillStyle = '#e4ecef'; ctx.fillRect(0, 0, w, w);   // azulejo claro (1 peça por repetição)
+            noise2d(ctx, w, 0, 0, 0, 5);
+            ctx.strokeStyle = 'rgba(110,125,135,0.6)'; ctx.lineWidth = 5;
+            ctx.strokeRect(0, 0, w, w);
+        }, 128));
     }
     function texWall() {
         return TEX3D.wall || (TEX3D.wall = canvasTex((ctx, w) => {
@@ -3304,7 +3312,8 @@
             grp.add = (...objs) => { objs.forEach(o => { if (o && o.userData) o.userData.ph = _ph; }); return orig(...objs); }; return orig; };
         const _origAdd = stampAdd(g);
 
-        const floor = texFloor(); floor.repeat.set(8, 5);
+        const PLACA_PISO = 0.45;     // medida da placa: não consta no projeto (Memorial: cerâmico PEI 4)
+        const floor = texFloor(); floor.repeat.set((FACE.L - FACE.O) / PLACA_PISO, (FACE.N - FACE.S) / PLACA_PISO);
         // Reboco branco (color multiplica a textura) / concreto cinza no embasamento.
         const matWall   = new THREE.MeshStandardMaterial({ map: texWall(), color: 0xffffff, roughness: 0.95, metalness: 0, envMapIntensity: 0.25,
                                                            polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
@@ -3598,6 +3607,36 @@
             }
             g.add(mesh);
         });
+
+        // ── Azulejo do banho até o forro (Memorial): painéis finos nas 4 paredes ──
+        {
+            const T = 0.008, TILE = 0.30, H = CEIL3D;
+            const matAz = new THREE.MeshStandardMaterial({ map: texAzulejo(), roughness: 0.35, metalness: 0, envMapIntensity: 0.5 });
+            const nS = EIXO.S + ESP.ext / 2, nN = EIXO.LONG - ESP.int / 2;
+            const eO = EIXO.HALL + ESP.int / 2 + OE, eL = EIXO.BANHO - ESP.int / 2 + OE;
+            const painel = (emE, pos, lado, a0, a1, z0, z1) => {
+                if (a1 - a0 < 0.005 || z1 - z0 < 0.005) return;
+                const p0 = lado > 0 ? pos : pos - T;
+                const m = emE ? box3d(p0, a0, T, a1 - a0, CPA + z0, CPA + z1, matAz)
+                              : box3d(a0, p0, a1 - a0, T, CPA + z0, CPA + z1, matAz);
+                const uv = m.geometry.attributes.uv;     // peças em tamanho real, sem esticar a textura
+                for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * (a1 - a0) / TILE, uv.getY(i) * (z1 - z0) / TILE);
+                m.castShadow = false;
+                g.add(m);
+            };
+            const parede = (emE, pos, lado, a0, a1, f) => {
+                if (!f) return painel(emE, pos, lado, a0, a1, 0, H);
+                painel(emE, pos, lado, a0, f.s, 0, H);
+                painel(emE, pos, lado, f.s, f.e, 0, f.z0);
+                painel(emE, pos, lado, f.s, f.e, f.z1, H);
+                painel(emE, pos, lado, f.e, a1, 0, H);
+            };
+            const j = JANELAS.find(x => x.id === 'banho'), p = VAOS.banho;
+            parede(true,  nS, +1, eO, eL, { s: j.ini + OE, e: j.ini + OE + j.larg, z0: j.opts.sill, z1: j.opts.head });
+            parede(true,  nN, -1, eO, eL);
+            parede(false, eO, +1, nS, nN, { s: p.ini, e: p.ini + p.larg, z0: 0, z1: 2.1 });
+            parede(false, eL, -1, nS, nN);
+        }
 
         // ── Esquadrias: batentes, montantes, peitoris e folhas de porta ──────
         const matFrame = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5, metalness: 0.0, envMapIntensity: 0.3 });
@@ -4736,7 +4775,7 @@
         if (!root) return;
         const keepMat = new Set();
         if (satGroundMat) keepMat.add(satGroundMat);
-        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha].filter(Boolean));
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo].filter(Boolean));
         if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
         root.traverse(obj => {
             if (obj.geometry && obj.geometry.dispose) obj.geometry.dispose();   // sempre único
