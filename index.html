@@ -3511,10 +3511,13 @@
         _ph = PH.found;
         PILARES.forEach(p => g.add(box3d(p.n - BLOCO.lado / 2, p.e + OE - BLOCO.lado / 2, BLOCO.lado, BLOCO.lado, BLOCO.base, BLOCO.topo, matEmbase)));
         _ph = PH.colT;
-        // Tabela PILARES: seções independentes em cada eixo
+        // Tabela PILARES. Rebocados na casa pronta; concreto aparente nas fases antes da alvenaria (applyBuildPhase).
+        const matPilar = new THREE.MeshStandardMaterial({ map: texWall(), color: 0xffffff, roughness: 0.95, metalness: 0, envMapIntensity: 0.25 });
         PILARES.forEach(p => {
             const e3 = p.e + OE;
-            g.add(box3d(p.n - p.dn / 2, e3 - p.de / 2, p.dn, p.de, baseBot(e3, p.de), CEIL3D + CPA, matEmbase));
+            const m = box3d(p.n - p.dn / 2, e3 - p.de / 2, p.dn, p.de, baseBot(e3, p.de), CEIL3D + CPA, matPilar);
+            m.userData.pilar = { obra: matEmbase, pronto: matPilar };
+            g.add(m);
         });
 
         // Porta dos fundos (leste) — 6 degraus descendo p/ o quintal (mE cresce, terreno desce 2,5%)
@@ -4877,6 +4880,7 @@
         const ph = (v === 'v1') ? buildPhase : 7;
         S.group.children.forEach(o => {
             if (o.name === 'roof' || o.name === 'floor2' || o.name === 'drainV3') return; // tratados à parte (visibilidade só nos toggles)
+            if (o.userData && o.userData.pilar) o.material = ph < 5 ? o.userData.pilar.obra : o.userData.pilar.pronto;
             const p = o.userData ? o.userData.ph : null;
             if (p == null) return;                                // entorno/cotas → sempre visível
             o.visible = p <= ph;
