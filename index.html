@@ -437,6 +437,8 @@
             border-radius: 6px; cursor: pointer;
         }
         .map-floortoggle button:hover { background: rgba(15,23,42,0.95); }
+        .map-legend-ov .leg-item.leg-hidro { display: none; }
+        body.hidro-on .map-legend-ov .leg-item.leg-hidro { display: flex; }
         .map-floortoggle button.ativo { background: rgba(245,158,11,0.25); border-color: rgba(245,158,11,0.5); color: #fbbf24; }
 
         /* HUD de horário/mês */
@@ -690,16 +692,17 @@
                     </div>
                 </div>
                 <!-- Legenda: bottom-left, estilo HUD -->
+                <div class="map-floortoggle"><button type="button" class="btn-hidro" onclick="setHidro()">Hidráulica: oculta</button></div>
                 <div class="map-legend-ov">
                     <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#a16207;border-color:#7c2d12;"></div>Fossa, filtro, sumidouro</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#d6d3d1;border-color:#57534e;"></div>Caixa de inspeção (CI)</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#bae6fd;border-color:#0369a1;"></div>CI pluvial</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#fde68a;border-color:#a16207;"></div>Caixa de gordura</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#a16207;border-color:#7c2d12;"></div>Fossa, filtro, sumidouro</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#d6d3d1;border-color:#57534e;"></div>Caixa de inspeção (CI)</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#bae6fd;border-color:#0369a1;"></div>CI pluvial</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#fde68a;border-color:#a16207;"></div>Caixa de gordura</div>
                     <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
                 </div>
             </div>
@@ -730,16 +733,17 @@
                         <div class="pt"   style="left:11px;top:29px;color:#f59e0b">O</div>
                     </div>
                 </div>
+                <div class="map-floortoggle"><button type="button" class="btn-hidro" onclick="setHidro()">Hidráulica: oculta</button></div>
                 <div class="map-legend-ov">
                     <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#a16207;border-color:#7c2d12;"></div>Fossa, filtro, sumidouro</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#d6d3d1;border-color:#57534e;"></div>Caixa de inspeção (CI)</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#bae6fd;border-color:#0369a1;"></div>CI pluvial</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#fde68a;border-color:#a16207;"></div>Caixa de gordura</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#a16207;border-color:#7c2d12;"></div>Fossa, filtro, sumidouro</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#d6d3d1;border-color:#57534e;"></div>Caixa de inspeção (CI)</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#bae6fd;border-color:#0369a1;"></div>CI pluvial</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#fde68a;border-color:#a16207;"></div>Caixa de gordura</div>
                     <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
                 </div>
             </div>
@@ -773,16 +777,17 @@
                     </div>
                 </div>
                 <!-- Legenda: bottom-left, estilo HUD -->
+                <div class="map-floortoggle"><button type="button" class="btn-hidro" onclick="setHidro()">Hidráulica: oculta</button></div>
                 <div class="map-legend-ov">
                     <div class="leg-item"><div class="leg-sq" style="background:#5f7a3f;border-color:#3d5c28;"></div>Terreno</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#fafafa;border-color:#cbd5e1;"></div>Chão da casa</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#a16207;border-color:#7c2d12;"></div>Fossa, filtro, sumidouro</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#d6d3d1;border-color:#57534e;"></div>Caixa de inspeção (CI)</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#bae6fd;border-color:#0369a1;"></div>CI pluvial</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#fde68a;border-color:#a16207;"></div>Caixa de gordura</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#a16207;border-color:#7c2d12;"></div>Fossa, filtro, sumidouro</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#d6d3d1;border-color:#57534e;"></div>Caixa de inspeção (CI)</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#bae6fd;border-color:#0369a1;"></div>CI pluvial</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#fde68a;border-color:#a16207;"></div>Caixa de gordura</div>
                     <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
                 </div>
             </div>
@@ -810,6 +815,7 @@
                 <!-- Alternância de pavimento: top-right -->
                 <div class="map-floortoggle">
                     <button type="button" onclick="setV3Floor(this)">Piso: térreo</button>
+                    <button type="button" class="btn-hidro" onclick="setHidro()">Hidráulica: oculta</button>
                 </div>
                 <!-- Bússola: top-left, idêntica ao 3D -->
                 <div class="scene3d-compass">
@@ -827,10 +833,10 @@
                     <div class="leg-item"><div class="leg-sq" style="background:#334155;border-color:#0f172a;"></div>Paredes (poché)</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#e5e7eb;border-color:#6b7280;"></div>Bancadas</div>
                     <div class="leg-item"><div class="leg-sq" style="background:#eff6ff;border-color:#3b82f6;"></div>Box / molhado</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#a16207;border-color:#7c2d12;"></div>Fossa, filtro, sumidouro</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#d6d3d1;border-color:#57534e;"></div>Caixa de inspeção (CI)</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#bae6fd;border-color:#0369a1;"></div>CI pluvial</div>
-                    <div class="leg-item"><div class="leg-sq" style="background:#fde68a;border-color:#a16207;"></div>Caixa de gordura</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#a16207;border-color:#7c2d12;"></div>Fossa, filtro, sumidouro</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#d6d3d1;border-color:#57534e;"></div>Caixa de inspeção (CI)</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#bae6fd;border-color:#0369a1;"></div>CI pluvial</div>
+                    <div class="leg-item leg-hidro"><div class="leg-sq" style="background:#fde68a;border-color:#a16207;"></div>Caixa de gordura</div>
                     <div class="leg-item"><div class="leg-sq-outline"></div>Contorno do lote</div>
                 </div>
             </div>
@@ -1857,6 +1863,7 @@
     // Quando GEO !== null, os helpers métricos registram aqui o que desenham,
     // em metros do lote (mN, mE). O renderizador 3D (build3D) consome isso.
     let GEO = null;
+    let hidroVisivel = false;   // hidráulica no 2D: botão setHidro
 
 
 
@@ -2291,36 +2298,38 @@
             // Enterrados: só no 2D e na ficha de Medidas.
             lys.push(rect(0, 34 - OE, 12.5, 6, '#22c55e', { color: '#16a34a', weight: 1, dashArray: '5 4', fillOpacity: 0.22, no3d: true }));
             lys.push(roomLabel(9.5, 37 - OE, 'Faixa permeável', '6,00 × 12,50 m', '75 m²'));
-            // Rede enterrada, leitura do traçado da planta hidrossanitária (sem rótulos na prancha)
-            const redeE = { color: '#7c2d12', weight: 1.5, dashArray: '4 3', interactive: false };
-            const redeP = { color: '#0369a1', weight: 1.5, dashArray: '4 3', interactive: false };
-            const rede = (pts, sty) => lys.push(L.polyline(pts.map(([n, e]) => rot(n, e)), sty));
-            rede([[3.345, 19.40], [1.05, 19.30], [1.05, 30.50], [1.90, 30.50], [3.10, 30.50], [4.30, 30.60]], redeE);   // vaso → fossa → filtro → sumidouro
-            rede([[FACE.S, 19.77], [0.68, 19.77], [0.68, 30.96], [4.30, 30.96], [4.30, 30.60]], redeE);                 // águas de banho e lavanderia → sumidouro
-            rede([[7.30, 23.75], [7.95, 23.75], [7.96, 30.51], [4.30, 30.60]], redeE);                                  // pia → caixa de gordura → sumidouro
-            rede([[1.94, 20.07], [0.22, 20.05], [0.22, 17.21], [0.22, 0]], redeP);                                      // descida leste → CI → rede pública
-            rede([[1.94, 17.22], [0.22, 17.21]], redeP);                                                                // descida oeste → CI
-            const ESGOTO = { color: '#7c2d12', weight: 1, fillOpacity: 0.75, no3d: true };
-            const CI_E = { color: '#57534e', weight: 1, fillOpacity: 0.9, no3d: true };
-            const CI_P = { color: '#0369a1', weight: 1, fillOpacity: 0.9, no3d: true };
-            const rotuloRede = (n, e, txt) => lys.push(L.marker(rot(n, e), { interactive: false, icon: L.divIcon({
-                className: 'furn-lbl', html: `<span class="flbl">${txt}</span>`, iconSize: [0, 0], iconAnchor: [0, 0] }) }));
-            // [n, e, raio ou -, rótulo, n e e do rótulo]; coordenadas do lote, com OE
-            [[1.90, 30.50, 0.40, 'Fossa'], [3.10, 30.50, 0.40, 'Filtro'], [4.30, 30.60, 0.50, 'Sumidouro']].forEach(([n, e, r, txt]) => {
-                lys.push(circ(n, e - OE, r, '#a16207', ESGOTO));
-                rotuloRede(n, e, txt);
-            });
-            [[7.96, 30.51, 7.96, 31.20], [1.05, 30.50, 1.05, 29.80], [0.68, 30.96, 0.68, 31.65], [1.05, 19.30, 1.47, 19.30], [0.68, 19.77, 0.27, 19.77]].forEach(([n, e, ln, le]) => {
-                lys.push(rect(n - 0.20, e - OE - 0.20, 0.40, 0.40, '#d6d3d1', CI_E));   // caixa de inspeção de esgoto
-                rotuloRede(ln, le, 'CI');
-            });
-            [[0.22, 20.05, 0.22, 21.05], [0.22, 17.21, 0.22, 18.21]].forEach(([n, e, ln, le]) => {
-                lys.push(rect(n - 0.20, e - OE - 0.20, 0.40, 0.40, '#bae6fd', CI_P));   // caixa de inspeção pluvial
-                rotuloRede(ln, le, 'CI pluvial');
-            });
-            lys.push(circ(7.95, 23.75 - OE, 0.125, '#fde68a', { color: '#a16207', weight: 1, fillOpacity: 0.9, no3d: true }));
-            rotuloRede(8.40, 23.75, 'Caixa de gordura');
-            lys.push(roomLabel(3.10, 32.90 - OE, 'Esgoto', '', 'capacidade a confirmar'));
+            if (hidroVisivel) {
+                // Rede enterrada, leitura do traçado da planta hidrossanitária (sem rótulos na prancha)
+                const redeE = { color: '#7c2d12', weight: 1.5, dashArray: '4 3', interactive: false };
+                const redeP = { color: '#0369a1', weight: 1.5, dashArray: '4 3', interactive: false };
+                const rede = (pts, sty) => lys.push(L.polyline(pts.map(([n, e]) => rot(n, e)), sty));
+                rede([[3.345, 19.40], [1.05, 19.30], [1.05, 30.50], [1.90, 30.50], [3.10, 30.50], [4.30, 30.60]], redeE);   // vaso → fossa → filtro → sumidouro
+                rede([[FACE.S, 19.77], [0.68, 19.77], [0.68, 30.96], [4.30, 30.96], [4.30, 30.60]], redeE);                 // águas de banho e lavanderia → sumidouro
+                rede([[7.30, 23.75], [7.95, 23.75], [7.96, 30.51], [4.30, 30.60]], redeE);                                  // pia → caixa de gordura → sumidouro
+                rede([[1.94, 20.07], [0.22, 20.05], [0.22, 17.21], [0.22, 0]], redeP);                                      // descida leste → CI → rede pública
+                rede([[1.94, 17.22], [0.22, 17.21]], redeP);                                                                // descida oeste → CI
+                const ESGOTO = { color: '#7c2d12', weight: 1, fillOpacity: 0.75, no3d: true };
+                const CI_E = { color: '#57534e', weight: 1, fillOpacity: 0.9, no3d: true };
+                const CI_P = { color: '#0369a1', weight: 1, fillOpacity: 0.9, no3d: true };
+                const rotuloRede = (n, e, txt) => lys.push(L.marker(rot(n, e), { interactive: false, icon: L.divIcon({
+                    className: 'furn-lbl', html: `<span class="flbl">${txt}</span>`, iconSize: [0, 0], iconAnchor: [0, 0] }) }));
+                // [n, e, raio ou -, rótulo, n e e do rótulo]; coordenadas do lote, com OE
+                [[1.90, 30.50, 0.40, 'Fossa'], [3.10, 30.50, 0.40, 'Filtro'], [4.30, 30.60, 0.50, 'Sumidouro']].forEach(([n, e, r, txt]) => {
+                    lys.push(circ(n, e - OE, r, '#a16207', ESGOTO));
+                    rotuloRede(n, e, txt);
+                });
+                [[7.96, 30.51, 7.96, 31.20], [1.05, 30.50, 1.05, 29.80], [0.68, 30.96, 0.68, 31.65], [1.05, 19.30, 1.47, 19.30], [0.68, 19.77, 0.27, 19.77]].forEach(([n, e, ln, le]) => {
+                    lys.push(rect(n - 0.20, e - OE - 0.20, 0.40, 0.40, '#d6d3d1', CI_E));   // caixa de inspeção de esgoto
+                    rotuloRede(ln, le, 'CI');
+                });
+                [[0.22, 20.05, 0.22, 21.05], [0.22, 17.21, 0.22, 18.21]].forEach(([n, e, ln, le]) => {
+                    lys.push(rect(n - 0.20, e - OE - 0.20, 0.40, 0.40, '#bae6fd', CI_P));   // caixa de inspeção pluvial
+                    rotuloRede(ln, le, 'CI pluvial');
+                });
+                lys.push(circ(7.95, 23.75 - OE, 0.125, '#fde68a', { color: '#a16207', weight: 1, fillOpacity: 0.9, no3d: true }));
+                rotuloRede(8.40, 23.75, 'Caixa de gordura');
+                lys.push(roomLabel(3.10, 32.90 - OE, 'Esgoto', '', 'capacidade a confirmar'));
+            }
 
             // ── Labels das áreas ─────────────────────────────────────────────
             // Terreno — no quintal (abaixo da casa, fora das cotas)
@@ -2738,6 +2747,22 @@
         lys.push(dimLabel(9.5, 28, 'Terreno', '12,5 × 40 m', '500 m²', '#fbbf24', '#d97706'));
 
         return lys;
+    }
+
+    // Hidráulica no mapa 2D (rede, caixas, fossa, filtro, sumidouro): vale para todas as versões
+    function setHidro() {
+        hidroVisivel = !hidroVisivel;
+        document.body.classList.toggle('hidro-on', hidroVisivel);
+        document.querySelectorAll('.btn-hidro').forEach(b => {
+            b.textContent = 'Hidráulica: ' + (hidroVisivel ? 'visível' : 'oculta');
+            b.classList.toggle('ativo', hidroVisivel);
+        });
+        Object.keys(maps).forEach(v => {
+            const map = maps[v];
+            if (!map || !map._overlay) return;
+            map.removeLayer(map._overlay);
+            map._overlay = L.layerGroup(v === 'v3' ? v3Layers() : buildLayers(v)).addTo(map);
+        });
     }
 
     // Alternância de pavimento no mapa 2D do V3 (térreo ↔ 2º piso)

@@ -831,6 +831,7 @@ O sidebar lateral foi **removido**. Bússola e legenda ficam sobrepostos dentro 
 - **Bússola:** `div.scene3d-compass` posicionado `top:10px; left:10px; z-index:800` — mesmo CSS/posição do 3D
 - **Legenda:** `div.map-legend-ov` posicionado `bottom:40px; left:10px; z-index:800`
 - `zoomControl: false` no Leaflet — botões +/− removidos; zoom por scroll/pinch permanece
+- **Botão Hidráulica** (`.btn-hidro`, em `.map-floortoggle`): `setHidro()` alterna `hidroVisivel` e reconstrói os mapas abertos; rede, caixas, fossa, filtro e sumidouro só entram em `buildLayers` com ele ligado (começa oculto). A faixa permeável fica sempre visível. Itens `.leg-hidro` da legenda acompanham via `body.hidro-on`.
 
 ### Mapa 2D — comportamento de zoom
 
