@@ -2322,10 +2322,10 @@
                 lys.push(QUA.rect(0.075, 1.025, 0.6, 1.65, '#d6d0c4', { color: '#78716c', weight: 0.7, h3d: 0.88 })); // bancada de apoio sob a janela sul (passar, dobrar)
             }
 
-            // ─── COZINHA linear na parede norte: geladeira, fogão, bancada com pia sob a janela ───
-            lys.push(COZ.rect(2.225, 0.175, 0.65, 0.7, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // geladeira, porta p/ sul
-            lys.push(L.polyline([COZ.rot(2.575, 0.245), COZ.rot(2.575, 0.805)], { color: '#334155', weight: 0.6, interactive: false }));
-            lys.push(COZ.rect(2.275, 0.875, 0.6, 2.8, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 1.00, m3d: 'counter' })); // bancada
+            // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
+            lys.push(COZ.rect(1.575, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // geladeira, parede leste, porta p/ oeste (entre a porta dos fundos e a bancada)
+            lys.push(L.polyline([COZ.rot(1.645, 3.095), COZ.rot(2.205, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
+            lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 1.00, m3d: 'counter' })); // bancada: do pilar oeste até a parede leste
             lys.push(COZ.rect(2.275, 0.975, 0.6, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 1.00, m3d: 'stove' })); // fogão
             lys.push(COZ.circ(2.475, 1.125, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.01, h3d: 0.03 }));
             lys.push(COZ.circ(2.475, 1.375, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.01, h3d: 0.03 }));
