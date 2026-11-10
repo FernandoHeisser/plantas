@@ -1,7 +1,7 @@
 # Reconciliação V2 e V3 — garagem e sobrado × casa oficial
 
 Inventário do que deixou de encaixar depois da migração do V1 (branch `feat/v1-oficial`). Criado em
-2026-11-08. **Estado (2026-11-10):** V2 aplicado (G1 a G8; G9 aceito sem mudança). V3: T1, T2, T9 e T10 aplicados; T8 conferido sem mudança (telhado já assenta nos eixos novos). Pilares e vigas do 2º piso provisórios nas linhas do térreo; 2º piso da casa com a opção B escolhida pelo cliente (T5, T6). Pendentes: G10, G11, T3, T4, T7, T11 a T15.
+2026-11-08. **Estado (2026-11-10):** V2 aplicado (G1 a G8; G9 aceito sem mudança). V3: T1, T2, T9 e T10 aplicados; T8 conferido sem mudança (telhado já assenta nos eixos novos). Pilares e vigas do 2º piso provisórios nas linhas do térreo; 2º piso da casa com a opção B escolhida pelo cliente (T5, T6). Ficha de Medidas do V3 atualizada (T15). Pendentes: G10, G11, T3, T4, T7 e T11 a T14.
 
 **Natureza diferente do V1:** não há projeto oficial de V2 e V3. A referência é a casa oficial já
 migrada; o que passa disso continua sendo decisão do cliente. Os valores da coluna "Na app" foram
