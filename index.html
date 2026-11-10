@@ -3368,19 +3368,19 @@
             const z1   = panH;                             // topo da porta
             const gMat = fmat('#c8dde8', { transparent:true, opacity:0.28, roughness:0.02, metalness:0.05, envMapIntensity:1.8 });
 
-            // Caixilho externo (4 barras perimetrais, cor matFrame ≈ preto)
-            fbox(g, s.n,              s.e,              th, fr,    z0, z1, '#111827');  // esquerda
-            fbox(g, s.n, s.e + s.de - fr,               th, fr,    z0, z1, '#111827');  // direita
-            fbox(g, s.n,              s.e,              th, s.de,  z1 - fr, z1, '#111827');  // topo
-            fbox(g, s.n,              s.e,              th, s.de,  z0, z0 + fr, '#111827');  // trilho inferior
+            // Caixilho externo (4 barras perimetrais, alumínio branco)
+            fbox(g, s.n,              s.e,              th, fr,    z0, z1, '#f2f2f2');  // esquerda
+            fbox(g, s.n, s.e + s.de - fr,               th, fr,    z0, z1, '#f2f2f2');  // direita
+            fbox(g, s.n,              s.e,              th, s.de,  z1 - fr, z1, '#f2f2f2');  // topo
+            fbox(g, s.n,              s.e,              th, s.de,  z0, z0 + fr, '#f2f2f2');  // trilho inferior
 
             // 3 divisórias verticais internas (4 painéis iguais)
             for (let i = 1; i < nFol; i++) {
-                fbox(g, s.n, s.e + i * panW - fr / 2, th, fr, z0, z1, '#111827');
+                fbox(g, s.n, s.e + i * panW - fr / 2, th, fr, z0, z1, '#f2f2f2');
             }
 
             // Trilho horizontal central
-            fbox(g, s.n, s.e, th, s.de, z0 + midH - fr / 2, z0 + midH + fr / 2, '#111827');
+            fbox(g, s.n, s.e, th, s.de, z0 + midH - fr / 2, z0 + midH + fr / 2, '#f2f2f2');
 
             // Vidros: 4 colunas × 2 linhas (superior e inferior)
             for (let col = 0; col < 4; col++) {
@@ -3758,7 +3758,7 @@
         }
 
         // ── Esquadrias: batentes, montantes, peitoris e folhas de porta ──────
-        const matFrame = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5, metalness: 0.0, envMapIntensity: 0.3 });
+        const matFrame = new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: 0.45, metalness: 0.25, envMapIntensity: 0.4 }); // alumínio branco (todas as esquadrias)
         const matJanela = new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: 0.45, metalness: 0.25, envMapIntensity: 0.4 }); // alumínio branco
         const matSill  = new THREE.MeshStandardMaterial({ color: 0xd8d2c6, roughness: 0.6, metalness: 0, envMapIntensity: 0.4 });
         const matLeaf  = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.5, metalness: 0.0, envMapIntensity: 0.3 });
@@ -4205,7 +4205,7 @@
                     if (mat === matGlass) m.userData.ph = PH.esquadS;   // V4: vidro entra nas esquadrias, não na alvenaria
                 };
                 // Grade do caixilho (montantes + travessas) sobre o vidro — estilo padrão.
-                // Cor original do caixilho (matFrame); barras seção MT, profundidade MD.
+                // Caixilho em alumínio branco (matFrame); barras seção MT, profundidade MD.
                 const winGrid = (s, e, z0, z1, vp) => {
                     const MT = 0.06, D = t + 0.05;   // atravessa a parede toda (igual ao caixilho do térreo)
                     const bar = (a0, a1, zb0, zb1) => { const mb = (axis === 'EW')
