@@ -254,6 +254,7 @@ mexer nelas; não reintroduzir número solto em `buildLayers`/`buildBuilding3D`.
   precisa ser reposicionado se a largura do ambiente mudar.
 - **Ainda em literal:** V2/V3 (garagem, 2º piso, drenagem do V3). `COTA_FUNDO_E` só divide o polígono do chão no 2D.
 - **Pilares:** `userData.pilar` guarda o material de obra (concreto) e o pronto (reboco); `applyBuildPhase` troca na fase 5. Azulejo do banho: painéis finos em `buildBuilding3D`, com UV em tamanho real.
+- **Junta e 2º piso:** `GE1J` (face leste da garagem, 3 cm antes de `FACE.O`) é a única fonte da junta no V2, no 2º piso e na drenagem do V3. No V3, `F2_WALLS_CASA`/`F2_T_CASA` seguem as faces oficiais e `F2_CASA_LAYOUT = false` oculta cômodos, portas e janelas da casa no 2º piso até o novo layout. Estado em `docs/RECONCILIACAO-V2-V3.md`.
 - **Migração do V1 em andamento:** ver o estado em `docs/RECONCILIACAO-V1.md`. As tabelas de "Layout V1" descrevem a planta antiga até o fim da migração.
 
 ---
