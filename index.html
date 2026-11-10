@@ -1476,7 +1476,7 @@
         </div>
 
         <!-- Térreo — casa -->
-        <div class="med-section-title">Térreo — casa (mesmos cômodos do V1)</div>
+        <div class="med-section-title">Térreo — casa (dormitório vira despensa)</div>
         <div class="med-rooms-grid">
           <div class="med-room-card col-amber">
             <div class="med-room-name">Cozinha e sala de estar</div>
@@ -1495,13 +1495,13 @@
             <div class="med-room-name">Lavanderia</div>
             <div class="med-room-dims">1,30 × 2,50 m</div>
             <div class="med-room-area">3,25 m²</div>
-            <div class="med-room-meta">Tanque + máquina</div>
+            <div class="med-room-meta">Bancada de pedra: lavadora e secadora frontais nas pontas, cuba no meio<br>Varal de parede sobre a pedra<br>Abre só para a despensa (correr 1,20 m)</div>
           </div>
           <div class="med-room-card col-green">
-            <div class="med-room-name">Dormitório</div>
+            <div class="med-room-name">Despensa</div>
             <div class="med-room-dims">3,60 × 2,50 m</div>
             <div class="med-room-area">9,00 m²</div>
-            <div class="med-room-meta">Dim. menor 2,50 ≥ 2,40 ✓</div>
+            <div class="med-room-meta">Era o dormitório do V1/V2<br>Apoio da cozinha e da lavanderia: freezer, estante, armário, bancada de passar</div>
           </div>
         </div>
 
@@ -1635,8 +1635,8 @@
               <tbody>
                 <tr><td class="td-name">Principal (casa)</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Banho</td><td class="td-dims">0,60 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
-                <tr><td class="td-name">Lavanderia</td><td class="td-dims">0,70 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
-                <tr><td class="td-name">Dormitório</td><td class="td-dims">0,80 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
+                <tr><td class="td-name">Lavanderia ↔ despensa</td><td class="td-dims">1,20 × 2,10 m</td><td><span class="td-tag">correr 2 fl.</span></td></tr>
+                <tr><td class="td-name">Despensa</td><td class="td-dims">0,80 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Sala (norte)</td><td class="td-dims">1,60 × 2,10 m</td><td><span class="td-tag glass">correr 2 fl.</span></td></tr>
                 <tr><td class="td-name">Fundos (casa)</td><td class="td-dims">0,80 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Depósito</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
@@ -1650,8 +1650,8 @@
               <tbody>
                 <tr><td class="td-name">Banho</td><td class="td-dims">0,80 × 0,60 m</td><td><span class="td-tag">Sul</span></td></tr>
                 <tr><td class="td-name">Lavanderia</td><td class="td-dims">0,80 × 0,60 m</td><td><span class="td-tag">Sul</span></td></tr>
-                <tr><td class="td-name">Dormitório (sul)</td><td class="td-dims">1,40 × 1,20 m</td><td><span class="td-tag">Sul</span></td></tr>
-                <tr><td class="td-name">Dormitório (leste)</td><td class="td-dims">1,40 × 1,20 m</td><td><span class="td-tag">Leste</span></td></tr>
+                <tr><td class="td-name">Despensa (sul)</td><td class="td-dims">1,40 × 1,20 m</td><td><span class="td-tag">Sul</span></td></tr>
+                <tr><td class="td-name">Despensa (leste)</td><td class="td-dims">1,40 × 1,20 m</td><td><span class="td-tag">Leste</span></td></tr>
                 <tr><td class="td-name">Sala</td><td class="td-dims">1,20 × 1,00 m</td><td><span class="td-tag">Norte</span></td></tr>
                 <tr><td class="td-name">Cozinha</td><td class="td-dims">1,20 × 0,50 m</td><td><span class="td-tag">Norte</span></td></tr>
               </tbody>
@@ -1814,6 +1814,8 @@
         fundos:  { p: 'L',    ini: 4.90,         larg: 0.80, prof: ESP.ext, dob: 'ini', giro: +1 },
         quarto:  { p: 'LONG', ini: 21.45 - OE,   larg: 0.80, prof: 0.15, dob: 'ini', giro: -1 },
         servico: { p: 'LONG', ini: 20.40 - OE,   larg: 0.70, prof: 0.15, dob: 'fim', giro: +1 },
+        // V3: lavanderia ↔ despensa, porta de correr de 2 folhas (vão 1,20 m, centrado na parede)
+        lavDespensa: { p: 'SERV', ini: 2.80, larg: 1.20, prof: ESP.int },
     };
     // Janelas: mesma ideia; prof = espessura da parede; opts vai direto p/ win().
     const JANELAS = [
@@ -2216,7 +2218,7 @@
             corteVao(VAOS.vidro); // // Porta grande de vidro (lado da sala) — deslocada 0,3m p/ leste p/ equilíbrio
             corteVao(VAOS.fundos); // // Fundos (leste) — parede leste mE=31,5
             corteVao(VAOS.quarto); // // Quarto (interna) — parede norte mN=4,70, pela cozinha
-            corteVao(VAOS.servico); // // Á. serviço (interna) — parede norte mN=4,70, pela sala/cozinha
+            if (v !== 'v3') corteVao(VAOS.servico); else corteVao(VAOS.lavDespensa); // // Á. serviço (interna) — parede norte mN=4,70, pela sala/cozinha
 
             // Janelas
             JANELAS.forEach(j => {
@@ -2244,7 +2246,7 @@
             backStairs2D().forEach(l => lys.push(l));
             arcoVao(VAOS.fundos); // Fundos → abre p/ oeste (cozinha), hinge mN=5,60
             arcoVao(VAOS.quarto); // Quarto → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
-            arcoVao(VAOS.servico); // Á. serviço → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
+            if (v !== 'v3') arcoVao(VAOS.servico); // Á. serviço → parede norte mN=4,70, abre p/ sul (dentro), hinge leste
 
             // Móveis e rótulos: coordenadas RELATIVAS ao canto SO (eixos) de cada ambiente.
             // Mudou um eixo → o conteúdo do ambiente acompanha.
@@ -2254,6 +2256,7 @@
                 rot:    (n, e) => rot(n0 + n, e0 + e + OE),
                 rotulo: (n, e, ...r) => roomLabel(n0 + n, e0 + e, ...r),
             });
+            const V3 = v === 'v3';   // no V3 o dormitório vira despensa e a lavanderia muda (ver abaixo)
             const HAL = noAmbiente(EIXO.S, EIXO.O), BAN = noAmbiente(EIXO.S, EIXO.HALL),
                   SER = noAmbiente(EIXO.S, EIXO.BANHO), QUA = noAmbiente(EIXO.S, EIXO.SERV),
                   SAL = noAmbiente(EIXO.LONG, EIXO.O), COZ = noAmbiente(EIXO.LONG, EIXO.SERV);
@@ -2271,25 +2274,50 @@
             lys.push(BAN.rect(1.675, 0.925, 0.9, 0.45, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.85, m3d: 'lavatory' }));
             lys.push(BAN.rect(1.945, 1.005, 0.36, 0.25, '#dbeafe', { color: '#475569', weight: 0.4, no3d: true }));
 
-            // ─── DORMITÓRIO 3,60 × 2,50 m (A01) ───
-            // Cama definida pelas tomadas da planta elétrica: cabeceira na parede norte
-            lys.push(QUA.rect(0.605, 1.625, 1.9, 1.4, '#fef3c7', { color: '#92400e', weight: 0.9, z3d: 0.20, h3d: 0.30, m3d: 'bed' })); // colchão
-            lys.push(QUA.rect(2.405, 1.625, 0.1, 1.4, '#78350f', { color: '#451a03', weight: 0.5, h3d: 0.90, no3d: true })); // cabeceira
-            lys.push(QUA.rect(2.145, 1.725, 0.26, 0.55, '#ffffff', { color: '#94a3b8', weight: 0.5, no3d: true })); // travesseiro 1
-            lys.push(QUA.rect(2.145, 2.375, 0.26, 0.55, '#ffffff', { color: '#94a3b8', weight: 0.5, no3d: true })); // travesseiro 2
-            lys.push(L.polyline([QUA.rot(1.755, 1.675), QUA.rot(1.755, 2.975)], { color: '#92400e', weight: 0.6, dashArray: '3 2', interactive: false }));
-            lys.push(QUA.rect(2.125, 1.175, 0.38, 0.45, '#a16207', { color: '#451a03', weight: 0.7, h3d: 0.55 })); // criado-mudo oeste
-            lys.push(QUA.rect(2.125, 3.025, 0.38, 0.45, '#a16207', { color: '#451a03', weight: 0.7, h3d: 0.55 })); // criado-mudo leste
-            // Guarda-roupa: parede oeste, portas p/ leste, termina antes da folha da porta aberta
-            lys.push(QUA.rect(0.075, 0.075, 1.6, 0.6, '#a16207', { color: '#451a03', weight: 0.8, h3d: 2.00, m3d: 'wardrobeE' }));
-            lys.push(L.polyline([QUA.rot(0.875, 0.075), QUA.rot(0.875, 0.675)], { color: '#451a03', weight: 0.5, interactive: false }));
-            lys.push(L.polyline([QUA.rot(0.075, 0.675), QUA.rot(1.675, 0.675)], { color: '#451a03', weight: 0.5, interactive: false }));
+            if (!V3) {
+                // ─── DORMITÓRIO 3,60 × 2,50 m (A01) ───
+                // Cama definida pelas tomadas da planta elétrica: cabeceira na parede norte
+                lys.push(QUA.rect(0.605, 1.625, 1.9, 1.4, '#fef3c7', { color: '#92400e', weight: 0.9, z3d: 0.20, h3d: 0.30, m3d: 'bed' })); // colchão
+                lys.push(QUA.rect(2.405, 1.625, 0.1, 1.4, '#78350f', { color: '#451a03', weight: 0.5, h3d: 0.90, no3d: true })); // cabeceira
+                lys.push(QUA.rect(2.145, 1.725, 0.26, 0.55, '#ffffff', { color: '#94a3b8', weight: 0.5, no3d: true })); // travesseiro 1
+                lys.push(QUA.rect(2.145, 2.375, 0.26, 0.55, '#ffffff', { color: '#94a3b8', weight: 0.5, no3d: true })); // travesseiro 2
+                lys.push(L.polyline([QUA.rot(1.755, 1.675), QUA.rot(1.755, 2.975)], { color: '#92400e', weight: 0.6, dashArray: '3 2', interactive: false }));
+                lys.push(QUA.rect(2.125, 1.175, 0.38, 0.45, '#a16207', { color: '#451a03', weight: 0.7, h3d: 0.55 })); // criado-mudo oeste
+                lys.push(QUA.rect(2.125, 3.025, 0.38, 0.45, '#a16207', { color: '#451a03', weight: 0.7, h3d: 0.55 })); // criado-mudo leste
+                // Guarda-roupa: parede oeste, portas p/ leste, termina antes da folha da porta aberta
+                lys.push(QUA.rect(0.075, 0.075, 1.6, 0.6, '#a16207', { color: '#451a03', weight: 0.8, h3d: 2.00, m3d: 'wardrobeE' }));
+                lys.push(L.polyline([QUA.rot(0.875, 0.075), QUA.rot(0.875, 0.675)], { color: '#451a03', weight: 0.5, interactive: false }));
+                lys.push(L.polyline([QUA.rot(0.075, 0.675), QUA.rot(1.675, 0.675)], { color: '#451a03', weight: 0.5, interactive: false }));
 
-            // ─── LAVANDERIA 1,30 × 2,50 m (A01): tanque e máquina na parede oeste ───
-            lys.push(SER.rect(1.825, 0.075, 0.47, 0.42, '#bae6fd', { color: '#0369a1', weight: 0.8, h3d: 0.85, m3d: 'tank' }));
-            lys.push(SER.rect(1.895, 0.135, 0.33, 0.3, '#7dd3fc', { color: '#0369a1', weight: 0.5, no3d: true }));
-            lys.push(SER.rect(0.795, 0.075, 0.54, 0.59, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 0.85 }));
-            lys.push(SER.circ(1.065, 0.37, 0.15, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true })); // tampa
+                // ─── LAVANDERIA 1,30 × 2,50 m (A01): tanque e máquina na parede oeste ───
+                lys.push(SER.rect(1.825, 0.075, 0.47, 0.42, '#bae6fd', { color: '#0369a1', weight: 0.8, h3d: 0.85, m3d: 'tank' }));
+                lys.push(SER.rect(1.895, 0.135, 0.33, 0.3, '#7dd3fc', { color: '#0369a1', weight: 0.5, no3d: true }));
+                lys.push(SER.rect(0.795, 0.075, 0.54, 0.59, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 0.85 }));
+                lys.push(SER.circ(1.065, 0.37, 0.15, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true })); // tampa
+            } else {
+                // V3: lavanderia com bancada de pedra na parede oeste (proposta do cliente): lavadora e
+                // secadora frontais nas pontas, cuba no meio, prateleiras embaixo, varal sobre a pedra.
+                lys.push(SER.rect(0.125, 0.095, 0.6, 0.6, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 0.85 })); // lavadora (ponta sul)
+                lys.push(SER.circ(0.425, 0.395, 0.18, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+                lys.push(SER.rect(1.925, 0.095, 0.6, 0.6, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 0.85 })); // secadora (ponta norte)
+                lys.push(SER.circ(2.225, 0.395, 0.18, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
+                lys.push(SER.rect(1.075, 0.125, 0.5, 0.55, '#bae6fd', { color: '#0369a1', weight: 0.8, h3d: 0.90, m3d: 'tank' })); // cuba funda na pedra
+                lys.push(SER.rect(0.775, 0.095, 0.28, 0.55, '#c8a27a', { color: '#78350f', weight: 0.6, h3d: 0.80 })); // prateleiras sob a pedra
+                lys.push(SER.rect(1.595, 0.095, 0.31, 0.55, '#c8a27a', { color: '#78350f', weight: 0.6, h3d: 0.80 }));
+                lys.push(SER.rect(0.075, 0.075, 1, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 })); // bancada de pedra (2 trechos, a cuba fica entre eles)
+                lys.push(SER.rect(1.575, 0.075, 1, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 }));
+                lys.push(SER.rect(0.325, 0.075, 2, 0.06, '#94a3b8', { color: '#475569', weight: 0.5, z3d: 1.55, h3d: 0.05 })); // varal de parede, pinga na pedra
+                lys.push(SER.rect(0.125, 0.075, 2.4, 0.3, '#c8a27a', { color: '#78350f', weight: 0.5, dashArray: '3 2', fillOpacity: 0.3, z3d: 1.95, h3d: 0.03 })); // prateleira alta
+
+                // V3: o dormitório vira despensa, apoio da cozinha e da lavanderia
+                lys.push(QUA.rect(0.105, 0.085, 0.62, 0.04, '#8a5a33', { color: '#451a03', weight: 0.6, h3d: 2.10 })); // folhas da porta de correr, abertas
+                lys.push(QUA.rect(1.925, 0.085, 0.62, 0.04, '#8a5a33', { color: '#451a03', weight: 0.6, h3d: 2.10 }));
+                lys.push(QUA.rect(1.875, 2.075, 0.65, 0.7, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // freezer ou 2ª geladeira
+                lys.push(L.polyline([QUA.rot(2.205, 2.145), QUA.rot(2.205, 2.705)], { color: '#334155', weight: 0.6, interactive: false }));
+                lys.push(QUA.rect(2.175, 1.125, 0.35, 0.85, '#8a5a33', { color: '#451a03', weight: 0.7, h3d: 2.00 })); // estante alta
+                lys.push(QUA.rect(0.175, 3.125, 1.6, 0.55, '#c8a27a', { color: '#78350f', weight: 0.7, h3d: 0.85 })); // armário baixo sob a janela leste
+                lys.push(QUA.rect(0.075, 1.025, 0.6, 1.65, '#d6d0c4', { color: '#78716c', weight: 0.7, h3d: 0.88 })); // bancada de apoio sob a janela sul (passar, dobrar)
+            }
 
             // ─── COZINHA linear na parede norte: geladeira, fogão, bancada com pia sob a janela ───
             lys.push(COZ.rect(2.225, 0.175, 0.65, 0.7, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // geladeira, porta p/ sul
@@ -2326,7 +2354,7 @@
             // ─── LABELS DOS CÔMODOS ──────────────────────────────────────────
             lys.push(BAN.rotulo(1.35, 0.85, 'Banho', '1,30 × 2,50 m', '3,25 m²'));
             lys.push(SER.rotulo(1.35, 0.85, 'Lavanderia', '1,30 × 2,50 m', '3,25 m²'));
-            lys.push(QUA.rotulo(1.35, 1.85, 'Dormitório', '3,60 × 2,50 m', '9,00 m²'));
+            lys.push(QUA.rotulo(1.35, 1.85, V3 ? 'Despensa' : 'Dormitório', '3,60 × 2,50 m', '9,00 m²'));
             lys.push(HAL.rotulo(1, 0.90, 'Hall',      '',         ''));
             lys.push(SAL.rotulo(0.475, 2.525, 'Cozinha e sala de estar', '', '24,88 m²'));
 
