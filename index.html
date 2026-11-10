@@ -2452,21 +2452,26 @@
     //    Coords do lote (sem OE); os helpers aplicam OE. Centerlines das paredes.
     const F2_GAP  = 0.03;
     const F2_GE1j = GE1J;                  // face leste da garagem (= junta do V2)
+    // Casa no 2º piso: faces = faces do térreo oficial. Espessura provisória igual à do térreo,
+    // até a arquiteta responder (T7). Cômodos ocultos até o novo layout (T5).
+    const F2_T_CASA = ESP.ext;
+    const F2_CASA_LAYOUT = false;
+    const F2_WALLS_CASA = [
+        [FACE.S + F2_T_CASA / 2, FACE.O - OE, FACE.S + F2_T_CASA / 2, FACE.L - OE],   // sul
+        [FACE.N - F2_T_CASA / 2, FACE.O - OE, FACE.N - F2_T_CASA / 2, FACE.L - OE],   // norte
+        [FACE.S, FACE.O - OE + F2_T_CASA / 2, FACE.N, FACE.O - OE + F2_T_CASA / 2],   // oeste (junta)
+        [FACE.S, FACE.L - OE - F2_T_CASA / 2, FACE.N, FACE.L - OE - F2_T_CASA / 2],   // leste
+    ];
     const F2_WALLS = [
         // Garagem (mN 2→10,5, mE 13,5→GE1j) — leste recuada p/ a face cair na junta
-        [2.0,           13.5,  2.0,           F2_GE1j],  // sul
+        [FACE.S + 0.10, 13.5,  FACE.S + 0.10, F2_GE1j],  // sul (face em 2,00)
         [2.0,           13.5,  10.5,          13.5   ],  // oeste (face das colunas)
         [10.5,          13.5,  10.5,          F2_GE1j],  // norte (face das colunas)
         [2.0,  F2_GE1j - 0.10, 10.5, F2_GE1j - 0.10  ],  // leste (junta) — face em GE1j
-        // Casa (mN 2→7,5, mE 22,5→31,5) — oeste = parede oeste do térreo (face 22,40)
-        [2.0,           22.5,  2.0,           31.5   ],  // sul
-        [2.0,           22.5,  7.5,           22.5   ],  // oeste (junta)
-        [7.5,           22.5,  7.5,           31.5   ],  // norte
-        [2.0,           31.5,  7.5,           31.5   ],  // leste
     ];
     // Contornos das lajes (2 retângulos) [n0,e0,n1,e1] + faixa da junta
     const F2_SLAB_GAR  = [2.0, 13.5, 10.5, F2_GE1j];   // garagem (até a junta)
-    const F2_SLAB_CASA = [2.0, 22.5, 7.5,  31.5];      // casa
+    const F2_SLAB_CASA = [FACE.S, FACE.O - OE, FACE.N, FACE.L - OE];   // casa
 
     // Portas internas do 2º piso da casa — compartilhado 2D (arcos) + 3D (vãos+folhas).
     // axis 'EW' (parede em mN=pos) / 'NS' (parede em mE=pos); vão [a0,a1] ao longo do eixo;
@@ -2507,7 +2512,7 @@
     const F2G_IWALLS = [    // divisórias internas (IW=0,10) — [n1,e1,n2,e2]
         [4.6,  13.5,  4.6,  17.9],   // E-O: parede sul do escritório (mN 4,6)
         [7.32, 13.5,  7.32, 17.9],   // E-O: parede norte do escritório = sul do quarto 2 (mN 7,32 → quarto 2 = 14 m²)
-        [6.2,  19.11, 6.2,  22.37],  // E-O: parede sul do quarto 1 (mN 6,2)
+        [6.2,  19.11, 6.2,  GE1J],  // E-O: parede sul do quarto 1 (mN 6,2)
         [4.6,  17.9,  10.5, 17.9],   // N-S: linha da coluna/viga central (mE 17,9) — escritório + parede oeste do corredor
         [6.2,  19.11, 10.5, 19.11],  // N-S: parede oeste do quarto 1 / leste do corredor (mE 19,11 → quarto 1 = 14 m²)
     ];
@@ -2515,7 +2520,7 @@
         { axis:'NS', pos:17.9, a0:5.85, a1:6.65,  leaves:[{hn:6.65, he:17.9, dn:-0.8,de:0, sw:-1}] }, // escritório → corredor (logo ao sul da coluna; libera lateral sul p/ móvel)
         { axis:'NS', pos:17.9, a0:9.3,  a1:10.1,  leaves:[{hn:10.1, he:17.9, dn:-0.8,de:0, sw:-1}] }, // quarto 2 → corredor (porta ao norte, margem 0,4 m)
         { axis:'NS', pos:19.11,a0:9.3,  a1:10.1,  leaves:[{hn:10.1, he:19.11,dn:-0.8,de:0, sw:+1}] }, // quarto 1 → corredor (porta ao norte, margem 0,4 m)
-        { axis:'NS', pos:22.27,a0:4.7,   a1:5.5,   leaves:[{hn:4.7, he:22.27,dn:0.8, de:0,   sw:+1}], junta:true }, // cruza a junta → acesso da casa
+        { axis:'NS', pos:GE1J - 0.10,a0:4.7, a1:5.5, leaves:[{hn:4.7, he:GE1J - 0.10,dn:0.8, de:0,   sw:+1}], junta:true }, // cruza a junta → acesso da casa
     ];
     const F2G_WINDOWS = [   // quartos e escritório PANORÂMICAS (peitoril 0,40 → verga 2,25); corredor normal
         { axis:'EW', line:10.5,  s:13.9,  e:17.5,  sill:0.40, head:2.25, side:'N' }, // quarto 2 — norte (panorâmica, centrada)
@@ -2524,9 +2529,9 @@
         { axis:'NS', line:13.5,  s:4.70,  e:6.55,  sill:0.40, head:2.25, side:'W' }, // escritório — oeste (movida p/ sul, clara da coluna mN 6,75)
         { axis:'NS', line:13.5,  s:2.30,  e:3.10,  sill:0.40, head:2.25, side:'W', vpanes:true }, // corredor SW — oeste (nova, 2 panos verticais)
         { axis:'EW', line:10.5,  s:19.51, e:21.97, sill:0.40, head:2.25, side:'N' }, // quarto 1 — norte (panorâmica, centrada)
-        { axis:'NS', line:22.27, s:8.0,   e:10.1,  sill:0.40, head:2.25, side:'E' }, // quarto 1 — leste (panorâmica, centrada no trecho exterior)
-        { axis:'EW', line:2.0,   s:14.3,  e:17.24, sill:0.90, head:2.20, side:'S' }, // sul corredor/escada — grande (vão oeste, entre colunas)
-        { axis:'EW', line:2.0,   s:18.64, e:21.57, sill:0.90, head:2.20, side:'S' }, // sul corredor/escada — grande (vão leste, entre colunas)
+        { axis:'NS', line:GE1J - 0.10, s:8.0,   e:10.1,  sill:0.40, head:2.25, side:'E' }, // quarto 1 — leste (panorâmica, centrada no trecho exterior)
+        { axis:'EW', line:FACE.S + 0.10, s:14.3,  e:17.24, sill:0.90, head:2.20, side:'S' }, // sul corredor/escada — grande (vão oeste, entre colunas)
+        { axis:'EW', line:FACE.S + 0.10, s:18.64, e:21.57, sill:0.90, head:2.20, side:'S' }, // sul corredor/escada — grande (vão leste, entre colunas)
     ];
 
     // Escada 2D (só desenho, no3d) — fonte única: térreo V2/V3 + visão 2º piso V3.
@@ -2686,32 +2691,35 @@
 
         // Paredes externas (20 cm) — GEO null aqui, então não captura p/ 3D
         F2_WALLS.forEach(([n1, e1, n2, e2]) => lys.push(wall(n1, e1, n2, e2, 0.20, { no3d: true })));
+        F2_WALLS_CASA.forEach(([n1, e1, n2, e2]) => lys.push(wall(n1, e1, n2, e2, F2_T_CASA, { no3d: true })));
 
-        // Divisórias internas da casa (10 cm)
-        lys.push(wall(4.5, 22.5, 4.5, 31.5, 0.10, { no3d: true }));  // E-O mN 4,5 (sul↔norte)
-        lys.push(wall(2.0, 25.5, 7.5, 25.5, 0.10, { no3d: true }));  // N-S mE 25,5 (inteira)
-        lys.push(wall(2.0, 28.5, 4.5, 28.5, 0.10, { no3d: true }));  // N-S mE 28,5 (só sul)
+        if (F2_CASA_LAYOUT) {
+            // Divisórias internas da casa (10 cm)
+            lys.push(wall(4.5, 22.5, 4.5, 31.5, 0.10, { no3d: true }));  // E-O mN 4,5 (sul↔norte)
+            lys.push(wall(2.0, 25.5, 7.5, 25.5, 0.10, { no3d: true }));  // N-S mE 25,5 (inteira)
+            lys.push(wall(2.0, 28.5, 4.5, 28.5, 0.10, { no3d: true }));  // N-S mE 28,5 (só sul)
 
-        // Portas: recorte branco do vão (sobre a parede) + arco/folha de abertura
-        F2_DOORS.forEach(d => {
-            if (d.axis === 'EW') lys.push(rect(d.pos - 0.05, d.a0, 0.10, d.a1 - d.a0, '#fafafa', { color: 'transparent', weight: 0, no3d: true }));
-            else                 lys.push(rect(d.a0, d.pos - 0.05, d.a1 - d.a0, 0.10, '#fafafa', { color: 'transparent', weight: 0, no3d: true }));
-            d.leaves.forEach(L => doorArc(L.hn, L.he, L.dn, L.de, L.sw).forEach(l => lys.push(l)));
-        });
+            // Portas: recorte branco do vão (sobre a parede) + arco/folha de abertura
+            F2_DOORS.forEach(d => {
+                if (d.axis === 'EW') lys.push(rect(d.pos - 0.05, d.a0, 0.10, d.a1 - d.a0, '#fafafa', { color: 'transparent', weight: 0, no3d: true }));
+                else                 lys.push(rect(d.a0, d.pos - 0.05, d.a1 - d.a0, 0.10, '#fafafa', { color: 'transparent', weight: 0, no3d: true }));
+                d.leaves.forEach(L => doorArc(L.hn, L.he, L.dn, L.de, L.sw).forEach(l => lys.push(l)));
+            });
 
-        // Janelas externas da casa (quarto panorâmicas norte/leste; closet sul/leste)
-        const F2_WIN_IDS = ['J24','J8','J9','J10','J11','J12','J13','J14']; // J24=baia1 (nova)
-        F2_WINDOWS.forEach((w, i) => {
-            const o = { sill: w.sill, head: w.head };
-            if (w.axis === 'EW') win(w.line - 0.10, w.s, 0.20, w.e - w.s, 'N', o).forEach(l => lys.push(l));
-            else                 win(w.s, w.line - 0.10, w.e - w.s, 0.20, 'E', o).forEach(l => lys.push(l));
-        });
+            // Janelas externas da casa (quarto panorâmicas norte/leste; closet sul/leste)
+            const F2_WIN_IDS = ['J24','J8','J9','J10','J11','J12','J13','J14']; // J24=baia1 (nova)
+            F2_WINDOWS.forEach((w, i) => {
+                const o = { sill: w.sill, head: w.head };
+                if (w.axis === 'EW') win(w.line - 0.10, w.s, 0.20, w.e - w.s, 'N', o).forEach(l => lys.push(l));
+                else                 win(w.s, w.line - 0.10, w.e - w.s, 0.20, 'E', o).forEach(l => lys.push(l));
+            });
+        }
 
         // ── 2º piso da GARAGEM: divisórias + portas + janelas + rótulos ──────
         F2G_IWALLS.forEach(([n1, e1, n2, e2]) => lys.push(wall(n1, e1, n2, e2, 0.10, { no3d: true })));
         F2G_DOORS.forEach(d => {
             if (d.junta) {  // recorte nas DUAS paredes da junta (garagem leste + casa oeste)
-                [F2_GE1j - 0.10, 22.5].forEach(pe =>
+                [F2_GE1j - 0.10, FACE.O - OE + F2_T_CASA / 2].forEach(pe =>
                     lys.push(rect(d.a0, pe - 0.05, d.a1 - d.a0, 0.10, '#fafafa', { color: 'transparent', weight: 0, no3d: true })));
             } else if (d.axis === 'EW') {
                 lys.push(rect(d.pos - 0.05, d.a0, 0.10, d.a1 - d.a0, '#fafafa', { color: 'transparent', weight: 0, no3d: true }));
@@ -2745,7 +2753,7 @@
         dimLine(0, 42, 12.5, 42, '12,5 m', '#f59e0b').forEach(l => lys.push(l));
 
         // Label
-        lys.push(roomLabel(6.0, 28.0, 'Suíte', '6,0 × 3,0 m', '~18 m²'));
+        lys.push(roomLabel((FACE.S + FACE.N) / 2, (FACE.O + FACE.L) / 2 - OE, 'Casa · 2º piso', 'cômodos a definir', ''));
         lys.push(dimLabel(9.5, 28, 'Terreno', '12,5 × 40 m', '500 m²', '#fbbf24', '#d97706'));
 
         return lys;
@@ -4196,24 +4204,26 @@
 
             // Faces externas (alinhadas à estrutura do térreo). Casa = face das paredes
             // (linha∓EW/2); garagem = face das colunas (na linha). Junta = GE1j do V2.
-            const S     = 2.0 - EW/2;     // sul (mN 1,90)
+            const S     = FACE.S;         // sul: face do térreo (casa e garagem)
             const W     = 13.5;           // oeste garagem (face das colunas)
             const Ngar  = 10.5;           // norte garagem (face das colunas)
             const Wcasa = FACE.O - OE;    // oeste casa = face oeste do térreo
             const Egar  = GE1J;           // leste garagem = junta
-            const Ncasa = 7.5 + EW/2;     // norte casa (mN 7,60)
-            const Ecasa = 31.5 + EW/2;    // leste casa (mE 31,60)
+            const Ncasa = FACE.N;         // norte casa
+            const Ecasa = FACE.L - OE;    // leste casa
+            const TC = F2_T_CASA;
+            const casaWins = (a, l) => F2_CASA_LAYOUT ? winsOn(a, l) : [];
             const hN0 = 2.20, hN1 = 3.40, hE0 = 15.90, hE1 = 19.80;  // vão da escada (garagem)
 
             // ── Estrutura GARAGEM (mN S→Ngar, mE W→Egar) — laje 1 c/ vão + 4 paredes ──
             // Beiral: sul/norte/oeste estendem conforme BN_*; leste = junta (sem beiral externo)
             _ph = PH.gLaje;   // laje da garagem (= teto do pilotis, chão do 2º pav) → bloco V2
-            addSlab(S-BN_S,  W-BN_EW, hN0-(S-BN_S),         Egar-(W-BN_EW));  // sul + beiral sul/oeste
-            addSlab(hN1,     W-BN_EW, (Ngar+BN_N)-hN1,      Egar-(W-BN_EW));  // norte + beiral norte/oeste
-            addSlab(hN0,     W-BN_EW, hN1-hN0,              hE0-(W-BN_EW));   // oeste do vão + beiral oeste
+            addSlab(S-COB.beiral,  W-COB.beiral, hN0-(S-COB.beiral),         Egar-(W-COB.beiral));  // sul + beiral sul/oeste
+            addSlab(hN1,     W-COB.beiral, (Ngar+COB.beiral)-hN1,      Egar-(W-COB.beiral));  // norte + beiral norte/oeste
+            addSlab(hN0,     W-COB.beiral, hN1-hN0,              hE0-(W-COB.beiral));   // oeste do vão + beiral oeste
             addSlab(hN0,     hE1,     hN1-hN0,              Egar-hE1);         // leste do vão (junta — sem beiral)
             _ph = PH.alvenS;   // paredes externas do 2º pav da garagem (com janelas)
-            winWall('EW', 2.0, W, Egar, EW, winsG('S'));                 // sul (corredor/escada) — janelas grandes
+            winWall('EW', S + EW/2, W, Egar, EW, winsG('S'));                 // sul (corredor/escada) — janelas grandes
             winWall('NS', W + EW/2,    S, Ngar, EW, winsG('W'));         // oeste — janela do escritório
             winWall('EW', Ngar - EW/2, W, Egar, EW, winsG('N'));         // norte — janelas dos 3 cômodos (sol de inverno)
             winWall('NS', Egar - EW/2, S, Ngar, EW,                      // leste/junta — porta de ligação + janela leste do quarto 1
@@ -4224,26 +4234,13 @@
             // junta (Egar) — SEM beiral oeste — p/ encostar rente na laje da garagem (sem
             // sobreposição nem vão entre as duas).
             _ph = PH.laje1;
-            addSlab(S-BN_S, Egar, (Ncasa+BN_N)-(S-BN_S), (Ecasa+BN_EW)-Egar);
-            // Borda visível do beiral da laje 1 — fascia de 25 cm nas faces externas (sem junta)
-            const addBorda = (n, e, dn, de) => F2.add(box3d(n, e + OE, dn, de, lz0 - 0.25, lz1, lajeMat));
-            const BT = 0.08;  // espessura da face da borda
-            const cn0 = S-BN_S, cn1 = Ncasa+BN_N, ce0 = Egar, ce1 = Ecasa+BN_EW;
-            addBorda(cn0,    ce0, BT,       ce1-ce0); // face sul
-            addBorda(cn1-BT, ce0, BT,       ce1-ce0); // face norte
-            addBorda(cn0,    ce1-BT, cn1-cn0, BT);    // face leste (junta oeste = sem borda)
-            // Garagem: faces sul, norte, oeste (leste = junta) — borda da laje da garagem → bloco V2
-            _ph = PH.gLaje;
-            const gn0b = S-BN_S, gn1b = Ngar+BN_N, ge0b = W-BN_EW;
-            addBorda(gn0b,      ge0b, BT,        Egar-ge0b); // face sul
-            addBorda(gn1b-BT,   ge0b, BT,        Egar-ge0b); // face norte
-            addBorda(gn0b,      ge0b, gn1b-gn0b, BT);        // face oeste
+            addSlab(S-COB.beiral, Wcasa, (Ncasa+COB.beiral)-(S-COB.beiral), (Ecasa+COB.beiral)-Wcasa);   // = laje construída no V1
             _ph = PH.alvenS;   // paredes externas do 2º pav da casa
-            winWall('EW', 2.0,  Wcasa, Ecasa, EW, winsOn('EW', 2.0));   // sul  (janela do closet)
-            winWall('NS', Wcasa + EW/2, S, Ncasa, EW,                   // oeste (junta) — vão da porta de ligação com a garagem
+            winWall('EW', S + TC/2, Wcasa, Ecasa, TC, casaWins('EW', 2.0));   // sul  (janela do closet)
+            winWall('NS', Wcasa + TC/2, S, Ncasa, TC,                   // oeste (junta) — vão da porta de ligação com a garagem
                 [{ s: 4.7, e: 5.5, sill: 0, head: F2_DOORH, open: true }]);
-            winWall('EW', 7.5,  Wcasa, Ecasa, EW, winsOn('EW', 7.5));   // norte (panorâmicas do quarto)
-            winWall('NS', 31.5, S,     Ncasa, EW, winsOn('NS', 31.5));  // leste (quarto panorâmica + closet normal)
+            winWall('EW', Ncasa - TC/2, Wcasa, Ecasa, TC, casaWins('EW', 7.5));   // norte (panorâmicas do quarto)
+            winWall('NS', Ecasa - TC/2, S, Ncasa, TC, casaWins('NS', 31.5));  // leste (quarto panorâmica + closet normal)
 
             // ── Divisórias internas da casa + portas (vãos recortados + folhas) ──
             // Grade 2×3: E-O em mN 4,5 (sul↔norte); N-S em mE 25,5 (inteira) e 28,5 (só sul).
@@ -4262,13 +4259,13 @@
                 if (cur < a1) box(cur, a1, fz0, fz1);              // segmento final
             };
             _ph = PH.alvenS;   // divisórias internas do 2º pav (casa)
-            intWall('EW', 4.5,  22.5, 31.5, [[23.6, 24.4], [29.3, 30.7]]); // banheiro 2pav + closet (dupla)
-            intWall('NS', 25.5, 2.0,  7.5,  [[5.6, 6.4]]);                 // quarto
-            intWall('NS', 28.5, 2.0,  4.5,  [[2.85, 3.65]]);               // closet→banh.suíte
+            if (F2_CASA_LAYOUT) intWall('EW', 4.5,  22.5, 31.5, [[23.6, 24.4], [29.3, 30.7]]); // banheiro 2pav + closet (dupla)
+            if (F2_CASA_LAYOUT) intWall('NS', 25.5, 2.0,  7.5,  [[5.6, 6.4]]);                 // quarto
+            if (F2_CASA_LAYOUT) intWall('NS', 28.5, 2.0,  4.5,  [[2.85, 3.65]]);               // closet→banh.suíte
 
             // Folhas de porta (madeira), abertas ~78° — base no piso do 2º (fz0)
             _ph = PH.esquadS;   // folhas de porta do 2º pav = esquadrias
-            F2_DOORS.forEach(d => d.leaves.forEach(L => {
+            (F2_CASA_LAYOUT ? F2_DOORS : []).forEach(d => d.leaves.forEach(L => {
                 const r = Math.hypot(L.dn, L.de); if (r < 0.05) return;
                 const tOpen = Math.atan2(L.dn, L.de) + 0.78 * (Math.PI/2) * L.sw;
                 const leaf = new THREE.Group();
@@ -4285,7 +4282,7 @@
             _ph = PH.alvenS;
             intWall('EW', 4.6,   13.5,  17.9,  []);                           // parede sul do escritório (cega; porta foi p/ o corredor)
             intWall('EW', 7.32,  13.5,  17.9,  []);                           // parede norte do escritório = sul do quarto 2 (mN 7,32 → quarto 2 = 14 m²)
-            intWall('EW', 6.2,   19.11, 22.37, []);                           // parede sul do quarto 1 (cega; porta foi p/ o corredor)
+            intWall('EW', 6.2,   19.11, GE1J, []);                           // parede sul do quarto 1 (cega; porta foi p/ o corredor)
             intWall('NS', 17.9,  4.6,   10.5,  [[5.85, 6.65], [9.3, 10.1]]);   // parede oeste do corredor — portas do escritório (sob a coluna) e do quarto 2
             intWall('NS', 19.11, 6.2,   10.5,  [[9.3, 10.1]]);                // parede leste do corredor — porta do quarto 1
             _ph = PH.esquadS;
@@ -4314,15 +4311,12 @@
 
             // CASA — 12 colunas nos nós da grade (3 linhas mN × 4 linhas mE),
             // centradas (embutem nas paredes/divisórias) + grelha 3×3 de vigas.
-            const col2c = (n, e) => F2.add(box3d(n - COL/2, e + OE - COL/2, COL, COL, fz0, fz1, matEmbase));
-            _ph = PH.colS;   // pilares do 2º pavimento
-            [2.0, 4.5, 7.5].forEach(n => [22.5, 25.5, 28.5, 31.5].forEach(e => col2c(n, e)));
+                        _ph = PH.colS;   // pilares do 2º pavimento
+            // Provisório até a arquiteta (X1/T3): continua os pilares oficiais do térreo, rebocados
+            PILARES.forEach(p => F2.add(box3d(p.n - p.dn / 2, p.e + OE - p.de / 2, p.dn, p.de, fz0, fz1, matPilar)));
             _ph = PH.vigaS;  // vigas do 2º pavimento (teto)
-            [[2.0,22.5,25.5],[2.0,25.5,28.5],[2.0,28.5,31.5],
-             [4.5,22.5,25.5],[4.5,25.5,28.5],[4.5,28.5,31.5],
-             [7.5,22.5,25.5],[7.5,25.5,28.5],[7.5,28.5,31.5]].forEach(([n,e0,e1]) => beamEW(n,e0,e1));
-            [[22.5,2.0,4.5],[22.5,4.5,7.5],[25.5,2.0,4.5],[25.5,4.5,7.5],
-             [28.5,2.0,4.5],[28.5,4.5,7.5],[31.5,2.0,4.5],[31.5,4.5,7.5]].forEach(([e,n0,n1]) => beamNS(e,n0,n1));
+            VIGAS_EO.forEach(({ n, e0, e1 }) => beamEW(n, e0, e1));   // provisório: mesmas linhas do térreo
+            VIGAS_NS.forEach(({ e, n0, n1 }) => beamNS(e, n0, n1));
 
             // GARAGEM — colunas (alinhadas ao pilotis do térreo) + grelha; junta em Egar.
             // Inclui a linha extra em mN 3,40 (apoio junto à face norte da escada). A viga
@@ -4333,7 +4327,7 @@
             _ph = PH.colS;
             [2.0, 3.40, GNM2, 10.5 - COL].forEach(n => [W, GEMc2, GE1c2].forEach(e => col2(n, e)));
             _ph = PH.vigaS;
-            [2.0, 3.40, GNM2, 10.5 - VW].forEach(n => beamEW(n, W, Egar));  // E-O: sul / mN 3,40 / centro / norte
+            [S + VW/2, 3.40, GNM2, 10.5 - VW].forEach(n => beamEW(n, W, Egar));   // sul: face em S, como a parede  // E-O: sul / mN 3,40 / centro / norte
             beamNS(W,     2.0,  10.5);   // N-S oeste (inteira)
             beamNS(GE1c2, 2.0,  10.5);   // N-S leste (inteira)
             beamNS(GEMc2, 2.0,  10.5);   // N-S central — inteira (no teto não há escada cruzando)
