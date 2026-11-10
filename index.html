@@ -2456,10 +2456,13 @@
     // até a arquiteta responder (T7). Cômodos ocultos até o novo layout (T5).
     const F2_T_CASA = ESP.ext;
     const F2_CASA_LAYOUT = true;
-    // Opção B (suíte grande), escolhida pelo cliente: faixa sul de serviços sobre a do térreo
-    // (rouparia, banheiro social, banheiro da suíte, closet); faixa norte com acesso e suíte.
+    // Opção B (suíte grande), escolhida pelo cliente: faixa sul com banheiro dos quartos,
+    // banheiro da suíte e closet; faixa norte com acesso e suíte.
     // Divisórias nos eixos do térreo. Coordenadas mE de código (sem OE).
     const F2_JUNTA_PORTA = { s: 4.85, e: 5.65 };   // porta garagem → acesso, pela junta
+    // Faixa sul: banheiro dos quartos (sobre o banho), banheiro da suíte e closet. A parede
+    // banheiro da suíte × closet sai do eixo de baixo p/ o banheiro da suíte ter ~5,6 m².
+    const F2_PAREDE_CLOSET = 22.20 - OE;
     const F2_WALLS_CASA = [
         [FACE.S + F2_T_CASA / 2, FACE.O - OE, FACE.S + F2_T_CASA / 2, FACE.L - OE],   // sul
         [FACE.N - F2_T_CASA / 2, FACE.O - OE, FACE.N - F2_T_CASA / 2, FACE.L - OE],   // norte
@@ -2482,16 +2485,15 @@
     // leaves = folhas: hinge (hn,he), folha fechada (dn,de) a partir do hinge, swing ±1.
     const F2_DOORH = 2.10;   // altura do vão de porta (m, acima do piso do 2º)
     const F2_DOORS = [
-        // Acesso → rouparia e → banheiro social (parede longitudinal), abrem p/ sul
-        { axis:'EW', pos:EIXO.LONG, a0:22.85, a1:23.45, leaves:[ {hn:EIXO.LONG, he:22.85, dn:0, de:0.6, sw:-1} ] },
+        // Acesso → banheiro dos quartos (parede longitudinal), abre p/ sul
         { axis:'EW', pos:EIXO.LONG, a0:24.35, a1:24.95, leaves:[ {hn:EIXO.LONG, he:24.35, dn:0, de:0.6, sw:-1} ] },
         // Suíte → closet: dupla, abre p/ o closet (sul)
-        { axis:'EW', pos:EIXO.LONG, a0:27.95, a1:29.35, leaves:[ {hn:EIXO.LONG, he:27.95, dn:0, de:0.7,  sw:-1},
-                                                                {hn:EIXO.LONG, he:29.35, dn:0, de:-0.7, sw:+1} ] },
+        { axis:'EW', pos:EIXO.LONG, a0:28.25, a1:29.65, leaves:[ {hn:EIXO.LONG, he:28.25, dn:0, de:0.7,  sw:-1},
+                                                                {hn:EIXO.LONG, he:29.65, dn:0, de:-0.7, sw:+1} ] },
         // Acesso → suíte, abre p/ leste
         { axis:'NS', pos:EIXO.BANHO, a0:4.95, a1:5.75, leaves:[ {hn:4.95, he:EIXO.BANHO, dn:0.8, de:0, sw:-1} ] },
         // Closet → banheiro da suíte, abre p/ o banheiro (oeste)
-        { axis:'NS', pos:EIXO.SERV, a0:3.50, a1:4.10, leaves:[ {hn:4.10, he:EIXO.SERV, dn:-0.6, de:0, sw:-1} ] },
+        { axis:'NS', pos:F2_PAREDE_CLOSET, a0:3.50, a1:4.10, leaves:[ {hn:4.10, he:F2_PAREDE_CLOSET, dn:-0.6, de:0, sw:-1} ] },
     ];
 
     // Janelas do 2º piso da casa — compartilhado 2D (win) + 3D (winWall: peitoril/verga/vidro).
@@ -2502,9 +2504,9 @@
         { side:'N', s:27.05, e:30.25, sill:0.40, head:2.25 },               // suíte — panorâmica norte (entre pilares)
         { side:'L', s:4.95,  e:7.45,  sill:0.40, head:2.25 },               // suíte — panorâmica leste
         { side:'N', s:22.95, e:25.05, sill:0.40, head:2.25 },               // acesso — panorâmica norte
-        { side:'S', s:28.00, e:29.30, sill:1.00, head:2.10 },               // closet — sul
+        { side:'S', s:28.70, e:29.90, sill:1.00, head:2.10 },               // closet — sul
         { side:'L', s:2.85,  e:3.95,  sill:1.00, head:2.10 },               // closet — leste
-        { side:'S', s:24.20, e:25.00, sill:1.50, head:2.10, vpanes:true },  // banheiro social (alinhada à do banho)
+        { side:'S', s:24.20, e:25.00, sill:1.50, head:2.10, vpanes:true },  // banheiro dos quartos (alinhada à do banho)
         { side:'S', s:25.63, e:26.43, sill:1.50, head:2.10, vpanes:true },  // banheiro da suíte (alinhada à da lavanderia)
     ];
     // Linha de centro da parede externa da casa no 2º piso, por lado
@@ -2702,9 +2704,8 @@
         if (F2_CASA_LAYOUT) {
             const TI = ESP.int, TC = F2_T_CASA;
             [[EIXO.LONG, FACE.O - OE, EIXO.LONG, FACE.L - OE],      // longitudinal: serviços ao sul, acesso e suíte ao norte
-             [FACE.S, EIXO.HALL, EIXO.LONG, EIXO.HALL],             // rouparia × banheiro social
              [FACE.S, EIXO.BANHO, FACE.N, EIXO.BANHO],              // banheiros; acesso × suíte
-             [FACE.S, EIXO.SERV, EIXO.LONG, EIXO.SERV],             // banheiro da suíte × closet
+             [FACE.S, F2_PAREDE_CLOSET, EIXO.LONG, F2_PAREDE_CLOSET], // banheiro da suíte × closet
             ].forEach(([n1, e1, n2, e2]) => lys.push(wall(n1, e1, n2, e2, TI, { no3d: true })));
             F2_DOORS.forEach(d => {
                 if (d.axis === 'EW') lys.push(rect(d.pos - TI / 2, d.a0, TI, d.a1 - d.a0, '#fafafa', { color: 'transparent', weight: 0, no3d: true }));
@@ -2720,10 +2721,9 @@
             const nS = (FACE.S + EIXO.LONG) / 2, nN = (EIXO.LONG + FACE.N) / 2;
             lys.push(roomLabel(nN, (FACE.O - OE + EIXO.BANHO) / 2, 'Acesso', '2,60 × 2,80 m', '7,3 m²'));
             lys.push(roomLabel(nN, (EIXO.BANHO + FACE.L - OE) / 2, 'Suíte', '5,05 × 2,80 m', '14,1 m²'));
-            lys.push(roomLabel(nS, (EIXO.SERV + FACE.L - OE) / 2, 'Closet', '3,60 × 2,50 m', '9,0 m²'));
-            lys.push(roomLabel(nS, (EIXO.HALL + EIXO.BANHO) / 2, 'Banho', '1,30 × 2,50 m', '3,25 m²'));
-            lys.push(roomLabel(nS, (EIXO.BANHO + EIXO.SERV) / 2, 'Banho suíte', '1,30 × 2,50 m', '3,25 m²'));
-            lys.push(roomLabel(nS, (FACE.O - OE + EIXO.HALL) / 2, 'Rouparia', '', '2,9 m²'));
+            lys.push(roomLabel(nS, (F2_PAREDE_CLOSET + FACE.L - OE) / 2, 'Closet', '2,68 × 2,50 m', '6,7 m²'));
+            lys.push(roomLabel(nS, (FACE.O - OE + EIXO.BANHO) / 2, 'Banho quartos', '2,60 × 2,50 m', '6,5 m²'));
+            lys.push(roomLabel(nS, (EIXO.BANHO + F2_PAREDE_CLOSET) / 2, 'Banho suíte', '2,23 × 2,50 m', '5,6 m²'));
         }
 
         // ── 2º piso da GARAGEM: divisórias + portas + janelas + rótulos ──────
@@ -4272,9 +4272,8 @@
             if (F2_CASA_LAYOUT) {
                 const gaps = (axis, pos) => F2_DOORS.filter(d => d.axis === axis && d.pos === pos).map(d => [d.a0, d.a1]);
                 intWall('EW', EIXO.LONG, FACE.O - OE, FACE.L - OE, gaps('EW', EIXO.LONG), ESP.int);   // longitudinal
-                intWall('NS', EIXO.HALL, FACE.S, EIXO.LONG, [], ESP.int);                            // rouparia × banheiro social
                 intWall('NS', EIXO.BANHO, FACE.S, FACE.N, gaps('NS', EIXO.BANHO), ESP.int);          // banheiros; acesso × suíte
-                intWall('NS', EIXO.SERV, FACE.S, EIXO.LONG, gaps('NS', EIXO.SERV), ESP.int);         // banheiro da suíte × closet
+                intWall('NS', F2_PAREDE_CLOSET, FACE.S, EIXO.LONG, gaps('NS', F2_PAREDE_CLOSET), ESP.int);   // banheiro da suíte × closet
             }
 
             // Folhas de porta (madeira), abertas ~78° — base no piso do 2º (fz0)
