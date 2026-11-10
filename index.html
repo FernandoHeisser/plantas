@@ -1501,7 +1501,7 @@
             <div class="med-room-name">Despensa</div>
             <div class="med-room-dims">3,60 × 2,50 m</div>
             <div class="med-room-area">9,00 m²</div>
-            <div class="med-room-meta">Era o dormitório do V1/V2<br>Apoio da cozinha e da lavanderia: freezer, estante, armário, bancada de passar</div>
+            <div class="med-room-meta">Era o dormitório do V1/V2<br>Apoio da cozinha e da lavanderia: torre com forno e micro-ondas, freezer, estante, armário, bancada de passar</div>
           </div>
         </div>
 
@@ -2317,7 +2317,8 @@
                 lys.push(QUA.rect(1.925, 0.085, 0.62, 0.04, '#8a5a33', { color: '#451a03', weight: 0.6, h3d: 2.10 }));
                 lys.push(QUA.rect(1.875, 2.075, 0.65, 0.7, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // freezer ou 2ª geladeira
                 lys.push(L.polyline([QUA.rot(2.205, 2.145), QUA.rot(2.205, 2.705)], { color: '#334155', weight: 0.6, interactive: false }));
-                lys.push(QUA.rect(2.175, 1.125, 0.35, 0.85, '#8a5a33', { color: '#451a03', weight: 0.7, h3d: 2.00 })); // estante alta
+                lys.push(QUA.rect(1.975, 1.075, 0.6, 0.6, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 2.10, m3d: 'torre' })); // torre quente: forno + micro-ondas, logo na entrada
+                lys.push(QUA.rect(2.225, 2.825, 0.35, 0.85, '#8a5a33', { color: '#451a03', weight: 0.7, h3d: 2.00 })); // estante alta (canto nordeste)
                 lys.push(QUA.rect(0.175, 3.125, 1.6, 0.55, '#c8a27a', { color: '#78350f', weight: 0.7, h3d: 0.85 })); // armário baixo sob a janela leste
                 lys.push(QUA.rect(0.075, 1.025, 0.6, 1.65, '#d6d0c4', { color: '#78716c', weight: 0.7, h3d: 0.88 })); // bancada de apoio sob a janela sul (passar, dobrar)
             }
@@ -2326,11 +2327,12 @@
             lys.push(COZ.rect(1.575, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // geladeira, parede leste, porta p/ oeste (entre a porta dos fundos e a bancada)
             lys.push(L.polyline([COZ.rot(1.645, 3.095), COZ.rot(2.205, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
             lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 1.00, m3d: 'counter' })); // bancada: do pilar oeste até a parede leste
-            lys.push(COZ.rect(2.275, 0.975, 0.6, 0.55, '#1f2937', { color: '#0f172a', weight: 0.7, h3d: 1.00, m3d: 'stove' })); // fogão
-            lys.push(COZ.circ(2.475, 1.125, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.01, h3d: 0.03 }));
-            lys.push(COZ.circ(2.475, 1.375, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.01, h3d: 0.03 }));
-            lys.push(COZ.circ(2.645, 1.125, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.01, h3d: 0.03 }));
-            lys.push(COZ.circ(2.645, 1.375, 0.06, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.01, h3d: 0.03 }));
+            lys.push(COZ.rect(2.355, 0.995, 0.5, 0.51, '#111827', { color: '#0f172a', weight: 0.7, z3d: 1.00, h3d: 0.012 })); // cooktop de indução com coifa embutida (vidro sobre a bancada)
+            lys.push(COZ.rect(2.575, 1.035, 0.05, 0.43, '#4b5563', { color: '#0f172a', weight: 0.4, z3d: 1.012, h3d: 0.004 })); // grelha da coifa embutida
+            lys.push(COZ.circ(2.475, 1.125, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.012, h3d: 0.002 }));
+            lys.push(COZ.circ(2.475, 1.375, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.012, h3d: 0.002 }));
+            lys.push(COZ.circ(2.645, 1.125, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.012, h3d: 0.002 }));
+            lys.push(COZ.circ(2.645, 1.375, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 1.012, h3d: 0.002 }));
             lys.push(COZ.rect(2.275, 2.2, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 1.00, m3d: 'sink' })); // pia, sob a janela
             lys.push(COZ.rect(2.605, 2.27, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(COZ.rect(2.605, 2.52, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
@@ -2344,10 +2346,9 @@
             lys.push(SAL.rect(1.075, 0.125, 1.4, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
             lys.push(SAL.rect(1.225, 0.075, 1.1, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
 
-            // Armários aéreos: parede norte sobre a bancada (base 1,65 m, acima da verga da janela de 1,60 m),
-            // com vão livre sobre o fogão p/ coifa ou depurador; parede leste sobre a geladeira.
-            lys.push(COZ.rect(2.525, 0.175, 0.35, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.75, m3d: 'wallcab' })); // norte, entre o pilar e o fogão
-            lys.push(COZ.rect(2.525, 1.575, 0.35, 2.1, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.75, m3d: 'wallcab' }));  // norte, do fogão até a parede leste
+            // Armários aéreos: parede norte, contínuos sobre a bancada (base 1,65 m, acima da verga da janela de
+            // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
+            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.75, m3d: 'wallcab' })); // norte, do pilar à parede leste
             lys.push(COZ.rect(1.575, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.60, m3d: 'wallcabW' })); // leste, sobre a geladeira
             
             // ─── REFEIÇÕES: península na ponta oeste da bancada, descendo p/ a sala ao lado da viga aparente
@@ -3266,6 +3267,16 @@
             fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
         },
         // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
+        // Torre quente de embutir — frente p/ SUL (costas na parede norte): forno elétrico na altura
+        // das mãos (0,80→1,40) e micro-ondas acima (1,45→1,83), armário embaixo e em cima.
+        torre(g, s) {
+            const H = s.h || 2.10, f = s.n - 0.006, VID = { metalness: 0.3, roughness: 0.2 };
+            fbox(g, s.n, s.e, s.dn, s.de, 0, H, '#e8e6e1', { roughness: 0.6 });
+            fbox(g, f, s.e + 0.03, 0.02, s.de - 0.06, 0.80, 1.40, '#1f2328', VID);                     // forno
+            fbox(g, f - 0.02, s.e + 0.08, 0.02, s.de - 0.16, 1.33, 1.355, '#9aa0a7', { metalness: 0.7 }); // puxador do forno
+            fbox(g, f, s.e + 0.03, 0.02, s.de - 0.06, 1.45, 1.83, '#1f2328', VID);                     // micro-ondas
+            fbox(g, f - 0.005, s.e + 0.02, 0.01, s.de - 0.04, 0.78, 0.785, '#9aa0a7', { metalness: 0.5 });
+        },
         // Banqueta alta de balcão — assento de madeira estofado, 4 pés metálicos abertos e apoio
         // de pés em anel (4 barras). s.r = raio do assento; s.h = altura do assento (padrão 0,70).
         stool(g, s) {
