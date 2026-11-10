@@ -2386,7 +2386,7 @@
                     html: '<div class="flbl" style="color:#fbbf24;font-size:9px;white-space:nowrap;background:rgba(15,23,42,.85);padding:1px 5px;border-radius:3px">isopor 3cm</div>' }) }));
 
             // Parede sul da garagem — para na junta (estrutura independente da casa)
-            lys.push(wall(GN0, GE0, GN0, GE1j, 0.20, { no3d: true }));
+            lys.push(wall(GN0 + 0.10, GE0, GN0 + 0.10, GE1j, 0.20, { no3d: true }));   // face sul em GN0, alinhada à casa e às colunas
 
             // Viga E-O aérea (mN 3,4) ao norte da escada — vai até a coluna leste da junta
             lys.push(L.polyline([rot(3.40, GE0+OE), rot(3.40, GE1j+OE)],
@@ -4507,7 +4507,7 @@
             // Paredes da garagem — assentam no baldrame (GCPA), sobem até GLAJE
             // Padrão: box3d manual porque pipeline GEO inicia em z=0 (afundaria no baldrame)
             _ph = PH.gLaje;   // parede sul da garagem (garagem é estrutura aberta; entra no "V2 pronto")
-            g.add(box3d(GN0 - 0.10, GE0,        0.20,       GE1j - GE0, GCPA, GLAJE, matWall)); // sul
+            g.add(box3d(GN0,        GE0,        0.20,       GE1j - GE0, GCPA, GLAJE, matWall)); // sul (face em GN0 = face sul da casa)
             // Norte e leste superior removidas (garagem é estrutura aberta; foram
             // adicionadas por engano numa sessão anterior).
 
@@ -4522,7 +4522,7 @@
 
             // Baldrame da garagem — mesmo padrão da casa: cobre EW (0,20) + projeção GEM_P
             // gS0 = borda sul exterior da fundação (= face externa da parede sul + proj)
-            const gS0 = GN0 - 0.20 - GEM_P;           // = GN0 − EW − GEM_P  (igual ao EN0 da casa)
+            const gS0 = GN0 - GEM_P;                  // face sul da parede e das colunas − proj
             const gN1 = GN1 - COL - GEM_P;             // = borda sul da coluna norte − proj
             const gNspan = GN1 - gS0;                  // comprimento N-S total do baldrame
             const gbSides = [
