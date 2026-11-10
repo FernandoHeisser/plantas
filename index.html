@@ -2344,6 +2344,12 @@
             lys.push(SAL.rect(1.075, 0.125, 1.4, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
             lys.push(SAL.rect(1.225, 0.075, 1.1, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
 
+            // Armários aéreos: parede norte sobre a bancada (base 1,65 m, acima da verga da janela de 1,60 m),
+            // com vão livre sobre o fogão p/ coifa ou depurador; parede leste sobre a geladeira.
+            lys.push(COZ.rect(2.525, 0.175, 0.35, 0.75, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.75, m3d: 'wallcab' })); // norte, entre o pilar e o fogão
+            lys.push(COZ.rect(2.525, 1.575, 0.35, 2.1, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.75, m3d: 'wallcab' }));  // norte, do fogão até a parede leste
+            lys.push(COZ.rect(1.575, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.60, m3d: 'wallcabW' })); // leste, sobre a geladeira
+            
             // ─── REFEIÇÕES: península na ponta oeste da bancada, descendo p/ a sala ao lado da viga aparente
             // (desenho do cliente). Substitui a mesa; 3 banquetas no lado da sala (a da ponta saiu: ficava no caminho da despensa).
             lys.push(COZ.rect(1.225, 0.175, 1.05, 0.7, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 1.00, m3d: 'counter' })); // península
