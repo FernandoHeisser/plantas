@@ -3914,8 +3914,7 @@
             // ser borda exposta — a laje da casa encontra a laje da garagem na junta e as
             // duas devem ler como uma superfície CONTÍNUA (sem mureta entre elas).
             const hasGarage = (rv === 'v2' || rv === 'v3');
-            if (!hasGarage)
-                roof.add(box3d(FACE.S, FACE.O, FACE.N - FACE.S, tt, pb, pbTop, lajeMat)); // oeste
+            roof.add(box3d(FACE.S, FACE.O, FACE.N - FACE.S, tt, pb, pbTop, lajeMat)); // oeste: construída no V1, continua no V2
 
             // ── Telhado embutido (caimento p/ o SUL) ────────────────────────────
             // Telha metálica trapezoidal inclinada ACIMA da laje de forro (topo `slabTop`),
@@ -3929,7 +3928,7 @@
             // alternada pela visibilidade das esperas (ver applyBuildPhase/set3DEsperas).
             const RGAP = 0.015, slabTop = TOPO_LAJE;      // topo da laje de forro
             const tS = FACE.S + tt + RGAP, tN = FACE.N - tt - RGAP;         // sul/norte = faces internas
-            const tE = FACE.L - tt - RGAP, tW = hasGarage ? eW : (eW + tt + RGAP); // O: junta (V2) ou interno (V1)
+            const tE = FACE.L - tt - RGAP, tW = eW + tt + RGAP; // O: junta (V2) ou interno (V1)
             const RH_N = pbTop - 0.05, RH_S = RH_N - (tN - tS) * COB.caimento;       // acima da laje → sob o topo da mureta
             const RD = tN - tS;                          // vão N-S entre faces internas
             const RPITCH = Math.atan((RH_N - RH_S) / RD);
