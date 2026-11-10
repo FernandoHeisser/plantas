@@ -2345,12 +2345,11 @@
             lys.push(SAL.rect(1.225, 0.075, 1.1, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
 
             // ─── REFEIÇÕES: península na ponta oeste da bancada, descendo p/ a sala ao lado da viga aparente
-            // (desenho do cliente). Substitui a mesa; 3 banquetas no lado da sala e 1 na ponta.
+            // (desenho do cliente). Substitui a mesa; 3 banquetas no lado da sala (a da ponta saiu: ficava no caminho da despensa).
             lys.push(COZ.rect(1.225, 0.175, 1.05, 0.7, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 1.00, m3d: 'counter' })); // península
-            lys.push(COZ.circ(2.485, -0.145, 0.17, '#a16207', { color: '#451a03', weight: 0.5, h3d: 0.65 })); // banquetas
-            lys.push(COZ.circ(2.025, -0.145, 0.17, '#a16207', { color: '#451a03', weight: 0.5, h3d: 0.65 }));
-            lys.push(COZ.circ(1.475, -0.145, 0.17, '#a16207', { color: '#451a03', weight: 0.5, h3d: 0.65 }));
-            lys.push(COZ.circ(0.875, 0.525, 0.17, '#a16207', { color: '#451a03', weight: 0.5, h3d: 0.65 }));
+            lys.push(COZ.circ(2.485, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.70, m3d: 'stool' })); // banquetas
+            lys.push(COZ.circ(2.025, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.70, m3d: 'stool' }));
+            lys.push(COZ.circ(1.475, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.70, m3d: 'stool' }));
 
             // Hall 1,15 m: só o tapete
             lys.push(HAL.rect(0.925, 0.195, 0.8, 0.9, '#fde68a', { color: '#a16207', weight: 0.6, fillOpacity: 0.55, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
@@ -3261,6 +3260,23 @@
             fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
         },
         // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
+        // Banqueta alta de balcão — assento de madeira estofado, 4 pés metálicos abertos e apoio
+        // de pés em anel (4 barras). s.r = raio do assento; s.h = altura do assento (padrão 0,70).
+        stool(g, s) {
+            const H = s.h || 0.70, r = s.r, P = '#2f3237', MET = { metalness: 0.6, roughness: 0.35 };
+            fcyl(g, s.n, s.e, r, H - 0.05, H - 0.01, '#8a5a33', { roughness: 0.7 });      // assento de madeira
+            fcyl(g, s.n, s.e, r * 0.92, H - 0.01, H + 0.03, '#3f3a36', { roughness: 0.9 }); // estofado
+            const a = r * 0.62, b = r * 0.78;                                               // pés: topo / base (abertos)
+            [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([u, v]) => {
+                const leg = fbox(g, s.n + v * (a + b) / 2 - 0.0125, s.e + u * (a + b) / 2 - 0.0125, 0.025, 0.025, 0, H - 0.05, P, MET);
+                leg.rotation.set(-v * 0.06, 0, -u * 0.06);
+            });
+            const k = r * 0.72, z = 0.28;                                                   // apoio de pés
+            fbox(g, s.n - k, s.e - k, 0.02, 2 * k, z, z + 0.02, P, MET);
+            fbox(g, s.n + k - 0.02, s.e - k, 0.02, 2 * k, z, z + 0.02, P, MET);
+            fbox(g, s.n - k, s.e - k, 2 * k, 0.02, z, z + 0.02, P, MET);
+            fbox(g, s.n - k, s.e + k - 0.02, 2 * k, 0.02, z, z + 0.02, P, MET);
+        },
         chair(g, s, model) {
             fcyl(g, s.n, s.e, s.r * 0.95, 0.43, 0.47, '#7c4a16');
             const t = model.find(o => o.m3d === 'table');
