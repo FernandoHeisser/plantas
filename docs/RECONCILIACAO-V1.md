@@ -7,7 +7,7 @@ ainda.** Sem dados pessoais: este arquivo é versionado.
 **Regra:** no V1, o documento oficial vence. O que os documentos não definem continua sendo
 decisão do cliente.
 
-**Ordem:** inventário → refatoração média (retrato idêntico) → migração por camadas → depois V2 e V3. Inventário e refatoração concluídos em 2026-11-08. **Camadas migradas: D, L, I, P, J, N, E, C, S e M (móveis).** Provisório até a arquiteta responder: solo −0,30 nas faces norte e oeste (N1), "aba" sudoeste antiga (E8), caixa d'água sobre o banho (C8) e limite do box (M5). Em aberto: canto alemão (M2, hoje mesa de 1,20 × 0,80). A medida da placa do piso (0,45 m) é suposição: o Memorial só diz cerâmico PEI 4. Passeio e circulação externa de concreto (M12) não foram modelados. V2 e V3 ainda não foram adaptados.
+**Ordem:** inventário → refatoração média (retrato idêntico) → migração por camadas → depois V2 e V3. Inventário e refatoração concluídos em 2026-11-08. **Camadas migradas: D, L, I, P, J, N, E, C, S e M (móveis).** Provisório até a arquiteta responder: solo −0,30 nas faces norte e oeste (N1), "aba" sudoeste antiga (E8), caixa d'água sobre o banho (C8) e limite do box (M5). M2 decidido: península com banquetas no lugar da mesa; geladeira na parede leste. A medida da placa do piso (0,45 m) é suposição: o Memorial só diz cerâmico PEI 4. Passeio e circulação externa de concreto (M12) não foram modelados. V2 e V3 ainda não foram adaptados.
 
 ## Como ler
 
