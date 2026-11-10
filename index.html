@@ -4083,8 +4083,8 @@
             const EAVE_Y = TOPO_LAJE + (CEIL3D + COB.laje);   // ~6,02
             // mE de cena (com OE) das águas: garagem 7,5→16,87(junta) · casa 16,5→26,5
             const G_e0 = (13.5 - 0.5) + OE,  G_e1 = GE1J + OE;
-            const H_e0 = (22.5 - 0.5) + OE,  H_e1 = 31.5 + OE + 0.5;
-            const G_eaveN = 10.5 + 0.90, H_eaveN = 7.5 + 0.90;       // mN 11,4 / 8,4
+            const H_e0 = EIXO.O - BN_EW + OE,  H_e1 = EIXO.L + OE + BN_EW;   // beirais do telhado da casa
+            const G_eaveN = 10.5 + 0.90, H_eaveN = EIXO.N + BN_N;       // mN 11,4 / 8,4
             const gutMat   = new THREE.MeshStandardMaterial({ color: 0xb9bfc4, roughness: 0.5, metalness: 0.35 });
             const pipeMat3 = new THREE.MeshStandardMaterial({ color: 0xd8d8d8, roughness: 0.55, metalness: 0.1 });
             // Calha (U raso) pendurada sob o beiral norte, straddling a pingadeira
@@ -4116,7 +4116,7 @@
             const g2 = prumada(GE1J - 0.10 + OE, gColN,   -0.50);   // garagem Ø100 — coluna de canto NE / junta (mE 22,27)
             // Casa: encosta na coluna de canto NW (junta), na face norte da parede (mN 7,65)
             // em vez de flutuar em mN 8,4 (0,9 m à frente, cruzando a janela do acesso e a entrada).
-            const h1 = prumada(G_e1 + 0.03, 7.65, -0.55);   // casa Ø100 — coluna de canto NW / junta (colada, mN 7,65)
+            const h1 = prumada(G_e1 + 0.03, FACE.N + 0.05, -0.55);   // casa Ø100 — coluna de canto NW / junta (colada, mN 7,65)
             // Coletor Ø150 rente à divisa norte (mN 11,9); invert descendo p/ a frente/caixa.
             const DZ = -11.9;
             const N_h  = new THREE.Vector3(h1.x, -0.58, DZ);    // casa entra (leste/mais alto)
