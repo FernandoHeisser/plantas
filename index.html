@@ -1765,6 +1765,8 @@
     const COB = { laje: 0.10, platAlt: 0.85, platEsp: 0.15, beiral: 0.60, caimento: 0.10, beiralN: 0.90, beiralS: 0.50, beiralEW: 0.50, junta: 0.03 };
     // Volume da caixa d'água: centro (código, sem OE), planta e topo
     // E-W provisório: sobre o banho, até a arquiteta confirmar (C8).
+    // Junta casa × garagem (V2/V3): face leste da garagem 3 cm antes da face oeste da casa. Código, sem OE.
+    const GE1J = FACE.O - OE - COB.junta;
     const CAIXA_DAGUA = { n: 3.40, e: 19.10 - OE, dn: 2.80, de: 1.60, topo: 5.50 };
     const COTA_LAT_E = (EIXO.O + EIXO.L) / 2;                                       // mE das cotas laterais
     const COTA_FUNDO_E = EIXO.L - 1.5;                               // mE de origem da cota de fundo
@@ -2339,10 +2341,10 @@
         // ── V2: garagem (laje aberta — fundação + colunas + laje, sem paredes) ──
         if (v === 'v2' || v === 'v3') {
             const GN0 = 2.0,  GN1 = 10.5;  // 8,5 m de largura (2 m de cada muro lateral)
-            const GE0 = 13.5, GE1 = 22.5; // extremidade nominal leste (= parede oeste da casa)
+            const GE0 = 13.5, GE1 = FACE.O - OE; // face oeste da casa
             const EW = 0.20;               // espessura parede externa (reutilizada aqui)
             const GAP = 0.03;              // junta estrutural: 3 cm de isopor (impermeável, compressível)
-            const GE1j = GE1 - EW/2 - GAP; // face leste da garagem: para antes da face ext. da casa (= 22,35)
+            const GE1j = GE1J;             // face leste da garagem (junta)
             const cut = (n, e, dn, de, type) => {
                 if (GEO) GEO.push({ k: 'opening', type: type || 'door', n, e: e + OE, dn, de, sill: 0, head: 2.1 });
                 lys.push(rect(n, e - OE, dn, de, 'white', { no3d: true }));
@@ -2449,7 +2451,7 @@
     //    casa), separadas pela MESMA junta de dilatação do V2 (GE1j, isopor 3 cm).
     //    Coords do lote (sem OE); os helpers aplicam OE. Centerlines das paredes.
     const F2_GAP  = 0.03;
-    const F2_GE1j = 22.5 - 0.10 - F2_GAP;   // 22,37 — face leste da garagem (= GE1j do V2)
+    const F2_GE1j = GE1J;                  // face leste da garagem (= junta do V2)
     const F2_WALLS = [
         // Garagem (mN 2→10,5, mE 13,5→GE1j) — leste recuada p/ a face cair na junta
         [2.0,           13.5,  2.0,           F2_GE1j],  // sul
@@ -2672,7 +2674,7 @@
         lys.push(slabRect(F2_SLAB_CASA));  // casa
         // Junta de dilatação (faixa âmbar) + label — mesma do V2, onde casa e garagem
         // são adjacentes (mN 2→7,5). Norte disso, a face leste da garagem dá p/ o pátio.
-        lys.push(L.polygon([rot(2.0, F2_GE1j + OE), rot(7.5, F2_GE1j + OE), rot(7.5, 22.5 + OE), rot(2.0, 22.5 + OE)],
+        lys.push(L.polygon([rot(2.0, F2_GE1j + OE), rot(7.5, F2_GE1j + OE), rot(7.5, FACE.O), rot(2.0, FACE.O)],
             { color: '#f59e0b', weight: 1, dashArray: '3 2', fillColor: '#f59e0b', fillOpacity: 0.30, interactive: false }));
         lys.push(L.marker(rot((2.0 + 7.5) / 2, F2_GE1j + OE + F2_GAP / 2), { interactive: false,
             icon: L.divIcon({ className: '', iconAnchor: [30, 7],
@@ -4073,7 +4075,7 @@
             // Beiral norte na cota do sobrado (roof.position.y = CEIL3D+0,16 quando visível)
             const EAVE_Y = TOPO_LAJE + (CEIL3D + COB.laje);   // ~6,02
             // mE de cena (com OE) das águas: garagem 7,5→16,87(junta) · casa 16,5→26,5
-            const G_e0 = (13.5 - 0.5) + OE,  G_e1 = (22.5 - 0.10 - 0.03) + OE;
+            const G_e0 = (13.5 - 0.5) + OE,  G_e1 = GE1J + OE;
             const H_e0 = (22.5 - 0.5) + OE,  H_e1 = 31.5 + OE + 0.5;
             const G_eaveN = 10.5 + 0.90, H_eaveN = 7.5 + 0.90;       // mN 11,4 / 8,4
             const gutMat   = new THREE.MeshStandardMaterial({ color: 0xb9bfc4, roughness: 0.5, metalness: 0.35 });
@@ -4104,7 +4106,7 @@
             // cano. Ambos os cantos caem em pilar cego (fora das janelas norte) e no recuo.
             const gColN = 10.5 + RP;   // face norte das colunas de canto da garagem (encosta o cano)
             const g1 = prumada(13.60 + OE, gColN,   -0.45);   // garagem Ø100 — coluna de canto NW (mE 13,60)
-            const g2 = prumada(22.27 + OE, gColN,   -0.50);   // garagem Ø100 — coluna de canto NE / junta (mE 22,27)
+            const g2 = prumada(GE1J - 0.10 + OE, gColN,   -0.50);   // garagem Ø100 — coluna de canto NE / junta (mE 22,27)
             // Casa: encosta na coluna de canto NW (junta), na face norte da parede (mN 7,65)
             // em vez de flutuar em mN 8,4 (0,9 m à frente, cruzando a janela do acesso e a entrada).
             const h1 = prumada(G_e1 + 0.03, 7.65, -0.55);   // casa Ø100 — coluna de canto NW / junta (colada, mN 7,65)
@@ -4198,8 +4200,8 @@
             const S     = 2.0 - EW/2;     // sul (mN 1,90)
             const W     = 13.5;           // oeste garagem (face das colunas)
             const Ngar  = 10.5;           // norte garagem (face das colunas)
-            const Wcasa = 22.5 - EW/2;    // oeste casa = face da parede oeste térreo (mE 22,40)
-            const Egar  = Wcasa - GAP;    // leste garagem = junta (mE 22,37 = GE1j do V2)
+            const Wcasa = FACE.O - OE;    // oeste casa = face oeste do térreo
+            const Egar  = GE1J;           // leste garagem = junta
             const Ncasa = 7.5 + EW/2;     // norte casa (mN 7,60)
             const Ecasa = 31.5 + EW/2;    // leste casa (mE 31,60)
             const hN0 = 2.20, hN1 = 3.40, hE0 = 15.90, hE1 = 19.80;  // vão da escada (garagem)
@@ -4355,9 +4357,9 @@
 
         // ── Garagem — V2/V3: colunas + vigas + laje ────────────────────────
         if (rv === 'v2' || rv === 'v3') {
-            const GN0 = 2.0, GN1 = 10.5, GE0 = 13.5 + OE, GE1 = 22.5 + OE;
+            const GN0 = 2.0, GN1 = 10.5, GE0 = 13.5 + OE, GE1 = FACE.O;
             const GAP  = 0.03;            // junta estrutural: 3 cm de isopor
-            const GE1j = GE1 - 0.10 - GAP; // face leste da garagem (para antes da face ext. da casa)
+            const GE1j = GE1J + OE;        // face leste da garagem (junta)
             const COL = 0.20;
             const GNM  = (3.40 + (GN1 - COL)) / 2 - COL / 2;  // = 6,75 — centra no vão de vagas
             const GEM  = (GE0 + GE1j) / 2 - COL / 2;  // meio E-O ajustado à junta
