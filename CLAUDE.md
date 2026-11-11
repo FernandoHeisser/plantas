@@ -71,7 +71,7 @@ git fetch --prune   # limpa referências remotas mortas no local
 - Estratégias: ventilação cruzada + admitir sol de inverno + sombrear no verão.
 
 ### 5. Conformidade Caixa (FGTS/SFH) — checar a CADA mudança de cômodo
-- Casa ≥ **36 m²** (serviço externa) / 39 m² (interna). Hoje **49,5 m²** ✓.
+- Casa ≥ **36 m²** (serviço externa) / 39 m² (interna). Hoje **46,57 m² construída / 40,38 m² útil** (projeto oficial) ✓.
 - Dormitório: **menor dimensão ≥ 2,40 m**; casal ~8 m². Janela de quarto **≥ 1,50 m²** de abertura.
 - Área de serviço coberta com tanque (atendido). Exige PCI assinada por eng./arq.
 - **O quarto vira despensa/depósito só no V3**; em V1/V2 é 100% dormitório (entra na planta
@@ -103,6 +103,42 @@ Config em `.claude/launch.json`.
 > do `vercel.json`.
 
 > **Importante:** o Leaflet cacheia os mapas em `maps[v]`. Após editar o JS, fazer **Ctrl+Shift+R** (hard refresh) para ver as mudanças. O mesmo vale para o 3D (Three.js).
+
+---
+
+## Documentos reais da obra — `docs/reais/`
+
+Pasta **só local** para consulta durante o desenvolvimento (matrícula, planta da arquiteta,
+orçamentos, exigências da Caixa, fotos da visita). Não é funcionalidade da app.
+
+- **Fora do git** (`.gitignore`) e **fora do deploy** (`.vercelignore` já exclui `docs/`).
+  Nunca copiar o conteúdo sensível (CPF, dados do financiamento) para arquivos versionados.
+- **Quando a tarefa depender de um dado real** (medida, área, recuo, norma), olhar aqui antes
+  de assumir. Se um documento contradisser este CLAUDE.md, apontar a divergência ao cliente.
+
+---
+
+## Retrato da geometria — `tools/geo-*`
+
+Prova objetiva de que uma mudança alterou só o que devia. Exporta 2D, GEO e 3D (inclusive o
+`box3d` manual) de V1, V1.1, V2, V3 e do 2º piso, e compara com o retrato de referência
+`tools/geo-baseline/pre-v1-oficial/` (mesmo estado da tag `pre-v1-oficial`).
+
+```bash
+node tools/geo-sink.mjs
+```
+
+Com o preview aberto, rodar na página `await (await import('/tools/geo-snapshot.js')).run('check-1')`:
+
+```bash
+node tools/geo-diff.mjs pre-v1-oficial check-1
+```
+
+- **Refatoração:** o resultado tem que ser `idênticos`. Qualquer diferença é regressão.
+- **Migração:** a diferença tem que ser exatamente a esperada para a etapa.
+- `check*` fica fora do git. Precisão: ~1 mm. Não cobre o CSS, a ficha de Medidas nem a
+  pixelagem do render; para isso, screenshot.
+- `import()` fica em cache na página: recarregar antes de rodar de novo se o script mudar.
 
 ---
 
@@ -190,6 +226,36 @@ móveis, folhas de porta) acompanha automaticamente.
   (40 m, 12,5 m) **não mudam**.
 - **Para ajustar o deslocamento, basta mudar `OE`** — chão da casa, carros e **todas as
   cotas (2D e 3D) acompanham automaticamente** (posição e valor). Não reescrever cotas.
+
+---
+
+## Planta do térreo como dados — tabelas no topo do script
+
+As cotas da casa (V1, herdada por V2/V3) ficam em tabelas logo após `OE`. **Para mudar a planta,
+mexer nelas; não reintroduzir número solto em `buildLayers`/`buildBuilding3D`.**
+
+| Tabela | Conteúdo |
+|---|---|
+| `FACE` | Faces externas oficiais da casa (A01), em metros do lote, já com `OE`. `EIXO.S/N/O/L` derivam delas e de `ESP.ext` |
+| `EIXO` | Linha de centro de cada parede, em metros de código (sem `OE`). A prancha cota **faces**: face = eixo ± espessura/2 |
+| `ESP` | Espessura das paredes externas e internas |
+| `PAREDES_TERREO` | Paredes (extremidades em eixos) |
+| `VAOS` | Portas: parede, início, largura, profundidade do recorte, dobradiça e giro |
+| `JANELAS` | Janelas: parede, início, largura e `opts` de `win()` |
+| `ESCADAS` | Início e largura das escadas externas (2D e 3D) |
+| `PILARES` | 13 pilares a partir das faces da A01 (centro e seção em cada eixo) |
+| `BLOCO` | Blocos de coroamento sob os pilares (enterrados) |
+| `PERFIL` | Pontos do terreno; `grade(mE)` interpola entre eles. Grama, saias e contorno seguem os trechos |
+| `VIGA`, `VIGAS_EO`, `VIGAS_NS` | Seção e trechos das vigas |
+| `COB`, `CAIXA_DAGUA`, `TOPO_LAJE` | Laje, platibanda, beirais, junta e volume da caixa d'água |
+
+- **Móveis e rótulos** usam coordenadas relativas ao canto SO (eixos) do ambiente: `HAL`, `BAN`, `SER`,
+  `QUA`, `SAL`, `COZ` (`.rect`, `.circ`, `.rot`, `.rotulo`). Móvel encostado na parede leste do ambiente
+  precisa ser reposicionado se a largura do ambiente mudar.
+- **Ainda em literal:** V2/V3 (garagem, 2º piso, drenagem do V3). `COTA_FUNDO_E` só divide o polígono do chão no 2D.
+- **Pilares:** `userData.pilar` guarda o material de obra (concreto) e o pronto (reboco); `applyBuildPhase` troca na fase 5. Azulejo do banho: painéis finos em `buildBuilding3D`, com UV em tamanho real.
+- **Junta e 2º piso:** `GE1J` (face leste da garagem, 3 cm antes de `FACE.O`) é a única fonte da junta no V2, no 2º piso e na drenagem do V3. No V3, `F2_WALLS_CASA`/`F2_T_CASA` seguem as faces oficiais e `F2_CASA_LAYOUT` liga cômodos, portas (`F2_DOORS`) e janelas (`F2_WINDOWS`, por lado S/N/L) da casa no 2º piso: opção B, com divisórias nos eixos do térreo. A seção "Cômodos do 2º piso da casa" abaixo descreve o layout antigo. Estado em `docs/RECONCILIACAO-V2-V3.md`.
+- **Migração do V1 em andamento:** ver o estado em `docs/RECONCILIACAO-V1.md`. As tabelas de "Layout V1" descrevem a planta antiga até o fim da migração.
 
 ---
 
@@ -332,6 +398,8 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `toilet` | Vaso: bacia + assento + caixa acoplada |
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
+| `stool` | Banqueta alta de balcão: assento de madeira estofado + 4 pés metálicos abertos + apoio de pés. Usar com `circ` (`r` = raio do assento, `h3d` = altura do assento, padrão 0,70). |
+| `torre` | Torre quente de embutir (forno + micro-ondas), frente p/ **sul**. No V3 fica na despensa, junto da porta da cozinha. |
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
 | `benchcorner` | Canto alemão: banco em **L** (assento 0→0,45 + encosto 0,45→0,85). Driver = **bbox do L** (rect transparente no 2D); encostos na face **N + L** (mN/mE altos). Bancos visíveis no 2D são `rect{no3d:true}` separados. |
@@ -361,21 +429,18 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 - **Piso interno:** slabs `matFloor` em `CPA−0,025 → CPA` (sobem com a CPA=0,50).
 - **Contorno âmbar** do lote acompanha o declive: `grade(mE)+0,02` (frente ≈0,02, fundos ≈−0,98).
 
-### Declive do terreno (visita) — datum, CPA e aterro
+### Declive do terreno — datum, CPA e perfil oficial
 
-Observado na visita: **~1 m de queda em 40 m = 2,5 %**, descendo da frente (calçada) para os fundos. Constantes (perto da `CPA`):
-
-```javascript
-const SLOPE = 1.0 / 40;            // 2,5%
-const grade = mE => -mE * SLOPE;   // cota natural do solo (m), datum 0 = calçada (mE=0)
-```
-
-- **Datum 0 = calçada** (frente, mE=0). Fundos (mE=40) = −1,0 m.
-- **`CPA = 0,15`** — piso acabado 15 cm **acima do terreno acabado**: mesmo nível que a garagem (`GCPA=0,15`). Atende Caixa, resulta em **1 degrau** na entrada pós-aterro. No V2 a transição garagem→casa é plana (sem degrau intermediário).
-- **Embasamento/aterro exposto:** as cintas do embasamento (`emSides`/`BEM`/`QEM`) descem da `CPA` até `baseBot(e,de) = grade(e+de)` — usa a borda **leste** de cada caixa (ponto mais baixo) p/ a base **nunca flutuar** (fica enterrada onde o terreno é mais alto). Mostra ~1,0–1,3 m de aterro exposto = o vão que o aterramento futuro preenche.
-- **Escadas externas** (`extStairs()`, normas Caixa/NBR 9050): lances de degraus **iguais** do solo (`grade`) até a `CPA`. Espelho 16–18 cm (`NS=ceil(rise/0,18)`), piso ~0,28–0,29 m, **Blondel** 2e+p≈0,63. Porta principal (V1): 6 degraus, 1,20 m, desce p/ oeste; porta de vidro (norte): 6 degraus, 2,00 m, desce p/ o jardim; porta dos fundos (cozinha, leste): ~8 degraus, 1,0 m, desce p/ o quintal (lado baixo do declive → lance mais alto). Direções suportadas: `'W'`/`'E'`/`'N'`. No **V2** há ainda 2 degraus de transição garagem (`GCPA=0,20`) → casa (`CPA=0,50`) na porta principal. A escada interna da garagem p/ 2º pav. (18 degraus, e≈0,176/p≈0,278) já era compliant (lance de 3,16 m < 3,20 m sem patamar).
-- **Cota 3D `declive 1,0 m (2,5%)`** (ciano) no canto fundo-sul, em `buildDims3D`.
-- As cotas de afastamento (`_dimLine3D`, Y=0,12) seguem esquemáticas/planas — não acompanham o declive (de propósito, leitura tipo CAD).
+- **Datum 0 = calçada** (testada, mE=0). O solo segue o **perfil oficial** `PERFIL` (A01):
+  `[[0, 0], [FACE.O, −0,30], [FACE.L, −0,50], [40, −0,80]]`; `grade(mE)` interpola entre os pontos.
+  O fundo (−0,80) é decisão do cliente. Grama, saias e contorno seguem os trechos.
+- **`CPA = 0,30`** — piso acabado 30 cm acima da calçada. **Garagem no mesmo nível** (`GCPA = 0,30`),
+  sem degrau entre garagem e casa no V2/V3.
+- **Escadas externas** (tabela `ESCADAS`): entrada (oeste, 4 espelhos de 0,15), porta de vidro
+  (norte, 4 espelhos) e fundos (leste, 5 espelhos de 0,16); piso 0,30.
+- Embasamento e baldrame descem da `CPA` até `baseBot(e,de) = grade(e+de)` (nunca flutuam).
+- **Aterro do canto sul removido** na migração (o projeto oficial não o mostra).
+- As cotas de afastamento (`_dimLine3D`, Y=0,12) são planas de propósito (leitura tipo CAD).
 
 ### Cobertura
 
@@ -383,6 +448,11 @@ const grade = mE => -mE * SLOPE;   // cota natural do solo (m), datum 0 = calça
 > de uma água** (`SOLAR = rv === 'v3'`, ver "Telhado solar do V3" abaixo). O texto desta seção
 > descreve a **laje plana** (V1/V2). No V3 o grupo `roof` recebe os *sheds* de telha metálica +
 > usina FV no lugar da laje/platibanda.
+>
+> **Valores da casa (V1/V2) vêm das tabelas `COB`, `CAIXA_DAGUA` e `TOPO_LAJE`** (A01): laje 0,10,
+> platibanda 0,85 × 0,15, beiral 0,60, caimento 0,10; caixa d'água sobre o banho (provisório, C8),
+> topo 5,50. Os números soltos abaixo (fascia, `RH_S/RH_N`, `CX_*`, prumada SW) são do layout
+> antigo e servem só para entender a lógica; **a tabela vence**.
 
 Laje plana de concreto (não telhado de duas águas) — **V3 recebe 2º pavimento sobre ela**.  
 Grupo `roof` = **fascia do beiral** (banda de 25 cm pendurada sob a laje, `fbb=CEIL3D+CPA−0,25
@@ -437,20 +507,7 @@ chuva.
   do V1 e é **reusada pelo telhado solar do V3** (o coletor norte `drainV3` termina nela). **Caixa de
   ligação** (`box3d` 0,5×0,5, `−0,90→grade(0)+0,03`) na testada em mN 0,40, tampa rente ao solo;
   sempre visível no V3 (`_ph=PH.acab`; no V3 ph=7). No V1 segue o acabamento.
-- **Aterro do canto sul (V1/V2/V3, mesmo bloco da caixa):** leira de terra (`matSoil`, `BufferGeometry` wedge)
-  no setback sul (mN 0→2), cobrindo o trecho EXPOSTO do dreno (a garagem já tem o seu aterro em
-  mN≥2). Footprint cena X `AT_Xw=0` (**testada/frente**) → `AT_Xe=17,4` (casa) — corre o setback sul
-  inteiro; **topo em rampa** `AT_Yte=−0,13` junto à casa (~6–12 cm de cobertura sobre o cano) →
-  segue o grade natural na frente. Berma toda **GRAMADA** (um único material `MeshStandardMaterial`
-  `map=texGrass()`, `DoubleSide`), UV `=(x/40, mN/12,5)` = mesmo mapeamento do lote → o gramado casa
-  com a grama do lote (mesma textura/densidade, sem emenda).
-  **RECUADO p/ dentro da cerca/muro** (só V2/V3 têm): `AT_Xw=0,25` (muro frontal está em X 0→0,15),
-  `AT_Ns=0,20` (muro sul está em mN 0→0,15, colunas até 0,22), `AT_Xe=17,4` (casa), `AT_Nn=2,0`. **NÃO cruza cerca/muro.**
-  Topo em rampa `AT_TopE=−0,13` (casa, cobre o cano) → `AT_TopW=grade(AT_Xw)+0,03` (borda leve na frente,
-  sempre acima do grade → sem z-fight com a grama do lote no topo). **Base segue o grade**
-  (`AT_BotW/E=grade(x)−0,15`) → só ~15 cm enterrados, **ocultos pelo terreno**. **SEM `polygonOffset`**
-  (foi um erro: o negativo fazia as laterais atravessarem o chão/cerca; sem ele o terreno volta a
-  ocluir). 8 vértices / 12 triângulos, `computeVertexNormals`.
+- **Aterro do canto sul:** removido na migração do V1 (o projeto oficial não o mostra; os ramais pluviais ficam enterrados).
 Oeste = junta de dilatação → no **V1 standalone** tem **platibanda**, mas **sem fascia** (laje rente à parede). **Quando a garagem está anexada (V2/V3)** a borda oeste deixa de ser exposta — a laje da casa encontra a laje da garagem na junta e as duas leem como uma **superfície contínua**, então a platibanda oeste é **suprimida** (gate `if (!hasGarage)`, `hasGarage = rv∈{v2,v3}`).  
 Toggle: botão "Laje: oculta/visível" via `set3DRoof(v, btn)`.
 
@@ -656,112 +713,50 @@ mas o projeto roda **r128**. Se copiar exemplo das skills, traduzir estas APIs:
 
 ---
 
-## Layout V1 — estado final ✅
+## Layout V1 — projeto oficial (migrado) ✅
 
-### Lote
-- **Tamanho:** 12,5 m × 40 m = 500 m²
-- **Frente:** mE=0 (oeste/rua)
+Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provisórios em
+`docs/RECONCILIACAO-V1.md`. **A fonte é o código** (`FACE`, `EIXO`, `VAOS`, `JANELAS`, `ESCADAS`,
+`PILARES`); as medidas abaixo são renderizadas (já com `OE`).
 
-### Casa — posição no lote e área total
-- **Envelope (retângulo):** mN 2,0→7,5 × mE 22,5→31,5 (código) = 5,5 × 9,0 m
-- Recuo sul: 2,0 m | Recuo norte: 5,0 m | recuos frente/fundo seguem o `OE` (ver cotas)
-- **Área V1: ~44 m² útil / ~49,5 m² construída** (envelope). Acima do mínimo Caixa (36 m²).
-  A arquiteta informou 47 m² construída — a planta atual é **aproximação** dela (reconciliar).
-
-> **Coordenadas das tabelas abaixo:** valores de `mE` são pré-`OE` (código). A posição renderizada subtrai 0,5 m. Ver seção **"Deslocamento da casa — constante `OE`"**.
+### Casa
+- **Faces externas:** mN 2,00→7,75 × mE 17,00→25,10 = 5,75 × 8,10 m = **46,57 m² construída**,
+  **40,38 m² útil**. Paredes de 0,15 (externas e internas).
+- **Eixos:** sul 2,075 · longitudinal 4,725 · norte 7,675 (mN); oeste 17,075 · hall 18,375 ·
+  banho 19,825 · serviço 21,275 · leste 25,025 (mE).
 
 ### Cômodos
-
-| Cômodo | mN | mE (código) | Dim. útil | Área útil |
-|---|---|---|---|---|
-| Hall | 2,0 → 7,5 | 22,5 → 24,35 | ~1,85 m | — |
-| Banheiro | 2,0 → 4,70 | 24,35 → 26,05 | 1,55 × 2,53 m | 3,9 m² |
-| Á. Serviço | 2,0 → 4,70 | 26,05 → 27,75 | 1,55 × 2,53 m | 3,9 m² |
-| Quarto | 2,0 → 4,70 | 27,75 → 31,5 | 3,58 × 2,53 m | 9,0 m² (Caixa ✓) |
-| Sala | 4,70 → 7,5 | 22,5 → 27,5 | 5,0 × 2,8 m | ~14 m² |
-| Cozinha | 4,70 → 7,5 | 27,5 → 31,5 | 4,0 × 2,8 m | ~11 m² |
-
-> **Re-layout arquiteta (branch feat/v1-planta-arquiteta):** a planta preliminar media
-> os cômodos eixo-a-eixo (parede zero). Descontando parede real, o quarto reprovava na Caixa
-> (2,35 m livre < 2,40 mín.; ~6,7 m² < ~8 m² casal). Correções: **paredes internas 0,10 → 0,15 m**;
-> **banheiro + á. serviço** (1,7 m eixo cada) no meio (mE 24,35→26,05 e 26,05→27,75),
-> **hall 1,85 m**; **quarto** (parede oeste em 27,75) e a **faixa sul fica 0,2 m mais funda**
-> (parede norte 4,5 → 4,70) → quarto **3,58 × 2,53 m = 9,0 m² útil** (dim. menor 2,53 ≥ 2,40 ✓).
-> O bloco banheiro/serviço é **móvel** entre hall (oeste) e quarto (leste) — desloca p/ leste
-> encolhe o quarto e alarga o hall, e vice-versa.
-> Envelope inalterado (5,5 × 9,0 m ≈ 49,5 m² construída; ~44 m² útil). **É aproximação** da
-> planta da arquiteta (47 m² construída informados) — reconciliar quando a planta dela chegar.
-
-### Mobiliário — Banheiro (~1,55×2,53, mE 24,35→26,05)
-- Box chuveiro (`shower`): mN 2,10→3,10, mE 24,95→25,95 — canto SE, 1,0×1,0 m
-- Vaso (`toilet`): mN 3,30→3,72, mE 25,45→25,90 — parede leste (mE=26,05)
-- Bancada/cuba (`lavatory`): mN 4,30→4,62, mE 24,50→25,45 — parede norte, 0,95 m de largura
-
-### Mobiliário — Área de Serviço (~1,55×2,53, mE 26,05→27,75)
-- Tanque (`tank`): mN 2,15→2,65, mE 26,15→26,70 — parede sul, sob janela de ventilação
-- Máquina de lavar: mN 2,15→2,65, mE 26,80→27,30 — ao lado do tanque, parede sul
-- Despensa/armário alto: mN 2,80→3,35, mE 27,15→27,60 — canto NE (contra parede leste, livre da porta)
-
-### Mobiliário — Quarto (~3,58×2,53, mE 27,75→31,5)
-- Cama (`bed`): mN 2,63→4,53, mE 29,85→31,25 — pé p/ sul, cabeceira ao norte; deslocada p/ leste (livra a porta)
-- Guarda-roupa (`wardrobeE`, portas p/ leste): mN 2,10→3,30, mE 27,85→28,40 — parede oeste, abre p/ dentro do quarto
-
-### Mobiliário — Sala (parede oeste recuou p/ mE 22,5)
-- Rack (`rack`): mN 5,15→6,55, mE 22,65→23,00, h=0,50 m — parede oeste
-- TV (`tv`): mN 5,30→6,40, mE 22,60→22,65 — painel na parede
-- Sofá (`sofa`): mN 4,975→6,725, mE 24,20→25,05, h=0,75 m — frente p/ TV (oeste)
-- Mesa de centro (`coffee`): mN 5,35→6,35, mE 23,40→23,95
-
-### Mobiliário — Hall de entrada (strip oeste enxuto, mE 22,5→24,0)
-- Sapateira/console (`rack`): mN 2,10→2,45, mE 22,90→23,80, h=0,85 m — parede sul
-- Tapete entrada (`rug`): mN 2,80→3,70, mE 22,65→23,45
-- **Estante vazada divisória removida** — o hall de 1,5 m não comporta o biombo hall↔sala; reavaliar com a planta da arquiteta.
-
-### Mobiliário — Cozinha em U (mE 27,5→30,5)
-O cozinheiro fica no "poço" central e acessa fogão/pia pela parede norte; a geladeira fecha o leste; a península fecha o oeste (encosto do canto alemão). Passagem sala→cozinha em mN 4,5→5,8.
-- Bancada norte (`counter`): mN 7,35→7,90, mE 27,75→30,40 — segmentada (vãos fogão e pia)
-- Península O (`counter`): mN 5,80→7,35, mE 27,75→28,50 (prof. 0,75)
-- Fogão (`stove`): mN 7,35→7,90, mE 28,60→29,15
-- Coifa (`hood`): mN 7,45→7,90, mE 28,50→29,25, z3d=1,55 — parede norte, fora da linha de visão da TV
-- Pia (`sink`): mN 7,35→7,90, mE 29,35→29,90 — sob a janela-fita
-- Geladeira (`fridge`): mN 6,20→6,85, mE 29,95→30,50, h=1,70 — parede leste (mE=30,5)
-- Aéreos norte (`wallcab`): mE 27,80→28,50 e mE 29,25→29,90, z 1,50→2,30
-- Coluna geladeira (`wallcabW`): mE 29,95→30,50, z 1,50→2,30
-
-### Mobiliário — Canto alemão (refeição, parede norte)
-Banco em **L** maior (cozinha cresceu 0,5 m p/ leste, liberando espaço). Passagem sala→cozinha ao sul (mN<5,80).
-- Banco norte: mN 6,95→7,40, mE 25,55→27,75 — assento p/ sul (2D `rect{no3d}`)
-- Banco leste: mN 5,80→7,40, mE 27,30→27,75 — encosto na face O da península (2D `rect{no3d}`)
-- Driver 3D (`benchcorner`): bbox mN 5,80→7,40, mE 25,55→27,75, h=0,85
-- Mesa (`table`): mN 5,95→6,85, mE 25,65→27,10
-- 2 cadeiras (`chair`): (mN 5,75; mE 26,05) e (mN 5,75; mE 26,80)
-
-### Portas
-
-| Porta | Tipo | Hinge | Swing |
+| Cômodo | Faixa | Útil | Área |
 |---|---|---|---|
-| Principal | madeira | mN=2,30, mE=22,5 | −1 (leste) |
-| Banheiro | madeira | mN=2,90, mE=24,35 | −1 (abre p/ dentro) |
-| Á. Serviço | madeira | mN=4,70, mE=27,35 | +1 (sul) |
-| Quarto | madeira | mN=4,70, mE=29,50 | +1 (sul) |
-| Porta sala norte | **correr 4 painéis** (`slidingdoor4`, 2,0 m) | mE 23,00→25,00, mN=7,5 | fechada; frame preto; divisória horizontal no meio |
-| Fundos | madeira | mN=5,60, mE=31,5 | −1 (oeste, cozinha) |
+| Hall | sul, mE 17,15→18,30 | 1,15 × 2,50 | — |
+| Banho | sul, mE 18,45→19,75 | 1,30 × 2,50 | 3,25 m² |
+| Lavanderia | sul, mE 19,90→21,20 | 1,30 × 2,50 | 3,25 m² |
+| Dormitório (**despensa no V3**) | sul, mE 21,35→24,95 | 3,60 × 2,50 | 9,00 m² (Caixa ✓) |
+| Cozinha e sala de estar | norte, mN 4,80→7,60 | integradas | 24,88 m² |
 
-### Janelas (centradas e proporcionais ao ambiente)
+### Portas (`VAOS`) e janelas (`JANELAS`)
+- Entrada (oeste, 0,90) · banho (parede do hall, 0,60) · porta de vidro de correr (norte, 1,60,
+  2 folhas) · fundos (leste, 0,80) · dormitório e lavanderia (parede longitudinal, 0,80 / 0,70).
+- **V3:** lavanderia ↔ despensa por porta de correr de 2 folhas, vão 1,20 (`VAOS.lavDespensa`);
+  a porta da lavanderia para o hall sai.
+- Janelas: banho e lavanderia (sul, 0,80, peitoril 1,50) · dormitório (leste 1,40 e sul 1,40,
+  peitoril 0,90) · sala (norte 1,20, peitoril 1,10) · cozinha (norte 1,20, peitoril 1,10, verga 1,60).
 
-| Janela | Parede | mE ou mN (centro) | Largura |
-|---|---|---|---|
-| Banheiro | Sul (mN=2,0) | mE 24,50→25,30 | 0,80 m (desviada do pilar mE 25,5) |
-| Á. Serviço | Sul (mN=2,0) | mE 26,50→27,30 | 0,80 m |
-| Quarto (sol manhã) | Leste (mE=31,5) | mN 2,65→4,05 | 1,40 m (1,54 m² — Caixa ≥1,5) |
-| Quarto (cruzada) | Sul (mN=2,0) | mE 29,00→30,20 | 1,20 m |
-| Sala/hall | Sul (mN=2,0) | mE 22,75→23,75 | 1,00 m |
-| Sala | Norte (mN=7,5) | mE 25,20→27,00 | 1,80 m |
-| Cozinha (fita) | Norte (mN=7,5) | mE 29,20→30,80 | 1,60 m — peitoril 1,00 / verga 1,60 — alinhado com a sala (sill=1,0) |
+### Cozinha (V1/V2/V3) — planejados
+- **Bancada a 0,95 m** (sob medida: cotovelo do cliente ~1,10 m) na parede norte, do pilar à parede
+  leste: cooktop de indução com coifa embutida + pia sob a janela.
+- **Península** a oeste da bancada (mesma altura) com 3 banquetas (assento 0,65).
+- **Parede leste:** geladeira junto da porta dos fundos (frente alinhada a 0,65), balcão em L com o
+  canto, armário sobre a porta dos fundos.
+- **Aéreos 1,65 → 2,55 m, profundidade 0,35** (norte e leste sobre o balcão) → folga de 0,70 m sobre
+  a bancada; sobre a geladeira 0,65 de profundidade (1,80 → 2,55).
 
-> **Ventilação cruzada:** quarto (sul + leste) · sala/living (sul + norte/porta de vidro) · cozinha (fita norte + abertura p/ sala).
-
----
+### Lavanderia e despensa
+- **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).
+- **V3, lavanderia em C:** lavadora (sul) e secadora (norte) frente a frente, cuba no meio (oeste),
+  tampo de pedra 0,90, varal de parede e prateleira alta.
+- **V3, despensa:** torre quente (forno + micro-ondas) junto da porta da cozinha, freezer,
+  despenseiro alto, armário baixo leste, bancada sul (passar/dobrar), aéreos até 2,55.
 
 ## Sistema de layout (atualizado)
 
@@ -779,6 +774,7 @@ O sidebar lateral foi **removido**. Bússola e legenda ficam sobrepostos dentro 
 - **Bússola:** `div.scene3d-compass` posicionado `top:10px; left:10px; z-index:800` — mesmo CSS/posição do 3D
 - **Legenda:** `div.map-legend-ov` posicionado `bottom:40px; left:10px; z-index:800`
 - `zoomControl: false` no Leaflet — botões +/− removidos; zoom por scroll/pinch permanece
+- **Botão Hidráulica** (`.btn-hidro`, em `.map-floortoggle`): `setHidro()` alterna `hidroVisivel` e reconstrói os mapas abertos; rede, caixas, fossa, filtro e sumidouro só entram em `buildLayers` com ele ligado (começa oculto). A faixa permeável fica sempre visível. Itens `.leg-hidro` da legenda acompanham via `body.hidro-on`.
 
 ### Mapa 2D — comportamento de zoom
 
@@ -857,7 +853,7 @@ Plano `MeshBasicMaterial` branco (`opacity:0.35`, `depthWrite:false`) adicionado
 ## Financiamento — referência
 
 O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
-- ~44 m² > mínimo de 36 m² ✓ (área interna líquida; footprint externo 49,5 m²)
+- 40,38 m² útil / 46,57 m² construída > mínimo de 36 m² ✓ (projeto oficial da arquiteta)
 - 1 quarto suficiente no SFH
 - Área de serviço coberta com tanque — **requisito Caixa atendido** ✓
 - Exige PCI assinada por engenheiro/arquiteto antes da liberação do crédito
@@ -1058,10 +1054,15 @@ escada; uso do 2º piso da garagem; ficha de medidas V3.
 
 ---
 
+## Desejos do cliente (a discutir antes de implementar)
+
+- [ ] **2º piso do V3:** discutir quartos, layout e a melhor forma de organizar (rever a opção B atual).
+- [ ] **V4: área gourmet nos fundos** do lote (nova versão, herda o V3).
+- [ ] **Paisagismo dos fundos:** plantas no quintal e **bananeiras na faixa permeável**.
+
 ## Pendências conhecidas
 
 - [ ] `@media print` para memorial imprimível
-- [ ] Dados da M² Engenharia (CREA) para incluir no app
 - [ ] Acabamentos por fase (piso, esquadrias, cobertura)
 - [ ] V2: portão oeste da garagem (mE=GE0=13,5+OE; abertura ~5 m; tipo glassdoor ou aço)
 - [ ] V2: cotas 2D/3D da garagem (`dimLine` + `buildDims3D` parametrizado por versão)
