@@ -2689,7 +2689,7 @@
     function stair2D() {
         const lys = [];
         const ESC_N0 = 2.20, ESC_DN = 1.20, NST = 18, ESC_COL = 0.20;
-        const ESC_E_base = 20.90, ESC_E_top = 15.90, ESC_HE1 = 19.80;
+        const ESC_E_base = 20.90, ESC_E_top = 15.90, ESC_HE1 = 20.10;   // vão até 20,1: folga ~2,23 m sobre o 3º degrau
         const STRD = (ESC_E_base - ESC_E_top) / NST;
         lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_E_base - ESC_E_top, '#ebebf0',
             { color: '#475569', weight: 1.2, no3d: true }));
@@ -2893,8 +2893,8 @@
         lys.push(roomLabel(3.40, 21.28, 'Banho',      '1,92 × 2,35 m', '4,5 m²'));
         lys.push(roomLabel(4.00, 17.20, 'Corredor',   '↕ escada', ''));
         lys.push(roomLabel(5.40, 20.70, 'Hall',       'junta →', ''));
-        lys.push(wall(3.4, 15.9, 3.4, 19.8, 0.05, { no3d: true }));   // guarda-corpo do vão da escada (norte)
-        lys.push(wall(2.2, 19.8, 3.4, 19.8, 0.05, { no3d: true }));   // guarda-corpo do vão da escada (leste)
+        lys.push(wall(3.4, 15.9, 3.4, 20.1, 0.05, { no3d: true }));   // guarda-corpo do vão da escada (norte)
+        lys.push(wall(2.2, 20.1, 3.4, 20.1, 0.05, { no3d: true }));   // guarda-corpo do vão da escada (leste)
         f2Moveis().forEach(l => lys.push(l));
 
         // Cotas de afastamento do edifício às margens do lote (mesmas do térreo) — seguem o OE
@@ -4396,7 +4396,7 @@
             const Ecasa = FACE.L - OE;    // leste casa
             const TC = F2_T_CASA;
             const casaWins = lado => F2_CASA_LAYOUT ? F2_WINDOWS.filter(w => w.side === lado) : [];
-            const hN0 = 2.20, hN1 = 3.40, hE0 = 15.90, hE1 = 19.80;  // vão da escada (garagem)
+            const hN0 = 2.20, hN1 = 3.40, hE0 = 15.90, hE1 = 20.10;  // vão da escada (garagem) — até 20,1 p/ folga de ~2,23 m
 
             // ── Estrutura GARAGEM (mN S→Ngar, mE W→Egar) — laje 1 c/ vão + 4 paredes ──
             // Beiral: sul/norte/oeste estendem conforme BN_*; leste = junta (sem beiral externo)
@@ -4473,8 +4473,8 @@
             intWall('NS', 19.11, 6.2,   10.5,  [[9.3, 10.1]]);                // parede leste do corredor — porta do quarto 1
             intWall('NS', 20.3,  2.2,   4.6,   []);                          // banheiro dos quartos × corredor
             intWall('EW', 4.6,   20.3,  GE1J,  [[20.85, 21.55]]);            // banheiro dos quartos × hall (porta)
-            F2.add(box3d(3.4 - 0.03, 15.9 + OE, 0.06, 19.8 - 15.9, fz0, fz0 + 1.10, matWall));   // guarda-corpo do vão (norte, 1,10 m)
-            F2.add(box3d(2.2, 19.8 + OE - 0.03, 3.4 - 2.2, 0.06, fz0, fz0 + 1.10, matWall));     // guarda-corpo do vão (leste)
+            F2.add(box3d(3.4 - 0.03, 15.9 + OE, 0.06, 20.1 - 15.9, fz0, fz0 + 1.10, matWall));   // guarda-corpo do vão (norte, 1,10 m)
+            F2.add(box3d(2.2, 20.1 + OE - 0.03, 3.4 - 2.2, 0.06, fz0, fz0 + 1.10, matWall));     // guarda-corpo do vão (leste)
             _ph = PH.esquadS;
             F2G_DOORS.forEach(d => d.leaves.forEach(L => {
                 const r = Math.hypot(L.dn, L.de); if (r < 0.05) return;
@@ -4662,13 +4662,13 @@
             const ESC_N0 = 2.20, ESC_DN = 1.20, NST = 18;  // 2.20 = face norte da viga sul (GN0+VW)
             const ESC_E_base = 20.90 + OE, ESC_E_top = 15.90 + OE;     // base leste → topo oeste (1,5 m da parede)
             const STREAD = (ESC_E_base - ESC_E_top) / NST;   // ~0,278 m
-            const SRISE  = (GLAJE + COB.laje - GCPA) / NST;      // ~0,170 m
+            const SRISE  = (GLAJE + COB.laje - GCPA) / NST;      // ~0,156 m
             const matStair = new THREE.MeshStandardMaterial({ color: 0xd4d0c8, roughness: 0.85, metalness: 0, envMapIntensity: 0.2 });
             _ph = PH.gLaje;   // escada p/ o 2º pav — aparece com a laje da garagem (V2 pronto)
             for (let i = 1; i <= NST; i++)
                 g.add(box3d(ESC_N0, ESC_E_base - i*STREAD, ESC_DN, STREAD, GCPA, GCPA + i*SRISE, matStair));
             // Vão (stairwell) na laje — sobre o trecho alto (oeste), onde a cabeça passaria
-            const HN0 = ESC_N0, HN1 = ESC_N0 + ESC_DN, HE0 = ESC_E_top, HE1 = 19.80 + OE;
+            const HN0 = ESC_N0, HN1 = ESC_N0 + ESC_DN, HE0 = ESC_E_top, HE1 = 20.10 + OE;   // até 20,1: folga ~2,23 m
 
             // Laje + platibanda da garagem — para em GE1j (junta; não encosta na casa)
             const gn0 = GN0 - COB.beiral, gn1 = GN1 + COB.beiral, ge0 = GE0 - COB.beiral; // beiral igual ao da casa; leste = junta
