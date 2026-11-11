@@ -2336,17 +2336,17 @@
 
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
             lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // geladeira, parede leste, porta p/ oeste, junto da porta dos fundos (planejado)
-            lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' })); // balcão entre a geladeira e a bancada, em L com o canto
+            lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // balcão entre a geladeira e a bancada, em L com o canto
             lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça)
             lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
-            lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' })); // bancada: do pilar oeste até a parede leste
-            lys.push(COZ.rect(2.355, 0.995, 0.5, 0.51, '#111827', { color: '#0f172a', weight: 0.7, z3d: 0.90, h3d: 0.012 })); // cooktop de indução com coifa embutida (vidro sobre a bancada)
-            lys.push(COZ.rect(2.575, 1.035, 0.05, 0.43, '#4b5563', { color: '#0f172a', weight: 0.4, z3d: 0.912, h3d: 0.004 })); // grelha da coifa embutida
-            lys.push(COZ.circ(2.475, 1.125, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.912, h3d: 0.002 }));
-            lys.push(COZ.circ(2.475, 1.375, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.912, h3d: 0.002 }));
-            lys.push(COZ.circ(2.645, 1.125, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.912, h3d: 0.002 }));
-            lys.push(COZ.circ(2.645, 1.375, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.912, h3d: 0.002 }));
-            lys.push(COZ.rect(2.275, 2.2, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'sink' })); // pia, sob a janela
+            lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // bancada: do pilar oeste até a parede leste
+            lys.push(COZ.rect(2.355, 0.995, 0.5, 0.51, '#111827', { color: '#0f172a', weight: 0.7, z3d: 0.95, h3d: 0.012 })); // cooktop de indução com coifa embutida (vidro sobre a bancada)
+            lys.push(COZ.rect(2.575, 1.035, 0.05, 0.43, '#4b5563', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.004 })); // grelha da coifa embutida
+            lys.push(COZ.circ(2.475, 1.125, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
+            lys.push(COZ.circ(2.475, 1.375, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
+            lys.push(COZ.circ(2.645, 1.125, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
+            lys.push(COZ.circ(2.645, 1.375, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
+            lys.push(COZ.rect(2.275, 2.2, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'sink' })); // pia, sob a janela
             lys.push(COZ.rect(2.605, 2.27, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(COZ.rect(2.605, 2.52, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
 
@@ -2369,7 +2369,7 @@
             
             // ─── REFEIÇÕES: península na ponta oeste da bancada, descendo p/ a sala ao lado da viga aparente
             // (desenho do cliente). Substitui a mesa; 3 banquetas no lado da sala (a da ponta saiu: ficava no caminho da despensa).
-            lys.push(COZ.rect(1.225, 0.175, 1.05, 0.7, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.90, m3d: 'counter' })); // península
+            lys.push(COZ.rect(1.225, 0.175, 1.05, 0.7, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // península
             lys.push(COZ.circ(2.485, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' })); // banquetas
             lys.push(COZ.circ(2.025, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' }));
             lys.push(COZ.circ(1.475, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' }));
