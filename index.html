@@ -2336,7 +2336,7 @@
 
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
             lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // geladeira, parede leste, porta p/ oeste, junto da porta dos fundos (planejado)
-            lys.push(COZ.rect(1.775, 3.075, 0.5, 0.6, '#efece6', { color: '#6b7280', weight: 0.7, h3d: 2.55 })); // coluna despenseiro 0,50 m entre a geladeira e a bancada (gavetões)
+            lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e7e2d7', { color: '#6b7280', weight: 0.7, h3d: 2.55 })); // coluna despenseiro 0,50 m, frente alinhada à geladeira
             lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
             lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 1.00, m3d: 'counter' })); // bancada: do pilar oeste até a parede leste
             lys.push(COZ.rect(2.355, 0.995, 0.5, 0.51, '#111827', { color: '#0f172a', weight: 0.7, z3d: 1.00, h3d: 0.012 })); // cooktop de indução com coifa embutida (vidro sobre a bancada)
@@ -2360,10 +2360,11 @@
 
             // Armários aéreos: parede norte, contínuos sobre a bancada (base 1,65 m, acima da verga da janela de
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
-            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab' })); // norte, do pilar à parede leste
-            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.75, m3d: 'wallcabW' })); // leste, sobre a geladeira
+            lys.push(COZ.rect(2.525, 0.175, 0.35, 2.85, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab' })); // norte, do pilar até o canto
+            lys.push(COZ.rect(2.275, 3.025, 0.6, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW' })); // aéreo de canto nordeste, na mesma frente da parede leste
+            lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.75, m3d: 'wallcabW' })); // leste, sobre a geladeira, mesma frente
             // Planejados: canto entre bancada e península com armário de canto; armário sobre a porta dos fundos.
-            lys.push(COZ.rect(0.075, 3.325, 0.95, 0.35, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 2.15, h3d: 0.4 })); // armário sobre a porta dos fundos
+            lys.push(COZ.rect(0.075, 3.025, 0.98, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 2.15, h3d: 0.40, m3d: 'wallcabW' })); // armário sobre a porta dos fundos, mesma frente
             lys.push(L.polyline([COZ.rot(2.275, 0.175), COZ.rot(2.875, 0.875)], { color: '#6b7280', weight: 0.8, dashArray: '3 2', interactive: false })); // canto bancada × península: armário de canto (giratório)
             
             // ─── REFEIÇÕES: península na ponta oeste da bancada, descendo p/ a sala ao lado da viga aparente
