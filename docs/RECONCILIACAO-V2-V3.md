@@ -34,7 +34,7 @@ laje, beirais, pilares e paredes oficiais são dados de entrada, não variáveis
 
 ## 2. V3 — sobrado
 
-**Pré-requisito (X1):** a prancha traz laje de 0,10, vigas 15 × 20 e pilares 15 × 25, e não menciona
+**Pré-requisito (X1):** a prancha traz laje de 0,10, vigas 15 × 30 (20 abaixo da laje) e pilares 15 × 25, e não menciona
 pavimento superior. A app antiga usava viga de 0,45 justamente para suportar o sobrado. Enquanto a
 arquiteta não responder, tudo abaixo é desenho, não verificação estrutural.
 
@@ -46,7 +46,7 @@ arquiteta não responder, tudo abaixo é desenho, não verificação estrutural.
 | T4 | Vigas do teto do 2º piso | grade antiga, altura 0,45 | apoiar nos novos pilares | arquiteta |
 | T5 | Cômodos do 2º piso da casa | grade 3 × 3 m sobre 9,00 m: acesso, suíte, 2 banheiros, closet | envelope de 8,10 m e pilares irregulares: **refazer o layout** | decidir |
 | T6 | Portas e janelas do 2º piso | tabelas `F2_DOORS` e `F2_WINDOWS` nas posições antigas | seguem T5 | decidir |
-| T7 | Paredes do 2º piso | 0,20 | 0,15 como o térreo, ou o que a estrutura pedir | arquiteta |
+| T7 | Paredes do 2º piso | 0,20 | 0,15 como o térreo, ou o que a estrutura pedir. **Decisão do cliente (2026-11-11): paredes internas do 2º piso em drywall** (com lã de rocha); alvenaria só no perímetro, sobre as vigas de borda. Motivo: a garagem não pode ter pilares a mais (vagas), e várias divisórias não ficam sobre viga | arquiteta |
 | T8 | Telhado solar da casa | calculado em parte pelos eixos novos, em parte pelos beirais antigos (mN 1,565→8,585) | recalcular sobre o envelope novo | ajustar |
 | T9 | Calha norte da casa | mN 8,40; beira do telhado em 8,585 | seguir o telhado | ajustar |
 | T10 | Prumada da casa | na junta, mE 16,85→16,95 | reposicionar com G1 | ajustar |
