@@ -377,6 +377,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `z3d: n` | Base acima do piso em metros (padrão 0) |
 | `no3d: true` | Não gerar volume 3D |
 | `m3d: 'tipo'` | Usa builder dedicado em `FURN3D` |
+| `rot3d: graus` | Gira o modelo 3D do móvel (anti-horário visto de cima; 180 = cabeceira ao sul). Hoje só o 2º piso (`f2Moveis`) aplica. |
 
 ### Tipos de móveis (`FURN3D`)
 
@@ -1028,6 +1029,14 @@ centradas, embutidas nas paredes/divisórias — helper `col2c`) + grelha 3×3. 
 do 2º (y 5,26→5,71, **VH=0,45** = casa térreo, VW=0,20), sustentando a laje 2. Pórticos
 independentes pela junta (vigas da garagem param em GE1j, da casa em 22,5). Helpers locais
 `col2`/`col2c`/`beamEW`/`beamNS`.
+
+**Layout atual (opção B revisada, branch feat/v3-segundo-piso):** casa = sala íntima (coluna oeste, 14,2 m²,
+entrada pela junta) + suíte (porta na ponta norte) + banho da suíte + closet; garagem = quartos 1 e 2, escritório,
+corredor da chegada da escada (a oeste; guarda-corpo 1,10 m no vão), armário de rouparia na parede oeste e
+banheiro dos quartos no canto sudeste, com porta pelo hall da junta. Móveis de referência em `f2Moveis()` — fonte única 2D + 3D (base no piso do 2º).
+**Paredes internas do 2º piso = drywall** (decisão do cliente, 2026-11-11; a validar na pergunta 26): alvenaria só
+no perímetro, sobre as vigas de borda. A garagem não pode ganhar pilares (vagas entre as linhas mN 3,4 / 6,75 / 10,3).
+O texto abaixo descreve o layout antigo.
 
 **Cômodos do 2º piso da casa (grade 2×3, divididos por mN 4,5 / mE 25,5 / mE 28,5):**
 - NORTE (mN 4,5→7,5): **acesso** (coluna 1, mE 22,5→25,5) + **quarto da suíte** (colunas

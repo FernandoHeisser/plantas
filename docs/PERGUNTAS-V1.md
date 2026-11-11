@@ -196,3 +196,11 @@ Esses campos não constam no documento.
 A prancha traz fossa e filtro de Ø0,80 × 1,20 m (cerca de 603 L cada) e sumidouro de Ø1,00 × 1,50 m, sem informar número de pessoas, contribuição, volume útil nem teste de percolação. Pela antiga NBR 7229, a fórmula dá mais de 1.000 L para qualquer ocupação, e o diâmetro mínimo citado é 1,10 m. Essas cotas são internas? O dimensionamento atende à NBR 17076:2024 e ao código municipal? O sistema comporta a ampliação do V3?
 
 **Resposta:**
+
+**26. As paredes internas do 2º piso podem ser de drywall? (T7)**
+A ideia é fazer em alvenaria só as paredes externas, que ficam sobre as vigas de borda, e as internas em drywall
+com lã de rocha. Várias divisórias do 2º piso não ficam sobre viga, e na garagem não dá para pôr pilares a mais
+por causa das vagas. O drywall pesa uns 30 a 50 kg/m², contra uns 200 kg/m² do tijolo rebocado. Isso atende o
+projeto estrutural e as exigências de acústica entre quartos?
+
+**Resposta:**
