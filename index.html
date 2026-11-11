@@ -2317,10 +2317,21 @@
                 lys.push(QUA.rect(1.925, 0.085, 0.62, 0.04, '#8a5a33', { color: '#451a03', weight: 0.6, h3d: 2.10 }));
                 lys.push(QUA.rect(1.875, 1.705, 0.65, 0.7, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // freezer, encostado na torre
                 lys.push(L.polyline([QUA.rot(2.205, 1.775), QUA.rot(2.205, 2.335)], { color: '#334155', weight: 0.6, interactive: false }));
-                lys.push(QUA.rect(1.975, 1.075, 0.6, 0.6, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 2.10, m3d: 'torre' })); // torre quente: forno + micro-ondas, logo na entrada
-                lys.push(QUA.rect(2.075, 2.435, 0.5, 1.24, '#8a5a33', { color: '#451a03', weight: 0.7, h3d: 2.40 })); // despenseiro alto: do freezer ao canto nordeste
+                lys.push(QUA.rect(1.975, 1.075, 0.6, 0.6, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 2.55, m3d: 'torre' })); // torre quente: forno + micro-ondas, logo na entrada
+                lys.push(QUA.rect(2.075, 2.435, 0.5, 1.24, '#8a5a33', { color: '#451a03', weight: 0.7, h3d: 2.55 })); // despenseiro alto: do freezer ao canto nordeste
                 lys.push(QUA.rect(0.075, 3.125, 1.95, 0.55, '#c8a27a', { color: '#78350f', weight: 0.7, h3d: 0.88 })); // armário baixo na parede leste, do canto sul até o fim da janela
                 lys.push(QUA.rect(0.075, 0.675, 0.6, 2.45, '#d6d0c4', { color: '#78716c', weight: 0.7, h3d: 0.88 })); // bancada de apoio na parede sul, em L com o armário leste (passar, dobrar)
+                // Planejados até 2,55 m: aéreos sobre a bancada sul e o armário leste (baixos sobre as janelas),
+                // sobre a porta de correr e a porta da cozinha, sobre o freezer; canto sudeste com armário de canto.
+                lys.push(QUA.rect(2.075, 1.705, 0.5, 0.7, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.8, h3d: 0.75 })); // sobre o freezer
+                lys.push(QUA.rect(2.225, 0.075, 0.35, 0.98, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 2.15, h3d: 0.4 })); // sobre a porta da cozinha
+                lys.push(QUA.rect(0.075, 0.075, 2.15, 0.35, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 2.15, h3d: 0.4 })); // sobre a porta de correr (parede oeste inteira)
+                lys.push(QUA.rect(0.075, 0.675, 0.35, 0.45, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.5, h3d: 1.05 })); // parede sul, a oeste da janela
+                lys.push(QUA.rect(0.075, 1.125, 0.35, 1.5, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 2.15, h3d: 0.4 })); // parede sul, sobre a janela
+                lys.push(QUA.rect(0.075, 2.625, 0.35, 1.05, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.5, h3d: 1.05 })); // parede sul, até o canto
+                lys.push(QUA.rect(0.425, 3.325, 0.15, 0.35, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.5, h3d: 1.05 })); // parede leste, fecha o canto
+                lys.push(QUA.rect(0.575, 3.325, 1.5, 0.35, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 2.15, h3d: 0.4 })); // parede leste, sobre a janela
+                lys.push(L.polyline([QUA.rot(0.075, 3.125), QUA.rot(0.675, 3.675)], { color: '#6b7280', weight: 0.8, dashArray: '3 2', interactive: false })); // canto sudeste: armário de canto (bancada × armário leste)
             }
 
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
@@ -2351,6 +2362,11 @@
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
             lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab' })); // norte, do pilar à parede leste
             lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.75, m3d: 'wallcabW' })); // leste, sobre a geladeira
+            // Planejados: parede sul da cozinha (entre a porta da despensa e a varredura da porta dos fundos)
+            // com armários altos; canto entre bancada e península com armário de canto; armário sobre a porta dos fundos.
+            lys.push(COZ.rect(0.075, 1.075, 0.6, 1.75, '#efece6', { color: '#6b7280', weight: 0.7, h3d: 2.55 })); // armários altos na parede sul (1,75 × 0,60 m), corredor de 1,60 m até a bancada
+            lys.push(COZ.rect(0.075, 3.325, 0.95, 0.35, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 2.15, h3d: 0.4 })); // armário sobre a porta dos fundos
+            lys.push(L.polyline([COZ.rot(2.275, 0.175), COZ.rot(2.875, 0.875)], { color: '#6b7280', weight: 0.8, dashArray: '3 2', interactive: false })); // canto bancada × península: armário de canto (giratório)
             
             // ─── REFEIÇÕES: península na ponta oeste da bancada, descendo p/ a sala ao lado da viga aparente
             // (desenho do cliente). Substitui a mesa; 3 banquetas no lado da sala (a da ponta saiu: ficava no caminho da despensa).
