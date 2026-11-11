@@ -1694,7 +1694,7 @@
                 <tr><td class="td-name">Sala íntima</td><td class="td-dims">1,40 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
                 <tr><td class="td-name">Closet</td><td class="td-dims">1,10 × 1,10 m</td><td><span class="td-tag">Leste</span></td></tr>
                 <tr><td class="td-name">Banho da suíte</td><td class="td-dims">0,80 × 0,60 m</td><td><span class="td-tag">Sul</span></td></tr>
-                <tr><td class="td-name">Banho dos quartos</td><td class="td-dims">0,55 × 0,60 m</td><td><span class="td-tag">Sul</span></td></tr>
+                <tr><td class="td-name">Banho dos quartos</td><td class="td-dims">1,00 × 0,60 m</td><td><span class="td-tag">Sul</span></td></tr>
                 <tr><td class="td-name">Escritório</td><td class="td-dims">panorâmica</td><td><span class="td-tag">Oeste</span></td></tr>
                 <tr><td class="td-name">Quarto 1</td><td class="td-dims">panorâmica</td><td><span class="td-tag">Norte + Leste</span></td></tr>
                 <tr><td class="td-name">Quarto 2</td><td class="td-dims">panorâmica</td><td><span class="td-tag">Norte + Oeste</span></td></tr>
@@ -2680,8 +2680,7 @@
         { axis:'EW', line:10.5,  s:19.51, e:21.97, sill:0.40, head:2.25, side:'N' }, // quarto 1 — norte (panorâmica, centrada)
         { axis:'NS', line:GE1J - 0.10, s:8.0,   e:10.1,  sill:0.40, head:2.25, side:'E' }, // quarto 1 — leste (panorâmica, centrada no trecho exterior)
         { axis:'EW', line:FACE.S + 0.10, s:14.3,  e:17.24, sill:0.90, head:2.20, side:'S' }, // sul corredor/escada — grande (vão oeste, entre colunas)
-        { axis:'EW', line:FACE.S + 0.10, s:18.64, e:20.15, sill:0.90, head:2.20, side:'S' }, // sul escada — trecho leste (até o banheiro)
-        { axis:'EW', line:FACE.S + 0.10, s:20.45, e:21.00, sill:1.50, head:2.10, side:'S', vpanes:true }, // banheiro dos quartos — sul
+        { axis:'EW', line:FACE.S + 0.10, s:20.81, e:21.81, sill:1.50, head:2.10, side:'S', vpanes:true }, // banheiro dos quartos — sul, 1,00 m centrada
     ];
 
     // Escada 2D (só desenho, no3d) — fonte única: térreo V2/V3 + visão 2º piso V3.
@@ -2880,7 +2879,7 @@
             }
             d.leaves.forEach(L => doorArc(L.hn, L.he, L.dn, L.de, L.sw).forEach(l => lys.push(l)));
         });
-        const F2G_WIN_IDS = ['J15','J16','J17','J18','J19','J20','J21','J22','J24']; // J24=banheiro dos quartos (sul)
+        const F2G_WIN_IDS = ['J15','J16','J17','J18','J19','J20','J21','J24']; // J24=banheiro dos quartos (sul)
         F2G_WINDOWS.forEach((w, i) => {
             const o = { sill: w.sill, head: w.head };
             if (w.axis === 'EW') win(w.line - 0.10, w.s, 0.20, w.e - w.s, 'N', o).forEach(l => lys.push(l));
