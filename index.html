@@ -1343,9 +1343,9 @@
 
           <div class="med-room-card col-slate">
             <div class="med-room-name">Depósito</div>
-            <div class="med-room-dims">1,1 × 1,4 m</div>
-            <div class="med-room-area">~1,5 m²</div>
-            <div class="med-room-meta">Canto sudoeste, junto ao pé da escada<br>Porta 0,70 m ao norte</div>
+            <div class="med-room-dims">1,4 × 2,4 m</div>
+            <div class="med-room-area">~3 m²</div>
+            <div class="med-room-meta">Sob a escada (sudoeste)<br>Porta 0,90 m ao norte</div>
           </div>
 
           <div class="med-room-card col-slate">
@@ -1409,7 +1409,7 @@
                 <tr><td class="td-name">Dormitório</td><td class="td-dims">0,80 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Sala (norte)</td><td class="td-dims">1,60 × 2,10 m</td><td><span class="td-tag glass">correr 2 fl.</span></td></tr>
                 <tr><td class="td-name">Fundos (casa)</td><td class="td-dims">0,80 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
-                <tr><td class="td-name">Depósito</td><td class="td-dims">0,70 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
+                <tr><td class="td-name">Depósito</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Portão garagem</td><td class="td-dims">— a definir</td><td><span class="td-tag">—</span></td></tr>
               </tbody>
             </table>
@@ -1516,9 +1516,9 @@
           </div>
           <div class="med-room-card col-slate">
             <div class="med-room-name">Depósito</div>
-            <div class="med-room-dims">1,1 × 1,4 m</div>
-            <div class="med-room-area">~1,5 m²</div>
-            <div class="med-room-meta">Canto sudoeste, junto ao pé da escada<br>Porta 0,70 m ao norte</div>
+            <div class="med-room-dims">1,4 × 2,4 m</div>
+            <div class="med-room-area">~3 m²</div>
+            <div class="med-room-meta">Sob a escada (sudoeste)<br>Porta 0,90 m ao norte</div>
           </div>
           <div class="med-room-card col-slate">
             <div class="med-room-name">Escada</div>
@@ -1645,7 +1645,7 @@
                 <tr><td class="td-name">Despensa</td><td class="td-dims">0,80 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Sala (norte)</td><td class="td-dims">1,60 × 2,10 m</td><td><span class="td-tag glass">correr 2 fl.</span></td></tr>
                 <tr><td class="td-name">Fundos (casa)</td><td class="td-dims">0,80 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
-                <tr><td class="td-name">Depósito</td><td class="td-dims">0,70 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
+                <tr><td class="td-name">Depósito</td><td class="td-dims">0,90 × 2,10 m</td><td><span class="td-tag">madeira</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -2507,20 +2507,18 @@
             // Plataforma externa (pátio) na porta de vidro norte + degraus
             northPlat2D().forEach(l => lys.push(l));
 
-            // ── Depósito — mN 2,0→3,4 × mE 13,5→14,6 (canto sudoeste) ────────
-            // A escada parte do oeste (mE 15,9): o depósito encolheu p/ deixar o patamar
-            // de partida (mE 14,6→15,9). Parede leste fecha o depósito; porta na parede norte.
-            const DEP_N1 = 3.4, DEP_E0 = 13.5, DEP_E1 = 14.6;
+            // ── Depósito (embaixo da escada) — mN 2,0→3,4 × mE 13,5→15,9 ────────
+            // Parede leste removida: escada delimita o espaço; porta na parede norte
+            const DEP_N1 = 3.4, DEP_E0 = 13.5, DEP_E1 = 15.9;
             // z0=0,15 (GCPA): paredes assentam no piso da garagem, não no datum 0
             // (senão a base atravessa a fundação/baldrame — eram extrudadas de z=0).
             // Oeste: centro em DEP_E0+0,10 → face oeste em mE=13,5, FLUSH com as colunas
             // e a parede sul (antes centrada em 13,5 → face em 13,4, pendurada além do baldrame).
             wall(GN0,    DEP_E0 + 0.10, DEP_N1, DEP_E0 + 0.10, 0.20, { z0: 0.15 }); // parede oeste (fachada)
             wall(DEP_N1, DEP_E0, DEP_N1, DEP_E1, 0.10, { z0: 0.15 }); // parede norte (segue viga) com porta
-            wall(GN0, DEP_E1, DEP_N1, DEP_E1, 0.10, { z0: 0.15 });   // parede leste (patamar da escada)
-            cut(3.35, 13.75, 0.10, 0.7);                           // vão da porta na parede norte
-            doorArc(DEP_N1, 13.75, 0.0, 0.7, +1).forEach(l => lys.push(l)); // porta abre p/ norte (garagem)
-            lys.push(roomLabel(2.7, 14.05, 'Depósito', '1,1 × 1,4 m', '~1,5 m²'));
+            cut(3.35, 14.5, 0.10, 0.9);                            // vão da porta na parede norte
+            doorArc(DEP_N1, 14.5, 0.0, 0.9, +1).forEach(l => lys.push(l)); // porta abre p/ norte (garagem)
+            lys.push(roomLabel(2.7, 14.7, 'Depósito', '1,4 × 2,4 m', '~3 m²'));
 
             // Escada p/ 2º pavimento (desenho 2D — fonte única em stair2D)
             stair2D().forEach(l => lys.push(l));
@@ -2693,20 +2691,19 @@
     function stair2D() {
         const lys = [];
         const ESC_N0 = 2.20, ESC_DN = 1.20, NST = 18, ESC_COL = 0.20;
-        // Base a OESTE (mE 15,9), sobe p/ LESTE: chega no 2º piso junto da junta (mE 20,9).
-        const ESC_E_base = 15.90, ESC_E_top = 20.90, ESC_HE0 = 17.00;
-        const STRD = (ESC_E_top - ESC_E_base) / NST;
-        lys.push(rect(ESC_N0, ESC_E_base, ESC_DN, ESC_E_top - ESC_E_base, '#ebebf0',
+        const ESC_E_base = 20.90, ESC_E_top = 15.90, ESC_HE1 = 19.80;
+        const STRD = (ESC_E_base - ESC_E_top) / NST;
+        lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_E_base - ESC_E_top, '#ebebf0',
             { color: '#475569', weight: 1.2, no3d: true }));
         for (let i = 1; i < NST; i++)              // nosings dos degraus (linhas N-S)
             lys.push(L.polyline(
-                [rot(ESC_N0, ESC_E_base + i*STRD + OE), rot(ESC_N0 + ESC_DN, ESC_E_base + i*STRD + OE)],
+                [rot(ESC_N0, ESC_E_base - i*STRD + OE), rot(ESC_N0 + ESC_DN, ESC_E_base - i*STRD + OE)],
                 { color: '#334155', weight: 1.2, interactive: false }));
-        // Vão (stairwell) na laje — tracejado, sobre o trecho alto (leste)
-        lys.push(rect(ESC_N0, ESC_HE0, ESC_DN, ESC_E_top - ESC_HE0, 'transparent',
+        // Vão (stairwell) na laje — tracejado, sobre o trecho alto (oeste)
+        lys.push(rect(ESC_N0, ESC_E_top, ESC_DN, ESC_HE1 - ESC_E_top, 'transparent',
             { color: '#0ea5e9', weight: 1, dashArray: '4 3', fill: false, no3d: true }));
-        lys.push(L.polyline(                        // seta de subida (O→L)
-            [rot(ESC_N0 + ESC_DN/2, ESC_E_base + 0.3 + OE), rot(ESC_N0 + ESC_DN/2, ESC_E_top - 0.3 + OE)],
+        lys.push(L.polyline(                        // seta de subida (L→O)
+            [rot(ESC_N0 + ESC_DN/2, ESC_E_base - 0.3 + OE), rot(ESC_N0 + ESC_DN/2, ESC_E_top + 0.3 + OE)],
             { color: '#475569', weight: 1.2, interactive: false }));
         lys.push(roomLabel(ESC_N0 + ESC_DN/2, (ESC_E_top + ESC_E_base) / 2, 'Escada', '↑ 2º pav', ''));
         return lys;
@@ -4400,7 +4397,7 @@
             const Ecasa = FACE.L - OE;    // leste casa
             const TC = F2_T_CASA;
             const casaWins = lado => F2_CASA_LAYOUT ? F2_WINDOWS.filter(w => w.side === lado) : [];
-            const hN0 = 2.20, hN1 = 3.40, hE0 = 17.00, hE1 = 20.90;  // vão da escada (garagem): trecho alto, a leste
+            const hN0 = 2.20, hN1 = 3.40, hE0 = 15.90, hE1 = 19.80;  // vão da escada (garagem)
 
             // ── Estrutura GARAGEM (mN S→Ngar, mE W→Egar) — laje 1 c/ vão + 4 paredes ──
             // Beiral: sul/norte/oeste estendem conforme BN_*; leste = junta (sem beiral externo)
@@ -4660,19 +4657,19 @@
             }
             // V4: esperas dos 12 pilares da garagem — são a PONTA do pilar (mesma fase das
             // colunas da garagem). Saem do topo do pilar (GLAJE); a laje depois envolve a base.
-            // Escada p/ 2º pavimento — base a OESTE (mE 15,9, patamar junto ao depósito), sobe
-            // p/ LESTE e chega no 2º piso junto da junta (mE 20,9), perto dos quartos e da casa.
-            // 18 degraus (espelho ~0,17 m, piso ~0,28 m); run de 5,0 m.
+            // Escada p/ 2º pavimento — base junto à porta (leste, mE 21), sobe LONGA p/ oeste.
+            // 18 degraus (espelho ~0,17 m, piso ~0,28 m) → rampa suave; run de 5,0 m até mE 16.
+            // Sobe livre: a viga central que cruzava foi removida no trecho sul.
             const ESC_N0 = 2.20, ESC_DN = 1.20, NST = 18;  // 2.20 = face norte da viga sul (GN0+VW)
-            const ESC_E_base = 15.90 + OE, ESC_E_top = 20.90 + OE;     // base oeste → topo leste
-            const STREAD = (ESC_E_top - ESC_E_base) / NST;   // ~0,278 m
+            const ESC_E_base = 20.90 + OE, ESC_E_top = 15.90 + OE;     // base leste → topo oeste (1,5 m da parede)
+            const STREAD = (ESC_E_base - ESC_E_top) / NST;   // ~0,278 m
             const SRISE  = (GLAJE + COB.laje - GCPA) / NST;      // ~0,170 m
             const matStair = new THREE.MeshStandardMaterial({ color: 0xd4d0c8, roughness: 0.85, metalness: 0, envMapIntensity: 0.2 });
             _ph = PH.gLaje;   // escada p/ o 2º pav — aparece com a laje da garagem (V2 pronto)
             for (let i = 1; i <= NST; i++)
-                g.add(box3d(ESC_N0, ESC_E_base + (i-1)*STREAD, ESC_DN, STREAD, GCPA, GCPA + i*SRISE, matStair));
-            // Vão (stairwell) na laje — sobre o trecho alto (leste), onde a cabeça passaria
-            const HN0 = ESC_N0, HN1 = ESC_N0 + ESC_DN, HE0 = 17.00 + OE, HE1 = ESC_E_top;
+                g.add(box3d(ESC_N0, ESC_E_base - i*STREAD, ESC_DN, STREAD, GCPA, GCPA + i*SRISE, matStair));
+            // Vão (stairwell) na laje — sobre o trecho alto (oeste), onde a cabeça passaria
+            const HN0 = ESC_N0, HN1 = ESC_N0 + ESC_DN, HE0 = ESC_E_top, HE1 = 19.80 + OE;
 
             // Laje + platibanda da garagem — para em GE1j (junta; não encosta na casa)
             const gn0 = GN0 - COB.beiral, gn1 = GN1 + COB.beiral, ge0 = GE0 - COB.beiral; // beiral igual ao da casa; leste = junta
