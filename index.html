@@ -428,6 +428,25 @@
             border-radius: 6px; cursor: pointer;
         }
         .scene3d-toolbar button:hover { background: rgba(15,23,42,0.95); }
+        /* Passeio em 1ª pessoa: painel de lugares + joystick (só com o passeio ligado) */
+        .walk-ui, .walk-joy { display: none; }
+        .scene3d.walking .walk-ui {
+            display: block; position: absolute; top: 44px; right: 10px; z-index: 5;
+            background: rgba(15,23,42,0.78); color: #e2e8f0; border: 1px solid rgba(148,163,184,0.4);
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 6px 8px; border-radius: 6px;
+        }
+        .walk-ui select { font: inherit; background: #0f172a; color: #e2e8f0; border: 1px solid #475569; border-radius: 4px; padding: 2px 4px; }
+        .walk-dica { margin-top: 4px; color: #94a3b8; font-size: 10px; }
+        .scene3d.walking .walk-joy {
+            display: block; position: absolute; right: 18px; bottom: 18px; z-index: 6; width: 110px; height: 110px;
+            border-radius: 50%; background: rgba(15,23,42,0.35); border: 1px solid rgba(226,232,240,0.45);
+            touch-action: none;
+        }
+        .walk-knob {
+            position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px;
+            border-radius: 50%; background: rgba(226,232,240,0.75); pointer-events: none;
+        }
+        .scene3d.walking canvas { touch-action: none; cursor: grab; }
 
         /* Botão de alternância de piso no mapa 2D (V3) — top-right, estilo HUD */
         .map-floortoggle { position: absolute; top: 10px; right: 10px; z-index: 800; display: flex; gap: 6px; }
@@ -5005,6 +5024,7 @@
         if (S.scene) S.scene.background.setHSL(0.58, 0.5, 0.10 + 0.45 * day); // céu: noite→dia
         S.hour = hour; S.month = month;
         S.elevDeg = Math.asin(Math.max(-1, Math.min(1, U))) * 180/Math.PI;
+        nightLights(S);    // luzes internas quando escurece
         S._dirty = true;   // sol/céu mudaram → redesenhar
         return S.elevDeg;
     }
@@ -5095,8 +5115,9 @@
             sun.shadow.bias = -0.0004;
             sun.shadow.normalBias = 0.02;
 
-            S = scenes3d[v] = { scene, camera, renderer, controls, group: null, sun, hemi, month: 4, hour: 14.5, _dirty: true };
+            S = scenes3d[v] = { v, scene, camera, renderer, controls, group: null, sun, hemi, month: 4, hour: 14.5, _dirty: true };
             buildHud3D(v, host, S);     // bússola + slider de horário/mês
+            buildWalk3D(v, host, S);    // passeio em 1ª pessoa (botão Caminhar)
             setSun3D(S, 14.5, 4);       // posição solar inicial (~14h30, maio)
             syncHud3D(S);
 
@@ -5108,8 +5129,11 @@
             controls.addEventListener('change', () => { S._dirty = true; });
             (function animate() {
                 S._raf = requestAnimationFrame(animate);
+                const agora = performance.now();
+                const dt = Math.min(0.05, (agora - (S._t || agora)) / 1000); S._t = agora;
                 if (host.offsetParent === null) return;   // painel oculto → não renderiza
-                controls.update();                         // damping; emite 'change' enquanto move
+                if (S.walk && S.walk.on) { if (walkTick(S, dt)) S._dirty = true; }   // passeio em 1ª pessoa
+                else controls.update();                    // damping; emite 'change' enquanto move
                 if (!S._dirty) return;                     // nada mudou → pula o render
                 S._dirty = false;
                 updateCompass3D(S);
@@ -5121,6 +5145,10 @@
         }
 
         // (Re)constrói o prédio a cada abertura → 3D sempre reflete o 2D atual
+        if (S.walk && S.walk.on) {   // sai do passeio: o grupo antigo vai ser descartado
+            const wb = [...host.querySelectorAll('.scene3d-toolbar button')].find(b => b.textContent === 'Sair do passeio');
+            if (wb) set3DWalk(v, wb);
+        }
         if (S.group) { S.scene.remove(S.group); disposeObject3D(S.group); }
         S.group = buildBuilding3D(v);
         S.scene.add(S.group);
@@ -5143,6 +5171,7 @@
     // sempre completas. A laje (roof) aparece da fase 4 (Laje) até 6 (Esquadrias) e
     // some no acabamento (7), espelhando o default do V1 (laje oculta p/ ver o interior).
     function applyBuildPhase(v) {
+        if (scenes3d[v] && scenes3d[v].walk) scenes3d[v].walk.geoDirty = true;   // passeio: piso/colisão mudaram
         const S = scenes3d[v];
         if (!S || !S.group) return;
         S._dirty = true;
@@ -5270,6 +5299,324 @@
         }
     }
 
+    // ── Modo caminhar (primeira pessoa) ───────────────────────────────────────
+    // Câmera na altura dos olhos andando pelo chão real da cena. Não há tabela de
+    // colisão própria: um raio p/ baixo acha o piso (terreno, pisos, degraus da escada,
+    // laje do 2º piso) e raios horizontais (joelho → cabeça) batem em paredes, pilares,
+    // guarda-corpo, vidros e móveis. Vale p/ V1/V2/V3; portas abertas = vão livre.
+    const WALK = { olho: 1.60, raio: 0.28, passo: 0.40, vel: 1.4, corrida: 3.0, queda: 4.0 };
+    let _wRayObj = null;
+    const _wRayGet = () => _wRayObj || (_wRayObj = new THREE.Raycaster());
+
+    // Lugares (coordenadas renderizadas: e = mE já com OE; n = mN; nivel 1 = 2º piso do V3)
+    function walkPlaces(v) {
+        const P = [
+            { nome: 'Entrada', n: 3.42, e: FACE.O - 1.5, yaw: 0 },
+            { nome: 'Estar', n: 6.30, e: FACE.O + 0.9, yaw: -10 },
+            { nome: 'Cozinha', n: 5.40, e: 22.40, yaw: 55 },
+            { nome: v === 'v3' ? 'Despensa' : 'Dormitório', n: 3.30, e: 23.70, yaw: 165 },
+            { nome: 'Lavanderia', n: 4.10, e: 20.55, yaw: -90 },
+            { nome: 'Banho', n: 4.10, e: 19.10, yaw: -90 },
+            { nome: 'Quintal', n: 4.80, e: 30.0, yaw: 180 },
+        ];
+        if (v === 'v2' || v === 'v3') {
+            P.push({ nome: 'Garagem', n: 6.50, e: 10.0, yaw: 0 });
+            P.push({ nome: 'Pé da escada', n: 2.80, e: 16.35, yaw: 180 });
+        }
+        if (v === 'v3') {
+            P.push(
+                { nome: '2º · Sala íntima', n: 6.80, e: 17.70, yaw: -70, nivel: 1 },
+                { nome: '2º · Suíte', n: 7.10, e: 20.30, yaw: -30, nivel: 1 },
+                { nome: '2º · Quarto 1', n: 9.70, e: 14.20, yaw: -60, nivel: 1 },
+                { nome: '2º · Quarto 2', n: 9.80, e: 11.60, yaw: -150, nivel: 1 },
+                { nome: '2º · Escritório', n: 5.30, e: 11.80, yaw: 150, nivel: 1 },
+                { nome: '2º · Corredor', n: 4.00, e: 13.20, yaw: 0, nivel: 1 },
+            );
+        }
+        return P;
+    }
+
+    // Luzes internas (noite): centro dos ambientes, no teto de cada nível
+    function walkRooms(v) {
+        const R = [
+            { n: 6.20, e: 18.90 }, { n: 6.20, e: 23.10 }, { n: 3.40, e: 23.15 },
+            { n: 3.40, e: 19.10 }, { n: 3.40, e: 20.55 }, { n: 3.40, e: 17.70 },
+        ];
+        if (v === 'v2' || v === 'v3') R.push({ n: 6.50, e: 12.40 });
+        if (v === 'v3') R.push(
+            { n: 5.25, e: 18.45, nivel: 1 }, { n: 6.20, e: 22.40, nivel: 1 }, { n: 3.40, e: 21.00, nivel: 1 },
+            { n: 3.40, e: 23.60, nivel: 1 }, { n: 8.30, e: 15.20, nivel: 1 }, { n: 8.90, e: 10.20, nivel: 1 },
+            { n: 5.95, e: 10.20, nivel: 1 }, { n: 3.40, e: 15.80, nivel: 1 }, { n: 4.00, e: 13.00, nivel: 1 },
+        );
+        return R.map(r => ({ x: r.e, z: -r.n, y: (r.nivel ? TOPO_LAJE : CPA) + 2.45, nivel: r.nivel || 0 }));
+    }
+
+    function _visChain(o) { for (; o; o = o.parent) if (!o.visible) return false; return true; }
+
+    // Malhas que contam p/ piso e colisão (com a caixa no mundo), recalculadas quando a cena muda
+    function walkCollect(S) {
+        const objs = [];
+        S.group.updateMatrixWorld(true);
+        S.group.traverse(o => {
+            if (!o.isMesh || o.userData.noWalk || !_visChain(o)) return;
+            const b = new THREE.Box3().setFromObject(o);
+            if (b.isEmpty()) return;
+            const grande = (b.max.x - b.min.x) > 30 || (b.max.z - b.min.z) > 30;
+            objs.push({ o, b, grande });
+        });
+        S.walk.objs = objs;
+        S.walk.geoDirty = false;
+    }
+
+    // Altura do piso sob (x, z), procurando de cima (oy) p/ baixo
+    function walkGround(S, x, z, oy) {
+        const _wRay = _wRayGet();
+        const cand = [];
+        for (const it of S.walk.objs) {
+            const b = it.b;
+            if (x < b.min.x || x > b.max.x || z < b.min.z || z > b.max.z || b.min.y > oy) continue;
+            cand.push(it.o);
+        }
+        if (!cand.length) return null;
+        _wRay.set(new THREE.Vector3(x, oy, z), new THREE.Vector3(0, -1, 0));
+        _wRay.far = 8; _wRay.camera = S.camera;
+        const h = _wRay.intersectObjects(cand, false);
+        return h.length ? h[0].point.y : null;
+    }
+
+    // Bloqueio horizontal: raios do joelho à cabeça na direção do passo
+    function walkBlocked(S, dx, dz) {
+        const _wRay = _wRayGet();
+        const w = S.walk, len = Math.hypot(dx, dz);
+        if (len < 1e-6) return false;
+        const R2 = 1.5, y0 = w.feet + WALK.passo, y1 = w.feet + 1.85;
+        const cand = [];
+        for (const it of w.objs) {
+            if (it.grande) continue;
+            const b = it.b;
+            if (b.max.y < y0 || b.min.y > y1) continue;
+            if (w.x < b.min.x - R2 || w.x > b.max.x + R2 || w.z < b.min.z - R2 || w.z > b.max.z + R2) continue;
+            cand.push(it.o);
+        }
+        if (!cand.length) return false;
+        const dir = new THREE.Vector3(dx / len, 0, dz / len);
+        _wRay.far = len + WALK.raio; _wRay.camera = S.camera;
+        for (const hy of [0.45, 1.0, 1.65]) {
+            _wRay.set(new THREE.Vector3(w.x, w.feet + hy, w.z), dir);
+            if (_wRay.intersectObjects(cand, false).length) return true;
+        }
+        return false;
+    }
+
+    function walkCamera(S) {
+        const w = S.walk, cam = S.camera;
+        cam.position.set(w.x, w.feet + WALK.olho, w.z);
+        const cp = Math.cos(w.pitch);
+        const alvo = new THREE.Vector3(w.x + Math.cos(w.yaw) * cp, w.feet + WALK.olho + Math.sin(w.pitch), w.z - Math.sin(w.yaw) * cp);
+        cam.lookAt(alvo);
+        S.controls.target.copy(alvo);   // a bússola lê o alvo dos controles
+    }
+
+    function walkGo(S, p) {
+        const w = S.walk;
+        if (w.geoDirty) walkCollect(S);
+        w.x = p.e; w.z = -p.n; w.yaw = p.yaw * Math.PI / 180; w.pitch = -0.06;
+        const base = (p.nivel ? TOPO_LAJE : CPA);
+        const g = walkGround(S, w.x, w.z, base + 1.2);
+        w.feet = (g != null) ? g : base;
+        walkCamera(S);
+        nightLights(S);
+        S._dirty = true;
+    }
+
+    // Um quadro do passeio; devolve true se a câmera mudou
+    function walkTick(S, dt) {
+        const w = S.walk;
+        if (w.geoDirty) walkCollect(S);
+        const k = w.keys;
+        let f = 0, s = 0;
+        if (k.has('KeyW') || k.has('ArrowUp')) f += 1;
+        if (k.has('KeyS') || k.has('ArrowDown')) f -= 1;
+        if (k.has('KeyA') || k.has('ArrowLeft')) s -= 1;
+        if (k.has('KeyD') || k.has('ArrowRight')) s += 1;
+        if (k.has('KeyQ')) w.yaw += 1.8 * dt;
+        if (k.has('KeyE')) w.yaw -= 1.8 * dt;
+        f += -w.joy.y; s += w.joy.x;
+        const m = Math.hypot(f, s);
+        if (m > 1) { f /= m; s /= m; }
+        const vel = (k.has('ShiftLeft') || k.has('ShiftRight')) ? WALK.corrida : WALK.vel;
+        const x0 = w.x, z0 = w.z, y0 = w.feet;
+        if (m > 0.02) {
+            const c = Math.cos(w.yaw), si = Math.sin(w.yaw);
+            const dx = (c * f + si * s) * vel * dt, dz = (-si * f + c * s) * vel * dt;
+            if (!walkBlocked(S, dx, dz)) { w.x += dx; w.z += dz; }
+            else if (!walkBlocked(S, dx, 0)) w.x += dx;     // desliza ao longo da parede
+            else if (!walkBlocked(S, 0, dz)) w.z += dz;
+        }
+        const g = walkGround(S, w.x, w.z, w.feet + WALK.passo);
+        if (g != null) w.feet = (g >= w.feet) ? g : Math.max(g, w.feet - WALK.queda * dt);
+        const mudou = w.x !== x0 || w.z !== z0 || w.feet !== y0 || w.look;
+        w.look = false;
+        if (mudou) {
+            walkCamera(S);
+            w._luz = (w._luz || 0) + dt;
+            if (w._luz > 0.5) { w._luz = 0; nightLights(S); }
+        }
+        return mudou;
+    }
+
+    // Entra/sai do passeio. Mostra teto e 2º piso enquanto anda; restaura tudo ao sair.
+    function set3DWalk(v, btn) {
+        const S = scenes3d[v];
+        if (!S || !S.group) return;
+        const host = document.getElementById('scene3d-' + v);
+        const w = S.walk || (S.walk = { keys: new Set(), joy: { x: 0, y: 0 }, on: false });
+        const cam = S.camera;
+        const roof = S.group.getObjectByName('roof'), f2 = S.group.getObjectByName('floor2');
+        const drain = S.group.getObjectByName('drainV3'), espB = S.group.getObjectByName('esperasBars');
+        const telha = roof && roof.getObjectByName('telha');
+        const outros = [...host.querySelectorAll('.scene3d-toolbar button')].filter(b => b !== btn);
+        if (!w.on) {
+            w.on = true;
+            w.salvo = { pos: cam.position.clone(), alvo: S.controls.target.clone(), fov: cam.fov, near: cam.near,
+                        vis: [roof, f2, drain, telha].map(o => o && o.visible), roofY: roof && roof.position.y };
+            if (f2) f2.visible = true;
+            if (roof) { roof.visible = true; if (v === 'v3') roof.position.y = CEIL3D + COB.laje; }
+            if (drain) drain.visible = true;
+            if (telha) telha.visible = !(espB && espB.visible);
+            S.controls.enabled = false;
+            cam.fov = 70; cam.near = 0.05; cam.updateProjectionMatrix();
+            outros.forEach(b => b.style.display = 'none');
+            host.classList.add('walking');
+            btn.textContent = 'Sair do passeio';
+            // Cotas (rótulos e linhas) somem na altura dos olhos; voltam ao sair
+            w.ocultos = [];
+            S.group.traverse(o => { if ((o.isSprite || o.isLine) && o.visible) { o.visible = false; w.ocultos.push(o); } });
+            w.geoDirty = true;
+            walkGo(S, walkPlaces(v)[0]);
+            if (w.sel) w.sel.value = '0';
+        } else {
+            w.on = false;
+            w.keys.clear(); w.joy.x = w.joy.y = 0;
+            (w.ocultos || []).forEach(o => { o.visible = true; });
+            [roof, f2, drain, telha].forEach((o, i) => { if (o) o.visible = w.salvo.vis[i]; });
+            if (roof && w.salvo.roofY != null) roof.position.y = w.salvo.roofY;
+            cam.fov = w.salvo.fov; cam.near = w.salvo.near; cam.updateProjectionMatrix();
+            cam.position.copy(w.salvo.pos); S.controls.target.copy(w.salvo.alvo);
+            S.controls.enabled = true; S.controls.update();
+            outros.forEach(b => b.style.display = '');
+            host.classList.remove('walking');
+            btn.textContent = 'Caminhar';
+            nightLights(S);
+        }
+        S._dirty = true;
+    }
+
+    // Botão + painel (lugares, dica) + joystick + olhar arrastando + teclado
+    function buildWalk3D(v, host, S) {
+        const bar = host.querySelector('.scene3d-toolbar');
+        if (!bar) return;
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.textContent = 'Caminhar';
+        btn.addEventListener('click', () => set3DWalk(v, btn));
+        bar.appendChild(btn);
+        S.walk = { keys: new Set(), joy: { x: 0, y: 0 }, on: false, geoDirty: true, objs: [] };
+        const w = S.walk;
+
+        const ui = document.createElement('div');
+        ui.className = 'walk-ui';
+        const sel = document.createElement('select');
+        walkPlaces(v).forEach((p, i) => {
+            const o = document.createElement('option'); o.value = i; o.textContent = p.nome; sel.appendChild(o);
+        });
+        sel.addEventListener('change', () => walkGo(S, walkPlaces(v)[+sel.value]));
+        const dica = document.createElement('div');
+        dica.className = 'walk-dica';
+        dica.textContent = 'W A S D ou setas · Shift corre · arraste para olhar';
+        ui.append('Ir para ', sel, dica);
+        host.appendChild(ui);
+        w.sel = sel;
+
+        // Joystick (toque e mouse)
+        const joy = document.createElement('div'); joy.className = 'walk-joy';
+        const knob = document.createElement('div'); knob.className = 'walk-knob'; joy.appendChild(knob);
+        host.appendChild(joy);
+        const RJ = 42;
+        let jid = null, jc = null;
+        const joyMove = ev => {
+            let ox = ev.clientX - jc.x, oy = ev.clientY - jc.y;
+            const d = Math.hypot(ox, oy); if (d > RJ) { ox *= RJ / d; oy *= RJ / d; }
+            knob.style.transform = `translate(${ox}px, ${oy}px)`;
+            w.joy.x = ox / RJ; w.joy.y = oy / RJ;
+        };
+        joy.addEventListener('pointerdown', ev => {
+            ev.stopPropagation(); ev.preventDefault();
+            jid = ev.pointerId; joy.setPointerCapture(jid);
+            const r = joy.getBoundingClientRect(); jc = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+            joyMove(ev);
+        });
+        joy.addEventListener('pointermove', ev => { if (ev.pointerId === jid) joyMove(ev); });
+        const joyEnd = ev => {
+            if (ev.pointerId !== jid) return;
+            jid = null; w.joy.x = w.joy.y = 0; knob.style.transform = '';
+        };
+        joy.addEventListener('pointerup', joyEnd); joy.addEventListener('pointercancel', joyEnd);
+
+        // Olhar arrastando no canvas
+        const cv = S.renderer.domElement;
+        let lid = null, lx = 0, ly = 0;
+        cv.addEventListener('pointerdown', ev => {
+            if (!w.on) return;
+            lid = ev.pointerId; lx = ev.clientX; ly = ev.clientY; cv.setPointerCapture(lid);
+        });
+        cv.addEventListener('pointermove', ev => {
+            if (!w.on || ev.pointerId !== lid) return;
+            w.yaw += (ev.clientX - lx) * -0.004; w.pitch += (ev.clientY - ly) * -0.004;
+            w.pitch = Math.max(-1.2, Math.min(1.2, w.pitch));
+            lx = ev.clientX; ly = ev.clientY; w.look = true;
+        });
+        const lookEnd = ev => { if (ev.pointerId === lid) lid = null; };
+        cv.addEventListener('pointerup', lookEnd); cv.addEventListener('pointercancel', lookEnd);
+
+        // Teclado (só com o passeio ligado e o painel visível)
+        const ativo = () => w.on && host.offsetParent !== null;
+        window.addEventListener('keydown', ev => {
+            if (!ativo() || ev.target.tagName === 'SELECT' || ev.target.tagName === 'INPUT') return;
+            w.keys.add(ev.code);
+            if (ev.code.startsWith('Arrow') || ev.code === 'Space') ev.preventDefault();
+        });
+        window.addEventListener('keyup', ev => w.keys.delete(ev.code));
+        window.addEventListener('blur', () => w.keys.clear());
+    }
+
+    // Luzes internas à noite: 6 pontos de luz quentes, nos ambientes mais próximos de
+    // quem olha (mesmo nível primeiro). Só entram na cena quando escurece (sol < ~3°).
+    function nightLights(S) {
+        if (!S.scene || !S.v) return;
+        const noite = (S.elevDeg != null) && S.elevDeg < 3;
+        const fator = noite ? Math.min(1, (3 - S.elevDeg) / 6) : 0;
+        if (!S.luzes) {
+            S.luzes = new THREE.Group();
+            for (let i = 0; i < 6; i++) S.luzes.add(new THREE.PointLight(0xffd6a0, 0, 7, 2));
+        }
+        const naCena = !!S.luzes.parent;
+        if (!noite) { if (naCena) { S.scene.remove(S.luzes); S._dirty = true; } return; }
+        if (!naCena) S.scene.add(S.luzes);
+        const f2 = S.group && S.group.getObjectByName('floor2');
+        const ref = (S.walk && S.walk.on) ? new THREE.Vector3(S.walk.x, S.walk.feet + 1, S.walk.z) : S.controls.target;
+        const nivelRef = ref.y > TOPO_LAJE - 0.5 ? 1 : 0;
+        const salas = walkRooms(S.v).filter(r => r.nivel === 0 || (f2 && f2.visible))
+            .map(r => ({ r, d: Math.hypot(r.x - ref.x, r.z - ref.z) + (r.nivel === nivelRef ? 0 : 6) }))
+            .sort((a, b) => a.d - b.d);
+        S.luzes.children.forEach((L, i) => {
+            const it = salas[i];
+            if (!it) { L.intensity = 0; return; }
+            L.position.set(it.r.x, it.r.y, it.r.z);
+            L.intensity = 1.6 * fator;
+        });
+        S._dirty = true;
+    }
+
     // ── HUD: bússola + slider de horário/mês ────────────────────────────────
     const MESES3D = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     function fmtHour3D(h) {
@@ -5305,7 +5652,7 @@
             if (i === S.month) o.selected = true; sel.appendChild(o);
         });
         const rng = document.createElement('input');
-        rng.type = 'range'; rng.min = '5'; rng.max = '19'; rng.step = '0.25'; rng.value = S.hour;
+        rng.type = 'range'; rng.min = '5'; rng.max = '22'; rng.step = '0.25'; rng.value = S.hour;
         const clock = document.createElement('span');
         clock.className = 'hud-clock';
         const apply = () => {
