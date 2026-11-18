@@ -2381,11 +2381,12 @@
             lys.push(COZ.rect(2.605, 2.52, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
 
             // ─── ESTAR: TV na parede oeste, nos pontos de TV e internet ───
-            lys.push(SAL.rect(0.905, 2.625, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // sofá
-            lys.push(SAL.rect(1.005, 2.625, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento
-            lys.push(L.polyline([SAL.rot(1.522, 2.625), SAL.rot(1.522, 3.275)], { color: '#451a03', weight: 0.6, interactive: false }));
-            lys.push(L.polyline([SAL.rot(2.038, 2.625), SAL.rot(2.038, 3.275)], { color: '#451a03', weight: 0.6, interactive: false }));
-            lys.push(SAL.rect(1.275, 1.525, 1, 0.55, '#92400e', { color: '#451a03', weight: 0.7, m3d: 'coffee' })); // mesa de centro
+            // Sofá 0,30 m mais p/ oeste (sem mesa de centro): ~0,70 m livres até as banquetas da
+            // península atrás dele; TV a ~2,2 m de quem senta.
+            lys.push(SAL.rect(0.905, 2.325, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // sofá
+            lys.push(SAL.rect(1.005, 2.325, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento
+            lys.push(L.polyline([SAL.rot(1.522, 2.325), SAL.rot(1.522, 2.975)], { color: '#451a03', weight: 0.6, interactive: false }));
+            lys.push(L.polyline([SAL.rot(2.038, 2.325), SAL.rot(2.038, 2.975)], { color: '#451a03', weight: 0.6, interactive: false }));
             lys.push(SAL.rect(1.075, 0.125, 1.4, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
             lys.push(SAL.rect(1.225, 0.075, 1.1, 0.05, '#0a0e1a', { color: '#000', weight: 0.6, m3d: 'tv' })); // TV
 
