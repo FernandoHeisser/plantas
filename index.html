@@ -1545,6 +1545,12 @@
             <div class="med-room-area">18 degraus</div>
             <div class="med-room-meta">Sobe leste→oeste, fechada por parede ao norte<br>Espelho ~16 cm / piso ~28 cm · corrimãos a 0,90 m<br>Acesso ao 2º pavimento</div>
           </div>
+          <div class="med-room-card col-slate">
+            <div class="med-room-name">Vestíbulo</div>
+            <div class="med-room-dims">2,1 × 2,3 m</div>
+            <div class="med-room-area">~4,2 m²</div>
+            <div class="med-room-meta">Liga a porta da casa ao pé da escada, fechado<br>Paredes sob as do banheiro do 2º piso<br>Porta 0,80 m p/ a garagem</div>
+          </div>
         </div>
 
         <!-- 2º pavimento -->
@@ -1831,6 +1837,9 @@
     // da casa (mN 2,97→3,87) e vai p/ logo depois do batente. A viga da borda da escada (mN 3,40)
     // apoia na viga leste da garagem. A confirmar com o engenheiro. Térreo e 2º piso.
     const GCOL_PORTA = 3.95;
+    // V3: vestíbulo entre a porta da casa e o pé da escada. Paredes nos eixos do banheiro dos
+    // quartos do 2º piso: oeste em mE 20,3, norte em mN 4,6; porta p/ a garagem de p0 a p1.
+    const VEST = { e: 20.3, n: 4.6, p0: 20.45, p1: 21.25 };
     const CAIXA_DAGUA = { n: 3.40, e: 19.10 - OE, dn: 2.80, de: 1.60, topo: 5.50 };
     const COTA_LAT_E = (EIXO.O + EIXO.L) / 2;                                       // mE das cotas laterais
     const COTA_FUNDO_E = EIXO.L - 1.5;                               // mE de origem da cota de fundo
@@ -2544,6 +2553,16 @@
             lys.push(roomLabel(2.7, 14.7, 'Depósito', '1,4 × 2,4 m', '~3 m²'));
             // Parede que fecha a escada pelo norte (mN 3,40→3,55; 3D manual no bloco da garagem)
             lys.push(wall(3.475, 15.9, 3.475, 20.9, 0.15, { no3d: true }));
+            // V3: vestíbulo fechado entre a porta da casa e o pé da escada (sobe sem pegar o vento
+            // da garagem). Paredes embaixo das do banheiro dos quartos do 2º piso (mE 20,3 e
+            // mN 4,6); porta de 0,80 m p/ a garagem, abrindo p/ fora. 3D manual no bloco da garagem.
+            if (v === 'v3') {
+                lys.push(wall(3.55, VEST.e, VEST.n + 0.075, VEST.e, 0.15, { no3d: true }));                   // oeste
+                lys.push(wall(VEST.n, VEST.e - 0.075, VEST.n, VEST.p0, 0.15, { no3d: true }));                // norte, até a porta
+                lys.push(wall(VEST.n, VEST.p1, VEST.n, GE1J, 0.15, { no3d: true }));                          // norte, depois da porta
+                doorArc(VEST.n, VEST.p0, 0, VEST.p1 - VEST.p0, +1, { no3d: true }).forEach(l => lys.push(l));
+                lys.push(roomLabel(4.05, 21.35, 'Vestíbulo', '2,1 × 2,3 m', '~4,2 m²'));
+            }
 
             // Escada p/ 2º pavimento (desenho 2D — fonte única em stair2D)
             stair2D().forEach(l => lys.push(l));
@@ -4697,6 +4716,23 @@
             // (mE 15,9, encosta no depósito) até a base (mE 20,9) — protege do vento e do barulho
             // da garagem aberta. Corrimãos a 0,90 m presos nas duas paredes (NBR 9077).
             g.add(box3d(ESC_N0 + ESC_DN, ESC_E_top, 0.15, ESC_E_base - ESC_E_top, GCPA, GLAJE - VH, matWall));
+            // V3: vestíbulo (paredes sob as do banheiro dos quartos; ver VEST). Sem viga embaixo
+            // da laje nessas linhas → paredes até a laje (GLAJE). Porta 0,80 m abrindo p/ a garagem.
+            if (rv === 'v3') {
+                const T = 0.15, hP = GCPA + 2.10;
+                g.add(box3d(3.55, VEST.e - T/2 + OE, VEST.n + T/2 - 3.55, T, GCPA, GLAJE, matWall));            // oeste
+                g.add(box3d(VEST.n - T/2, VEST.e - T/2 + OE, T, VEST.p0 - (VEST.e - T/2), GCPA, GLAJE, matWall)); // norte, até a porta
+                g.add(box3d(VEST.n - T/2, VEST.p1 + OE, T, GE1J - VEST.p1, GCPA, GLAJE, matWall));                // norte, depois da porta
+                g.add(box3d(VEST.n - T/2, VEST.p0 + OE, T, VEST.p1 - VEST.p0, hP, GLAJE, matWall));               // verga
+                const folha = new THREE.Group();
+                folha.position.set(VEST.p0 + OE, GCPA, -(VEST.n + T/2));
+                folha.rotation.y = 0.78 * Math.PI / 2;                                                          // aberta p/ a garagem (norte)
+                const pn = new THREE.Mesh(new THREE.BoxGeometry(VEST.p1 - VEST.p0, 2.05, 0.04), matLeaf);
+                pn.position.set((VEST.p1 - VEST.p0) / 2, 1.025, -0.02);
+                pn.castShadow = true;
+                folha.add(pn);
+                g.add(folha);
+            }
             {
                 const matGC = fmat('#2f3338', { metalness: 0.6, roughness: 0.4 });
                 const k = SRISE / STREAD;
