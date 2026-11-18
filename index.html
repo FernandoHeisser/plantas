@@ -1548,8 +1548,8 @@
           <div class="med-room-card col-slate">
             <div class="med-room-name">Vestíbulo</div>
             <div class="med-room-dims">2,1 × 2,3 m</div>
-            <div class="med-room-area">~4,2 m²</div>
-            <div class="med-room-meta">Liga a porta da casa ao pé da escada, fechado<br>Paredes sob as do banheiro do 2º piso<br>Porta 0,80 m p/ a garagem</div>
+            <div class="med-room-area">~4,1 m²</div>
+            <div class="med-room-meta">Liga a porta da casa ao pé da escada, fechado<br>Paredes estruturais de 20 cm sob as do banheiro do 2º piso<br>Porta 0,80 m p/ a garagem · shaft dos canos no canto</div>
           </div>
         </div>
 
@@ -1834,12 +1834,17 @@
     // Junta casa × garagem (V2/V3): face leste da garagem 3 cm antes da face oeste da casa. Código, sem OE.
     const GE1J = FACE.O - OE - COB.junta;
     // Pilar leste da linha mN 3,40 da garagem (junto da junta): sai da frente da porta de entrada
-    // da casa (mN 2,97→3,87) e vai p/ logo depois do batente. A viga da borda da escada (mN 3,40)
-    // apoia na viga leste da garagem. A confirmar com o engenheiro. Térreo e 2º piso.
-    const GCOL_PORTA = 3.95;
+    // da casa (mN 2,97→3,87) e vai p/ a linha da parede norte do vestíbulo (centro mN 4,6, embutido;
+    // canto do box3d em 4,50). A viga da borda da escada (mN 3,40) apoia na viga leste e, no V3,
+    // no pilar do vestíbulo. A confirmar com o engenheiro (G12/G13). Térreo e 2º piso.
+    const GCOL_PORTA = 4.50;
     // V3: vestíbulo entre a porta da casa e o pé da escada. Paredes nos eixos do banheiro dos
     // quartos do 2º piso: oeste em mE 20,3, norte em mN 4,6; porta p/ a garagem de p0 a p1.
-    const VEST = { e: 20.3, n: 4.6, p0: 20.45, p1: 21.25 };
+    // Estrutura do quadro do banheiro (laje rebaixada): pilares nas quinas (pil, canto mN/mE do
+    // box3d) + vigas sobre as paredes; shaft dos canos na quina nordeste, sob o vaso/pia de cima.
+    const VEST = { e: 20.3, n: 4.6, p0: 20.45, p1: 21.25,
+                   pil: [[3.40, 20.2], [4.50, 20.2]],          // encontro c/ a viga da escada; quina noroeste
+                   shaft: { n: 4.2, e: 21.97, d: 0.30 } };
     const CAIXA_DAGUA = { n: 3.40, e: 19.10 - OE, dn: 2.80, de: 1.60, topo: 5.50 };
     const COTA_LAT_E = (EIXO.O + EIXO.L) / 2;                                       // mE das cotas laterais
     const COTA_FUNDO_E = EIXO.L - 1.5;                               // mE de origem da cota de fundo
@@ -2541,27 +2546,35 @@
 
             // ── Depósito (embaixo da escada) — mN 2,0→3,4 × mE 13,5→15,9 ────────
             // Parede leste removida: escada delimita o espaço; porta na parede norte
-            const DEP_N1 = 3.4, DEP_E0 = 13.5, DEP_E1 = 15.9;
+            // Parede norte = parede estrutural de 0,20 (mN 3,40→3,60, eixo 3,50): começa o núcleo
+            // que segue pela escada e pelo vestíbulo (contraventamento da garagem em pilotis).
+            const DEP_N1 = 3.5, DEP_E0 = 13.5, DEP_E1 = 15.9;
             // z0=0,15 (GCPA): paredes assentam no piso da garagem, não no datum 0
             // (senão a base atravessa a fundação/baldrame — eram extrudadas de z=0).
             // Oeste: centro em DEP_E0+0,10 → face oeste em mE=13,5, FLUSH com as colunas
             // e a parede sul (antes centrada em 13,5 → face em 13,4, pendurada além do baldrame).
-            wall(GN0,    DEP_E0 + 0.10, DEP_N1, DEP_E0 + 0.10, 0.20, { z0: 0.15 }); // parede oeste (fachada)
-            wall(DEP_N1, DEP_E0, DEP_N1, DEP_E1, 0.10, { z0: 0.15 }); // parede norte (segue viga) com porta
-            cut(3.35, 14.5, 0.10, 0.9);                            // vão da porta na parede norte
+            wall(GN0,    DEP_E0 + 0.10, DEP_N1 + 0.10, DEP_E0 + 0.10, 0.20, { z0: 0.15 }); // parede oeste (fachada)
+            wall(DEP_N1, DEP_E0, DEP_N1, DEP_E1, 0.20, { z0: 0.15 }); // parede norte estrutural (sob a viga) com porta
+            cut(3.40, 14.5, 0.20, 0.9);                            // vão da porta na parede norte
             doorArc(DEP_N1, 14.5, 0.0, 0.9, +1).forEach(l => lys.push(l)); // porta abre p/ norte (garagem)
             lys.push(roomLabel(2.7, 14.7, 'Depósito', '1,4 × 2,4 m', '~3 m²'));
-            // Parede que fecha a escada pelo norte (mN 3,40→3,55; 3D manual no bloco da garagem)
-            lys.push(wall(3.475, 15.9, 3.475, 20.9, 0.15, { no3d: true }));
+            // Parede estrutural que fecha a escada pelo norte (mN 3,40→3,60, sob a viga da borda;
+            // continua a parede norte do depósito). 3D manual no bloco da garagem.
+            lys.push(wall(3.50, 15.9, 3.50, 20.9, 0.20, { no3d: true }));
             // V3: vestíbulo fechado entre a porta da casa e o pé da escada (sobe sem pegar o vento
             // da garagem). Paredes embaixo das do banheiro dos quartos do 2º piso (mE 20,3 e
             // mN 4,6); porta de 0,80 m p/ a garagem, abrindo p/ fora. 3D manual no bloco da garagem.
             if (v === 'v3') {
-                lys.push(wall(3.55, VEST.e, VEST.n + 0.075, VEST.e, 0.15, { no3d: true }));                   // oeste
-                lys.push(wall(VEST.n, VEST.e - 0.075, VEST.n, VEST.p0, 0.15, { no3d: true }));                // norte, até a porta
-                lys.push(wall(VEST.n, VEST.p1, VEST.n, GE1J, 0.15, { no3d: true }));                          // norte, depois da porta
+                // Paredes estruturais de 0,20 (núcleo contra o vento), da largura dos pilares/vigas
+                lys.push(wall(3.60, VEST.e, VEST.n + 0.10, VEST.e, 0.20, { no3d: true }));                    // oeste
+                lys.push(wall(VEST.n, VEST.e - 0.10, VEST.n, VEST.p0, 0.20, { no3d: true }));                 // norte, até a porta
+                lys.push(wall(VEST.n, VEST.p1, VEST.n, GE1J, 0.20, { no3d: true }));                          // norte, depois da porta
                 doorArc(VEST.n, VEST.p0, 0, VEST.p1 - VEST.p0, +1, { no3d: true }).forEach(l => lys.push(l));
-                lys.push(roomLabel(4.05, 21.35, 'Vestíbulo', '2,1 × 2,3 m', '~4,2 m²'));
+                VEST.pil.concat([[GCOL_PORTA, GE1J - 0.20]]).forEach(([n, e]) =>                             // pilares embutidos
+                    lys.push(rect(n, e, 0.20, 0.20, '#334155', { color: '#0f172a', weight: 0.5, no3d: true })));
+                const sh = VEST.shaft;                                                                        // shaft dos canos
+                lys.push(rect(sh.n, sh.e, sh.d, sh.d, '#94a3b8', { color: '#334155', weight: 0.6, no3d: true }));
+                lys.push(roomLabel(3.95, 21.30, 'Vestíbulo', '2,1 × 2,3 m', '~4,1 m²'));
             }
 
             // Escada p/ 2º pavimento (desenho 2D — fonte única em stair2D)
@@ -4584,6 +4597,7 @@
             _ph = PH.colS;
             [2.0, 3.40, GNM2, 10.5 - COL].forEach(n => [W, GEMc2, GE1c2].forEach(e =>
                 col2(n === 3.40 && e === GE1c2 ? GCOL_PORTA : n, e)));   // pilar leste da linha 3,40 sai da frente da porta
+            VEST.pil.forEach(([n, e]) => col2(n, e));                    // pilares do vestíbulo sobem nas quinas do banheiro dos quartos
             _ph = PH.vigaS;
             [S + VW/2, 3.40, GNM2, 10.5 - VW].forEach(n => beamEW(n, W, Egar));   // sul: face em S, como a parede  // E-O: sul / mN 3,40 / centro / norte
             beamNS(W,     2.0,  10.5);   // N-S oeste (inteira)
@@ -4715,15 +4729,24 @@
             // Escada fechada: parede no lado norte (mN 3,40→3,55, sob a viga da borda), do topo
             // (mE 15,9, encosta no depósito) até a base (mE 20,9) — protege do vento e do barulho
             // da garagem aberta. Corrimãos a 0,90 m presos nas duas paredes (NBR 9077).
-            g.add(box3d(ESC_N0 + ESC_DN, ESC_E_top, 0.15, ESC_E_base - ESC_E_top, GCPA, GLAJE - VH, matWall));
-            // V3: vestíbulo (paredes sob as do banheiro dos quartos; ver VEST). Sem viga embaixo
-            // da laje nessas linhas → paredes até a laje (GLAJE). Porta 0,80 m abrindo p/ a garagem.
+            g.add(box3d(ESC_N0 + ESC_DN, ESC_E_top, 0.20, ESC_E_base - ESC_E_top, GCPA, GLAJE - VH, matWall));   // estrutural, 0,20 = largura da viga
+            // V3: vestíbulo (paredes sob as do banheiro dos quartos; ver VEST). Vigas sobre as
+            // paredes fecham o quadro da laje rebaixada do banheiro; pilares nas quinas; paredes
+            // até o fundo das vigas. Porta 0,80 m abrindo p/ a garagem; shaft na quina nordeste.
             if (rv === 'v3') {
-                const T = 0.15, hP = GCPA + 2.10;
-                g.add(box3d(3.55, VEST.e - T/2 + OE, VEST.n + T/2 - 3.55, T, GCPA, GLAJE, matWall));            // oeste
-                g.add(box3d(VEST.n - T/2, VEST.e - T/2 + OE, T, VEST.p0 - (VEST.e - T/2), GCPA, GLAJE, matWall)); // norte, até a porta
-                g.add(box3d(VEST.n - T/2, VEST.p1 + OE, T, GE1J - VEST.p1, GCPA, GLAJE, matWall));                // norte, depois da porta
-                g.add(box3d(VEST.n - T/2, VEST.p0 + OE, T, VEST.p1 - VEST.p0, hP, GLAJE, matWall));               // verga
+                const T = 0.20, hP = GCPA + 2.10, topo = GLAJE - VH;   // paredes estruturais = largura dos pilares/vigas
+                _ph = PH.gColT;
+                VEST.pil.forEach(([n, e]) => g.add(box3d(n, e + OE, COL, COL, baseBot(e + OE, COL), GLAJE, matEmbase)));
+                _ph = PH.gVigaT;
+                g.add(box3d(VEST.n - VW/2, VEST.e - VW/2 + OE, VW, GE1J - COL - (VEST.e - VW/2), GLAJE - VH, GLAJE, lajeMat)); // viga E-O sobre a parede norte
+                g.add(box3d(3.60, VEST.e - VW/2 + OE, VEST.n - VW/2 - 3.60, VW, GLAJE - VH, GLAJE, lajeMat));            // viga N-S sobre a parede oeste
+                _ph = PH.gLaje;
+                g.add(box3d(3.60, VEST.e - T/2 + OE, VEST.n + T/2 - 3.60, T, GCPA, topo, matWall));            // oeste (da parede da escada até a norte)
+                g.add(box3d(VEST.n - T/2, VEST.e - T/2 + OE, T, VEST.p0 - (VEST.e - T/2), GCPA, topo, matWall)); // norte, até a porta
+                g.add(box3d(VEST.n - T/2, VEST.p1 + OE, T, GE1J - VEST.p1, GCPA, topo, matWall));                // norte, depois da porta
+                g.add(box3d(VEST.n - T/2, VEST.p0 + OE, T, VEST.p1 - VEST.p0, hP, topo, matWall));               // verga
+                const sh = VEST.shaft;                                                                       // shaft dos canos (tampa de inspeção)
+                g.add(box3d(sh.n, sh.e + OE, sh.d, sh.d, GCPA, GLAJE, matWall));
                 const folha = new THREE.Group();
                 folha.position.set(VEST.p0 + OE, GCPA, -(VEST.n + T/2));
                 folha.rotation.y = 0.78 * Math.PI / 2;                                                          // aberta p/ a garagem (norte)

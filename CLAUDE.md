@@ -1061,6 +1061,10 @@ corredor da chegada da escada (a oeste; guarda-corpo 1,10 m no vão), armário d
 banheiro dos quartos no canto sudeste, com porta pelo hall da junta. Móveis de referência em `f2Moveis()` — fonte única 2D + 3D (base no piso do 2º).
 **Paredes internas do 2º piso = drywall** (decisão do cliente, 2026-11-11; a validar na pergunta 26): alvenaria só
 no perímetro, sobre as vigas de borda. A garagem não pode ganhar pilares (vagas entre as linhas mN 3,4 / 6,75 / 10,3).
+**Garagem V2/V3 — núcleo estrutural (G13):** parede de 0,20 no lado norte do depósito e da escada (sob a viga
+mN 3,40), escada fechada com corrimãos; no V3, vestíbulo (`VEST`) entre a porta da casa e o pé da escada, com
+paredes de 0,20 sob as do banheiro dos quartos, pilares nas quinas (`VEST.pil` + `GCOL_PORTA`), vigas sobre as
+paredes (laje rebaixada do banheiro) e shaft dos canos (`VEST.shaft`).
 O texto abaixo descreve o layout antigo.
 
 **Cômodos do 2º piso da casa (grade 2×3, divididos por mN 4,5 / mE 25,5 / mE 28,5):**

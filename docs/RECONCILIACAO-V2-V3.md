@@ -31,7 +31,8 @@ laje, beirais, pilares e paredes oficiais são dados de entrada, não variáveis
 | G9 | Porta de entrada × escada | porta em mN 2,97→3,87; escada em 2,20→3,40; antes alinhadas | conferir circulação; a porta é oficial | decidir |
 | G10 | Esperas nos pilares da casa | 4 barras a ±7 cm, seção de 15 cm | depende do projeto estrutural | arquiteta |
 | G11 | Pendências antigas | portão oeste e cotas da garagem | seguem abertas | decidir |
-| G12 | Pilar leste da linha mN 3,40 da garagem | ficava na frente da porta de entrada da casa (mN 3,40→3,60 dentro do vão 2,97→3,87) | **movido p/ mN 3,95→4,15** (`GCOL_PORTA`), térreo e 2º piso; a viga da borda da escada (mN 3,40) passa a apoiar na viga leste da garagem | engenheiro confirmar |
+| G12 | Pilar leste da linha mN 3,40 da garagem | ficava na frente da porta de entrada da casa (mN 3,40→3,60 dentro do vão 2,97→3,87) | **movido p/ a parede norte do vestíbulo, mN 4,50→4,70** (`GCOL_PORTA`), térreo e 2º piso; a viga da borda da escada (mN 3,40) apoia na viga leste e, no V3, no pilar do vestíbulo | engenheiro confirmar |
+| G13 | Núcleo estrutural no lado sul da garagem | escada aberta; vestíbulo sem estrutura própria | **paredes estruturais de 0,20** (largura dos pilares/vigas): parede norte do depósito + parede da escada (mN 3,40→3,60, mE 13,5→20,9, V2/V3) e paredes do vestíbulo (mE 20,3 e mN 4,6, V3). V3: 2 pilares novos nas quinas (mN 3,40 e 4,6 × mE 20,3), vigas sobre as paredes do vestíbulo (quadro da **laje rebaixada** do banheiro dos quartos) e **shaft** dos canos na quina nordeste. Objetivo: travar a garagem em pilotis contra o vento sem pilar na área das vagas | engenheiro dimensionar (concreto ou alvenaria estrutural) |
 
 ## 2. V3 — sobrado
 
