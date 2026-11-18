@@ -31,6 +31,7 @@ laje, beirais, pilares e paredes oficiais são dados de entrada, não variáveis
 | G9 | Porta de entrada × escada | porta em mN 2,97→3,87; escada em 2,20→3,40; antes alinhadas | conferir circulação; a porta é oficial | decidir |
 | G10 | Esperas nos pilares da casa | 4 barras a ±7 cm, seção de 15 cm | depende do projeto estrutural | arquiteta |
 | G11 | Pendências antigas | portão oeste e cotas da garagem | seguem abertas | decidir |
+| G12 | Pilar leste da linha mN 3,40 da garagem | ficava na frente da porta de entrada da casa (mN 3,40→3,60 dentro do vão 2,97→3,87) | **movido p/ mN 3,95→4,15** (`GCOL_PORTA`), térreo e 2º piso; a viga da borda da escada (mN 3,40) passa a apoiar na viga leste da garagem | engenheiro confirmar |
 
 ## 2. V3 — sobrado
 

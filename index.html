@@ -1827,6 +1827,10 @@
     // E-W provisório: sobre o banho, até a arquiteta confirmar (C8).
     // Junta casa × garagem (V2/V3): face leste da garagem 3 cm antes da face oeste da casa. Código, sem OE.
     const GE1J = FACE.O - OE - COB.junta;
+    // Pilar leste da linha mN 3,40 da garagem (junto da junta): sai da frente da porta de entrada
+    // da casa (mN 2,97→3,87) e vai p/ logo depois do batente. A viga da borda da escada (mN 3,40)
+    // apoia na viga leste da garagem. A confirmar com o engenheiro. Térreo e 2º piso.
+    const GCOL_PORTA = 3.95;
     const CAIXA_DAGUA = { n: 3.40, e: 19.10 - OE, dn: 2.80, de: 1.60, topo: 5.50 };
     const COTA_LAT_E = (EIXO.O + EIXO.L) / 2;                                       // mE das cotas laterais
     const COTA_FUNDO_E = EIXO.L - 1.5;                               // mE de origem da cota de fundo
@@ -4556,7 +4560,8 @@
             // (o corte só existe na laje 1 / térreo, onde a escada realmente sobe).
             const GNM2 = 6.75, GEMc2 = (W + Egar)/2 - COL/2, GE1c2 = Egar - COL; // mN 6,75; mE meio/leste
             _ph = PH.colS;
-            [2.0, 3.40, GNM2, 10.5 - COL].forEach(n => [W, GEMc2, GE1c2].forEach(e => col2(n, e)));
+            [2.0, 3.40, GNM2, 10.5 - COL].forEach(n => [W, GEMc2, GE1c2].forEach(e =>
+                col2(n === 3.40 && e === GE1c2 ? GCOL_PORTA : n, e)));   // pilar leste da linha 3,40 sai da frente da porta
             _ph = PH.vigaS;
             [S + VW/2, 3.40, GNM2, 10.5 - VW].forEach(n => beamEW(n, W, Egar));   // sul: face em S, como a parede  // E-O: sul / mN 3,40 / centro / norte
             beamNS(W,     2.0,  10.5);   // N-S oeste (inteira)
@@ -4660,7 +4665,7 @@
             _ph = PH.gColT;
             g.add(box3d(3.40, GE0,  COL, COL, baseBot(GE0, COL),  GLAJE, matEmbase));   // coluna oeste (mE 13)
             g.add(box3d(3.40, GEMc, COL, COL, baseBot(GEMc, COL), GLAJE, matEmbase));   // pilar centro (mE 17,4)
-            g.add(box3d(3.40, GE1c, COL, COL, baseBot(GE1c, COL), GLAJE, matEmbase));   // coluna leste (mE 21,7)
+            g.add(box3d(GCOL_PORTA, GE1c, COL, COL, baseBot(GE1c, COL), GLAJE, matEmbase));   // coluna leste: logo depois da porta da casa
             // Viga E-O (mN 3,4) ao NORTE da escada — encosta na face norte da escada, sem sobreposição
             _ph = PH.gVigaT;
             g.add(box3d(3.40, GE0, VW, (GE1c + COL) - GE0, GLAJE - VH, GLAJE, lajeMat));
@@ -4670,7 +4675,7 @@
             // canto → centro = n+COL/2, e+COL/2 (e já tem OE). GLAJE = topo do pilar = 2,85.
             if (v === 'v2' && addEspera) {
                 [GN0, 3.40, GNM, GN1 - COL].forEach(n =>
-                    [GE0, GEMc, GE1c].forEach(e => addEspera(n + COL/2, e + COL/2)));
+                    [GE0, GEMc, GE1c].forEach(e => addEspera((n === 3.40 && e === GE1c ? GCOL_PORTA : n) + COL/2, e + COL/2)));
             }
             // V4: esperas dos 12 pilares da garagem — são a PONTA do pilar (mesma fase das
             // colunas da garagem). Saem do topo do pilar (GLAJE); a laje depois envolve a base.
