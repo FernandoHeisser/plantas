@@ -662,6 +662,31 @@ Fallback de dimensões (W=960, H=520) + `ResizeObserver` quando container ainda 
 
 ---
 
+## Passeio em 1ª pessoa (botão "Caminhar", V1/V2/V3)
+
+Botão criado por `buildWalk3D` (anexado à `.scene3d-toolbar` de cada cena). Estado em `S.walk`.
+
+- **Sem tabela de colisão:** usa a própria cena. `walkGround` = raio p/ baixo (terreno, pisos,
+  degraus, laje do 2º piso); `walkBlocked` = raios horizontais a 0,45 / 1,0 / 1,65 m acima do pé
+  (paredes, pilares, guarda-corpo, vidro, móveis). Degrau até `WALK.passo` = 0,40 m sobe sozinho →
+  a escada da garagem (V3) e as escadas externas funcionam andando. Portas abertas = vão livre.
+- **Malhas candidatas** (`walkCollect`): todas as malhas visíveis do `S.group` com a caixa no mundo;
+  recalcula quando `w.geoDirty` (entrar no passeio, rebuild, `applyBuildPhase`). Malha com
+  `userData.noWalk` é ignorada. Caixas > 30 m (grama) só contam como piso.
+- **Ao entrar:** mostra teto/laje/telhado e o 2º piso (V3), esconde cotas (sprites/linhas) e os
+  outros botões; câmera fov 70, near 0,05, olho a 1,60 m. **Ao sair:** restaura tudo.
+- **Controles:** W A S D / setas, Shift corre, Q/E giram; arrastar no canvas olha; joystick
+  (`.walk-joy`) no canto inferior direito; select "Ir para" com os lugares de `walkPlaces(v)`.
+- **Loop:** no `animate`, com o passeio ligado `walkTick(S, dt)` substitui o `controls.update()`
+  e liga `_dirty` só quando a câmera muda.
+- **Luz interna à noite** (`nightLights`, chamado por `setSun3D` e pelo passeio): 6 `PointLight`
+  quentes nos ambientes mais próximos de quem olha (`walkRooms`, mesmo nível primeiro). Só entram
+  na cena com o sol abaixo de ~3° (adicionar/remover luz recompila shaders uma vez). O slider de
+  horário vai até 22h.
+- **Lugares novos:** acrescentar em `walkPlaces` (coordenadas renderizadas, `nivel: 1` = 2º piso).
+
+---
+
 ## Performance 3D — padrões a NÃO regredir
 
 Revisão de performance/corretude do 3D (contra as skills Three.js em `.claude/skills/`).
@@ -1036,6 +1061,10 @@ corredor da chegada da escada (a oeste; guarda-corpo 1,10 m no vão), armário d
 banheiro dos quartos no canto sudeste, com porta pelo hall da junta. Móveis de referência em `f2Moveis()` — fonte única 2D + 3D (base no piso do 2º).
 **Paredes internas do 2º piso = drywall** (decisão do cliente, 2026-11-11; a validar na pergunta 26): alvenaria só
 no perímetro, sobre as vigas de borda. A garagem não pode ganhar pilares (vagas entre as linhas mN 3,4 / 6,75 / 10,3).
+**Garagem V2/V3 — núcleo estrutural (G13):** parede de 0,20 no lado norte do depósito e da escada (sob a viga
+mN 3,40), escada fechada com corrimãos; no V3, vestíbulo (`VEST`) entre a porta da casa e o pé da escada, com
+paredes de 0,20 sob as do banheiro dos quartos, pilares nas quinas (`VEST.pil` + `GCOL_PORTA`), vigas sobre as
+paredes (laje rebaixada do banheiro) e shaft dos canos (`VEST.shaft`).
 O texto abaixo descreve o layout antigo.
 
 **Cômodos do 2º piso da casa (grade 2×3, divididos por mN 4,5 / mE 25,5 / mE 28,5):**
