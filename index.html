@@ -2726,6 +2726,7 @@
         lys.push(L.polyline(                        // seta de subida (L→O)
             [rot(ESC_N0 + ESC_DN/2, ESC_E_base - 0.3 + OE), rot(ESC_N0 + ESC_DN/2, ESC_E_top + 0.3 + OE)],
             { color: '#475569', weight: 1.2, interactive: false }));
+        lys.push(wall(ESC_N0 + ESC_DN - 0.03, ESC_E_top, ESC_N0 + ESC_DN - 0.03, ESC_E_base, 0.05, { no3d: true }));   // guarda-corpo (lado norte)
         lys.push(roomLabel(ESC_N0 + ESC_DN/2, (ESC_E_top + ESC_E_base) / 2, 'Escada', '↑ 2º pav', ''));
         return lys;
     }
@@ -4691,6 +4692,31 @@
             _ph = PH.gLaje;   // escada p/ o 2º pav — aparece com a laje da garagem (V2 pronto)
             for (let i = 1; i <= NST; i++)
                 g.add(box3d(ESC_N0, ESC_E_base - i*STREAD, ESC_DN, STREAD, GCPA, GCPA + i*SRISE, matStair));
+            // Guarda-corpo (lado norte, aberto) + corrimãos — NBR 9077: guarda-corpo 1,10 m com
+            // vãos ≤ 0,11 m; corrimão a 0,90 m nos dois lados (o sul fica na parede da garagem).
+            {
+                const matGC = fmat('#2f3338', { metalness: 0.6, roughness: 0.4 });
+                const k = SRISE / STREAD;
+                const yNariz = x => GCPA + SRISE + Math.max(0, Math.min(ESC_E_base - ESC_E_top, ESC_E_base - x)) * k;
+                const barra = (a, b, r) => {
+                    const d = new THREE.Vector3().subVectors(b, a);
+                    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, d.length(), 10), matGC);
+                    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize());
+                    m.position.copy(a.clone().add(b).multiplyScalar(0.5));
+                    m.castShadow = true;
+                    g.add(m);
+                };
+                const zN = -(ESC_N0 + ESC_DN - 0.03), zS = -(ESC_N0 + 0.06);
+                const P = (x, h, z) => new THREE.Vector3(x, yNariz(x) + h, z);
+                barra(P(ESC_E_base, 1.10, zN), P(ESC_E_top, 1.10, zN), 0.025);    // guarda-corpo: corrimão de topo
+                barra(P(ESC_E_base, 0.90, zN), P(ESC_E_top, 0.90, zN), 0.02);     // corrimão (mão) no guarda-corpo
+                barra(P(ESC_E_base, 0.90, zS), P(ESC_E_top, 0.90, zS), 0.02);     // corrimão na parede sul
+                const nB = Math.ceil((ESC_E_base - ESC_E_top) / 0.11);
+                for (let i = 0; i <= nB; i++) {                                   // montantes (vão ≤ 0,11 m)
+                    const x = ESC_E_base - i * (ESC_E_base - ESC_E_top) / nB;
+                    barra(P(x, 0.02, zN), P(x, 1.10, zN), i % 9 === 0 ? 0.022 : 0.009);
+                }
+            }
             // Vão (stairwell) na laje — sobre o trecho alto (oeste), onde a cabeça passaria
             const HN0 = ESC_N0, HN1 = ESC_N0 + ESC_DN, HE0 = ESC_E_top, HE1 = 20.10 + OE;   // até 20,1: folga ~2,23 m
 
