@@ -718,7 +718,7 @@ e no passeio, e o botão continua visível durante o passeio.
 Pós-processamento ligado só quando pedido, para o uso normal (e o celular) continuar leve. Continua
 visível no passeio.
 - **Libs:** `FOTO_LIBS` (r128 `examples/js`: `EffectComposer`, `RenderPass`, `ShaderPass`, `SAOPass`,
-  `UnrealBloomPass`, `SMAAPass`, `RoundedBoxGeometry` e shaders). São carregadas no 1º uso (`loadFotoLibs`) e ficam também no `CDN` do `sw.js`.
+  `UnrealBloomPass`, `SMAAPass`, `RoundedBoxGeometry`, `GLTFLoader` e shaders). São carregadas no 1º uso (`loadFotoLibs`) e ficam também no `CDN` do `sw.js`.
 - **`fotoComposer(S)`:** alvo `WebGLMultisampleRenderTarget` em meia precisão no WebGL2 (mantém o MSAA).
   Passes: `RenderPass` → `SAOPass` (oclusão de ambiente) → `UnrealBloomPass` (brilho suave) →
   `GammaCorrectionShader` → `SMAAPass` **só sem WebGL2** (sem MSAA no alvo).
@@ -762,6 +762,25 @@ visível no passeio.
   - Feito por `onBeforeCompile`, trocando a linha `gl_FragColor = vec4( outgoingLight, diffuseColor.a );`
     (o r128 não tem o trecho `output_fragment`), com `customProgramCacheKey` próprio.
   - Desligar restaura cor, opacidade, `envMap` e o shader.
+- **Decoração do V3 (`DECOR_V3`, `applyFotoDecor`, pasta `modelos/`, ~3,6 MB):**
+  - Modelos glTF CC0 do Poly Haven, com texturas reduzidas para 512 px. Carregados pelo `GLTFLoader`
+    só no modo foto e só no V3 térreo, no grupo `decorFoto`.
+  - Peças escolhidas por critério de design (aprovadas pelo cliente):
+    - 2 pendentes `modern_ceiling_lamp_01` sobre o balcão de refeições, encostados no teto (luz que
+      delimita a zona de refeição);
+    - planta `potted_plant_02` na varanda norte, ao lado da porta de vidro (o hall não comporta: a porta
+      de entrada varre o canto);
+    - almofadas `throw_pillows_01` no sofá, com a textura recolorida em tons de areia;
+    - vaso `ceramic_vase_02` na ponta norte do balcão;
+    - suculenta `potted_plant_04` junto à janela da cozinha;
+    - quadro `hanging_picture_frame_01` na parede sul da sala.
+    - Poucas peças, porque o cliente evita objetos que juntam poeira.
+  - Posição por tabela: `n`/`e` renderizados; `base`/`topo` acima do piso; `altura` (escala); `rot`;
+    `parede: 'sul'` encosta a face fina na parede.
+  - Os clones compartilham geometria e material com o modelo em cache (`_decorCache`), por isso levam
+    `userData.semDispose`, e o `disposeObject3D` os ignora.
+- **Tapete da sala no V3** (2,0 × 1,4, `rug`, layout normal, não só modo foto): sob a frente do sofá,
+  delimitando a sala.
 
 ---
 

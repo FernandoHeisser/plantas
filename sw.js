@@ -1,6 +1,6 @@
 // Service worker do Projeto Casa (PWA) — sem biblioteca.
 // Subir CACHE ao mudar a lista de pré-cache ou a estratégia (o activate apaga as versões antigas).
-const CACHE = 'casa-v5';
+const CACHE = 'casa-v6';
 
 // Site de arquivo único: a página "/" (index.html) + ícones/manifest + libs CDN de versão fixa.
 const SHELL = [
@@ -25,7 +25,7 @@ const CDN = [
         'shaders/UnpackDepthRGBAShader.js', 'shaders/GammaCorrectionShader.js', 'postprocessing/EffectComposer.js',
         'postprocessing/RenderPass.js', 'postprocessing/ShaderPass.js', 'postprocessing/SAOPass.js',
         'shaders/LuminosityHighPassShader.js', 'postprocessing/UnrealBloomPass.js', 'shaders/SMAAShader.js',
-        'postprocessing/SMAAPass.js', 'geometries/RoundedBoxGeometry.js',
+        'postprocessing/SMAAPass.js', 'geometries/RoundedBoxGeometry.js', 'loaders/GLTFLoader.js',
     ].map(f => 'https://unpkg.com/three@0.128.0/examples/js/' + f),
 ];
 // Origens imutáveis (URL versionada) → cache primeiro. Tiles de satélite (ESRI) NÃO entram:
