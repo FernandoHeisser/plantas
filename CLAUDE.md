@@ -718,7 +718,7 @@ e no passeio, e o botão continua visível durante o passeio.
 Pós-processamento ligado só quando pedido, para o uso normal (e o celular) continuar leve. Continua
 visível no passeio.
 - **Libs:** `FOTO_LIBS` (r128 `examples/js`: `EffectComposer`, `RenderPass`, `ShaderPass`, `SAOPass`,
-  `UnrealBloomPass`, `SMAAPass` e shaders). São carregadas no 1º uso (`loadFotoLibs`) e ficam também no `CDN` do `sw.js`.
+  `UnrealBloomPass`, `SMAAPass`, `RoundedBoxGeometry` e shaders). São carregadas no 1º uso (`loadFotoLibs`) e ficam também no `CDN` do `sw.js`.
 - **`fotoComposer(S)`:** alvo `WebGLMultisampleRenderTarget` em meia precisão no WebGL2 (mantém o MSAA).
   Passes: `RenderPass` → `SAOPass` (oclusão de ambiente) → `UnrealBloomPass` (brilho suave) →
   `GammaCorrectionShader` → `SMAAPass` **só sem WebGL2** (sem MSAA no alvo).
@@ -747,6 +747,13 @@ visível no passeio.
   - Material novo que deva ganhar textura: marcar `userData.foto` com uma chave de `FOTO_TEX`.
   - Para trocar uma textura: baixar do Poly Haven (`api.polyhaven.com/files/<id>`), reduzir para 512 px
     e salvar em `tex/<chave>_cor|_relevo|_rug.jpg`.
+- **Quinas arredondadas (`applyFotoQuinas`, `FOTO_QUINA` = 1,2 cm):**
+  - Toda peça criada por `fbox` (móveis) recebe `userData.quina`. No modo foto, a caixa vira
+    `RoundedBoxGeometry` do mesmo tamanho, com raio de no máximo 1/4 do lado menor (puxadores e pés finos).
+  - A geometria original fica em `userData.geoOrig` e volta ao desligar.
+  - Ordem: ao ligar, quinas antes das texturas (as UVs do mundo vão para a geometria nova); ao desligar,
+    texturas antes.
+  - Paredes, lajes e esquadrias (`box3d` direto) continuam retas.
 
 ---
 

@@ -3236,6 +3236,7 @@
     }
     function fbox(g, n, e, dn, de, z0, z1, color, extra) {
         const m = box3d(n, e, dn, de, z0, z1, (color && color.isMaterial) ? color : fmat(color, extra));
+        m.userData.quina = true;   // móvel: quinas arredondadas no modo foto (applyFotoQuinas)
         g.add(m); return m;
     }
     function fcyl(g, n, e, r, z0, z1, color, extra) {
@@ -5208,6 +5209,7 @@
         if (_fotoTexMap) Object.values(_fotoTexMap).forEach(t => keepTex.add(t));
         root.traverse(obj => {
             if (obj.geometry && obj.geometry.dispose) obj.geometry.dispose();   // sempre único
+            if (obj.userData && obj.userData.geoOrig) obj.userData.geoOrig.dispose();   // caixa guardada pelo modo foto
             const mats = obj.material
                 ? (Array.isArray(obj.material) ? obj.material : [obj.material]) : [];
             for (const m of mats) {
@@ -5319,7 +5321,7 @@
         }
         if (S.group) { S.scene.remove(S.group); disposeObject3D(S.group); }
         S.group = buildBuilding3D(v);
-        if (S.foto && _fotoTexMap) applyFotoTex(S, true);   // modo foto ligado: texturas no prédio novo
+        if (S.foto) { applyFotoQuinas(S, true); if (_fotoTexMap) applyFotoTex(S, true); }   // modo foto: quinas e texturas no prédio novo
         S.scene.add(S.group);
         applyBuildPhase(v);
         resize3D(v);
@@ -5343,7 +5345,7 @@
         'shaders/UnpackDepthRGBAShader.js', 'shaders/GammaCorrectionShader.js', 'postprocessing/EffectComposer.js',
         'postprocessing/RenderPass.js', 'postprocessing/ShaderPass.js', 'postprocessing/SAOPass.js',
         'shaders/LuminosityHighPassShader.js', 'postprocessing/UnrealBloomPass.js', 'shaders/SMAAShader.js',
-        'postprocessing/SMAAPass.js',
+        'postprocessing/SMAAPass.js', 'geometries/RoundedBoxGeometry.js',
     ].map(f => 'https://unpkg.com/three@0.128.0/examples/js/' + f);
     let _fotoLibs = null;
     function loadFotoLibs() {
@@ -5476,12 +5478,35 @@
         S._dirty = true;
     }
 
+    // Quinas arredondadas nos móveis (peças do fbox) só no modo foto: a caixa vira RoundedBoxGeometry do
+    // mesmo tamanho, raio de 1,2 cm (no máx. 1/4 do lado menor, p/ puxadores e pés finos). Desligar devolve a caixa.
+    const FOTO_QUINA = 0.012;
+    function applyFotoQuinas(S, on) {
+        if (!S.group || (on && !THREE.RoundedBoxGeometry)) return;
+        S.group.traverse(o => {
+            if (!o.isMesh || !o.userData.quina) return;
+            if (on && !o.userData.geoOrig) {
+                const p = o.geometry.parameters;
+                if (!p || p.width == null) return;
+                const r = Math.min(FOTO_QUINA, Math.min(p.width, p.height, p.depth) / 4);
+                if (r < 0.002) return;
+                o.userData.geoOrig = o.geometry;
+                o.geometry = new THREE.RoundedBoxGeometry(p.width, p.height, p.depth, 2, r);
+            } else if (!on && o.userData.geoOrig) {
+                o.geometry.dispose();
+                o.geometry = o.userData.geoOrig;
+                delete o.userData.geoOrig;
+            }
+        });
+        S._dirty = true;
+    }
+
     function buildFoto3D(v, host, S) {
         const bar = host.querySelector('.scene3d-toolbar');
         if (!bar) return;
         const btn = document.createElement('button');
         btn.type = 'button'; btn.className = 'btn-foto'; btn.textContent = 'Modo foto: desligado';
-        btn.title = 'Qualidade de render: sombras de contato, brilho suave e texturas reais';
+        btn.title = 'Qualidade de render: sombras de contato, brilho suave, texturas reais e quinas arredondadas';
         btn.addEventListener('click', () => set3DFoto(v, btn));
         bar.appendChild(btn);
     }
@@ -5492,6 +5517,7 @@
         if (S.foto) {
             S.foto.dispose(); S.foto = null;
             applyFotoTex(S, false);
+            applyFotoQuinas(S, false);
             btn.textContent = 'Modo foto: desligado';
             S._dirty = true;
             return;
@@ -5500,6 +5526,7 @@
         try {
             await loadFotoLibs();
             S.foto = fotoComposer(S);
+            applyFotoQuinas(S, true);
             try { await loadFotoTex(); applyFotoTex(S, true); }
             catch (e) { console.warn('Texturas do modo foto indisponíveis:', e.message); }
             btn.textContent = 'Modo foto: ligado';
