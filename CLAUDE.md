@@ -686,6 +686,24 @@ Botão criado por `buildWalk3D` (anexado à `.scene3d-toolbar` de cada cena). Es
   horário vai até 22h.
 - **Lugares novos:** acrescentar em `walkPlaces` (coordenadas renderizadas, `nivel: 1` = 2º piso).
 
+## Exportar p/ IA (botão `.btn-ia`, V1/V2/V3)
+
+Gera material de entrada para geração de imagem realista a partir da vista atual. Funciona na órbita
+e no passeio, e o botão continua visível durante o passeio.
+- **Código:** `buildExportIA3D` cria o botão e `exportIA3D(v, host, S)` faz a captura.
+- **Captura** a 1920 px de largura, sem cotas (sprites e linhas), copiando o canvas logo após o
+  `render`, sem `preserveDrawingBuffer`. Gera três imagens:
+  - **render limpo**;
+  - **profundidade linear**: `ShaderMaterial`, perto = branco, alcance de 10 m no passeio; vidro e
+    transparentes somem;
+  - **linhas**: `iaLinhas` aplica Sobel na profundidade e soma as dobras de normal, branco no preto.
+- **Depois** restaura materiais, fundo, tamanho e aspecto do renderer e seta `_dirty`.
+- **`iaPrompt`:** ambiente mais próximo pelo `walkPlaces`, mês e hora do slider, altura do sol
+  (`S.elevDeg`), lente equivalente pelo `fov` e materiais. **Ao mudar acabamentos, atualizar o texto aqui.**
+- **`iaPainel`:** painel com as três imagens, prompt editável, "Copiar prompt", "Baixar prompt" e "Baixar tudo".
+- **Uso:** ChatGPT, Gemini ou apps de interiores recebem o render e o prompt. No ControlNet, a
+  profundidade vai no controle "depth" e as linhas no "canny"/"MLSD".
+
 ---
 
 ## Performance 3D — padrões a NÃO regredir
