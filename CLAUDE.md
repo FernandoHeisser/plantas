@@ -734,7 +734,19 @@ visível no passeio.
     vira ruído manchado nas superfícies planas.
 - **Ajuste:** os valores ficam em `FOTO` (intensidade 0,02, escala 6, raio 14, bias 0,6).
 - O loop `animate` chama `S.foto.render()` no lugar de `renderer.render`; `resize3D` repassa o tamanho.
-- O "Exportar p/ IA" continua usando o render normal.
+- O "Exportar p/ IA" continua usando o render normal (com as texturas, se o modo foto estiver ligado).
+- **Texturas reais (`FOTO_TEX`, pasta `tex/`, 8 JPG de 512 px, ~225 KB):** CC0 do Poly Haven, só no modo foto.
+  - Piso `marble_01` (cor, relevo e rugosidade), reboco `white_plaster_02` (só relevo), sofá `rough_linen`
+    (só relevo), balcão de madeira `oak_veneer_01` (cor e relevo) e grama `sparse_grass` (só relevo:
+    a cor da foto é marrom e fica o verde do lote).
+  - Os materiais são marcados com `userData.foto` (`piso`, `parede`, `grama`, `tecido`, `madeira`).
+    `applyFotoTex(S, on)` troca os mapas e guarda os originais em `userData.orig`. `uvMundo` reescreve as
+    UVs em metros do mundo (`tam` por repetição) e guarda as originais. Ao desligar, tudo volta e a imagem
+    fica idêntica à normal.
+  - `init3D` reaplica as texturas no prédio reconstruído; `disposeObject3D` preserva `_fotoTexMap`.
+  - Material novo que deva ganhar textura: marcar `userData.foto` com uma chave de `FOTO_TEX`.
+  - Para trocar uma textura: baixar do Poly Haven (`api.polyhaven.com/files/<id>`), reduzir para 512 px
+    e salvar em `tex/<chave>_cor|_relevo|_rug.jpg`.
 
 ---
 

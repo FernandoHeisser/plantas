@@ -3320,13 +3320,14 @@
         },
         // Sofá — base + encosto (leste) + braços + 3 almofadas (frente oeste)
         sofa(g, s) {
+            const tecido = m => { m.material.userData.foto = 'tecido'; };            // trama de linho no modo foto
             fbox(g, s.n, s.e, s.dn, s.de, 0, 0.18, '#5a2310');
-            fbox(g, s.n, s.e + s.de - 0.20, s.dn, 0.20, 0.18, 0.78, s.color);       // encosto (leste)
-            fbox(g, s.n, s.e, 0.16, s.de, 0.18, 0.56, '#6e2a12');                   // braço sul
-            fbox(g, s.n + s.dn - 0.16, s.e, 0.16, s.de, 0.18, 0.56, '#6e2a12');     // braço norte
+            tecido(fbox(g, s.n, s.e + s.de - 0.20, s.dn, 0.20, 0.18, 0.78, s.color));       // encosto (leste)
+            tecido(fbox(g, s.n, s.e, 0.16, s.de, 0.18, 0.56, '#6e2a12'));                   // braço sul
+            tecido(fbox(g, s.n + s.dn - 0.16, s.e, 0.16, s.de, 0.18, 0.56, '#6e2a12'));     // braço norte
             const sw = (s.dn - 0.32) / 3;
             for (let i = 0; i < 3; i++)
-                fbox(g, s.n + 0.16 + i * sw + 0.02, s.e + 0.05, sw - 0.04, s.de - 0.28, 0.18, 0.36, '#a8451f', { roughness: 0.85 });
+                tecido(fbox(g, s.n + 0.16 + i * sw + 0.02, s.e + 0.05, sw - 0.04, s.de - 0.28, 0.18, 0.36, '#a8451f', { roughness: 0.85 }));
         },
         // Vaso sanitário — bacia + assento + caixa acoplada (atrás, leste)
         toilet(g, s) {
@@ -3385,9 +3386,10 @@
         // Balcão vazado — tampo + laterais nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas)
         balcao(g, s) {
             const t = 0.04, w = 0.03;
-            fbox(g, s.n, s.e, s.dn, s.de, s.h - t, s.h, s.color, { roughness: 0.55 });
-            fbox(g, s.n, s.e, w, s.de, 0, s.h - t, s.color, { roughness: 0.6 });
-            fbox(g, s.n + s.dn - w, s.e, w, s.de, 0, s.h - t, s.color, { roughness: 0.6 });
+            const pecas = [fbox(g, s.n, s.e, s.dn, s.de, s.h - t, s.h, s.color, { roughness: 0.55 }),
+                           fbox(g, s.n, s.e, w, s.de, 0, s.h - t, s.color, { roughness: 0.6 }),
+                           fbox(g, s.n + s.dn - w, s.e, w, s.de, 0, s.h - t, s.color, { roughness: 0.6 })];
+            if (s.color === '#9a7b46') pecas.forEach(m => { m.material.userData.foto = 'madeira'; });   // balcão de madeira
         },
         // Mesa de jantar — tampo + 4 pernas
         table(g, s) {
@@ -3673,6 +3675,7 @@
         const matWall   = new THREE.MeshStandardMaterial({ map: texWall(), color: 0xffffff, roughness: 0.95, metalness: 0, envMapIntensity: 0.25,
                                                            polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 4 });
         const matFloor  = new THREE.MeshStandardMaterial({ map: floor, roughness: 0.55, metalness: 0, envMapIntensity: 0.35 });
+        matWall.userData.foto = 'parede'; matFloor.userData.foto = 'piso';   // texturas reais no modo foto (FOTO_TEX)
         const matGlass  = new THREE.MeshStandardMaterial({ color: 0xaecadf, transparent: true, opacity: 0.3,
                                                            roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
         const matEmbase = new THREE.MeshStandardMaterial({ color: 0xb8b0a0, roughness: 0.92, metalness: 0,   envMapIntensity: 0.12 });
@@ -3709,6 +3712,7 @@
         // fundos mE=40 em y=−1,0). Plano de 2 triângulos com a cota natural grade(mE).
         const grass = texGrass(); grass.repeat.set(20, 6);
         const matGrass = new THREE.MeshStandardMaterial({ map: grass, roughness: 1, metalness: 0, envMapIntensity: 0.15, side: THREE.DoubleSide });
+        matGrass.userData.foto = 'grama';
         // cantos (mE, mN) → (x=mE, y=grade(mE), z=−mN)
         const gGeo = new THREE.BufferGeometry();
         gGeo.setAttribute('position', new THREE.Float32BufferAttribute(PERFIL.flatMap(([x, y]) => [x, y, 0, x, y, -12.5]), 3));
@@ -3868,6 +3872,7 @@
         _ph = PH.colT;
         // Tabela PILARES. Rebocados na casa pronta; concreto aparente nas fases antes da alvenaria (applyBuildPhase).
         const matPilar = new THREE.MeshStandardMaterial({ map: texWall(), color: 0xffffff, roughness: 0.95, metalness: 0, envMapIntensity: 0.25 });
+        matPilar.userData.foto = 'parede';
         PILARES.forEach(p => {
             const e3 = p.e + OE;
             const m = box3d(p.n - p.dn / 2, e3 - p.de / 2, p.dn, p.de, baseBot(e3, p.de), CEIL3D + CPA, matPilar);
@@ -5200,6 +5205,7 @@
         if (satGroundMat) keepMat.add(satGroundMat);
         const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo].filter(Boolean));
         if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
+        if (_fotoTexMap) Object.values(_fotoTexMap).forEach(t => keepTex.add(t));
         root.traverse(obj => {
             if (obj.geometry && obj.geometry.dispose) obj.geometry.dispose();   // sempre único
             const mats = obj.material
@@ -5313,6 +5319,7 @@
         }
         if (S.group) { S.scene.remove(S.group); disposeObject3D(S.group); }
         S.group = buildBuilding3D(v);
+        if (S.foto && _fotoTexMap) applyFotoTex(S, true);   // modo foto ligado: texturas no prédio novo
         S.scene.add(S.group);
         applyBuildPhase(v);
         resize3D(v);
@@ -5394,12 +5401,87 @@
         };
     }
 
+    // Texturas reais CC0 (Poly Haven, 512 px, em /tex) só no modo foto: piso em placas de pedra clara,
+    // reboco das paredes (só relevo), trama de linho no sofá (só relevo), carvalho no balcão e relevo na grama.
+    // Os materiais marcados com userData.foto recebem os mapas; as UVs viram coordenadas do mundo
+    // (tam = metros por repetição), para a textura ter o mesmo tamanho em qualquer peça. Desligar restaura.
+    const FOTO_TEX = {
+        piso:    { tam: 2.0,  cor: 'piso_cor', relevo: 'piso_relevo', rug: 'piso_rug' },
+        parede:  { tam: 1.5,  relevo: 'parede_relevo', escala: 0.45 },
+        tecido:  { tam: 0.35, relevo: 'tecido_relevo', escala: 0.8 },
+        madeira: { tam: 1.2,  cor: 'madeira_cor', relevo: 'madeira_relevo', escala: 0.6 },
+        // grama: a foto CC0 é marrom (seca); fica o verde do lote e entra só o relevo, nas UVs originais
+        grama:   { manterUV: true, relevo: 'grama_relevo', repete: [20, 6] },
+    };
+    let _fotoTex = null, _fotoTexMap = null;
+    function loadFotoTex() {
+        if (_fotoTex) return _fotoTex;
+        const nomes = new Set();
+        Object.values(FOTO_TEX).forEach(c => ['cor', 'relevo', 'rug'].forEach(k => c[k] && nomes.add(c[k])));
+        const L = new THREE.TextureLoader();
+        _fotoTex = Promise.all([...nomes].map(n => new Promise((ok, err) => L.load('/tex/' + n + '.jpg', t => {
+            t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+            if (n.endsWith('_cor')) t.encoding = THREE.sRGBEncoding;   // cor em sRGB; relevo/rugosidade lineares
+            const r = Object.values(FOTO_TEX).find(c => c.repete && (c.cor === n || c.relevo === n || c.rug === n));
+            if (r) t.repeat.set(...r.repete);
+            ok([n, t]);
+        }, undefined, () => err(new Error('/tex/' + n + '.jpg'))))))
+            .then(l => (_fotoTexMap = Object.fromEntries(l)))
+            .catch(e => { _fotoTex = null; throw e; });
+        return _fotoTex;
+    }
+    // UV em metros do mundo, projetada pela face dominante (caixas, planos e cilindros do prédio)
+    function uvMundo(mesh, tam) {
+        const g = mesh.geometry;
+        if (!g || !g.attributes.position || !g.attributes.normal) return;
+        if (!g.userData.uvOrig && g.attributes.uv) g.userData.uvOrig = g.attributes.uv;
+        mesh.updateMatrixWorld();
+        const P = g.attributes.position, N = g.attributes.normal, uv = new Float32Array(P.count * 2);
+        const p = new THREE.Vector3(), n = new THREE.Vector3(), nm = new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld);
+        for (let i = 0; i < P.count; i++) {
+            p.fromBufferAttribute(P, i).applyMatrix4(mesh.matrixWorld);
+            n.fromBufferAttribute(N, i).applyMatrix3(nm);
+            const ax = Math.abs(n.x), ay = Math.abs(n.y), az = Math.abs(n.z);
+            const [u, w] = (ay >= ax && ay >= az) ? [p.x, p.z] : (ax >= az) ? [p.z, p.y] : [p.x, p.y];
+            uv[2 * i] = u / tam; uv[2 * i + 1] = w / tam;
+        }
+        g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    }
+    function applyFotoTex(S, on) {
+        if (!S.group || (on && !_fotoTexMap)) return;
+        const T = _fotoTexMap;
+        S.group.traverse(o => {
+            const m = o.isMesh && o.material;
+            const cfg = m && !Array.isArray(m) && m.userData && FOTO_TEX[m.userData.foto];
+            if (!cfg) return;
+            const g = o.geometry;
+            if (on) {
+                if (!cfg.manterUV) uvMundo(o, cfg.tam);
+                if (m.userData.orig) return;   // material compartilhado: já trocado
+                m.userData.orig = { map: m.map, normalMap: m.normalMap, roughnessMap: m.roughnessMap,
+                                    color: m.color.getHex(), normalScale: m.normalScale.clone() };
+                if (cfg.cor) { m.map = T[cfg.cor]; m.color.set(0xffffff); }
+                if (cfg.relevo) { m.normalMap = T[cfg.relevo]; m.normalScale.setScalar(cfg.escala || 1); }
+                if (cfg.rug) m.roughnessMap = T[cfg.rug];
+                m.needsUpdate = true;
+            } else {
+                if (g && g.userData.uvOrig) { g.setAttribute('uv', g.userData.uvOrig); delete g.userData.uvOrig; }
+                const o0 = m.userData.orig;
+                if (!o0) return;
+                m.map = o0.map; m.normalMap = o0.normalMap; m.roughnessMap = o0.roughnessMap;
+                m.color.setHex(o0.color); m.normalScale.copy(o0.normalScale);
+                delete m.userData.orig; m.needsUpdate = true;
+            }
+        });
+        S._dirty = true;
+    }
+
     function buildFoto3D(v, host, S) {
         const bar = host.querySelector('.scene3d-toolbar');
         if (!bar) return;
         const btn = document.createElement('button');
         btn.type = 'button'; btn.className = 'btn-foto'; btn.textContent = 'Modo foto: desligado';
-        btn.title = 'Qualidade de render: sombras de contato (oclusão de ambiente)';
+        btn.title = 'Qualidade de render: sombras de contato, brilho suave e texturas reais';
         btn.addEventListener('click', () => set3DFoto(v, btn));
         bar.appendChild(btn);
     }
@@ -5409,6 +5491,7 @@
         if (!S) return;
         if (S.foto) {
             S.foto.dispose(); S.foto = null;
+            applyFotoTex(S, false);
             btn.textContent = 'Modo foto: desligado';
             S._dirty = true;
             return;
@@ -5417,6 +5500,8 @@
         try {
             await loadFotoLibs();
             S.foto = fotoComposer(S);
+            try { await loadFotoTex(); applyFotoTex(S, true); }
+            catch (e) { console.warn('Texturas do modo foto indisponíveis:', e.message); }
             btn.textContent = 'Modo foto: ligado';
         } catch (e) {
             console.warn('Modo foto indisponível:', e.message);
