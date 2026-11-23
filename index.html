@@ -3498,6 +3498,7 @@
         // Box/chuveiro — base + 2 vidros + chuveiro
         shower(g, s) {
             const glass = fmat('#cfe3ee', { transparent: true, opacity: 0.22, roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
+            glass.userData.foto = 'vidro';
             fbox(g, s.n, s.e, s.dn, s.de, 0, 0.05, '#cfd6da', { roughness: 0.4 });   // base
             fbox(g, s.n + s.dn - 0.02, s.e, 0.02, s.de, 0.05, s.h, glass).castShadow = false;  // vidro norte
             fbox(g, s.n, s.e, s.dn, 0.02, 0.05, s.h, glass).castShadow = false;                // vidro oeste
@@ -3609,6 +3610,7 @@
             const z0   = 0;                                // relativo ao grupo (fg.position.y = CPA)
             const z1   = panH;                             // topo da porta
             const gMat = fmat('#c8dde8', { transparent:true, opacity:0.28, roughness:0.02, metalness:0.05, envMapIntensity:1.8 });
+            gMat.userData.foto = 'vidro';
 
             // Caixilho externo (4 barras perimetrais, alumínio branco)
             fbox(g, s.n,              s.e,              th, fr,    z0, z1, '#f2f2f2');  // esquerda
@@ -3679,6 +3681,7 @@
         matWall.userData.foto = 'parede'; matFloor.userData.foto = 'piso';   // texturas reais no modo foto (FOTO_TEX)
         const matGlass  = new THREE.MeshStandardMaterial({ color: 0xaecadf, transparent: true, opacity: 0.3,
                                                            roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
+        matGlass.userData.foto = 'vidro';
         const matEmbase = new THREE.MeshStandardMaterial({ color: 0xb8b0a0, roughness: 0.92, metalness: 0,   envMapIntensity: 0.12 });
         const matWP     = new THREE.MeshStandardMaterial({ color: 0x1e1e2a, roughness: 0.60, metalness: 0.28, envMapIntensity: 0.35 });
 
@@ -4061,6 +4064,7 @@
                 // Folha de vidro: painel transparente + caixilho preto
                 const glassLeafMat = new THREE.MeshStandardMaterial({ color: 0xc8dde8, transparent: true,
                     opacity: 0.22, roughness: 0.02, metalness: 0.05, envMapIntensity: 1.8 });
+                glassLeafMat.userData.foto = 'vidro';
                 const panel = new THREE.Mesh(new THREE.BoxGeometry(r, head, th * 0.4), glassLeafMat);
                 panel.position.set(r/2, head/2, 0);
                 panel.castShadow = false; panel.receiveShadow = false;
@@ -5414,7 +5418,12 @@
         madeira: { tam: 1.2,  cor: 'madeira_cor', relevo: 'madeira_relevo', escala: 0.6 },
         // grama: a foto CC0 é marrom (seca); fica o verde do lote e entra só o relevo, nas UVs originais
         grama:   { manterUV: true, relevo: 'grama_relevo', repete: [20, 6] },
+        // vidro físico: quase invisível de frente e espelhado de lado (Fresnel), refletindo o céu do slider
+        vidro:   { manterUV: true, vidro: true },
     };
+    const VIDRO_FRAG = `
+        float vidroFr = pow(1.0 - clamp(abs(dot(normalize(vViewPosition), normal)), 0.0, 1.0), 3.0);
+        gl_FragColor = vec4(outgoingLight, mix(0.07, 0.62, vidroFr));`;
     let _fotoTex = null, _fotoTexMap = null;
     function loadFotoTex() {
         if (_fotoTex) return _fotoTex;
@@ -5460,6 +5469,18 @@
             if (on) {
                 if (!cfg.manterUV) uvMundo(o, cfg.tam);
                 if (m.userData.orig) return;   // material compartilhado: já trocado
+                if (cfg.vidro) {
+                    m.userData.orig = { vidro: true, color: m.color.getHex(), opacity: m.opacity, roughness: m.roughness,
+                                        envMap: m.envMap, envMapIntensity: m.envMapIntensity,
+                                        obc: m.onBeforeCompile, key: m.customProgramCacheKey };
+                    m.color.set(0xeef5f7); m.opacity = 1; m.roughness = 0.02; m.envMapIntensity = 1.4;
+                    if (S.ceu) m.envMap = S.ceu.rt.texture;   // reflete o céu do horário escolhido
+                    // r128: a cor final é escrita direto no shader (não há o trecho output_fragment)
+                    m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('gl_FragColor = vec4( outgoingLight, diffuseColor.a );', VIDRO_FRAG); };
+                    m.customProgramCacheKey = () => 'vidroFoto';
+                    m.needsUpdate = true;
+                    return;
+                }
                 m.userData.orig = { map: m.map, normalMap: m.normalMap, roughnessMap: m.roughnessMap,
                                     color: m.color.getHex(), normalScale: m.normalScale.clone() };
                 if (cfg.cor) { m.map = T[cfg.cor]; m.color.set(0xffffff); }
@@ -5470,6 +5491,13 @@
                 if (g && g.userData.uvOrig) { g.setAttribute('uv', g.userData.uvOrig); delete g.userData.uvOrig; }
                 const o0 = m.userData.orig;
                 if (!o0) return;
+                if (o0.vidro) {
+                    m.color.setHex(o0.color); m.opacity = o0.opacity; m.roughness = o0.roughness;
+                    m.envMap = o0.envMap; m.envMapIntensity = o0.envMapIntensity;
+                    m.onBeforeCompile = o0.obc; m.customProgramCacheKey = o0.key;
+                    delete m.userData.orig; m.needsUpdate = true;
+                    return;
+                }
                 m.map = o0.map; m.normalMap = o0.normalMap; m.roughnessMap = o0.roughnessMap;
                 m.color.setHex(o0.color); m.normalScale.copy(o0.normalScale);
                 delete m.userData.orig; m.needsUpdate = true;
@@ -5506,7 +5534,7 @@
         if (!bar) return;
         const btn = document.createElement('button');
         btn.type = 'button'; btn.className = 'btn-foto'; btn.textContent = 'Modo foto: desligado';
-        btn.title = 'Qualidade de render: sombras de contato, brilho suave, texturas reais e quinas arredondadas';
+        btn.title = 'Qualidade de render: sombras de contato, brilho suave, texturas reais, quinas arredondadas e vidro com reflexo';
         btn.addEventListener('click', () => set3DFoto(v, btn));
         bar.appendChild(btn);
     }

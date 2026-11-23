@@ -754,6 +754,14 @@ visível no passeio.
   - Ordem: ao ligar, quinas antes das texturas (as UVs do mundo vão para a geometria nova); ao desligar,
     texturas antes.
   - Paredes, lajes e esquadrias (`box3d` direto) continuam retas.
+- **Vidro com reflexo (`FOTO_TEX.vidro`, `VIDRO_FRAG`):**
+  - Materiais marcados `userData.foto = 'vidro'`: `matGlass` (janelas), box do banho, porta de correr
+    (`slidingdoor4`) e folhas de vidro.
+  - No modo foto ficam quase brancos e lisos, com `envMap` = céu do slider (`S.ceu.rt.texture`), e a
+    opacidade passa a depender do ângulo (Fresnel): 0,07 de frente e até 0,62 de lado.
+  - Feito por `onBeforeCompile`, trocando a linha `gl_FragColor = vec4( outgoingLight, diffuseColor.a );`
+    (o r128 não tem o trecho `output_fragment`), com `customProgramCacheKey` próprio.
+  - Desligar restaura cor, opacidade, `envMap` e o shader.
 
 ---
 
