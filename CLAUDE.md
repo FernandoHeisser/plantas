@@ -400,6 +400,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
 | `stool` | Banqueta alta de balcão: assento de madeira estofado + 4 pés metálicos abertos + apoio de pés. Usar com `circ` (`r` = raio do assento, `h3d` = altura do assento, padrão 0,70). |
+| `balcao` | Balcão **vazado**: tampo (cor `s.color`) + laterais finas nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas). Usa `h3d` como altura do tampo. No V3: balcão de refeições atrás do sofá e balanço da península. |
 | `torre` | Torre quente de embutir (forno + micro-ondas), frente p/ **sul**. No V3 fica na despensa, junto da porta da cozinha. |
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
@@ -775,7 +776,18 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
 - **Parede leste:** geladeira junto da porta dos fundos (frente alinhada a 0,65), balcão em L com o
   canto, armário sobre a porta dos fundos.
 - **Aéreos 1,65 → 2,55 m, profundidade 0,35** (norte e leste sobre o balcão) → folga de 0,70 m sobre
-  a bancada; sobre a geladeira 0,65 de profundidade (1,80 → 2,55).
+  a bancada; sobre a geladeira 0,65 de profundidade (1,80 → 2,55). Ficam acima da janela da cozinha
+  (verga 1,60) e o cliente prefere armário a prateleira (poeira).
+- **V3 (objetivo do cliente; V1/V2 são provisórios):** a despensa guarda o resto, a cozinha aberta fica
+  com o essencial e todos ficam virados para a sala.
+  - **Península de preparo** (que também serve de mesa): gabinete 0,45 + balanço de 0,25 para o oeste (`balcao`).
+  - **Balcão de refeições vazado atrás do sofá** (0,44 × 1,75, h 0,95): quem come fica de frente para a TV.
+    As 3 banquetas servem aos dois balcões e ficam guardadas embaixo dele.
+  - Sofá 0,25 m para oeste (TV a 1,95 m).
+  - **Cooktop na parede norte** (saída do exaustor), 0,28 m para leste, deixando 0,40 de apoio depois do
+    canto da península. A pia fica 0,15 m para leste, ainda sob a janela.
+  - Folgas: 1,00 entre o balcão e a península, 1,15 até a porta da despensa.
+  - Variáveis `CK`/`PI`/`SF` em `buildLayers`.
 
 ### Lavanderia e despensa
 - **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).
