@@ -161,7 +161,7 @@ node tools/geo-diff.mjs pre-v1-oficial check-1
 
 **Dependências externas (CDN):**
 - Leaflet.js 1.9.4 — mapas 2D
-- Three.js r128 + OrbitControls + RoomEnvironment + **BufferGeometryUtils** — cena 3D
+- Three.js r128 + OrbitControls + RoomEnvironment + **BufferGeometryUtils** + **Sky** — cena 3D
 - ESRI World Imagery — tiles de satélite (sem API key)
 - Google Fonts — JetBrains Mono + Inter
 
@@ -420,6 +420,15 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 - **Environment** RoomEnvironment + PMREM → reflexos suaves nos materiais Standard.
 - `setSun3D(S, hora, mês)` = posição solar **real** para lat −29,96° (declinação por dia do ano + ângulo horário → vetor ENU mapeado pra cena).
 - HUD inferior: slider 5h–19h + seletor de mês + relógio com elevação (`14:30 ☀29°`).
+- **Céu físico** (`skyBackground`, chamado pelo `setSun3D`):
+  - `THREE.Sky` (Preetham) com a direção do sol, renderizado num cubo de 256² (`CubeCamera`) só quando
+    o sol muda e usado como `scene.background`. **Não é geometria**: não entra no SAO, no "Exportar p/ IA"
+    nem no `far`.
+  - O cubo é gravado em `LinearEncoding` e depois marcado `sRGBEncoding`, porque o shader do Sky já
+    aplica a própria gama (senão sai branco-acinzentado).
+  - Exposição própria `CEU_EXPOSICAO` = 0,35 (a cena usa 0,92), subindo até 4× com o sol baixo,
+    para o pôr do sol ficar laranja.
+  - Parâmetros em `CEU`. Sem `THREE.Sky`, volta a cor lisa.
 - Bússola (canto sup. esq.) que gira com a câmera; N em vermelho.
 - Vidros (`matGlass`, box/shower/glassdoor) têm `castShadow=false` → luz passa.
 

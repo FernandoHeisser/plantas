@@ -1,6 +1,6 @@
 // Service worker do Projeto Casa (PWA) — sem biblioteca.
 // Subir CACHE ao mudar a lista de pré-cache ou a estratégia (o activate apaga as versões antigas).
-const CACHE = 'casa-v2';
+const CACHE = 'casa-v3';
 
 // Site de arquivo único: a página "/" (index.html) + ícones/manifest + libs CDN de versão fixa.
 const SHELL = [
@@ -19,6 +19,7 @@ const CDN = [
     'https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js',
     'https://unpkg.com/three@0.128.0/examples/js/environments/RoomEnvironment.js',
     'https://unpkg.com/three@0.128.0/examples/js/utils/BufferGeometryUtils.js',
+    'https://unpkg.com/three@0.128.0/examples/js/objects/Sky.js',
     // Modo foto (carregadas sob demanda pelo index.html, guardadas aqui p/ funcionar offline)
     ...['shaders/CopyShader.js', 'shaders/SAOShader.js', 'shaders/DepthLimitedBlurShader.js',
         'shaders/UnpackDepthRGBAShader.js', 'shaders/GammaCorrectionShader.js', 'postprocessing/EffectComposer.js',
