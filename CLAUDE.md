@@ -704,6 +704,25 @@ e no passeio, e o botão continua visível durante o passeio.
 - **Uso:** ChatGPT, Gemini ou apps de interiores recebem o render e o prompt. No ControlNet, a
   profundidade vai no controle "depth" e as linhas no "canny"/"MLSD".
 
+## Modo foto (botão `.btn-foto`, V1/V2/V3)
+
+Pós-processamento ligado só quando pedido, para o uso normal (e o celular) continuar leve. Continua
+visível no passeio.
+- **Libs:** `FOTO_LIBS` (r128 `examples/js`: `EffectComposer`, `RenderPass`, `ShaderPass`, `SAOPass` e
+  shaders). São carregadas no 1º uso (`loadFotoLibs`) e ficam também no `CDN` do `sw.js`.
+- **`fotoComposer(S)`:** alvo `WebGLMultisampleRenderTarget` em meia precisão no WebGL2 (mantém o MSAA).
+  Passes: `RenderPass` → `SAOPass` (oclusão de ambiente) → `GammaCorrectionShader`.
+  - O tone mapping ACES continua nos materiais: sem SAO, a imagem sai igual à normal (diferença ~1,7/255).
+- **No `render()`:**
+  - o fundo (`Color`) passa para linear antes de renderizar (senão a gama o clareia);
+  - o raio do SAO é em pixels, então ele se ajusta à distância da câmera (`FOTO.saoKernelRadius` vale
+    para ~2,5 m);
+  - **a câmera vê até 150 m enquanto renderiza**: com o `far` de 500 a profundidade fica grossa e o SAO
+    vira ruído manchado nas superfícies planas.
+- **Ajuste:** os valores ficam em `FOTO` (intensidade 0,02, escala 6, raio 14, bias 0,6).
+- O loop `animate` chama `S.foto.render()` no lugar de `renderer.render`; `resize3D` repassa o tamanho.
+- O "Exportar p/ IA" continua usando o render normal.
+
 ---
 
 ## Performance 3D — padrões a NÃO regredir

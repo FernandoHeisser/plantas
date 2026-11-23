@@ -5248,6 +5248,7 @@
             buildHud3D(v, host, S);     // bússola + slider de horário/mês
             buildWalk3D(v, host, S);    // passeio em 1ª pessoa (botão Caminhar)
             buildExportIA3D(v, host, S); // render limpo + profundidade + linhas + prompt p/ geração de imagem
+            buildFoto3D(v, host, S);     // modo foto: pós-processamento (oclusão de ambiente) sob demanda
             setSun3D(S, 14.5, 4);       // posição solar inicial (~14h30, maio)
             syncHud3D(S);
 
@@ -5267,7 +5268,7 @@
                 if (!S._dirty) return;                     // nada mudou → pula o render
                 S._dirty = false;
                 updateCompass3D(S);
-                renderer.render(scene, camera);
+                if (S.foto) S.foto.render(); else renderer.render(scene, camera);
             })();
 
             window.addEventListener('resize', () => resize3D(v));
@@ -5294,6 +5295,95 @@
         S.camera.aspect = host.clientWidth / host.clientHeight;
         S.camera.updateProjectionMatrix();
         S.renderer.setSize(host.clientWidth, host.clientHeight);
+        if (S.foto) S.foto.setSize(host.clientWidth, host.clientHeight);
+        S._dirty = true;
+    }
+
+    // ── Modo foto: pós-processamento só quando pedido (botão), p/ o uso normal seguir leve ──
+    // Libs do r128 (examples/js) carregadas no 1º uso; o sw.js também as guarda (CDN).
+    const FOTO_LIBS = ['shaders/CopyShader.js', 'shaders/SAOShader.js', 'shaders/DepthLimitedBlurShader.js',
+        'shaders/UnpackDepthRGBAShader.js', 'shaders/GammaCorrectionShader.js', 'postprocessing/EffectComposer.js',
+        'postprocessing/RenderPass.js', 'postprocessing/ShaderPass.js', 'postprocessing/SAOPass.js',
+    ].map(f => 'https://unpkg.com/three@0.128.0/examples/js/' + f);
+    let _fotoLibs = null;
+    function loadFotoLibs() {
+        if (!_fotoLibs) _fotoLibs = FOTO_LIBS.reduce((p, src) => p.then(() => new Promise((ok, err) => {
+            const s = document.createElement('script');
+            s.src = src; s.onload = ok; s.onerror = () => err(new Error(src));
+            document.head.appendChild(s);
+        })), Promise.resolve()).catch(e => { _fotoLibs = null; throw e; });
+        return _fotoLibs;
+    }
+    // Parâmetros do SAO (oclusão de ambiente): sombra de contato em cantos, rodapés e móvel × piso.
+    const FOTO = { saoIntensity: 0.02, saoScale: 6, saoKernelRadius: 14, saoBias: 0.6, saoBlurRadius: 6, saoBlurStdDev: 3 };
+
+    function fotoComposer(S) {
+        const { renderer, scene, camera } = S;
+        const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio();
+        const gl2 = renderer.capabilities.isWebGL2;
+        // WebGL2: alvo com MSAA (mantém o antisserrilhado) e meia precisão (sem faixas nos escuros)
+        const rt = gl2 ? new THREE.WebGLMultisampleRenderTarget(size.x * pr, size.y * pr, { type: THREE.HalfFloatType })
+                       : new THREE.WebGLRenderTarget(size.x * pr, size.y * pr);
+        const composer = new THREE.EffectComposer(renderer, rt);
+        composer.addPass(new THREE.RenderPass(scene, camera));
+        const sao = new THREE.SAOPass(scene, camera, false, true);
+        Object.assign(sao.params, FOTO, { saoBlur: true, saoBlurDepthCutoff: 0.01 });
+        composer.addPass(sao);
+        composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));   // alvo linear → tela sRGB
+        return {
+            composer, sao,
+            // fundo (cor) entra cru no alvo linear e a correção de gama o clarearia: converte p/ linear antes
+            render: () => {
+                const bg = scene.background;
+                if (bg && bg.isColor) scene.background = bg.clone().convertSRGBToLinear();
+                // O raio do SAO é em pixels: de longe ele cobriria metros e vira halo. Ajusta pela distância
+                // (passeio ≈ 2,5 m) p/ a sombra de contato ter sempre ~o mesmo tamanho no mundo.
+                const d = (S.walk && S.walk.on) ? 2.5 : camera.position.distanceTo(S.controls.target);
+                const k = Math.min(16, Math.max(3, FOTO.saoKernelRadius * 2.5 / Math.max(0.5, d)));
+                sao.params.saoKernelRadius = k;
+                sao.params.saoBlurRadius = Math.min(FOTO.saoBlurRadius, Math.max(2, Math.round(k / 2)));
+                // far de 500 m deixa a profundidade grossa e o SAO vira ruído manchado nas superfícies
+                // planas; no modo foto a câmera vê até 150 m (o lote e o entorno cabem)
+                const far = camera.far;
+                camera.far = Math.min(far, 150); camera.updateProjectionMatrix();
+                composer.render();
+                camera.far = far; camera.updateProjectionMatrix();
+                scene.background = bg;
+            },
+            setSize: (w, h) => { composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h); },
+            dispose: () => { rt.dispose(); composer.renderTarget2.dispose(); },
+        };
+    }
+
+    function buildFoto3D(v, host, S) {
+        const bar = host.querySelector('.scene3d-toolbar');
+        if (!bar) return;
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'btn-foto'; btn.textContent = 'Modo foto: desligado';
+        btn.title = 'Qualidade de render: sombras de contato (oclusão de ambiente)';
+        btn.addEventListener('click', () => set3DFoto(v, btn));
+        bar.appendChild(btn);
+    }
+
+    async function set3DFoto(v, btn) {
+        const S = scenes3d[v];
+        if (!S) return;
+        if (S.foto) {
+            S.foto.dispose(); S.foto = null;
+            btn.textContent = 'Modo foto: desligado';
+            S._dirty = true;
+            return;
+        }
+        btn.disabled = true; btn.textContent = 'Modo foto: carregando…';
+        try {
+            await loadFotoLibs();
+            S.foto = fotoComposer(S);
+            btn.textContent = 'Modo foto: ligado';
+        } catch (e) {
+            console.warn('Modo foto indisponível:', e.message);
+            btn.textContent = 'Modo foto: sem conexão';
+        }
+        btn.disabled = false;
         S._dirty = true;
     }
 
@@ -5606,7 +5696,7 @@
         const drain = S.group.getObjectByName('drainV3'), espB = S.group.getObjectByName('esperasBars');
         const telha = roof && roof.getObjectByName('telha');
         // "Exportar p/ IA" continua visível no passeio (a vista na altura dos olhos é a melhor p/ render)
-        const outros = [...host.querySelectorAll('.scene3d-toolbar button')].filter(b => b !== btn && !b.classList.contains('btn-ia'));
+        const outros = [...host.querySelectorAll('.scene3d-toolbar button')].filter(b => b !== btn && !b.classList.contains('btn-ia') && !b.classList.contains('btn-foto'));
         if (!w.on) {
             w.on = true;
             w.salvo = { pos: cam.position.clone(), alvo: S.controls.target.clone(), fov: cam.fov, near: cam.near,
