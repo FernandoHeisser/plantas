@@ -5335,6 +5335,8 @@
     const FOTO_LIBS = ['shaders/CopyShader.js', 'shaders/SAOShader.js', 'shaders/DepthLimitedBlurShader.js',
         'shaders/UnpackDepthRGBAShader.js', 'shaders/GammaCorrectionShader.js', 'postprocessing/EffectComposer.js',
         'postprocessing/RenderPass.js', 'postprocessing/ShaderPass.js', 'postprocessing/SAOPass.js',
+        'shaders/LuminosityHighPassShader.js', 'postprocessing/UnrealBloomPass.js', 'shaders/SMAAShader.js',
+        'postprocessing/SMAAPass.js',
     ].map(f => 'https://unpkg.com/three@0.128.0/examples/js/' + f);
     let _fotoLibs = null;
     function loadFotoLibs() {
@@ -5347,6 +5349,8 @@
     }
     // Parâmetros do SAO (oclusão de ambiente): sombra de contato em cantos, rodapés e móvel × piso.
     const FOTO = { saoIntensity: 0.02, saoScale: 6, saoKernelRadius: 14, saoBias: 0.6, saoBlurRadius: 6, saoBlurStdDev: 3 };
+    // Brilho suave (bloom) só no que já é quase branco: janelas com céu, vidro ao sol, luzes à noite.
+    const FOTO_BLOOM = { forca: 0.2, raio: 0.3, limiar: 0.93 };   // mais forte lava a cena à noite (paredes brancas perto das luzes)
 
     function fotoComposer(S) {
         const { renderer, scene, camera } = S;
@@ -5360,9 +5364,13 @@
         const sao = new THREE.SAOPass(scene, camera, false, true);
         Object.assign(sao.params, FOTO, { saoBlur: true, saoBlurDepthCutoff: 0.01 });
         composer.addPass(sao);
+        const bloom = new THREE.UnrealBloomPass(new THREE.Vector2(size.x, size.y), FOTO_BLOOM.forca, FOTO_BLOOM.raio, FOTO_BLOOM.limiar);
+        composer.addPass(bloom);
         composer.addPass(new THREE.ShaderPass(THREE.GammaCorrectionShader));   // alvo linear → tela sRGB
+        // sem WebGL2 não há MSAA no alvo: o SMAA (depois da gama, como pede o filtro) tira o serrilhado
+        if (!gl2) composer.addPass(new THREE.SMAAPass(size.x * pr, size.y * pr));
         return {
-            composer, sao,
+            composer, sao, bloom,
             // fundo (cor) entra cru no alvo linear e a correção de gama o clarearia: converte p/ linear antes
             render: () => {
                 const bg = scene.background;

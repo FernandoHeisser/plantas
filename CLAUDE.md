@@ -717,10 +717,14 @@ e no passeio, e o botão continua visível durante o passeio.
 
 Pós-processamento ligado só quando pedido, para o uso normal (e o celular) continuar leve. Continua
 visível no passeio.
-- **Libs:** `FOTO_LIBS` (r128 `examples/js`: `EffectComposer`, `RenderPass`, `ShaderPass`, `SAOPass` e
-  shaders). São carregadas no 1º uso (`loadFotoLibs`) e ficam também no `CDN` do `sw.js`.
+- **Libs:** `FOTO_LIBS` (r128 `examples/js`: `EffectComposer`, `RenderPass`, `ShaderPass`, `SAOPass`,
+  `UnrealBloomPass`, `SMAAPass` e shaders). São carregadas no 1º uso (`loadFotoLibs`) e ficam também no `CDN` do `sw.js`.
 - **`fotoComposer(S)`:** alvo `WebGLMultisampleRenderTarget` em meia precisão no WebGL2 (mantém o MSAA).
-  Passes: `RenderPass` → `SAOPass` (oclusão de ambiente) → `GammaCorrectionShader`.
+  Passes: `RenderPass` → `SAOPass` (oclusão de ambiente) → `UnrealBloomPass` (brilho suave) →
+  `GammaCorrectionShader` → `SMAAPass` **só sem WebGL2** (sem MSAA no alvo).
+  - **Bloom** (`FOTO_BLOOM`: força 0,2, raio 0,3, limiar 0,93): só o que já é quase branco brilha.
+    Valores mais fortes lavam a cena à noite (paredes brancas perto das luzes).
+  - Caminho WebGL1 testado bloqueando o contexto `webgl2` no navegador de teste (5 passes, sem erros).
   - O tone mapping ACES continua nos materiais: sem SAO, a imagem sai igual à normal (diferença ~1,7/255).
 - **No `render()`:**
   - o fundo (`Color`) passa para linear antes de renderizar (senão a gama o clareia);
