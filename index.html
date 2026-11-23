@@ -428,6 +428,24 @@
             border-radius: 6px; cursor: pointer;
         }
         .scene3d-toolbar button:hover { background: rgba(15,23,42,0.95); }
+        /* Exportar p/ IA: painel com render, profundidade, linhas e prompt da vista atual */
+        .ia-ov { position: fixed; inset: 0; z-index: 2000; background: rgba(2,6,23,0.72); display: flex;
+                 align-items: center; justify-content: center; padding: 16px; }
+        .ia-box { background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 10px;
+                  width: min(1100px, 100%); max-height: 100%; overflow: auto; padding: 16px; display: grid; gap: 12px;
+                  font-family: 'Inter', system-ui, sans-serif; font-size: 13px; }
+        .ia-box h3 { margin: 0; font-size: 16px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .ia-box p { margin: 0; color: #94a3b8; }
+        .ia-imgs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+        .ia-imgs figure { margin: 0; display: grid; gap: 6px; }
+        .ia-imgs img { width: 100%; border-radius: 6px; border: 1px solid #334155; background: #000; }
+        .ia-imgs figcaption { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 12px; }
+        .ia-box a, .ia-box button { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #e2e8f0;
+                  background: #1e293b; border: 1px solid #475569; border-radius: 6px; padding: 4px 10px; cursor: pointer; text-decoration: none; }
+        .ia-box a:hover, .ia-box button:hover { background: #334155; }
+        .ia-box textarea { width: 100%; min-height: 150px; box-sizing: border-box; background: #020617; color: #e2e8f0;
+                  border: 1px solid #334155; border-radius: 6px; padding: 8px; font: 12px/1.5 'JetBrains Mono', monospace; resize: vertical; }
+        .ia-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
         /* Passeio em 1ª pessoa: painel de lugares + joystick (só com o passeio ligado) */
         .walk-ui, .walk-joy { display: none; }
         .scene3d.walking .walk-ui {
@@ -5229,6 +5247,7 @@
             S = scenes3d[v] = { v, scene, camera, renderer, controls, group: null, sun, hemi, month: 4, hour: 14.5, _dirty: true };
             buildHud3D(v, host, S);     // bússola + slider de horário/mês
             buildWalk3D(v, host, S);    // passeio em 1ª pessoa (botão Caminhar)
+            buildExportIA3D(v, host, S); // render limpo + profundidade + linhas + prompt p/ geração de imagem
             setSun3D(S, 14.5, 4);       // posição solar inicial (~14h30, maio)
             syncHud3D(S);
 
@@ -5586,7 +5605,8 @@
         const roof = S.group.getObjectByName('roof'), f2 = S.group.getObjectByName('floor2');
         const drain = S.group.getObjectByName('drainV3'), espB = S.group.getObjectByName('esperasBars');
         const telha = roof && roof.getObjectByName('telha');
-        const outros = [...host.querySelectorAll('.scene3d-toolbar button')].filter(b => b !== btn);
+        // "Exportar p/ IA" continua visível no passeio (a vista na altura dos olhos é a melhor p/ render)
+        const outros = [...host.querySelectorAll('.scene3d-toolbar button')].filter(b => b !== btn && !b.classList.contains('btn-ia'));
         if (!w.on) {
             w.on = true;
             w.salvo = { pos: cam.position.clone(), alvo: S.controls.target.clone(), fov: cam.fov, near: cam.near,
@@ -5621,6 +5641,161 @@
             nightLights(S);
         }
         S._dirty = true;
+    }
+
+    // ── Exportar p/ IA ─────────────────────────────────────────────────────────
+    // Da vista atual (órbita ou passeio) gera: render limpo (sem cotas), mapa de PROFUNDIDADE exato
+    // (perto = claro), mapa de LINHAS (arestas de profundidade + dobras de normal) e um prompt com
+    // ambiente, data/hora do sol e lente. Servem p/ img2img (ChatGPT, Gemini, apps de interiores) ou
+    // ControlNet (depth + canny/MLSD), que mantém paredes, vãos e móveis no lugar.
+    function buildExportIA3D(v, host, S) {
+        const bar = host.querySelector('.scene3d-toolbar');
+        if (!bar) return;
+        const btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'btn-ia'; btn.textContent = 'Exportar p/ IA';
+        btn.title = 'Render limpo, mapa de profundidade, mapa de linhas e prompt desta vista';
+        btn.addEventListener('click', () => exportIA3D(v, host, S));
+        bar.appendChild(btn);
+    }
+
+    const IA_VERT = 'varying vec3 vN; varying float vD;\n' +
+        'void main() { vec4 mv = modelViewMatrix * vec4(position, 1.0); vD = -mv.z;\n' +
+        '  vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * mv; }';
+
+    function exportIA3D(v, host, S) {
+        const { renderer, scene, camera } = S;
+        const W = 1920, H = Math.max(480, Math.round(W * host.clientHeight / Math.max(1, host.clientWidth)));
+        const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = camera.aspect;
+        const bg = scene.background;
+        const ocultos = [];
+        S.group.traverse(o => { if ((o.isSprite || o.isLine) && o.visible) { o.visible = false; ocultos.push(o); } });
+        renderer.setPixelRatio(1); renderer.setSize(W, H, false);
+        camera.aspect = W / H; camera.updateProjectionMatrix();
+        // copia o canvas WebGL logo após desenhar (mesmo ciclo → não precisa de preserveDrawingBuffer)
+        const grab = () => {
+            renderer.render(scene, camera);
+            const c = document.createElement('canvas'); c.width = W; c.height = H;
+            c.getContext('2d').drawImage(renderer.domElement, 0, 0, W, H);
+            return c;
+        };
+        // alcance da profundidade: interior no passeio; na órbita, até um pouco além do alvo
+        const far = (S.walk && S.walk.on) ? 10 : Math.min(90, Math.max(10, camera.position.distanceTo(S.controls.target) * 2.2));
+        const matD = new THREE.ShaderMaterial({ side: THREE.DoubleSide, vertexShader: IA_VERT,
+            uniforms: { uN: { value: camera.near }, uF: { value: far } },
+            fragmentShader: 'uniform float uN; uniform float uF; varying vec3 vN; varying float vD;\n' +
+                'void main() { float d = clamp((vD - uN) / (uF - uN), 0.0, 1.0); gl_FragColor = vec4(vec3(1.0 - d), 1.0); }' });
+        const matN = new THREE.ShaderMaterial({ side: THREE.DoubleSide, vertexShader: IA_VERT,
+            fragmentShader: 'varying vec3 vN; varying float vD;\n' +
+                'void main() { vec3 n = normalize(vN); if (!gl_FrontFacing) n = -n; gl_FragColor = vec4(n * 0.5 + 0.5, 1.0); }' });
+        const transp = m => (Array.isArray(m) ? m : [m]).some(x => x && x.transparent && x.opacity < 0.99);
+        const malhas = [];
+        scene.traverse(o => { if (o.isMesh && o.visible) malhas.push([o, o.material]); });
+        let cRender, cDepth, cNorm;
+        try {
+            cRender = grab();
+            scene.background = new THREE.Color(0x000000);
+            malhas.forEach(([o, m]) => { if (transp(m)) o.visible = false; else o.material = matD; });  // vidro some: vê-se através
+            cDepth = grab();
+            malhas.forEach(([o, m]) => { if (!transp(m)) o.material = matN; });
+            cNorm = grab();
+        } finally {
+            malhas.forEach(([o, m]) => { o.material = m; o.visible = true; });
+            matD.dispose(); matN.dispose();
+            scene.background = bg;
+            ocultos.forEach(o => { o.visible = true; });
+            renderer.setPixelRatio(pr); renderer.setSize(size.x, size.y, false);
+            camera.aspect = aspect; camera.updateProjectionMatrix();
+            S._dirty = true;
+        }
+        const cLinhas = iaLinhas(cDepth, cNorm, W, H);
+        iaPainel(v, S, { render: cRender, profundidade: cDepth, linhas: cLinhas }, iaPrompt(v, S));
+    }
+
+    // Linhas: Sobel na profundidade (silhuetas) + diferença de normal entre vizinhos (dobras). Branco no preto.
+    function iaLinhas(cD, cN, W, H) {
+        const d = cD.getContext('2d').getImageData(0, 0, W, H).data;
+        const n = cN.getContext('2d').getImageData(0, 0, W, H).data;
+        const out = document.createElement('canvas'); out.width = W; out.height = H;
+        const ctx = out.getContext('2d'), img = ctx.createImageData(W, H), o = img.data;
+        const D = (x, y) => d[(y * W + x) * 4];
+        const dn = (a, b) => Math.abs(n[a] - n[b]) + Math.abs(n[a + 1] - n[b + 1]) + Math.abs(n[a + 2] - n[b + 2]);
+        for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
+            const gx = -D(x-1,y-1) - 2*D(x-1,y) - D(x-1,y+1) + D(x+1,y-1) + 2*D(x+1,y) + D(x+1,y+1);
+            const gy = -D(x-1,y-1) - 2*D(x,y-1) - D(x+1,y-1) + D(x-1,y+1) + 2*D(x,y+1) + D(x+1,y+1);
+            const i = (y * W + x) * 4;
+            const borda = Math.hypot(gx, gy) > 28 || dn(i, i + 4) > 90 || dn(i, i + W * 4) > 90;
+            const c = borda ? 255 : 0;
+            o[i] = o[i + 1] = o[i + 2] = c; o[i + 3] = 255;
+        }
+        ctx.putImageData(img, 0, 0);
+        return out;
+    }
+
+    function iaPrompt(v, S) {
+        const cam = S.camera, nivel = cam.position.y > TOPO_LAJE + 0.5 ? 1 : 0;
+        let amb = 'Área externa', best = Infinity;
+        walkPlaces(v).forEach(p => {
+            if ((p.nivel || 0) !== nivel) return;
+            const dd = Math.hypot(p.e - cam.position.x, -p.n - cam.position.z);
+            if (dd < best) { best = dd; amb = p.nome.replace(/^2º · /, ''); }
+        });
+        const hh = Math.floor(S.hour), mm = Math.round((S.hour - hh) * 60);
+        const hora = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+        const mes = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'][S.month];
+        const lente = Math.round(12 / Math.tan(cam.fov * Math.PI / 360));   // equivalente 35 mm (altura 24 mm)
+        const olho = (S.walk && S.walk.on) ? 'na altura dos olhos (1,60 m)' : 'em vista aérea do ambiente';
+        const luz = S.elevDeg > 3 ? `luz natural de ${mes} às ${hora} (sol a ${Math.round(S.elevDeg)}° de altura), vinda do norte pelas janelas e pela porta de vidro`
+                                  : `noite de ${mes}, iluminação interna quente e aconchegante`;
+        return [
+            `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
+            'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
+            `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
+            'Materiais: piso de porcelanato claro acetinado; paredes em pintura branca fosca; marcenaria planejada em MDF branco com detalhes em madeira natural clara; bancadas em quartzo branco; esquadrias de alumínio branco com vidro incolor; tecidos em tons neutros e terrosos.',
+            `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
+        ].join('\n\n');
+    }
+
+    function iaPainel(v, S, cs, prompt) {
+        const ant = document.querySelector('.ia-ov'); if (ant) ant.remove();
+        const tag = `casa-${v}-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '')}`;
+        const ov = document.createElement('div'); ov.className = 'ia-ov';
+        const box = document.createElement('div'); box.className = 'ia-box'; ov.appendChild(box);
+        const h = document.createElement('h3'); h.textContent = 'Exportar para IA';
+        const fechar = document.createElement('button'); fechar.type = 'button'; fechar.textContent = 'Fechar';
+        h.appendChild(fechar); box.appendChild(h);
+        const dica = document.createElement('p');
+        dica.textContent = 'ChatGPT, Gemini ou app de interiores: envie o render + o prompt. ControlNet (ComfyUI, Krea, Replicate): ' +
+            'use o render como imagem, a profundidade no controle "depth" e as linhas no "canny"/"MLSD".';
+        box.appendChild(dica);
+        const grid = document.createElement('div'); grid.className = 'ia-imgs'; box.appendChild(grid);
+        const links = [];
+        [['render', 'Render limpo'], ['profundidade', 'Profundidade'], ['linhas', 'Linhas']].forEach(([k, nome]) => {
+            const url = cs[k].toDataURL('image/png');
+            const fig = document.createElement('figure');
+            const img = document.createElement('img'); img.src = url; img.alt = nome;
+            const cap = document.createElement('figcaption');
+            const a = document.createElement('a'); a.href = url; a.download = `${tag}-${k}.png`; a.textContent = 'Baixar';
+            cap.append(nome, a); fig.append(img, cap); grid.appendChild(fig); links.push(a);
+        });
+        const ta = document.createElement('textarea'); ta.value = prompt; ta.id = 'ia-prompt'; box.appendChild(ta);
+        const acoes = document.createElement('div'); acoes.className = 'ia-acoes'; box.appendChild(acoes);
+        const copiar = document.createElement('button'); copiar.type = 'button'; copiar.textContent = 'Copiar prompt';
+        copiar.addEventListener('click', () => {
+            const ok = () => { copiar.textContent = 'Copiado'; setTimeout(() => { copiar.textContent = 'Copiar prompt'; }, 1500); };
+            (navigator.clipboard ? navigator.clipboard.writeText(ta.value) : Promise.reject()).then(ok, () => { ta.select(); document.execCommand('copy'); ok(); });
+        });
+        const txt = document.createElement('a');
+        txt.href = URL.createObjectURL(new Blob([ta.value], { type: 'text/plain' })); txt.download = `${tag}-prompt.txt`; txt.textContent = 'Baixar prompt';
+        ta.addEventListener('input', () => { URL.revokeObjectURL(txt.href); txt.href = URL.createObjectURL(new Blob([ta.value], { type: 'text/plain' })); });
+        const tudo = document.createElement('button'); tudo.type = 'button'; tudo.textContent = 'Baixar tudo';
+        tudo.addEventListener('click', () => [...links, txt].forEach((a, i) => setTimeout(() => a.click(), i * 250)));
+        acoes.append(copiar, txt, tudo);
+        const sair = () => { URL.revokeObjectURL(txt.href); ov.remove(); document.removeEventListener('keydown', esc); };
+        const esc = e => { if (e.key === 'Escape') sair(); };
+        fechar.addEventListener('click', sair);
+        ov.addEventListener('click', e => { if (e.target === ov) sair(); });
+        document.addEventListener('keydown', esc);
+        document.body.appendChild(ov);
     }
 
     // Botão + painel (lugares, dica) + joystick + olhar arrastando + teclado
