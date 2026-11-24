@@ -1823,10 +1823,13 @@
         quartzo: '#e6ddca',    // tampo de pedra creme (bancada da pia e do cooktop)
         madeira: '#9a7b46',    // madeira mel: península e balcão de refeições
         latao: '#b89458',      // metais em latão escovado (torneira e puxadores)
+        sofa: '#6b3d1d',       // sofá caramelo/conhaque, tecido impermeável
+        manta: '#e3d5bd',      // manta waffle areia
     };
     // Acabamento por peça (opts.acab3d): 'coz' = base mint + pedra creme; 'pen' = base mint + tampo de madeira
     const acabCoz = s => s.acab3d === 'coz' || s.acab3d === 'pen';
     const LATAO = () => ({ metalness: 0.85, roughness: 0.32 });
+    const PEN_BAL = 0.25;   // balanço da península p/ oeste (joelhos)
     const LOT_FILL   = '#5f7a3f';   // verde grama (string para Leaflet)
     const LOT_FILL_N = 0x5f7a3f;   // numérico para Three.js
 
@@ -2438,8 +2441,9 @@
             // península atrás dele; TV a ~2,2 m de quem senta.
             // Sofá 0,25 m mais p/ oeste (TV a 1,95 m) p/ caber o balcão de refeições encostado nas costas dele.
             const SF = -0.25;
-            lys.push(SAL.rect(0.905, 2.325 + SF, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // sofá
-            lys.push(SAL.rect(1.005, 2.325 + SF, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento
+            // Sofá caramelo em tecido impermeável (tom médio: disfarça mancha) + manta areia no braço norte
+            lys.push(SAL.rect(0.905, 2.325 + SF, 1.75, 0.85, COR_INT.sofa, { color: '#4a2a12', weight: 0.8, h3d: 0.75, m3d: 'sofa', acab3d: 'manta' })); // sofá
+            lys.push(SAL.rect(1.005, 2.325 + SF, 1.55, 0.65, '#a8703f', { color: '#4a2a12', weight: 0.4, no3d: true })); // assento
             lys.push(L.polyline([SAL.rot(1.522, 2.325 + SF), SAL.rot(1.522, 2.975 + SF)], { color: '#451a03', weight: 0.6, interactive: false }));
             lys.push(L.polyline([SAL.rot(2.038, 2.325 + SF), SAL.rot(2.038, 2.975 + SF)], { color: '#451a03', weight: 0.6, interactive: false }));
             lys.push(SAL.rect(1.075, 0.125, 1.4, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
@@ -2460,7 +2464,7 @@
                 // Península de PREPARO (V1/V2/V3; no V3 a despensa guarda o resto) vira bancada de PREPARO, de frente p/ a sala, e serve de
                 // mesa: gabinete de 0,45 + balanço de 0,25 p/ oeste (joelhos). Balanço termina na saliência da bancada norte.
                 lys.push(COZ.rect(1.225, 0.425, 1.05, 0.45, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'pen' })); // península: gabinete
-                lys.push(COZ.rect(1.225, 0.175, 1.02, 0.25, '#9a7b46', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.6, h3d: 0.95, m3d: 'balcao' })); // península: balanço
+                lys.push(COZ.rect(1.225, 0.175, 1.02, 0.25, '#9a7b46', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.6, h3d: 0.95, m3d: 'balcao', acab3d: 'semTampo' })); // península: balanço (o tampo vem do gabinete, peça única)
                 // Balcão de refeições vazado atrás do sofá (0,44 × 1,75, h 0,95 = península): quem come fica virado p/ a TV.
                 // As 3 banquetas servem aos dois balcões e ficam guardadas embaixo deste (assento 0,65 < tampo 0,91).
                 // Face oeste (encostada nas costas do sofá) fechada até o piso: sem vão nem quina viva entre os dois.
@@ -2468,7 +2472,7 @@
                 lys.push(L.polyline([SAL.rot(0.905, 2.95), SAL.rot(2.655, 2.95)], { color: '#5a4422', weight: 2.2, interactive: false })); // painel de fechamento
                 [1.30, 1.78, 2.26].forEach(n => lys.push(SAL.circ(n, 3.155, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' }))); // banquetas guardadas
                 // Tapete 2,0 × 1,4 sob a frente do sofá até perto do rack: delimita a sala no ambiente integrado
-                lys.push(SAL.rect(0.775, 1.075, 2.0, 1.4, '#d8cfc0', { color: '#8b7d6b', weight: 0.6, fillOpacity: 0.6, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
+                lys.push(SAL.rect(0.775, 1.075, 2.0, 1.4, '#cfc4ae', { color: '#8b7d6b', weight: 0.6, fillOpacity: 0.6, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
             }
 
             // Hall 1,15 m: só o tapete
@@ -3361,13 +3365,20 @@
         // Sofá — base + encosto (leste) + braços + 3 almofadas (frente oeste)
         sofa(g, s) {
             const tecido = m => { m.material.userData.foto = 'tecido'; };            // trama de linho no modo foto
-            fbox(g, s.n, s.e, s.dn, s.de, 0, 0.18, '#5a2310');
+            const tom = d => '#' + new THREE.Color(s.color).offsetHSL(0, 0, d).getHexString();   // base, braços e almofadas no tom do sofá
+            fbox(g, s.n, s.e, s.dn, s.de, 0, 0.18, tom(-0.12));
             tecido(fbox(g, s.n, s.e + s.de - 0.20, s.dn, 0.20, 0.18, 0.78, s.color));       // encosto (leste)
-            tecido(fbox(g, s.n, s.e, 0.16, s.de, 0.18, 0.56, '#6e2a12'));                   // braço sul
-            tecido(fbox(g, s.n + s.dn - 0.16, s.e, 0.16, s.de, 0.18, 0.56, '#6e2a12'));     // braço norte
+            tecido(fbox(g, s.n, s.e, 0.16, s.de, 0.18, 0.56, tom(-0.05)));                   // braço sul
+            tecido(fbox(g, s.n + s.dn - 0.16, s.e, 0.16, s.de, 0.18, 0.56, tom(-0.05)));     // braço norte
             const sw = (s.dn - 0.32) / 3;
             for (let i = 0; i < 3; i++)
-                tecido(fbox(g, s.n + 0.16 + i * sw + 0.02, s.e + 0.05, sw - 0.04, s.de - 0.28, 0.18, 0.36, '#a8451f', { roughness: 0.85 }));
+                tecido(fbox(g, s.n + 0.16 + i * sw + 0.02, s.e + 0.05, sw - 0.04, s.de - 0.28, 0.18, 0.36, tom(0.06), { roughness: 0.85 }));
+            if (s.acab3d === 'manta') {   // manta dobrada sobre o braço norte, caindo no assento e na lateral
+                const nm = s.n + s.dn - 0.16, mt = COR_INT.manta;
+                tecido(fbox(g, nm - 0.02, s.e + 0.08, 0.20, s.de - 0.30, 0.56, 0.575, mt, { roughness: 0.95 }));        // sobre o braço
+                tecido(fbox(g, nm - 0.30, s.e + 0.10, 0.30, s.de - 0.34, 0.36, 0.375, mt, { roughness: 0.95 }));       // no assento
+                tecido(fbox(g, s.n + s.dn, s.e + 0.08, 0.015, s.de - 0.30, 0.25, 0.575, mt, { roughness: 0.95 }));     // caindo pela lateral
+            }
         },
         // Vaso sanitário — bacia + assento + caixa acoplada (atrás, leste)
         toilet(g, s) {
@@ -3411,7 +3422,8 @@
             segs.forEach(([a, b]) => {
                 const de = b - a;
                 fbox(g, s.n + 0.04, a, s.dn - 0.04, de, 0.08, s.h - 0.04, ac ? COR_INT.mint : '#d9d3c7');               // gabinete
-                const tampo = fbox(g, s.n - 0.03, a, s.dn + 0.03, de, s.h - 0.04, s.h,
+                const aT = pen && a <= s.e + 0.001 ? a - PEN_BAL : a;   // península: tampo único cobre também o balanço
+                const tampo = fbox(g, s.n - 0.03, aT, s.dn + 0.03, b - aT, s.h - 0.04, s.h,
                     pen ? COR_INT.madeira : ac ? COR_INT.quartzo : '#b3ad9f', { roughness: pen ? 0.55 : 0.3 }); // tampo (saliência frontal)
                 if (pen) tampo.material.userData.foto = 'madeira';
                 fbox(g, s.n + 0.04, a + 0.02, 0.04, de - 0.04, 0, 0.08, '#33332f');                 // rodapé
@@ -3462,11 +3474,11 @@
         // Balcão vazado — tampo + laterais nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas)
         balcao(g, s) {
             const t = 0.04, w = 0.03;
-            const pecas = [fbox(g, s.n, s.e, s.dn, s.de, s.h - t, s.h, s.color, { roughness: 0.55 }),
+            const pecas = [s.acab3d === 'semTampo' ? null : fbox(g, s.n, s.e, s.dn, s.de, s.h - t, s.h, s.color, { roughness: 0.55 }),
                            fbox(g, s.n, s.e, w, s.de, 0, s.h - t, s.color, { roughness: 0.6 }),
                            fbox(g, s.n + s.dn - w, s.e, w, s.de, 0, s.h - t, s.color, { roughness: 0.6 })];
             if (s.fecha3d === 'O') pecas.push(fbox(g, s.n + w, s.e, s.dn - 2 * w, w, 0, s.h - t, s.color, { roughness: 0.6 }));   // face oeste fechada (encostada no sofá)
-            if (s.color === '#9a7b46') pecas.forEach(m => { m.material.userData.foto = 'madeira'; });   // balcão de madeira
+            if (s.color === '#9a7b46') pecas.forEach(m => { if (m) m.material.userData.foto = 'madeira'; });   // balcão de madeira
         },
         // Mesa de jantar — tampo + 4 pernas
         table(g, s) {
