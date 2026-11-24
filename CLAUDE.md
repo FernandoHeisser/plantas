@@ -741,6 +741,8 @@ visível no passeio.
   - Piso `marble_01` (cor, relevo e rugosidade), reboco `white_plaster_02` (só relevo), sofá `rough_linen`
     (só relevo), balcão de madeira `oak_veneer_01` (cor e relevo) e grama `sparse_grass` (só relevo:
     a cor da foto é marrom e fica o verde do lote).
+  - `piso_cor` e `madeira_cor` foram clareados (média ~226/216/198 e ~196/158/110) a pedido do cliente, para
+    ficarem perto do porcelanato claro e da madeira mel do modo normal.
   - Os materiais são marcados com `userData.foto` (`piso`, `parede`, `grama`, `tecido`, `madeira`).
     `applyFotoTex(S, on)` troca os mapas e guarda os originais em `userData.orig`. `uvMundo` reescreve as
     UVs em metros do mundo (`tam` por repetição) e guarda as originais. Ao desligar, tudo volta e a imagem
