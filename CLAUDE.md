@@ -393,6 +393,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
 | `fornoBancada` | Forno elétrico de bancada solto, frente p/ **norte**: corpo grafite, porta de vidro escuro com puxador, botões à direita. Base em `z3d` (tampo) |
 | `microondas` | Micro-ondas solto, frente p/ **norte**: corpo claro, visor escuro, painel à direita. Base em `z3d` |
+| `colunaLimpeza` | Coluna de limpeza frente p/ **norte**: porta alta estreita (vassouras, aspirador) + 2 portas empilhadas (balde/panos, produtos) + maleiro no topo |
 | `freezer` | Freezer vertical inox, porta única com puxador vertical e grade de ventilação; frente por `acab3d` (padrão `'S'`) |
 | `coffee` | Mesa de centro + pernas baixas |
 | `sofa` | Base + encosto + braços + 3 almofadas, tons derivados de `s.color`; `acab3d: 'manta'` põe a manta no braço norte |
@@ -944,7 +945,9 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
     (rende melhor no frio), com aéreo em cima; **bancada** de 2,19 m sob a janela (topo 0,90 = peitoril) com cestos de
     roupa suja embaixo e, **em cima, forno elétrico de bancada e micro-ondas soltos, lado a lado na frente da janela**
     (`fornoBancada` 0,55 e `microondas` 0,50; decisão do cliente: a janela é fraca, só luz e brisa, e canto é ruim de
-    tirar e pôr coisas, por isso a torre saiu); **coluna de limpeza** 0,60 × 0,60 até 2,55 no canto sudeste.
+    tirar e pôr coisas, por isso a torre saiu); **coluna de limpeza** 0,60 × 0,60 até 2,55 no canto sudeste (`colunaLimpeza`),
+    dividida por uso: porta alta e estreita (0,32, até 2,10) para vassoura, rodo, mop e aspirador em pé com tomada interna;
+    ao lado, balde e panos embaixo e produtos de limpeza acima de 1,07 (longe de criança); maleiro no topo (estoque raro).
   - **Leste** (sol da manhã): armário baixo de estoque sob a janela (água, bebidas); o tampo dele serve para dobrar roupa.
   - **Oeste:** livre, sem aéreo (decisão do cliente). Aéreo só sobre a porta da cozinha (parede norte) e sobre o freezer.
   - Sem aéreos nas paredes sul e leste (úmidas e com janela). Corredor livre de 1,30 m.

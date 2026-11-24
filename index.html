@@ -2413,7 +2413,7 @@
                 lys.push(QUA.rect(0.075, 0.885, 0.6, 2.19, '#e9e2d4', { ...MOV, h3d: 0.90, m3d: 'movel', acab3d: 'N' }));              // bancada sul (topo = peitoril), cestos de roupa suja embaixo
                 lys.push(QUA.rect(0.12, 1.25, 0.45, 0.55, '#3f3f46', { color: '#18181b', weight: 0.7, z3d: 0.90, h3d: 0.36, m3d: 'fornoBancada' })); // forno elétrico de bancada, frente p/ norte
                 lys.push(QUA.rect(0.15, 1.90, 0.40, 0.50, '#e5e7eb', { color: '#475569', weight: 0.7, z3d: 0.90, h3d: 0.30, m3d: 'microondas' }));   // micro-ondas, ao lado
-                lys.push(QUA.rect(0.075, 3.075, 0.6, 0.6, '#e9e2d4', { ...MOV, h3d: 2.55, m3d: 'movel', acab3d: 'N' }));               // coluna de limpeza no canto: vassoura, rodo, aspirador, balde
+                lys.push(QUA.rect(0.075, 3.075, 0.6, 0.6, '#e9e2d4', { ...MOV, h3d: 2.55, m3d: 'colunaLimpeza' }));                    // coluna de limpeza no canto, dividida por uso (ver colunaLimpeza)
                 lys.push(QUA.rect(0.675, 3.125, 1.3, 0.55, '#e9e2d4', { ...MOV, h3d: 0.88, m3d: 'movel', acab3d: 'O' }));              // armário baixo de estoque sob a janela leste (água, bebidas)
                 // Aéreos (0,35): sobre o freezer e sobre a porta da cozinha (parede oeste livre: decisão do cliente)
                 const AER = { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35 };
@@ -3534,6 +3534,21 @@
             fbox(g, F + 0.006, P + 0.07, 0.004, E1 - P - 0.10, z0 + 0.07, H - 0.07, '#1d2023', { roughness: 0.15, metalness: 0.3 });   // visor
             fbox(g, F, s.e + 0.02, 0.006, 0.11, z0 + 0.04, H - 0.04, '#2b2e33', { roughness: 0.3 });                                   // painel
             fbox(g, F + 0.006, P + 0.02, 0.015, 0.015, z0 + 0.08, H - 0.08, '#a1a1aa', { metalness: 0.6 });                            // puxador
+        },
+        // Coluna de limpeza, frente p/ NORTE, dividida por uso: à esquerda de quem olha (leste) porta alta e estreita até
+        // 2,10 (vassoura, rodo, mop, aspirador em pé com tomada interna); à direita (oeste) porta de baixo (balde, panos)
+        // e porta de cima acima de 1,07 (produtos de limpeza, longe de criança); maleiro basculante no topo (estoque raro).
+        colunaLimpeza(g, s) {
+            const H = s.h || 2.55, F = s.n + s.dn, R = 0.08, G = 0.003, INOX = { metalness: 0.6, roughness: 0.3 };
+            const porta = (e0, e1, z0, z1) => fbox(g, F, e0 + G, 0.018, e1 - e0 - 2 * G, z0, z1, '#ece6da', { roughness: 0.5 });
+            const pux = (e, z0, z1) => fbox(g, F + 0.018, e, 0.022, 0.02, z0, z1, '#b9bec4', INOX);
+            fbox(g, s.n, s.e, s.dn, s.de, R, H, '#ddd5c6');                                         // caixa
+            fbox(g, F - 0.05, s.e + 0.01, 0.02, s.de - 0.02, 0, R, '#4b4842');                     // rodapé recuado
+            const eMeio = s.e + s.de - 0.32, zM = 2.12;                                             // porta alta: 0,32 no lado leste
+            porta(eMeio, s.e + s.de, R + 0.01, zM - 0.01); pux(eMeio + 0.03, 0.95, 1.25);          // vassouras + aspirador
+            porta(s.e, eMeio, R + 0.01, 1.06); pux(eMeio - 0.05, 0.84, 1.00);                      // balde, panos
+            porta(s.e, eMeio, 1.08, zM - 0.01); pux(eMeio - 0.05, 1.14, 1.30);                     // produtos (alto)
+            porta(s.e, s.e + s.de, zM + 0.01, H - 0.01); pux(s.e + s.de / 2 - 0.08, zM + 0.04, zM + 0.06);   // maleiro
         },
         // Freezer vertical inox: porta única, puxador vertical; frente por acab3d ('N', 'S', 'O', 'L'; padrão 'S')
         freezer(g, s) {
