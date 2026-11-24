@@ -910,7 +910,9 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   único de madeira mel** (cobre o balanço; o `balcao` do balanço usa `acab3d: 'semTampo'`), puxadores redondos e
   **torneira gourmet de latão**. Peças sem `acab3d` (lavanderia, despensa, 2º piso) mantêm as cores neutras.
 - **Luz caseira na cozinha** (o cliente achou o trilho com spots "cara de estúdio"): **plafon de rattan** Ø 45
-  (`plafon`, `texRattan`) no centro do teto da cozinha. **Sem fita de LED** em lugar nenhum: o cliente acha que deixa a casa com cara de shopping ou consultório.
+  (`plafon`, `texRattan`) no centro do teto da cozinha + **spots redondos de embutir sob os aéreos** (Ø 6,4 cm, um a cada ~0,60 m, `acab3d: 'cozSpot'` no `wallcab`/`wallcabW`,
+  helper `spotsSobAereo`) sobre a bancada norte e o balcão leste; sobre a geladeira, não. **Sem fita de LED** em lugar nenhum:
+  o cliente acha que deixa a casa com cara de shopping ou consultório.
 - **Sofá caramelo/conhaque** em tecido impermeável (`COR_INT.sofa`; o cliente não quer sofá claro por causa de
   manchas) com **manta areia** no braço norte (`acab3d: 'manta'`). Base, braços e almofadas derivam do `s.color`.
 - **Modo foto:** almofadas `throw_pillows_01` recoloridas em **oliva**; **pendentes de vidro lapidado com latão** e **galeria de 5 quadros** com arte

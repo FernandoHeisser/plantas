@@ -1828,8 +1828,14 @@
         manta: '#e3d5bd',      // manta waffle areia
     };
     // Acabamento por peça (opts.acab3d): 'coz' = base mint + pedra creme; 'pen' = base mint + tampo de madeira
-    const acabCoz = s => s.acab3d === 'coz' || s.acab3d === 'pen';
+    const acabCoz = s => s.acab3d === 'coz' || s.acab3d === 'pen' || s.acab3d === 'cozSpot';   // cozSpot = coz + spots sob o aéreo
     const LATAO = () => ({ metalness: 0.85, roughness: 0.32 });
+    // Spots redondos de embutir sob os aéreos (luz da bancada; o cliente não gosta de fita de LED): Ø 6,4 cm, um a cada ~0,60 m
+    const SPOT_LUZ = () => ({ emissive: col3d('#ffd9a0'), emissiveIntensity: 1.0, roughness: 0.4 });
+    function spotsSobAereo(g, ini, len, put) {
+        const n = Math.max(1, Math.round(len / 0.60));
+        for (let i = 0; i < n; i++) put(ini + len * (i + 0.5) / n);
+    }
     const PEN_BAL = 0.25;   // balanço da península p/ oeste (joelhos)
     const LOT_FILL   = '#5f7a3f';   // verde grama (string para Leaflet)
     const LOT_FILL_N = 0x5f7a3f;   // numérico para Three.js
@@ -2416,7 +2422,7 @@
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
             lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.60, m3d: 'fridge' })); // geladeira de até 1,60 (o aéreo começa em 1,65), parede leste, porta p/ oeste, junto da porta dos fundos (planejado)
             lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // balcão entre a geladeira e a bancada, em L com o canto
-            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'coz' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça)
+            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'cozSpot' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça), com spot embaixo
             lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
             lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // bancada: do pilar oeste até a parede leste
             // Cooktop 0,155 m p/ leste (0,275 m de apoio depois do canto da península, mais o tampo do canto;
@@ -2465,7 +2471,7 @@
 
             // Armários aéreos: parede norte, contínuos sobre a bancada (base 1,65 m, acima da verga da janela de
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
-            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab', acab3d: 'coz' })); // norte, do pilar até a parede leste (0,35 de profundidade)
+            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab', acab3d: 'cozSpot' })); // norte, do pilar até a parede leste (0,35 de profundidade), com spots embaixo
             lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira: 0,35 × 0,90 a partir de 1,65, igual aos demais aéreos
             // Luz caseira: plafon de rattan Ø 45 no centro do teto da cozinha (sem fita de LED: o cliente não gosta)
             lys.push(COZ.circ(1.90, 2.05, 0.225, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.58, h3d: 0.12, m3d: 'plafon' }));
@@ -3639,6 +3645,7 @@
             // puxadores (na base das portas — aéreo abre p/ cima)
             fbox(g, s.n - 0.045, s.e + s.de * 0.30, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
             fbox(g, s.n - 0.045, s.e + s.de * 0.70 - 0.03, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
+            if (s.acab3d === 'cozSpot') spotsSobAereo(g, s.e, s.de, n => fcyl(g, s.n + 0.12, n, 0.032, z0 - 0.006, z0, '#fff4dd', SPOT_LUZ()));   // spots ao longo de mE
         },
         // Coifa — canopy inox + boca de sucção escura + duto até o teto (z local 2,70)
         hood(g, s) {
@@ -3658,6 +3665,7 @@
             // puxadores (base das portas — aéreo abre p/ cima)
             fbox(g, s.n + s.dn * 0.30, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
             fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
+            if (s.acab3d === 'cozSpot') spotsSobAereo(g, s.n, s.dn, n => fcyl(g, n, s.e + 0.12, 0.032, z0 - 0.006, z0, '#fff4dd', SPOT_LUZ()));   // spots ao longo de mN
         },
         // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
         // Torre quente de embutir — frente p/ SUL (costas na parede norte): forno elétrico na altura
@@ -6429,7 +6437,7 @@
             `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
             'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
             `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
-            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
+            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto e spots redondos de luz quente sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
             `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
         ].join('\n\n');
     }
