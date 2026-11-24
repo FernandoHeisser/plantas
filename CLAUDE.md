@@ -401,7 +401,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
 | `stool` | Banqueta alta de balcão: assento de madeira estofado + 4 pés metálicos abertos + apoio de pés. Usar com `circ` (`r` = raio do assento, `h3d` = altura do assento, padrão 0,70). |
-| `balcao` | Balcão **vazado**: tampo (cor `s.color`) + laterais finas nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas). Usa `h3d` como altura do tampo. `fecha3d: 'O'` fecha a face oeste até o piso. No V3: balcão de refeições atrás do sofá e balanço da península. |
+| `balcao` | Balcão **vazado**: tampo (cor `s.color`) + laterais finas nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas). Usa `h3d` como altura do tampo. `fecha3d: 'O'` fecha a face oeste até o piso. Balcão de refeições atrás do sofá e balanço da península (V1/V2/V3). |
 | `torre` | Torre quente de embutir (forno + micro-ondas), frente p/ **sul**. No V3 fica na despensa, junto da porta da cozinha. |
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
@@ -763,9 +763,9 @@ visível no passeio.
   - Feito por `onBeforeCompile`, trocando a linha `gl_FragColor = vec4( outgoingLight, diffuseColor.a );`
     (o r128 não tem o trecho `output_fragment`), com `customProgramCacheKey` próprio.
   - Desligar restaura cor, opacidade, `envMap` e o shader.
-- **Decoração do V3 (`DECOR_V3`, `applyFotoDecor`, pasta `modelos/`, ~3,6 MB):**
+- **Decoração da sala e cozinha (`DECOR_SALA`, `applyFotoDecor`, pasta `modelos/`, ~3,6 MB):**
   - Modelos glTF CC0 do Poly Haven, com texturas reduzidas para 512 px. Carregados pelo `GLTFLoader`
-    só no modo foto e só no V3 térreo, no grupo `decorFoto`.
+    só no modo foto (V1/V2/V3, térreo), no grupo `decorFoto`.
   - Peças escolhidas por critério de design (aprovadas pelo cliente):
     - 2 pendentes `modern_ceiling_lamp_01` sobre o balcão de refeições, encostados no teto (luz que
       delimita a zona de refeição);
@@ -780,7 +780,7 @@ visível no passeio.
     `parede: 'sul'` encosta a face fina na parede.
   - Os clones compartilham geometria e material com o modelo em cache (`_decorCache`), por isso levam
     `userData.semDispose`, e o `disposeObject3D` os ignora.
-- **Tapete da sala no V3** (2,0 × 1,4, `rug`, layout normal, não só modo foto): sob a frente do sofá,
+- **Tapete da sala** (V1/V2/V3, 2,0 × 1,4, `rug`, layout normal, não só modo foto): sob a frente do sofá,
   delimitando a sala.
 
 ---
@@ -875,8 +875,8 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
 - **Aéreos 1,65 → 2,55 m, profundidade 0,35** (norte e leste sobre o balcão) → folga de 0,70 m sobre
   a bancada; sobre a geladeira também 0,35 (1,80 → 2,55), alinhado aos demais (decisão do cliente). Ficam acima da janela da cozinha
   (verga 1,60) e o cliente prefere armário a prateleira (poeira).
-- **V3 (objetivo do cliente; V1/V2 são provisórios):** a despensa guarda o resto, a cozinha aberta fica
-  com o essencial e todos ficam virados para a sala.
+- **Mesma sala e cozinha no V1/V2/V3** (decisão do cliente; o layout nasceu no V3): no V3 a despensa guarda o
+  resto, a cozinha aberta fica com o essencial e todos ficam virados para a sala.
   - **Península de preparo** (que também serve de mesa): gabinete 0,45 + balanço de 0,25 para o oeste (`balcao`).
   - **Balcão de refeições vazado atrás do sofá** (0,44 × 1,75, h 0,95): quem come fica de frente para a TV.
     As 3 banquetas servem aos dois balcões e ficam guardadas embaixo dele. A face encostada no sofá é fechada

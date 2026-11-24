@@ -2403,10 +2403,10 @@
             lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça)
             lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
             lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // bancada: do pilar oeste até a parede leste
-            // V3: cooktop 0,155 m p/ leste (0,275 m de apoio depois do canto da península, mais o tampo do canto;
+            // Cooktop 0,155 m p/ leste (0,275 m de apoio depois do canto da península, mais o tampo do canto;
             // continua na parede norte, por onde sai o exaustor) e pia 0,15 m p/ leste (ainda sob a janela).
             // Entre os dois sobra 0,69 m: cabe a lava-louças de 60 cm.
-            const CK = V3 ? 0.155 : 0, PI = V3 ? 0.15 : 0;
+            const CK = 0.155, PI = 0.15;   // V1/V2/V3: mesma cozinha (decisão do cliente)
             lys.push(COZ.rect(2.355, 0.995 + CK, 0.5, 0.51, '#111827', { color: '#0f172a', weight: 0.7, z3d: 0.95, h3d: 0.012 })); // cooktop de indução com coifa embutida (vidro sobre a bancada)
             lys.push(COZ.rect(2.575, 1.035 + CK, 0.05, 0.43, '#4b5563', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.004 })); // grelha da coifa embutida
             lys.push(COZ.circ(2.475, 1.125 + CK, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
@@ -2424,8 +2424,8 @@
             // ─── ESTAR: TV na parede oeste, nos pontos de TV e internet ───
             // Sofá 0,30 m mais p/ oeste (sem mesa de centro): ~0,70 m livres até as banquetas da
             // península atrás dele; TV a ~2,2 m de quem senta.
-            // V3: sofá 0,25 m mais p/ oeste (TV a 1,95 m) p/ caber o balcão de refeições encostado nas costas dele.
-            const SF = V3 ? -0.25 : 0;
+            // Sofá 0,25 m mais p/ oeste (TV a 1,95 m) p/ caber o balcão de refeições encostado nas costas dele.
+            const SF = -0.25;
             lys.push(SAL.rect(0.905, 2.325 + SF, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // sofá
             lys.push(SAL.rect(1.005, 2.325 + SF, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento
             lys.push(L.polyline([SAL.rot(1.522, 2.325 + SF), SAL.rot(1.522, 2.975 + SF)], { color: '#451a03', weight: 0.6, interactive: false }));
@@ -2442,13 +2442,8 @@
             
             // ─── REFEIÇÕES: península na ponta oeste da bancada, descendo p/ a sala ao lado da viga aparente
             // (desenho do cliente). Substitui a mesa; 3 banquetas no lado da sala (a da ponta saiu: ficava no caminho da despensa).
-            if (!V3) {
-                lys.push(COZ.rect(1.225, 0.175, 1.05, 0.7, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // península
-                lys.push(COZ.circ(2.485, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' })); // banquetas
-                lys.push(COZ.circ(2.025, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' }));
-                lys.push(COZ.circ(1.475, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' }));
-            } else {
-                // V3 (a despensa guarda o resto): a península vira bancada de PREPARO, de frente p/ a sala, e serve de
+            {
+                // Península de PREPARO (V1/V2/V3; no V3 a despensa guarda o resto) vira bancada de PREPARO, de frente p/ a sala, e serve de
                 // mesa: gabinete de 0,45 + balanço de 0,25 p/ oeste (joelhos). Balanço termina na saliência da bancada norte.
                 lys.push(COZ.rect(1.225, 0.425, 1.05, 0.45, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // península: gabinete
                 lys.push(COZ.rect(1.225, 0.175, 1.02, 0.25, '#b3ad9f', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.6, h3d: 0.95, m3d: 'balcao' })); // península: balanço
@@ -5554,7 +5549,7 @@
     // Critérios de design: luz de tarefa zoneando a refeição, planta na varanda norte vista pelo vidro
     // (o hall não comporta: a porta de entrada varre o canto), textura macia no
     // sofá, poucos objetos (o cliente evita poeira) e uma parede de destaque para arte.
-    const DECOR_V3 = [
+    const DECOR_SALA = [
         { id: 'modern_ceiling_lamp_01', n: 6.08, e: 20.23, topo: CEIL3D },             // pendentes sobre o balcão
         { id: 'modern_ceiling_lamp_01', n: 6.93, e: 20.23, topo: CEIL3D },
         { id: 'potted_plant_02',  n: 8.15, e: 19.60, base: 0 },                      // varanda norte, ao lado da porta de vidro
@@ -5574,10 +5569,10 @@
         if (!S.group) return;
         const velho = S.group.getObjectByName('decorFoto');
         if (velho) velho.parent.remove(velho);
-        if (!on || v !== 'v3' || !THREE.GLTFLoader) { S._dirty = true; return; }
+        if (!on || !THREE.GLTFLoader) { S._dirty = true; return; }
         const grupo = new THREE.Group(); grupo.name = 'decorFoto';
         const alvo = S.group;
-        await Promise.all(DECOR_V3.map(async d => {
+        await Promise.all(DECOR_SALA.map(async d => {
             let modelo;
             try { modelo = await loadDecor(d.id); } catch (e) { console.warn('Modelo indisponível:', e.message); return; }
             const o = modelo.clone(true);
