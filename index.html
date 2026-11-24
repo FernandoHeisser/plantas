@@ -1815,6 +1815,10 @@
     const ESRI_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
     // Cor única do terreno — usada tanto no 2D (Leaflet) quanto no 3D (Three.js)
+    // Paleta dos acabamentos internos (sala, cozinha e hall; referência do cliente: Suvinil, Duratex, Portobello)
+    const COR_INT = {
+        parede: '#d3bd9d',     // tinta Areia do Deserto (Suvinil)
+    };
     const LOT_FILL   = '#5f7a3f';   // verde grama (string para Leaflet)
     const LOT_FILL_N = 0x5f7a3f;   // numérico para Three.js
 
@@ -3133,6 +3137,28 @@
             ctx.strokeRect(0, 0, w, w);
         }, 128));
     }
+    // Azulejo artesanal verde-sálvia (Gouache Mer, Portobello): 4×4 peças de 10 cm por repetição (0,40 m),
+    // cada uma com tom e brilho levemente diferentes e borda ondulada, como a peça feita à mão.
+    function texGouache() {
+        return TEX3D.gouache || (TEX3D.gouache = canvasTex((ctx, w) => {
+            const n = 4, t = w / n;
+            ctx.fillStyle = '#e9e6dc'; ctx.fillRect(0, 0, w, w);   // rejunte claro
+            let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+            for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+                const x = i * t + 3, y = j * t + 3, a = t - 6, v = (rnd() - 0.5) * 18;
+                const gr = ctx.createLinearGradient(x, y, x + a, y + a);
+                gr.addColorStop(0, `rgb(${158 + v},${174 + v},${146 + v})`);
+                gr.addColorStop(0.55, `rgb(${142 + v},${161 + v},${131 + v})`);
+                gr.addColorStop(1, `rgb(${128 + v},${148 + v},${118 + v})`);
+                ctx.fillStyle = gr; ctx.fillRect(x, y, a, a);
+                const cx = x + a * (0.25 + rnd() * 0.5), cy = y + a * (0.25 + rnd() * 0.5);   // reflexo suave e irregular do esmalte
+                const rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, a * 0.6);
+                rg.addColorStop(0, `rgba(255,255,248,${0.08 + rnd() * 0.08})`); rg.addColorStop(1, 'rgba(255,255,248,0)');
+                ctx.fillStyle = rg; ctx.fillRect(x, y, a, a);
+            }
+            noise2d(ctx, w, 0, 0, 0, 6);
+        }, 256));
+    }
     function texWall() {
         return TEX3D.wall || (TEX3D.wall = canvasTex((ctx, w) => {
             ctx.fillStyle = '#efe9e0'; ctx.fillRect(0, 0, w, w);   // reboco pintado
@@ -4016,6 +4042,63 @@
             parede(true,  nN, -1, eO, eL);
             parede(false, eO, +1, nS, nN, { s: p.ini, e: p.ini + p.larg, z0: 0, z1: 2.1 });
             parede(false, eL, -1, nS, nN);
+        }
+
+        // ── Pintura interna (Areia do Deserto) e faixa de azulejo da cozinha (Gouache Mer) ──
+        // Painéis finos sobre a face interna das paredes da sala, cozinha e hall: a fachada continua branca.
+        // Os vãos (portas e janelas) vêm do próprio modelo, então cada versão recorta os seus.
+        {
+            const T = 0.006;
+            const matTinta = new THREE.MeshStandardMaterial({ color: col3d(COR_INT.parede), roughness: 0.9, metalness: 0, envMapIntensity: 0.3 });
+            matTinta.userData.foto = 'parede';
+            const matGouache = new THREE.MeshStandardMaterial({ map: texGouache(), roughness: 0.18, metalness: 0, envMapIntensity: 0.9 });
+            // vãos que cortam a face (emE: parede corre em mE, face em mN = pos)
+            const vaosNa = (emE, pos) => openings.filter(o => emE
+                ? (o.de >= o.dn && pos >= o.n - 0.02 && pos <= o.n + o.dn + 0.02)
+                : (o.dn > o.de && pos >= o.e - 0.02 && pos <= o.e + o.de + 0.02))
+                .map(o => ({ s: emE ? o.e : o.n, e: emE ? o.e + o.de : o.n + o.dn, z0: o.type === 'window' ? o.sill : 0, z1: o.head }));
+            const placa = (mat, emE, pos, lado, a0, a1, z0, z1, uvTam, off) => {
+                if (a1 - a0 < 0.005 || z1 - z0 < 0.005) return;
+                const d = off || 0, p0 = lado > 0 ? pos + d : pos - d - T;
+                const m = emE ? box3d(p0, a0, T, a1 - a0, CPA + z0, CPA + z1, mat)
+                              : box3d(a0, p0, a1 - a0, T, CPA + z0, CPA + z1, mat);
+                if (uvTam) {   // peças em tamanho real
+                    const uv = m.geometry.attributes.uv;
+                    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * (a1 - a0) / uvTam, uv.getY(i) * (z1 - z0) / uvTam);
+                }
+                m.castShadow = false; m.userData.noWalk = true;
+                g.add(m);
+            };
+            // reveste a faixa a0→a1 × z0→z1 da face, pulando os vãos
+            const reveste = (mat, emE, pos, lado, a0, a1, z0, z1, uvTam, off) => {
+                const vs = vaosNa(emE, pos).filter(v => v.e > a0 && v.s < a1).sort((x, y) => x.s - y.s);
+                let cur = a0;
+                vs.forEach(v => {
+                    const s0 = Math.max(v.s, a0), s1 = Math.min(v.e, a1);
+                    placa(mat, emE, pos, lado, cur, s0, z0, z1, uvTam, off);
+                    placa(mat, emE, pos, lado, s0, s1, z0, Math.min(z1, Math.max(z0, v.z0)), uvTam, off);   // abaixo do vão
+                    placa(mat, emE, pos, lado, s0, s1, Math.max(z0, Math.min(z1, v.z1)), z1, uvTam, off);   // acima do vão
+                    cur = Math.max(cur, s1);
+                });
+                placa(mat, emE, pos, lado, cur, a1, z0, z1, uvTam, off);
+            };
+            const H = CEIL3D;
+            const nS = EIXO.S + ESP.ext / 2, nL = EIXO.LONG - ESP.int / 2, nL2 = EIXO.LONG + ESP.int / 2, nN = EIXO.N - ESP.ext / 2;
+            const eO = EIXO.O + ESP.ext / 2 + OE, eH = EIXO.HALL + ESP.int / 2 + OE, eL = EIXO.L - ESP.ext / 2 + OE;
+            const eB = EIXO.HALL - ESP.int / 2 + OE;   // face oeste do banho = ponta oeste da longitudinal
+            // sala + cozinha
+            reveste(matTinta, true,  nN,  -1, eO, eL, 0, H);              // norte
+            reveste(matTinta, true,  nL2, +1, eB, eL, 0, H);              // longitudinal (lado da sala)
+            reveste(matTinta, false, eO,  +1, nL2, nN, 0, H);             // oeste (TV)
+            reveste(matTinta, false, eL,  -1, nL2, nN, 0, H);             // leste (porta dos fundos)
+            // hall (aberto para a sala)
+            reveste(matTinta, true,  nS,  +1, eO, eB, 0, H);              // sul
+            reveste(matTinta, false, eO,  +1, nS, nL2, 0, H);             // oeste (porta de entrada)
+            reveste(matTinta, false, eB,  -1, nS, nL, 0, H);              // parede do banho
+            // Azulejo Gouache Mer: faixa entre a bancada (0,95) e os aéreos (1,65), sobre a tinta
+            const eCoz = EIXO.SERV + OE;                                   // eixo de referência da cozinha (COZ)
+            reveste(matGouache, true,  nN, -1, eCoz + 0.175, eL, 0.95, 1.65, 0.40, T);   // parede norte, do pilar à leste
+            reveste(matGouache, false, eL, -1, EIXO.LONG + 1.775, nN, 0.95, 1.65, 0.40, T); // parede leste, sobre o balcão em L
         }
 
         // ── Esquadrias: batentes, montantes, peitoris e folhas de porta ──────
@@ -5221,7 +5304,7 @@
         if (!root) return;
         const keepMat = new Set();
         if (satGroundMat) keepMat.add(satGroundMat);
-        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo].filter(Boolean));
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.gouache].filter(Boolean));
         if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
         if (_fotoTexMap) Object.values(_fotoTexMap).forEach(t => keepTex.add(t));
         root.traverse(obj => {
