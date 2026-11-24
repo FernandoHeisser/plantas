@@ -751,6 +751,8 @@ visível no passeio.
   - Material novo que deva ganhar textura: marcar `userData.foto` com uma chave de `FOTO_TEX`.
   - Para trocar uma textura: baixar do Poly Haven (`api.polyhaven.com/files/<id>`), reduzir para 512 px
     e salvar em `tex/<chave>_cor|_relevo|_rug.jpg`.
+  - **Ao trocar um JPG de `tex/`, subir `TEX_VER`** (vai como `?v=` na URL) **e o `CACHE` do `sw.js`**: o app
+    instalado guarda as imagens (cache primeiro) e o celular continuaria mostrando a versão antiga.
 - **Quinas arredondadas (`applyFotoQuinas`, `FOTO_QUINA` = 1,2 cm):**
   - Toda peça criada por `fbox` (móveis) recebe `userData.quina`. No modo foto, a caixa vira
     `RoundedBoxGeometry` do mesmo tamanho, com raio de no máximo 1/4 do lado menor (puxadores e pés finos).
