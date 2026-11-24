@@ -161,7 +161,7 @@ node tools/geo-diff.mjs pre-v1-oficial check-1
 
 **Dependências externas (CDN):**
 - Leaflet.js 1.9.4 — mapas 2D
-- Three.js r128 + OrbitControls + RoomEnvironment + **BufferGeometryUtils** — cena 3D
+- Three.js r128 + OrbitControls + RoomEnvironment + **BufferGeometryUtils** + **Sky** — cena 3D
 - ESRI World Imagery — tiles de satélite (sem API key)
 - Google Fonts — JetBrains Mono + Inter
 
@@ -420,6 +420,15 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 - **Environment** RoomEnvironment + PMREM → reflexos suaves nos materiais Standard.
 - `setSun3D(S, hora, mês)` = posição solar **real** para lat −29,96° (declinação por dia do ano + ângulo horário → vetor ENU mapeado pra cena).
 - HUD inferior: slider 5h–19h + seletor de mês + relógio com elevação (`14:30 ☀29°`).
+- **Céu físico** (`skyBackground`, chamado pelo `setSun3D`):
+  - `THREE.Sky` (Preetham) com a direção do sol, renderizado num cubo de 256² (`CubeCamera`) só quando
+    o sol muda e usado como `scene.background`. **Não é geometria**: não entra no SAO, no "Exportar p/ IA"
+    nem no `far`.
+  - O cubo é gravado em `LinearEncoding` e depois marcado `sRGBEncoding`, porque o shader do Sky já
+    aplica a própria gama (senão sai branco-acinzentado).
+  - Exposição própria `CEU_EXPOSICAO` = 0,35 (a cena usa 0,92), subindo até 4× com o sol baixo,
+    para o pôr do sol ficar laranja.
+  - Parâmetros em `CEU`. Sem `THREE.Sky`, volta a cor lisa.
 - Bússola (canto sup. esq.) que gira com a câmera; N em vermelho.
 - Vidros (`matGlass`, box/shower/glassdoor) têm `castShadow=false` → luz passa.
 
@@ -703,6 +712,75 @@ e no passeio, e o botão continua visível durante o passeio.
 - **`iaPainel`:** painel com as três imagens, prompt editável, "Copiar prompt", "Baixar prompt" e "Baixar tudo".
 - **Uso:** ChatGPT, Gemini ou apps de interiores recebem o render e o prompt. No ControlNet, a
   profundidade vai no controle "depth" e as linhas no "canny"/"MLSD".
+
+## Modo foto (botão `.btn-foto`, V1/V2/V3)
+
+Pós-processamento ligado só quando pedido, para o uso normal (e o celular) continuar leve. Continua
+visível no passeio.
+- **Libs:** `FOTO_LIBS` (r128 `examples/js`: `EffectComposer`, `RenderPass`, `ShaderPass`, `SAOPass`,
+  `UnrealBloomPass`, `SMAAPass`, `RoundedBoxGeometry`, `GLTFLoader` e shaders). São carregadas no 1º uso (`loadFotoLibs`) e ficam também no `CDN` do `sw.js`.
+- **`fotoComposer(S)`:** alvo `WebGLMultisampleRenderTarget` em meia precisão no WebGL2 (mantém o MSAA).
+  Passes: `RenderPass` → `SAOPass` (oclusão de ambiente) → `UnrealBloomPass` (brilho suave) →
+  `GammaCorrectionShader` → `SMAAPass` **só sem WebGL2** (sem MSAA no alvo).
+  - **Bloom** (`FOTO_BLOOM`: força 0,2, raio 0,3, limiar 0,93): só o que já é quase branco brilha.
+    Valores mais fortes lavam a cena à noite (paredes brancas perto das luzes).
+  - Caminho WebGL1 testado bloqueando o contexto `webgl2` no navegador de teste (5 passes, sem erros).
+  - O tone mapping ACES continua nos materiais: sem SAO, a imagem sai igual à normal (diferença ~1,7/255).
+- **No `render()`:**
+  - o fundo (`Color`) passa para linear antes de renderizar (senão a gama o clareia);
+  - o raio do SAO é em pixels, então ele se ajusta à distância da câmera (`FOTO.saoKernelRadius` vale
+    para ~2,5 m);
+  - **a câmera vê até 150 m enquanto renderiza**: com o `far` de 500 a profundidade fica grossa e o SAO
+    vira ruído manchado nas superfícies planas.
+- **Ajuste:** os valores ficam em `FOTO` (intensidade 0,02, escala 6, raio 14, bias 0,6).
+- O loop `animate` chama `S.foto.render()` no lugar de `renderer.render`; `resize3D` repassa o tamanho.
+- O "Exportar p/ IA" continua usando o render normal (com as texturas, se o modo foto estiver ligado).
+- **Texturas reais (`FOTO_TEX`, pasta `tex/`, 8 JPG de 512 px, ~225 KB):** CC0 do Poly Haven, só no modo foto.
+  - Piso `marble_01` (cor, relevo e rugosidade), reboco `white_plaster_02` (só relevo), sofá `rough_linen`
+    (só relevo), balcão de madeira `oak_veneer_01` (cor e relevo) e grama `sparse_grass` (só relevo:
+    a cor da foto é marrom e fica o verde do lote).
+  - Os materiais são marcados com `userData.foto` (`piso`, `parede`, `grama`, `tecido`, `madeira`).
+    `applyFotoTex(S, on)` troca os mapas e guarda os originais em `userData.orig`. `uvMundo` reescreve as
+    UVs em metros do mundo (`tam` por repetição) e guarda as originais. Ao desligar, tudo volta e a imagem
+    fica idêntica à normal.
+  - `init3D` reaplica as texturas no prédio reconstruído; `disposeObject3D` preserva `_fotoTexMap`.
+  - Material novo que deva ganhar textura: marcar `userData.foto` com uma chave de `FOTO_TEX`.
+  - Para trocar uma textura: baixar do Poly Haven (`api.polyhaven.com/files/<id>`), reduzir para 512 px
+    e salvar em `tex/<chave>_cor|_relevo|_rug.jpg`.
+- **Quinas arredondadas (`applyFotoQuinas`, `FOTO_QUINA` = 1,2 cm):**
+  - Toda peça criada por `fbox` (móveis) recebe `userData.quina`. No modo foto, a caixa vira
+    `RoundedBoxGeometry` do mesmo tamanho, com raio de no máximo 1/4 do lado menor (puxadores e pés finos).
+  - A geometria original fica em `userData.geoOrig` e volta ao desligar.
+  - Ordem: ao ligar, quinas antes das texturas (as UVs do mundo vão para a geometria nova); ao desligar,
+    texturas antes.
+  - Paredes, lajes e esquadrias (`box3d` direto) continuam retas.
+- **Vidro com reflexo (`FOTO_TEX.vidro`, `VIDRO_FRAG`):**
+  - Materiais marcados `userData.foto = 'vidro'`: `matGlass` (janelas), box do banho, porta de correr
+    (`slidingdoor4`) e folhas de vidro.
+  - No modo foto ficam quase brancos e lisos, com `envMap` = céu do slider (`S.ceu.rt.texture`), e a
+    opacidade passa a depender do ângulo (Fresnel): 0,07 de frente e até 0,62 de lado.
+  - Feito por `onBeforeCompile`, trocando a linha `gl_FragColor = vec4( outgoingLight, diffuseColor.a );`
+    (o r128 não tem o trecho `output_fragment`), com `customProgramCacheKey` próprio.
+  - Desligar restaura cor, opacidade, `envMap` e o shader.
+- **Decoração do V3 (`DECOR_V3`, `applyFotoDecor`, pasta `modelos/`, ~3,6 MB):**
+  - Modelos glTF CC0 do Poly Haven, com texturas reduzidas para 512 px. Carregados pelo `GLTFLoader`
+    só no modo foto e só no V3 térreo, no grupo `decorFoto`.
+  - Peças escolhidas por critério de design (aprovadas pelo cliente):
+    - 2 pendentes `modern_ceiling_lamp_01` sobre o balcão de refeições, encostados no teto (luz que
+      delimita a zona de refeição);
+    - planta `potted_plant_02` na varanda norte, ao lado da porta de vidro (o hall não comporta: a porta
+      de entrada varre o canto);
+    - almofadas `throw_pillows_01` no sofá, com a textura recolorida em tons de areia;
+    - vaso `ceramic_vase_02` na ponta norte do balcão;
+    - suculenta `potted_plant_04` junto à janela da cozinha;
+    - quadro `hanging_picture_frame_01` na parede sul da sala.
+    - Poucas peças, porque o cliente evita objetos que juntam poeira.
+  - Posição por tabela: `n`/`e` renderizados; `base`/`topo` acima do piso; `altura` (escala); `rot`;
+    `parede: 'sul'` encosta a face fina na parede.
+  - Os clones compartilham geometria e material com o modelo em cache (`_decorCache`), por isso levam
+    `userData.semDispose`, e o `disposeObject3D` os ignora.
+- **Tapete da sala no V3** (2,0 × 1,4, `rug`, layout normal, não só modo foto): sob a frente do sofá,
+  delimitando a sala.
 
 ---
 
