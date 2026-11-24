@@ -2486,7 +2486,8 @@
                 lys.push(L.polyline([SAL.rot(0.905, 2.95), SAL.rot(2.655, 2.95)], { color: '#5a4422', weight: 2.2, interactive: false })); // painel de fechamento
                 [1.30, 1.78, 2.26].forEach(n => lys.push(SAL.circ(n, 3.155, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' }))); // banquetas guardadas
                 // Tapete 2,0 × 1,4 sob a frente do sofá até perto do rack: delimita a sala no ambiente integrado
-                lys.push(SAL.rect(0.775, 1.075, 2.0, 1.4, '#cfc4ae', { color: '#8b7d6b', weight: 0.6, fillOpacity: 0.6, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
+                // Tapete de lã 2,0 × 1,6, trama grossa areia com borda (vai do pé do rack até a frente do sofá)
+                lys.push(SAL.rect(0.775, 0.875, 2.0, 1.6, '#d6c9b0', { color: '#8b7d6b', weight: 0.6, fillOpacity: 0.6, dashArray: '4 2', h3d: 0.02, m3d: 'rug', acab3d: 'la' }));
             }
 
             // Hall 1,15 m: só o tapete
@@ -3204,6 +3205,22 @@
             t.repeat.set(6, 1); return t;
         })());
     }
+    // Lã de trama grossa (tapete da sala): laçadas em fileiras, tom areia
+    function texLa() {
+        return TEX3D.la || (TEX3D.la = canvasTex((ctx, w) => {
+            ctx.fillStyle = '#b9aa8e'; ctx.fillRect(0, 0, w, w);
+            const n = 8, p = w / n;
+            for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+                const x = (i + (j % 2) * 0.5) * p, y = j * p;
+                for (const dx of [-w, 0, w]) {
+                    const gr = ctx.createRadialGradient(x + dx + p / 2, y + p / 2, p * 0.05, x + dx + p / 2, y + p / 2, p * 0.55);
+                    gr.addColorStop(0, '#e6dbc6'); gr.addColorStop(0.7, '#d2c4a8'); gr.addColorStop(1, 'rgba(160,145,118,0)');
+                    ctx.fillStyle = gr; ctx.beginPath(); ctx.ellipse(x + dx + p / 2, y + p / 2, p * 0.48, p * 0.56, 0, 0, 7); ctx.fill();
+                }
+            }
+            noise2d(ctx, w, 0, 0, 0, 14, 0.6);
+        }, 256));
+    }
     // Palhinha indiana (portas do rack): trama clara com furos octogonais escuros; repeat por porta
     function texPalhinha() {
         return TEX3D.palhinha || (TEX3D.palhinha = (() => {
@@ -3343,6 +3360,16 @@
         // Tapete — plano fino e fosco (respeita a base z3d, p/ capacho sobre a laje)
         rug(g, s) {
             const b = s.z || 0;
+            if (s.acab3d === 'la') {   // lã de trama grossa: textura de laçadas + borda mais escura, 2,5 cm de altura
+                const la = new THREE.MeshStandardMaterial({ map: texLa(), roughness: 1, metalness: 0, envMapIntensity: 0.2 });
+                const B = 0.06, borda = fmat('#a8977a', { roughness: 1, metalness: 0 });
+                fbox(g, s.n, s.e, s.dn, s.de, b + 0.004, b + 0.022, borda);
+                const m = box3d(s.n + B, s.e + B, s.dn - 2 * B, s.de - 2 * B, b + 0.004, b + 0.025, la);
+                const uv = m.geometry.attributes.uv;   // ~1 repetição a cada 0,20 m em qualquer tamanho
+                for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * (s.de - 2 * B) / 0.20, uv.getY(i) * (s.dn - 2 * B) / 0.20);
+                m.receiveShadow = true; g.add(m);
+                return;
+            }
             fbox(g, s.n, s.e, s.dn, s.de, b + 0.004, b + 0.02, s.color, { roughness: 0.97, metalness: 0 });
         },
         // Carro — referência de escala no piso da frente (não é parte da casa).
@@ -5475,7 +5502,7 @@
         if (!root) return;
         const keepMat = new Set();
         if (satGroundMat) keepMat.add(satGroundMat);
-        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.gouache, TEX3D.rattan, TEX3D.palhinha].filter(Boolean));
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.gouache, TEX3D.rattan, TEX3D.palhinha, TEX3D.la].filter(Boolean));
         if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
         if (_fotoTexMap) Object.values(_fotoTexMap).forEach(t => keepTex.add(t));
         root.traverse(obj => {
@@ -6401,7 +6428,7 @@
             `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
             'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
             `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
-            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete claro mesclado; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
+            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
             `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
         ].join('\n\n');
     }

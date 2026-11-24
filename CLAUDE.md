@@ -383,7 +383,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 
 | Tipo | Móvel |
 |---|---|
-| `rug` | Tapete plano fosco (respeita `z3d`) |
+| `rug` | Tapete plano fosco (respeita `z3d`); `acab3d: 'la'` = lã de trama grossa (`texLa`) com borda |
 | `tv` | TV fina, tela desligada com reflexo. Altura 16:9 a partir da largura (`dn`), base em `z3d` (padrão 0,80). Sala: 55" (1,23 m) |
 | `cortina` | Cortina de linho aberta (maço franzido): plano ondulado do piso a `h3d`, ondas ao longo de mE, trilho embutido no forro. Marcada `foto: 'tecido'` |
 | `arandela` | Arandela (usar com `circ`: centro da cúpula, `r`, `z3d`, `h3d`): espelho e braço de latão saindo da parede **oeste** + cúpula de linho com difusor quente |
@@ -789,8 +789,8 @@ visível no passeio.
     `parede: 'sul'` encosta a face fina na parede.
   - Os clones compartilham geometria e material com o modelo em cache (`_decorCache`), por isso levam
     `userData.semDispose`, e o `disposeObject3D` os ignora.
-- **Tapete da sala** (V1/V2/V3, 2,0 × 1,4, `rug`, layout normal, não só modo foto): sob a frente do sofá,
-  delimitando a sala.
+- **Tapete da sala** (V1/V2/V3, 2,0 × 1,6 de lã de trama grossa, `rug` com `acab3d: 'la'` → `texLa` + borda, layout
+  normal, não só modo foto): do pé do rack até a frente do sofá, delimitando a sala.
 
 ---
 
