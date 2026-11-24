@@ -910,6 +910,10 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 - **Modo foto:** almofadas `throw_pillows_01` recoloridas em **oliva**; **pendentes de vidro lapidado com latão** e
   **luminária de tripé** (canto noroeste, entre o rack e a porta de vidro) e **galeria de 5 quadros** com arte
   própria na paleta (parede sul da sala) — peças feitas no código (`decorProc`, `proc:` no `DECOR_SALA`).
+- **Tetos e vigas internas em branco fosco** (`COR_INT.teto`, `matTeto`): forro fino de 6 mm sob a laje
+  (`forroCasa`; no V1/V2 fica no `roof` e aparece com a laje, no V3 fica no `floor2` sob a laje 1; o 2º piso tem
+  o seu sob a laje 2). As vigas do térreo trocam de concreto (`lajeMat`, fases de obra) para pintadas na casa
+  pronta pelo mesmo `userData.pilar` dos pilares; as do 2º piso já são pintadas.
 - Fora por decisão do cliente: prateleira aberta com potes e estante de livros (juntam poeira).
 
 ### Lavanderia e despensa
@@ -1158,9 +1162,11 @@ estrutura do térreo abaixo. Casa segue a face das **paredes** (centradas → li
 garagem segue a face das **colunas** (na própria linha). Mesmo padrão da parede do depósito.
 
 **Duas coberturas (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
-piso), tem o **vão da escada** p/ subir; **"laje 2"** = teto do 2º piso — no V3 é o **telhado
-solar de uma água + usina FV** (grupo `roof`, `SOLAR`), não uma laje sólida (ver "Telhado solar
-do V3"). No 2D do 2º pav ainda é desenhada como laje sólida (esquemático).
+piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, concreto de 10 cm (`fz1 → fz1+COB.laje`)
+nas duas estruturas (casa e garagem, separadas pela junta), no grupo `floor2`. Por cima dela fica o
+**telhado solar de uma água + usina FV** (grupo `roof`, `SOLAR`), com vão ventilado (ver "Telhado solar do V3").
+A laje 2 isola o calor e o barulho de chuva da telha metálica (decisão do cliente: antes o 2º piso via a
+telha por dentro).
 
 - **2D:** botão `Piso: térreo ↔ 2º pav.` (`.map-floortoggle`) chama `setV3Floor(btn)`,
   que troca `map._overlay` entre `buildLayers('v3')` (térreo) e `buildFloor2Layers()`.
