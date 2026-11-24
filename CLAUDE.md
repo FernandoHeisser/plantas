@@ -782,6 +782,7 @@ visível no passeio.
       de entrada varre o canto);
     - almofadas `throw_pillows_01` no sofá, com a textura recolorida em verde-oliva;
     - vaso `ceramic_vase_02` na ponta norte do balcão;
+    - planta `potted_plant_02` (altura 0,48) na ponta norte do rack da TV (no piso fecharia a passagem do hall);
     - suculenta `potted_plant_04` junto à janela da cozinha;
     - galeria de 5 quadros (`proc: 'quadro…'`, arte desenhada em canvas, `ARTE`) na parede sul da sala.
     - Poucas peças, porque o cliente evita objetos que juntam poeira.
