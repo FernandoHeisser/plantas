@@ -393,6 +393,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
 | `fornoBancada` | Forno elétrico de bancada solto, frente p/ **norte**: corpo grafite, porta de vidro escuro com puxador, botões à direita. Base em `z3d` (tampo) |
 | `microondas` | Micro-ondas solto, frente p/ **norte**: corpo claro, visor escuro, painel à direita. Base em `z3d` |
+| `varalTeto` | Varal de teto suspenso: 4 varões de alumínio ao longo de mN, 2 suportes pendurados por cordas no forro; `z3d` = altura dos varões |
 | `colunaLimpeza` | Coluna de limpeza frente p/ **norte**: porta alta estreita (vassouras, aspirador) + 2 portas empilhadas (balde/panos, produtos) + maleiro no topo |
 | `freezer` | Freezer vertical inox, porta única com puxador vertical e grade de ventilação; frente por `acab3d` (padrão `'S'`) |
 | `coffee` | Mesa de centro + pernas baixas |
@@ -936,7 +937,12 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 ### Lavanderia e despensa
 - **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).
 - **V3, lavanderia em C:** lavadora (sul) e secadora (norte) frente a frente, cuba no meio (oeste),
-  tampo de pedra 0,90, varal de parede e prateleira alta. **Tábua de passar rebatível** na parede norte, sobre a pedra
+  tampo de pedra 0,90. Mesmo critério da despensa (uso, clima, poeira):
+  - **armários fechados** sob a pedra, dos dois lados da cuba (sabão, amaciante, panos; sem prateleira aberta);
+  - **aéreo fechado** na parede oeste (interna), de 1,55 a 2,55, começando 0,28 depois da parede sul para não tapar a janela;
+  - **varal de teto suspenso** (`varalTeto`, 4 varões de 1,20 em suportes pendurados) sobre o corredor entre as máquinas,
+    junto da janela, recolhido a 2,30. Saíram o varal de parede (pingava na pedra) e a prateleira alta aberta;
+  - a parede sul fica sem armário: a janela pequena é a única ventilação da lavanderia. **Tábua de passar rebatível** na parede norte, sobre a pedra
   da secadora (fechada: 0,50 × 0,10, de 0,95 a 2,25), pedido do cliente.
 - **V3, despensa — por zonas de uso e de clima** (decisão do cliente: o sul é frio e úmido, ruim p/ comida):
   - **Norte** (parede interna, encosta na cozinha, seca e morna): só comida, **despenseiro de mantimentos de 2,6 m**

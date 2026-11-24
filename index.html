@@ -2381,21 +2381,24 @@
                 lys.push(SER.circ(1.065, 0.37, 0.15, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true })); // tampa
             } else {
                 // V3: lavanderia em C (proposta do cliente). Bancada de pedra na parede oeste com cuba no meio e
-                // prateleiras embaixo; nas pontas norte e sul a pedra dobra sobre as máquinas frontais, que ficam
+                // armários fechados embaixo; nas pontas norte e sul a pedra dobra sobre as máquinas frontais, que ficam
                 // de frente uma para a outra. O corredor entre elas cai na frente da porta de correr da despensa.
                 lys.push(SER.rect(0.125, 0.745, 0.6, 0.6, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 0.85 })); // lavadora, parede sul, frente p/ norte
                 lys.push(SER.circ(0.425, 1.045, 0.18, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
                 lys.push(SER.rect(1.925, 0.745, 0.6, 0.6, '#e5e7eb', { color: '#475569', weight: 0.8, h3d: 0.85 })); // secadora, parede norte, frente p/ sul
                 lys.push(SER.circ(2.225, 1.045, 0.18, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
                 lys.push(SER.rect(1.075, 0.125, 0.5, 0.55, '#bae6fd', { color: '#0369a1', weight: 0.8, h3d: 0.90, m3d: 'tank' })); // cuba funda na pedra
-                lys.push(SER.rect(0.125, 0.095, 0.92, 0.58, '#c8a27a', { color: '#78350f', weight: 0.6, h3d: 0.80 })); // prateleiras sob a pedra, dos dois lados da cuba
-                lys.push(SER.rect(1.605, 0.095, 0.92, 0.58, '#c8a27a', { color: '#78350f', weight: 0.6, h3d: 0.80 }));
+                // armários fechados sob a pedra, dos dois lados da cuba (sabão, amaciante, panos; sem prateleira aberta: poeira e fiapo)
+                lys.push(SER.rect(0.125, 0.095, 0.92, 0.58, '#e9e2d4', { color: '#6b7280', weight: 0.7, h3d: 0.84, m3d: 'movel', acab3d: 'L' }));
+                lys.push(SER.rect(1.605, 0.095, 0.92, 0.58, '#e9e2d4', { color: '#6b7280', weight: 0.7, h3d: 0.84, m3d: 'movel', acab3d: 'L' }));
                 lys.push(SER.rect(0.075, 0.075, 1, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 })); // pedra: perna oeste (2 trechos, a cuba fica entre eles)
                 lys.push(SER.rect(1.575, 0.075, 1, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 }));
                 lys.push(SER.rect(0.075, 0.725, 0.67, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 })); // pedra sobre a lavadora (perna sul do C)
                 lys.push(SER.rect(1.905, 0.725, 0.67, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 })); // pedra sobre a secadora (perna norte do C)
-                lys.push(SER.rect(0.325, 0.075, 2, 0.06, '#94a3b8', { color: '#475569', weight: 0.5, z3d: 1.55, h3d: 0.05 })); // varal de parede, pinga na pedra
-                lys.push(SER.rect(0.125, 0.075, 2.4, 0.3, '#c8a27a', { color: '#78350f', weight: 0.5, dashArray: '3 2', fillOpacity: 0.3, z3d: 1.95, h3d: 0.03 })); // prateleira alta
+                // aéreo fechado na parede oeste (interna), 1,55 → 2,55 sobre a pedra; começa 0,28 depois da parede sul p/ não tapar a janela
+                lys.push(SER.rect(0.355, 0.075, 2.22, 0.35, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.55, h3d: 1.00, m3d: 'movel', acab3d: 'L' }));
+                // varal de teto suspenso sobre o corredor entre as máquinas, junto da janela (sobe por corda quando não está em uso)
+                lys.push(SER.rect(0.725, 0.80, 1.2, 0.48, '#cbd5e1', { color: '#64748b', weight: 0.6, dashArray: '2 3', fillOpacity: 0.15, z3d: 2.30, h3d: 0.40, m3d: 'varalTeto' }));
 
                 // Tábua de passar rebatível na parede norte da lavanderia, sobre a pedra da secadora (fechada: 0,10 de fundo)
                 lys.push(SER.rect(2.475, 0.80, 0.10, 0.50, '#efe9dd', { color: '#6b7280', weight: 0.6, z3d: 0.95, h3d: 2.25, m3d: 'movel', acab3d: 'S' }));
@@ -3537,6 +3540,16 @@
             fbox(g, F + 0.006, P + 0.07, 0.004, E1 - P - 0.10, z0 + 0.07, H - 0.07, '#1d2023', { roughness: 0.15, metalness: 0.3 });   // visor
             fbox(g, F, s.e + 0.02, 0.006, 0.11, z0 + 0.04, H - 0.04, '#2b2e33', { roughness: 0.3 });                                   // painel
             fbox(g, F + 0.006, P + 0.02, 0.015, 0.015, z0 + 0.08, H - 0.08, '#a1a1aa', { metalness: 0.6 });                            // puxador
+        },
+        // Varal de teto suspenso: 4 varões de alumínio ao longo de mN (s.dn), espaçados em mE (s.de), em 2 suportes
+        // pendurados por cordas no teto; s.z = altura dos varões (recolhido perto do forro)
+        varalTeto(g, s) {
+            const z = s.z || 2.30, AL = { metalness: 0.7, roughness: 0.35 };
+            [s.n + 0.10, s.n + s.dn - 0.12].forEach(n => {
+                fbox(g, n, s.e, 0.02, s.de, z - 0.01, z + 0.02, '#e5e7eb', AL);                      // suporte
+                [s.e + 0.02, s.e + s.de - 0.03].forEach(e => fbox(g, n + 0.005, e, 0.006, 0.006, z + 0.02, CEIL3D - 0.01, '#d6d3d1'));   // cordas
+            });
+            for (let i = 0; i < 4; i++) fbox(g, s.n, s.e + 0.04 + i * (s.de - 0.10) / 3, s.dn, 0.016, z - 0.025, z - 0.01, '#e5e7eb', AL);   // varões
         },
         // Coluna de limpeza, frente p/ NORTE, dividida por uso: à esquerda de quem olha (leste) porta alta e estreita até
         // 2,10 (vassoura, rodo, mop, aspirador em pé com tomada interna); à direita (oeste) porta de baixo (balde, panos)
