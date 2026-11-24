@@ -946,7 +946,7 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
     (`fornoBancada` 0,55 e `microondas` 0,50; decisão do cliente: a janela é fraca, só luz e brisa, e canto é ruim de
     tirar e pôr coisas, por isso a torre saiu); **coluna de limpeza** 0,60 × 0,60 até 2,55 no canto sudeste.
   - **Leste** (sol da manhã): armário baixo de estoque sob a janela (água, bebidas); o tampo dele serve para dobrar roupa.
-  - **Oeste** (interna): aéreo de roupa de cama sobre a porta de correr; aéreo sobre a porta da cozinha.
+  - **Oeste:** livre, sem aéreo (decisão do cliente). Aéreo só sobre a porta da cozinha (parede norte) e sobre o freezer.
   - Sem aéreos nas paredes sul e leste (úmidas e com janela). Corredor livre de 1,30 m.
   - Builders genéricos `movel` (frente por `acab3d`: `'N'`/`'S'`/`'O'`/`'L'`) e `freezer`.
 
