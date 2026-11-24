@@ -401,7 +401,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
 | `stool` | Banqueta alta de balcão: assento de madeira estofado + 4 pés metálicos abertos + apoio de pés. Usar com `circ` (`r` = raio do assento, `h3d` = altura do assento, padrão 0,70). |
-| `balcao` | Balcão **vazado**: tampo (cor `s.color`) + laterais finas nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas). Usa `h3d` como altura do tampo. No V3: balcão de refeições atrás do sofá e balanço da península. |
+| `balcao` | Balcão **vazado**: tampo (cor `s.color`) + laterais finas nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas). Usa `h3d` como altura do tampo. `fecha3d: 'O'` fecha a face oeste até o piso. No V3: balcão de refeições atrás do sofá e balanço da península. |
 | `torre` | Torre quente de embutir (forno + micro-ondas), frente p/ **sul**. No V3 fica na despensa, junto da porta da cozinha. |
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
@@ -879,7 +879,8 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
   com o essencial e todos ficam virados para a sala.
   - **Península de preparo** (que também serve de mesa): gabinete 0,45 + balanço de 0,25 para o oeste (`balcao`).
   - **Balcão de refeições vazado atrás do sofá** (0,44 × 1,75, h 0,95): quem come fica de frente para a TV.
-    As 3 banquetas servem aos dois balcões e ficam guardadas embaixo dele.
+    As 3 banquetas servem aos dois balcões e ficam guardadas embaixo dele. A face encostada no sofá é fechada
+    até o piso (`fecha3d: 'O'`, decisão do cliente): sem vão nem quina viva entre os dois.
   - Sofá 0,25 m para oeste (TV a 1,95 m).
   - **Cooktop na parede norte** (saída do exaustor), 0,155 m para leste, deixando 0,275 de apoio depois do
     canto da península (mais o tampo do canto). A pia fica 0,15 m para leste, ainda sob a janela.

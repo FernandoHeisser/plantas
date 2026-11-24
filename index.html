@@ -2099,7 +2099,7 @@
             GEO.push({ k: 'solid', shape: 'rect', n, e, dn, de,
                        h: (opts && opts.h3d != null) ? opts.h3d : 0.45,
                        z: (opts && opts.z3d) || 0, color: fill,
-                       m3d: opts && opts.m3d, folhas: opts && opts.folhas, rot3d: opts && opts.rot3d, ext3d: !!(opts && opts.ext3d),
+                       m3d: opts && opts.m3d, folhas: opts && opts.folhas, rot3d: opts && opts.rot3d, fecha3d: opts && opts.fecha3d, ext3d: !!(opts && opts.ext3d),
                        extZ3d: (opts && opts.extZ3d != null) ? opts.extZ3d : undefined });
         return L.polygon([rot(n,e), rot(n+dn,e), rot(n+dn,e+de), rot(n,e+de)],
             Object.assign({
@@ -2454,7 +2454,9 @@
                 lys.push(COZ.rect(1.225, 0.175, 1.02, 0.25, '#b3ad9f', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.6, h3d: 0.95, m3d: 'balcao' })); // península: balanço
                 // Balcão de refeições vazado atrás do sofá (0,44 × 1,75, h 0,95 = península): quem come fica virado p/ a TV.
                 // As 3 banquetas servem aos dois balcões e ficam guardadas embaixo deste (assento 0,65 < tampo 0,91).
-                lys.push(SAL.rect(0.905, 2.935, 1.75, 0.44, '#9a7b46', { color: '#5a4422', weight: 0.8, h3d: 0.95, m3d: 'balcao' })); // balcão atrás do sofá
+                // Face oeste (encostada nas costas do sofá) fechada até o piso: sem vão nem quina viva entre os dois.
+                lys.push(SAL.rect(0.905, 2.935, 1.75, 0.44, '#9a7b46', { color: '#5a4422', weight: 0.8, h3d: 0.95, m3d: 'balcao', fecha3d: 'O' })); // balcão atrás do sofá
+                lys.push(L.polyline([SAL.rot(0.905, 2.95), SAL.rot(2.655, 2.95)], { color: '#5a4422', weight: 2.2, interactive: false })); // painel de fechamento
                 [1.30, 1.78, 2.26].forEach(n => lys.push(SAL.circ(n, 3.155, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' }))); // banquetas guardadas
                 // Tapete 2,0 × 1,4 sob a frente do sofá até perto do rack: delimita a sala no ambiente integrado
                 lys.push(SAL.rect(0.775, 1.075, 2.0, 1.4, '#d8cfc0', { color: '#8b7d6b', weight: 0.6, fillOpacity: 0.6, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
@@ -3405,6 +3407,7 @@
             const pecas = [fbox(g, s.n, s.e, s.dn, s.de, s.h - t, s.h, s.color, { roughness: 0.55 }),
                            fbox(g, s.n, s.e, w, s.de, 0, s.h - t, s.color, { roughness: 0.6 }),
                            fbox(g, s.n + s.dn - w, s.e, w, s.de, 0, s.h - t, s.color, { roughness: 0.6 })];
+            if (s.fecha3d === 'O') pecas.push(fbox(g, s.n + w, s.e, s.dn - 2 * w, w, 0, s.h - t, s.color, { roughness: 0.6 }));   // face oeste fechada (encostada no sofá)
             if (s.color === '#9a7b46') pecas.forEach(m => { m.material.userData.foto = 'madeira'; });   // balcão de madeira
         },
         // Mesa de jantar — tampo + 4 pernas
