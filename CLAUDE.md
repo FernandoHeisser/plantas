@@ -383,8 +383,12 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 
 | Tipo | Móvel |
 |---|---|
-| `rug` | Tapete plano fosco (respeita `z3d`) |
-| `tv` | Painel fino de TV + tela emissiva |
+| `rug` | Tapete plano fosco (respeita `z3d`); `acab3d: 'la'` = lã de trama grossa (`texLa`) com borda |
+| `tv` | TV fina, tela desligada com reflexo. Altura 16:9 a partir da largura (`dn`), base em `z3d` (padrão 0,80). Sala: 55" (1,23 m) |
+| `cortina` | Cortina de linho aberta (maço franzido): plano ondulado do piso a `h3d`, ondas ao longo de mE, trilho embutido no forro. Marcada `foto: 'tecido'` |
+| `arandela` | Arandela (usar com `circ`: centro da cúpula, `r`, `z3d`, `h3d`): espelho e braço de latão saindo da parede **oeste** + cúpula de linho com difusor quente |
+| `painelTV` | Painel ripado de madeira mel do piso ao teto (ripas de 4 cm, vão de 2 cm, chapa escura atrás), face p/ leste |
+| `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
 | `rack` | Rack baixo + pés + ranhura |
 | `coffee` | Mesa de centro + pernas baixas |
 | `sofa` | Base + encosto + braços + 3 almofadas, tons derivados de `s.color`; `acab3d: 'manta'` põe a manta no braço norte |
@@ -774,11 +778,11 @@ visível no passeio.
   - Peças escolhidas por critério de design (aprovadas pelo cliente):
     - 2 pendentes de vidro lapidado com latão (`proc: 'pendente'`) sobre o balcão de refeições (luz que
       delimita a zona de refeição);
-    - luminária de tripé (`proc: 'tripe'`) no canto noroeste da sala;
     - planta `potted_plant_02` na varanda norte, ao lado da porta de vidro (o hall não comporta: a porta
       de entrada varre o canto);
     - almofadas `throw_pillows_01` no sofá, com a textura recolorida em verde-oliva;
     - vaso `ceramic_vase_02` na ponta norte do balcão;
+    - planta `potted_plant_02` (altura 0,48) na ponta norte do rack da TV (no piso fecharia a passagem do hall);
     - suculenta `potted_plant_04` junto à janela da cozinha;
     - galeria de 5 quadros (`proc: 'quadro…'`, arte desenhada em canvas, `ARTE`) na parede sul da sala.
     - Poucas peças, porque o cliente evita objetos que juntam poeira.
@@ -786,8 +790,8 @@ visível no passeio.
     `parede: 'sul'` encosta a face fina na parede.
   - Os clones compartilham geometria e material com o modelo em cache (`_decorCache`), por isso levam
     `userData.semDispose`, e o `disposeObject3D` os ignora.
-- **Tapete da sala** (V1/V2/V3, 2,0 × 1,4, `rug`, layout normal, não só modo foto): sob a frente do sofá,
-  delimitando a sala.
+- **Tapete da sala** (V1/V2/V3, 2,0 × 1,6 de lã de trama grossa, `rug` com `acab3d: 'la'` → `texLa` + borda, layout
+  normal, não só modo foto): do pé do rack até a frente do sofá, delimitando a sala.
 
 ---
 
@@ -879,7 +883,7 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
 - **Parede leste:** geladeira junto da porta dos fundos (frente alinhada a 0,65), balcão em L com o
   canto. Sem armário sobre a porta dos fundos (decisão do cliente).
 - **Aéreos 1,65 → 2,55 m, profundidade 0,35** (norte e leste sobre o balcão) → folga de 0,70 m sobre
-  a bancada; sobre a geladeira também 0,35 (1,80 → 2,55), alinhado aos demais (decisão do cliente). Ficam acima da janela da cozinha
+  a bancada; sobre a geladeira também 0,35 × 0,90 (1,65 → 2,55), igual aos demais (decisão do cliente); por isso a geladeira tem no máximo 1,60. Ficam acima da janela da cozinha
   (verga 1,60) e o cliente prefere armário a prateleira (poeira).
 - **Mesma sala e cozinha no V1/V2/V3** (decisão do cliente; o layout nasceu no V3): no V3 a despensa guarda o
   resto, a cozinha aberta fica com o essencial e todos ficam virados para a sala.
@@ -906,16 +910,22 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   único de madeira mel** (cobre o balanço; o `balcao` do balanço usa `acab3d: 'semTampo'`), puxadores redondos e
   **torneira gourmet de latão**. Peças sem `acab3d` (lavanderia, despensa, 2º piso) mantêm as cores neutras.
 - **Luz caseira na cozinha** (o cliente achou o trilho com spots "cara de estúdio"): **plafon de rattan** Ø 45
-  (`plafon`, `texRattan`) no centro do teto da cozinha + **fita de LED quente sob os aéreos** de 1,65 m (`wallcab`/`wallcabW` com `acab3d`).
+  (`plafon`, `texRattan`) no centro do teto da cozinha + **spots redondos de embutir sob os aéreos** (Ø 6,4 cm, um a cada ~0,60 m, `acab3d: 'cozSpot'` no `wallcab`/`wallcabW`,
+  helper `spotsSobAereo`) sobre a bancada norte e o balcão leste; sobre a geladeira, não. **Sem fita de LED** em lugar nenhum:
+  o cliente acha que deixa a casa com cara de shopping ou consultório.
 - **Sofá caramelo/conhaque** em tecido impermeável (`COR_INT.sofa`; o cliente não quer sofá claro por causa de
   manchas) com **manta areia** no braço norte (`acab3d: 'manta'`). Base, braços e almofadas derivam do `s.color`.
-- **Modo foto:** almofadas `throw_pillows_01` recoloridas em **oliva**; **pendentes de vidro lapidado com latão** e
-  **luminária de tripé** (canto noroeste, entre o rack e a porta de vidro) e **galeria de 5 quadros** com arte
+- **Modo foto:** almofadas `throw_pillows_01` recoloridas em **oliva**; **pendentes de vidro lapidado com latão** e **galeria de 5 quadros** com arte
   própria na paleta (parede sul da sala) — peças feitas no código (`decorProc`, `proc:` no `DECOR_SALA`).
 - **Tetos e vigas internas em branco fosco** (`COR_INT.teto`, `matTeto`): forro fino de 6 mm sob a laje
   (`forroCasa`; no V1/V2 fica no `roof` e aparece com a laje, no V3 fica no `floor2` sob a laje 1; o 2º piso tem
   o seu sob a laje 2). As vigas do térreo trocam de concreto (`lajeMat`, fases de obra) para pintadas na casa
   pronta pelo mesmo `userData.pilar` dos pilares; as do 2º piso já são pintadas.
+- **Canto da TV (parede oeste):** painel ripado de madeira mel do piso ao teto (2,0 m, centrado na TV), rack de madeira
+  com portas de palhinha (1,80 × 0,40 × 0,55, sobre pés) e TV de 55" (mínimo pedido pelo cliente), base a 0,78. Sem fita de LED.
+  Luz indireta: 2 arandelas de latão com cúpula de linho (base 1,42) presas no painel, uma de cada lado da TV.
+- **Cortinas de linho cru** do forro ao piso na parede norte da sala (porta de vidro e janela), num trilho embutido, abertas
+  em 3 maços: oeste da porta, entre a porta e a janela, leste da janela. A luminária de tripé saiu (o canto noroeste é da cortina).
 - Fora por decisão do cliente: prateleira aberta com potes e estante de livros (juntam poeira).
 
 ### Lavanderia e despensa
