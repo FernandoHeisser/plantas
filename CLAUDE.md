@@ -390,6 +390,8 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `painelTV` | Painel ripado de madeira mel do piso ao teto (ripas de 4 cm, vão de 2 cm, chapa escura atrás), face p/ leste |
 | `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
 | `rack` | Rack baixo + pés + ranhura |
+| `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
+| `freezer` | Freezer vertical inox, porta única com puxador vertical e grade de ventilação; frente por `acab3d` (padrão `'S'`) |
 | `coffee` | Mesa de centro + pernas baixas |
 | `sofa` | Base + encosto + braços + 3 almofadas, tons derivados de `s.color`; `acab3d: 'manta'` põe a manta no braço norte |
 | `bed` | Estrado + colchão + cabeceira + 2 travesseiros + edredom (GAP=7cm da parede) |
@@ -931,9 +933,18 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 ### Lavanderia e despensa
 - **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).
 - **V3, lavanderia em C:** lavadora (sul) e secadora (norte) frente a frente, cuba no meio (oeste),
-  tampo de pedra 0,90, varal de parede e prateleira alta.
-- **V3, despensa:** torre quente (forno + micro-ondas) junto da porta da cozinha, freezer,
-  despenseiro alto, armário baixo leste, bancada sul (passar/dobrar), aéreos até 2,55.
+  tampo de pedra 0,90, varal de parede e prateleira alta. **Tábua de passar rebatível** na parede norte, sobre a pedra
+  da secadora (fechada: 0,50 × 0,10, de 0,95 a 2,25), pedido do cliente.
+- **V3, despensa — por zonas de uso e de clima** (decisão do cliente: o sul é frio e úmido, ruim p/ comida):
+  - **Norte** (parede interna, encosta na cozinha, seca e morna): torre quente (forno + micro-ondas) junto da porta
+    da cozinha + **despenseiro de mantimentos de 2,0 m** (0,60 de fundo, até 2,55).
+  - **Sul** (fria e úmida, só o que aguenta): **freezer vertical** 0,70 × 0,60 × 1,70 no canto sudoeste, porta p/ norte
+    (rende melhor no frio, longe do forno), com aéreo em cima; **bancada de dobrar** de 2,19 m (topo 0,90 = peitoril)
+    com cestos de roupa suja embaixo; **coluna de limpeza** 0,60 × 0,60 até 2,55 no canto sudeste.
+  - **Leste** (sol da manhã): armário baixo de estoque sob a janela (água, bebidas).
+  - **Oeste** (interna): aéreo de roupa de cama sobre a porta de correr; aéreo sobre a porta da cozinha.
+  - Sem aéreos nas paredes sul e leste (úmidas e com janela). Corredor livre de 1,30 m.
+  - Builders genéricos `movel` (frente por `acab3d`: `'N'`/`'S'`/`'O'`/`'L'`) e `freezer`.
 
 ## Sistema de layout (atualizado)
 
