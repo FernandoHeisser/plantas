@@ -385,6 +385,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 |---|---|
 | `rug` | Tapete plano fosco (respeita `z3d`) |
 | `tv` | TV fina, tela desligada com reflexo. Altura 16:9 a partir da largura (`dn`), base em `z3d` (padrão 0,80). Sala: 55" (1,23 m) |
+| `cortina` | Cortina de linho aberta (maço franzido): plano ondulado do piso a `h3d`, ondas ao longo de mE, trilho embutido no forro. Marcada `foto: 'tecido'` |
 | `painelTV` | Painel ripado de madeira mel do piso ao teto (ripas de 4 cm, vão de 2 cm, chapa escura atrás), face p/ leste |
 | `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
 | `rack` | Rack baixo + pés + ranhura |
@@ -776,7 +777,6 @@ visível no passeio.
   - Peças escolhidas por critério de design (aprovadas pelo cliente):
     - 2 pendentes de vidro lapidado com latão (`proc: 'pendente'`) sobre o balcão de refeições (luz que
       delimita a zona de refeição);
-    - luminária de tripé (`proc: 'tripe'`) no canto noroeste da sala;
     - planta `potted_plant_02` na varanda norte, ao lado da porta de vidro (o hall não comporta: a porta
       de entrada varre o canto);
     - almofadas `throw_pillows_01` no sofá, com a textura recolorida em verde-oliva;
@@ -911,8 +911,7 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   (`plafon`, `texRattan`) no centro do teto da cozinha. **Sem fita de LED** em lugar nenhum: o cliente acha que deixa a casa com cara de shopping ou consultório.
 - **Sofá caramelo/conhaque** em tecido impermeável (`COR_INT.sofa`; o cliente não quer sofá claro por causa de
   manchas) com **manta areia** no braço norte (`acab3d: 'manta'`). Base, braços e almofadas derivam do `s.color`.
-- **Modo foto:** almofadas `throw_pillows_01` recoloridas em **oliva**; **pendentes de vidro lapidado com latão** e
-  **luminária de tripé** (canto noroeste, entre o rack e a porta de vidro) e **galeria de 5 quadros** com arte
+- **Modo foto:** almofadas `throw_pillows_01` recoloridas em **oliva**; **pendentes de vidro lapidado com latão** e **galeria de 5 quadros** com arte
   própria na paleta (parede sul da sala) — peças feitas no código (`decorProc`, `proc:` no `DECOR_SALA`).
 - **Tetos e vigas internas em branco fosco** (`COR_INT.teto`, `matTeto`): forro fino de 6 mm sob a laje
   (`forroCasa`; no V1/V2 fica no `roof` e aparece com a laje, no V3 fica no `floor2` sob a laje 1; o 2º piso tem
@@ -920,6 +919,8 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   pronta pelo mesmo `userData.pilar` dos pilares; as do 2º piso já são pintadas.
 - **Canto da TV (parede oeste):** painel ripado de madeira mel do piso ao teto (2,0 m, centrado na TV), rack de madeira
   com portas de palhinha (1,80 × 0,40 × 0,55, sobre pés) e TV de 55" (mínimo pedido pelo cliente), base a 0,78. Sem fita de LED.
+- **Cortinas de linho cru** do forro ao piso na parede norte da sala (porta de vidro e janela), num trilho embutido, abertas
+  em 3 maços: oeste da porta, entre a porta e a janela, leste da janela. A luminária de tripé saiu (o canto noroeste é da cortina).
 - Fora por decisão do cliente: prateleira aberta com potes e estante de livros (juntam poeira).
 
 ### Lavanderia e despensa

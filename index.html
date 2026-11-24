@@ -2447,6 +2447,14 @@
             lys.push(SAL.rect(1.005, 2.325 + SF, 1.55, 0.65, '#a8703f', { color: '#4a2a12', weight: 0.4, no3d: true })); // assento
             lys.push(L.polyline([SAL.rot(1.522, 2.325 + SF), SAL.rot(1.522, 2.975 + SF)], { color: '#451a03', weight: 0.6, interactive: false }));
             lys.push(L.polyline([SAL.rot(2.038, 2.325 + SF), SAL.rot(2.038, 2.975 + SF)], { color: '#451a03', weight: 0.6, interactive: false }));
+            // Cortinas de linho cru do forro ao piso na parede norte (porta de vidro + janela da sala), num trilho embutido
+            // no forro, abertas e juntas nas pontas dos vãos. SAL e = mE − 17,075; parede norte em SAL n 2,875.
+            {
+                const CN = 2.745, CD = 0.12, LINHO = '#ddd0b9', LO = { color: '#a89880', weight: 0.6, h3d: CEIL3D - 0.02, m3d: 'cortina' };
+                lys.push(SAL.rect(2.82, 0.13, 0.04, 4.23, '#f3efe7', { color: '#9ca3af', weight: 0.5, dashArray: '2 2', no3d: true }));   // trilho (só 2D; o 3D sai do próprio builder)
+                [[0.13, 0.43], [2.20, 0.70], [4.15, 0.21]].forEach(([e, de]) =>                                             // O da porta · entre porta e janela · L da janela
+                    lys.push(SAL.rect(CN, e, CD, de, LINHO, LO)));
+            }
             // Canto da TV (caseiro, sem fita de LED): painel ripado de madeira mel do piso ao teto (2,0 m), rack de
             // madeira com portas de palhinha (1,80 × 0,40, sobre pés) e TV de 55" (1,23 m) centrada no painel
             lys.push(SAL.rect(0.775, 0.075, 2.0, 0.04, COR_INT.madeira, { color: '#5a4422', weight: 0.6, h3d: CEIL3D, m3d: 'painelTV' })); // painel ripado
@@ -3376,6 +3384,20 @@
             fbox(g, s.n, s.e + 0.02, s.dn, 0.035, z0, z0 + h, '#0b0b0d', { roughness: 0.4, metalness: 0.3 });
             fbox(g, s.n + B, f, s.dn - 2 * B, 0.004, z0 + B, z0 + h - B, '#111418',
                  { roughness: 0.12, metalness: 0.4, envMapIntensity: 1.0 });   // tela desligada (preta, com reflexo)
+        },
+        // Cortina de linho aberta (maço franzido): plano ondulado do piso a s.h, ondas ao longo de mE; trilho no forro
+        cortina(g, s) {
+            const H = s.h || CEIL3D - 0.02, z0 = 0.01, A = s.dn / 2 - 0.01, LAMB = 0.09;
+            const geo = new THREE.PlaneGeometry(s.de, H - z0, Math.max(8, Math.round(s.de / 0.01)), 1);
+            const P = geo.attributes.position;
+            for (let i = 0; i < P.count; i++) P.setZ(i, A * Math.sin(P.getX(i) * 2 * Math.PI / LAMB));
+            geo.computeVertexNormals();
+            const linho = new THREE.MeshStandardMaterial({ color: col3d(s.color), roughness: 0.95, metalness: 0, side: THREE.DoubleSide, envMapIntensity: 0.3 });
+            linho.userData.foto = 'tecido';
+            const m = new THREE.Mesh(geo, linho);
+            m.position.set(s.e + s.de / 2, z0 + (H - z0) / 2, -(s.n + s.dn / 2));
+            m.castShadow = true; m.receiveShadow = true; g.add(m);
+            fbox(g, s.n + s.dn / 2 - 0.02, s.e - 0.02, 0.04, s.de + 0.04, H, CEIL3D, '#d9d6cf', { roughness: 0.5 });   // trilho embutido no forro
         },
         // Painel ripado da TV — chapa de madeira + ripas verticais (4 cm, vão de 2 cm), do piso ao teto; face p/ LESTE
         painelTV(g, s) {
@@ -5765,7 +5787,7 @@
 
     // Decoração da sala e cozinha (térreo, V1/V2/V3) só no modo foto: modelos CC0 do Poly Haven em /modelos
     // (texturas 512 px) e peças feitas aqui (proc), na paleta do cliente: pendentes de vidro lapidado com latão,
-    // luminária de tripé e galeria de quadros com arte própria.
+    // galeria de quadros com arte própria.
     // n/e = metros do lote já renderizados (com OE); base/topo = altura acima do piso acabado (CPA);
     // altura = escala uniforme até essa altura; rot = giro em graus no eixo vertical.
     // Critérios de design: luz de tarefa zoneando a refeição, planta na varanda norte vista pelo vidro
@@ -5774,7 +5796,6 @@
     const DECOR_SALA = [
         { proc: 'pendente', n: 6.08, e: 20.23, topo: CEIL3D },                         // pendentes sobre o balcão
         { proc: 'pendente', n: 6.93, e: 20.23, topo: CEIL3D },
-        { proc: 'tripe',    n: 7.36, e: 17.38, base: 0 },                              // luminária de tripé no canto NO (rack ↔ porta de vidro)
         { id: 'potted_plant_02',  n: 8.15, e: 19.60, base: 0 },                      // varanda norte, ao lado da porta de vidro
         { id: 'throw_pillows_01', n: 6.50, e: 19.70, base: 0.36, rot: 90 },          // almofadas no sofá
         { id: 'ceramic_vase_02',  n: 7.15, e: 20.23, base: 0.95 },                   // vaso na ponta do balcão
@@ -5825,15 +5846,6 @@
             const g0 = new THREE.IcosahedronGeometry(0.12, 1); g0.scale(1, 1.15, 1);
             add(g0, vidro, 0, 0.17).castShadow = false;
             add(new THREE.SphereGeometry(0.018, 12, 8), latao, 0, 0.02);                          // arremate
-        } else if (nome === 'tripe') {    // três pés de madeira + cúpula de tecido branco
-            const pau = mat(COR_INT.madeira, { roughness: 0.6 }); pau.userData.foto = 'madeira';
-            for (let i = 0; i < 3; i++) {
-                const a = i * Math.PI * 2 / 3, p = add(new THREE.CylinderGeometry(0.013, 0.016, 1.30, 10), pau, Math.cos(a) * 0.12, 0.64, Math.sin(a) * 0.12);
-                p.rotation.set(-Math.sin(a) * 0.19, 0, Math.cos(a) * 0.19);   // topo converge no centro
-            }
-            const cup = mat('#f4efe4', { side: THREE.DoubleSide, roughness: 0.9, emissive: col3d('#fff1d6'), emissiveIntensity: 0.15 });
-            add(new THREE.CylinderGeometry(0.19, 0.22, 0.30, 36, 1, true), cup, 0, 1.40);
-            add(new THREE.CylinderGeometry(0.012, 0.012, 0.18, 8), latao, 0, 1.28);
         } else if (ARTE[nome]) {          // moldura de madeira + passe-partout + arte; frente para +X (girada na parede)
             const [w, h, desenho] = ARTE[nome];
             const mold = mat('#8a6a3e', { roughness: 0.6 });
@@ -6375,7 +6387,7 @@
             `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
             'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
             `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
-            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete claro mesclado; pendentes de vidro lapidado com latão; luminária de piso com tripé de madeira; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
+            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete claro mesclado; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
             `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
         ].join('\n\n');
     }
