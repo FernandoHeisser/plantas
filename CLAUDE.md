@@ -386,6 +386,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `rug` | Tapete plano fosco (respeita `z3d`) |
 | `tv` | TV fina, tela desligada com reflexo. Altura 16:9 a partir da largura (`dn`), base em `z3d` (padrão 0,80). Sala: 55" (1,23 m) |
 | `cortina` | Cortina de linho aberta (maço franzido): plano ondulado do piso a `h3d`, ondas ao longo de mE, trilho embutido no forro. Marcada `foto: 'tecido'` |
+| `arandela` | Arandela (usar com `circ`: centro da cúpula, `r`, `z3d`, `h3d`): espelho e braço de latão saindo da parede **oeste** + cúpula de linho com difusor quente |
 | `painelTV` | Painel ripado de madeira mel do piso ao teto (ripas de 4 cm, vão de 2 cm, chapa escura atrás), face p/ leste |
 | `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
 | `rack` | Rack baixo + pés + ranhura |
@@ -919,6 +920,7 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   pronta pelo mesmo `userData.pilar` dos pilares; as do 2º piso já são pintadas.
 - **Canto da TV (parede oeste):** painel ripado de madeira mel do piso ao teto (2,0 m, centrado na TV), rack de madeira
   com portas de palhinha (1,80 × 0,40 × 0,55, sobre pés) e TV de 55" (mínimo pedido pelo cliente), base a 0,78. Sem fita de LED.
+  Luz indireta: 2 arandelas de latão com cúpula de linho (base 1,42) presas no painel, uma de cada lado da TV.
 - **Cortinas de linho cru** do forro ao piso na parede norte da sala (porta de vidro e janela), num trilho embutido, abertas
   em 3 maços: oeste da porta, entre a porta e a janela, leste da janela. A luminária de tripé saiu (o canto noroeste é da cortina).
 - Fora por decisão do cliente: prateleira aberta com potes e estante de livros (juntam poeira).

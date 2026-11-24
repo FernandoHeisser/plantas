@@ -2460,6 +2460,8 @@
             lys.push(SAL.rect(0.775, 0.075, 2.0, 0.04, COR_INT.madeira, { color: '#5a4422', weight: 0.6, h3d: CEIL3D, m3d: 'painelTV' })); // painel ripado
             lys.push(SAL.rect(0.875, 0.115, 1.8, 0.40, '#b08a55', { color: '#5a4422', weight: 0.6, h3d: 0.55, m3d: 'rackTV' })); // rack de madeira e palhinha
             lys.push(SAL.rect(1.16, 0.115, 1.23, 0.04, '#0a0e1a', { color: '#000', weight: 0.6, z3d: 0.78, m3d: 'tv' })); // TV 55"
+            // Luz indireta: 2 arandelas de latão com cúpula de linho, uma de cada lado da TV, presas no painel (base 1,42)
+            [0.925, 2.625].forEach(n => lys.push(SAL.circ(n, 0.325, 0.09, '#ead9b8', { color: '#8a6a3e', weight: 0.6, dashArray: '2 2', z3d: 1.42, h3d: 0.17, m3d: 'arandela' })));
 
             // Armários aéreos: parede norte, contínuos sobre a bancada (base 1,65 m, acima da verga da janela de
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
@@ -3398,6 +3400,18 @@
             m.position.set(s.e + s.de / 2, z0 + (H - z0) / 2, -(s.n + s.dn / 2));
             m.castShadow = true; m.receiveShadow = true; g.add(m);
             fbox(g, s.n + s.dn / 2 - 0.02, s.e - 0.02, 0.04, s.de + 0.04, H, CEIL3D, '#d9d6cf', { roughness: 0.5 });   // trilho embutido no forro
+        },
+        // Arandela (usar com circ: centro da cúpula em n,e; r = raio): espelho e braço de latão saindo da parede OESTE
+        // (mE = e − r − 0,12) + cúpula de linho com difusor quente — luz p/ cima e p/ baixo, sem ofuscar
+        arandela(g, s) {
+            const z0 = s.z || 1.42, h = s.h || 0.17, r = s.r, zc = z0 + h / 2, eP = s.e - r - 0.12;
+            fbox(g, s.n - 0.04, eP, 0.08, 0.012, zc - 0.07, zc + 0.03, COR_INT.latao, LATAO());           // espelho
+            fbox(g, s.n - 0.007, eP, 0.014, s.e - eP, zc - 0.03, zc - 0.016, COR_INT.latao, LATAO());     // braço
+            const linho = new THREE.MeshStandardMaterial({ color: col3d('#efe3cb'), roughness: 0.95, side: THREE.DoubleSide,
+                emissive: col3d('#ffd9a0'), emissiveIntensity: 0.35 });
+            const cup = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.85, r, h, 32, 1, true), linho);
+            cup.position.set(s.e, zc, -s.n); cup.castShadow = true; g.add(cup);
+            fcyl(g, s.n, s.e, 0.006, zc - 0.03, zc, COR_INT.latao, LATAO());                              // haste do soquete
         },
         // Painel ripado da TV — chapa de madeira + ripas verticais (4 cm, vão de 2 cm), do piso ao teto; face p/ LESTE
         painelTV(g, s) {
