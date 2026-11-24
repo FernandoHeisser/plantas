@@ -1818,7 +1818,15 @@
     // Paleta dos acabamentos internos (sala, cozinha e hall; referência do cliente: Suvinil, Duratex, Portobello)
     const COR_INT = {
         parede: '#d3bd9d',     // tinta Areia do Deserto (Suvinil)
+        mint: '#a3baa3',       // MDF Mint (Duratex): armários de baixo da cozinha
+        aereo: '#eee7da',      // aéreos claros (não competem com o azulejo)
+        quartzo: '#e6ddca',    // tampo de pedra creme (bancada da pia e do cooktop)
+        madeira: '#9a7b46',    // madeira mel: península e balcão de refeições
+        latao: '#b89458',      // metais em latão escovado (torneira e puxadores)
     };
+    // Acabamento por peça (opts.acab3d): 'coz' = base mint + pedra creme; 'pen' = base mint + tampo de madeira
+    const acabCoz = s => s.acab3d === 'coz' || s.acab3d === 'pen';
+    const LATAO = () => ({ metalness: 0.85, roughness: 0.32 });
     const LOT_FILL   = '#5f7a3f';   // verde grama (string para Leaflet)
     const LOT_FILL_N = 0x5f7a3f;   // numérico para Three.js
 
@@ -2103,7 +2111,7 @@
             GEO.push({ k: 'solid', shape: 'rect', n, e, dn, de,
                        h: (opts && opts.h3d != null) ? opts.h3d : 0.45,
                        z: (opts && opts.z3d) || 0, color: fill,
-                       m3d: opts && opts.m3d, folhas: opts && opts.folhas, rot3d: opts && opts.rot3d, fecha3d: opts && opts.fecha3d, ext3d: !!(opts && opts.ext3d),
+                       m3d: opts && opts.m3d, folhas: opts && opts.folhas, rot3d: opts && opts.rot3d, fecha3d: opts && opts.fecha3d, acab3d: opts && opts.acab3d, ext3d: !!(opts && opts.ext3d),
                        extZ3d: (opts && opts.extZ3d != null) ? opts.extZ3d : undefined });
         return L.polygon([rot(n,e), rot(n+dn,e), rot(n+dn,e+de), rot(n,e+de)],
             Object.assign({
@@ -2403,10 +2411,10 @@
 
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
             lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // geladeira, parede leste, porta p/ oeste, junto da porta dos fundos (planejado)
-            lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // balcão entre a geladeira e a bancada, em L com o canto
-            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça)
+            lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // balcão entre a geladeira e a bancada, em L com o canto
+            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'coz' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça)
             lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
-            lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // bancada: do pilar oeste até a parede leste
+            lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // bancada: do pilar oeste até a parede leste
             // Cooktop 0,155 m p/ leste (0,275 m de apoio depois do canto da península, mais o tampo do canto;
             // continua na parede norte, por onde sai o exaustor) e pia 0,15 m p/ leste (ainda sob a janela).
             // Entre os dois sobra 0,69 m: cabe a lava-louças de 60 cm.
@@ -2419,9 +2427,9 @@
             lys.push(COZ.circ(2.645, 1.375 + CK, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
             // Lava-louças de 60 cm, centrada entre o cooktop (termina em 1,505+CK) e a pia (começa em 2,20+PI)
             const LV_E = (1.505 + CK + 2.2 + PI) / 2 - 0.30;
-            lys.push(COZ.rect(2.275, LV_E, 0.6, 0.60, '#cbd5e1', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'dishwasher' })); // lava-louças sob a bancada
+            lys.push(COZ.rect(2.275, LV_E, 0.6, 0.60, '#cbd5e1', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'dishwasher', acab3d: 'coz' })); // lava-louças sob a bancada
             lys.push(L.polyline([COZ.rot(2.315, LV_E + 0.05), COZ.rot(2.315, LV_E + 0.55)], { color: '#475569', weight: 1.2, interactive: false })); // puxador
-            lys.push(COZ.rect(2.275, 2.2 + PI, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'sink' })); // pia, sob a janela
+            lys.push(COZ.rect(2.275, 2.2 + PI, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'sink', acab3d: 'coz' })); // pia, sob a janela
             lys.push(COZ.rect(2.605, 2.27 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(COZ.rect(2.605, 2.52 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
 
@@ -2439,8 +2447,8 @@
 
             // Armários aéreos: parede norte, contínuos sobre a bancada (base 1,65 m, acima da verga da janela de
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
-            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab' })); // norte, do pilar até a parede leste (0,35 de profundidade)
-            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.75, m3d: 'wallcabW' })); // leste, sobre a geladeira, 0,35 como os demais aéreos
+            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab', acab3d: 'coz' })); // norte, do pilar até a parede leste (0,35 de profundidade)
+            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.75, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira, 0,35 como os demais aéreos
             // Planejados: canto entre bancada e península com armário de canto (sem armário sobre a porta dos fundos).
             lys.push(L.polyline([COZ.rot(2.275, 0.175), COZ.rot(2.875, 0.875)], { color: '#6b7280', weight: 0.8, dashArray: '3 2', interactive: false })); // canto bancada × península: armário de canto (giratório)
             
@@ -2449,8 +2457,8 @@
             {
                 // Península de PREPARO (V1/V2/V3; no V3 a despensa guarda o resto) vira bancada de PREPARO, de frente p/ a sala, e serve de
                 // mesa: gabinete de 0,45 + balanço de 0,25 p/ oeste (joelhos). Balanço termina na saliência da bancada norte.
-                lys.push(COZ.rect(1.225, 0.425, 1.05, 0.45, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // península: gabinete
-                lys.push(COZ.rect(1.225, 0.175, 1.02, 0.25, '#b3ad9f', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.6, h3d: 0.95, m3d: 'balcao' })); // península: balanço
+                lys.push(COZ.rect(1.225, 0.425, 1.05, 0.45, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'pen' })); // península: gabinete
+                lys.push(COZ.rect(1.225, 0.175, 1.02, 0.25, '#9a7b46', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.6, h3d: 0.95, m3d: 'balcao' })); // península: balanço
                 // Balcão de refeições vazado atrás do sofá (0,44 × 1,75, h 0,95 = península): quem come fica virado p/ a TV.
                 // As 3 banquetas servem aos dois balcões e ficam guardadas embaixo deste (assento 0,65 < tampo 0,91).
                 // Face oeste (encostada nas costas do sofá) fechada até o piso: sem vão nem quina viva entre os dois.
@@ -3374,12 +3382,18 @@
         },
         // Pia da cozinha — gabinete + tampo + 2 cubas + torneira
         sink(g, s) {
-            fbox(g, s.n + 0.02, s.e, s.dn - 0.02, s.de, 0, s.h - 0.04, '#e6e2d8');
-            fbox(g, s.n - 0.02, s.e, s.dn + 0.02, s.de, s.h - 0.04, s.h, '#cfcabd', { roughness: 0.3 });
+            const ac = acabCoz(s);
+            fbox(g, s.n + 0.02, s.e, s.dn - 0.02, s.de, 0, s.h - 0.04, ac ? COR_INT.mint : '#e6e2d8');
+            fbox(g, s.n - 0.02, s.e, s.dn + 0.02, s.de, s.h - 0.04, s.h, ac ? COR_INT.quartzo : '#cfcabd', { roughness: 0.3 });
             const bw = (s.de - 0.18) / 2;
             fbox(g, s.n + 0.05, s.e + 0.06, s.dn - 0.12, bw, s.h - 0.13, s.h - 0.035, '#aeb8bf', { metalness: 0.5, roughness: 0.3 });
             fbox(g, s.n + 0.05, s.e + 0.12 + bw, s.dn - 0.12, bw, s.h - 0.13, s.h - 0.035, '#aeb8bf', { metalness: 0.5, roughness: 0.3 });
-            fcyl(g, s.n + s.dn - 0.07, s.e + s.de - 0.12, 0.02, s.h, s.h + 0.22, '#c7ccd1', { metalness: 0.7, roughness: 0.25 });
+            if (!ac) { fcyl(g, s.n + s.dn - 0.07, s.e + s.de - 0.12, 0.02, s.h, s.h + 0.22, '#c7ccd1', { metalness: 0.7, roughness: 0.25 }); return; }
+            // torneira gourmet de latão: coluna alta + bica curva para a frente, no meio das cubas
+            const tn = s.n + s.dn - 0.07, te = s.e + s.de / 2;
+            fcyl(g, tn, te, 0.022, s.h, s.h + 0.32, COR_INT.latao, LATAO());
+            fbox(g, tn - 0.20, te - 0.014, 0.21, 0.028, s.h + 0.30, s.h + 0.33, COR_INT.latao, LATAO());
+            fcyl(g, tn - 0.19, te, 0.013, s.h + 0.24, s.h + 0.30, COR_INT.latao, LATAO());
         },
         // Bancada — gabinete + tampo, segmentada deixando vãos p/ fogão e pia
         counter(g, s, model) {
@@ -3391,11 +3405,18 @@
             let cur = s.e; const segs = [];
             cuts.forEach(c => { if (c[0] > cur + 0.001) segs.push([cur, c[0]]); cur = Math.max(cur, c[1]); });
             if (cur < end - 0.001) segs.push([cur, end]);
+            const ac = acabCoz(s), pen = s.acab3d === 'pen';
             segs.forEach(([a, b]) => {
                 const de = b - a;
-                fbox(g, s.n + 0.04, a, s.dn - 0.04, de, 0.08, s.h - 0.04, '#d9d3c7');               // gabinete
-                fbox(g, s.n - 0.03, a, s.dn + 0.03, de, s.h - 0.04, s.h, '#b3ad9f', { roughness: 0.3 }); // tampo (saliência frontal)
+                fbox(g, s.n + 0.04, a, s.dn - 0.04, de, 0.08, s.h - 0.04, ac ? COR_INT.mint : '#d9d3c7');               // gabinete
+                const tampo = fbox(g, s.n - 0.03, a, s.dn + 0.03, de, s.h - 0.04, s.h,
+                    pen ? COR_INT.madeira : ac ? COR_INT.quartzo : '#b3ad9f', { roughness: pen ? 0.55 : 0.3 }); // tampo (saliência frontal)
+                if (pen) tampo.material.userData.foto = 'madeira';
                 fbox(g, s.n + 0.04, a + 0.02, 0.04, de - 0.04, 0, 0.08, '#33332f');                 // rodapé
+                if (s.acab3d === 'coz' && s.de > s.dn) {   // puxadores redondos de latão, um por porta (~0,45 m)
+                    const nP = Math.max(1, Math.round(de / 0.45));
+                    for (let i = 0; i < nP; i++) fcyl(g, s.n + 0.025, a + de * (i + 0.5) / nP, 0.014, s.h - 0.16, s.h - 0.13, COR_INT.latao, LATAO());
+                }
             });
         },
         // Lava-louças de embutir sob a bancada (frente p/ SUL): porta inox + faixa de comando + puxador; tampo contínuo
@@ -3404,7 +3425,7 @@
             fbox(g, s.n + 0.02, s.e + 0.005, 0.02, s.de - 0.01, 0.10, s.h - 0.06, '#c3c8cd', { metalness: 0.6, roughness: 0.28 });          // porta inox
             fbox(g, s.n + 0.015, s.e + 0.005, 0.006, s.de - 0.01, s.h - 0.14, s.h - 0.06, '#2b2f33', { roughness: 0.4 });                   // faixa de comando
             fbox(g, s.n - 0.005, s.e + 0.06, 0.02, s.de - 0.12, s.h - 0.18, s.h - 0.16, '#e5e7eb', { metalness: 0.8, roughness: 0.2 });       // puxador
-            fbox(g, s.n - 0.03, s.e, s.dn + 0.03, s.de, s.h - 0.04, s.h, '#b3ad9f', { roughness: 0.3 });                                    // tampo (contínuo)
+            fbox(g, s.n - 0.03, s.e, s.dn + 0.03, s.de, s.h - 0.04, s.h, acabCoz(s) ? COR_INT.quartzo : '#b3ad9f', { roughness: 0.3 });   // tampo (contínuo)
             fbox(g, s.n + 0.04, s.e + 0.02, 0.04, s.de - 0.04, 0, 0.08, '#33332f');                                                         // rodapé
         },
         // Guarda-roupa — corpo + fenda central + 2 puxadores (porta a oeste)
@@ -3454,14 +3475,14 @@
         },
         // Armário aéreo — carcaça + 2 portas + puxadores na face SUL (mN=s.n)
         wallcab(g, s) {
-            const z0 = s.z || 0, z1 = z0 + (s.h || 0.70);
-            fbox(g, s.n, s.e, s.dn, s.de, z0, z1, '#cfc9bb', { roughness: 0.5 });       // carcaça
+            const z0 = s.z || 0, z1 = z0 + (s.h || 0.70), ac = acabCoz(s);
+            fbox(g, s.n, s.e, s.dn, s.de, z0, z1, ac ? '#e4dccd' : '#cfc9bb', { roughness: 0.5 });       // carcaça
             fbox(g, s.n - 0.015, s.e + 0.01, 0.02, s.de - 0.02, z0 + 0.02, z1 - 0.02,
-                 '#e7e2d7', { roughness: 0.45 });                                       // frente (porta)
+                 ac ? COR_INT.aereo : '#e7e2d7', { roughness: 0.45 });                                       // frente (porta)
             fbox(g, s.n - 0.02, s.e + s.de / 2 - 0.004, 0.01, 0.008, z0 + 0.04, z1 - 0.04, '#9a9489'); // fenda central entre as 2 portas
             // puxadores (na base das portas — aéreo abre p/ cima)
-            fbox(g, s.n - 0.045, s.e + s.de * 0.30, 0.04, 0.03, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
-            fbox(g, s.n - 0.045, s.e + s.de * 0.70 - 0.03, 0.04, 0.03, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
+            fbox(g, s.n - 0.045, s.e + s.de * 0.30, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
+            fbox(g, s.n - 0.045, s.e + s.de * 0.70 - 0.03, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
         },
         // Coifa — canopy inox + boca de sucção escura + duto até o teto (z local 2,70)
         hood(g, s) {
@@ -3473,14 +3494,14 @@
         },
         // Armário aéreo virado p/ OESTE — costas na parede leste (mE=s.e+s.de), frente em mE=s.e
         wallcabW(g, s) {
-            const z0 = s.z || 0, z1 = z0 + (s.h || 0.70);
-            fbox(g, s.n, s.e, s.dn, s.de, z0, z1, '#cfc9bb', { roughness: 0.5 });       // carcaça
+            const z0 = s.z || 0, z1 = z0 + (s.h || 0.70), ac = acabCoz(s);
+            fbox(g, s.n, s.e, s.dn, s.de, z0, z1, ac ? '#e4dccd' : '#cfc9bb', { roughness: 0.5 });       // carcaça
             fbox(g, s.n + 0.01, s.e - 0.015, s.dn - 0.02, 0.02, z0 + 0.02, z1 - 0.02,
-                 '#e7e2d7', { roughness: 0.45 });                                       // frente (porta, face oeste)
+                 ac ? COR_INT.aereo : '#e7e2d7', { roughness: 0.45 });                                       // frente (porta, face oeste)
             fbox(g, s.n + s.dn / 2 - 0.004, s.e - 0.02, 0.008, 0.01, z0 + 0.04, z1 - 0.04, '#9a9489'); // fenda central
             // puxadores (base das portas — aéreo abre p/ cima)
-            fbox(g, s.n + s.dn * 0.30, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
-            fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
+            fbox(g, s.n + s.dn * 0.30, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
+            fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
         },
         // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
         // Torre quente de embutir — frente p/ SUL (costas na parede norte): forno elétrico na altura
