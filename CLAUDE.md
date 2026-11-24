@@ -384,7 +384,9 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | Tipo | Móvel |
 |---|---|
 | `rug` | Tapete plano fosco (respeita `z3d`) |
-| `tv` | Painel fino de TV + tela emissiva |
+| `tv` | TV fina, tela desligada com reflexo. Altura 16:9 a partir da largura (`dn`), base em `z3d` (padrão 0,80). Sala: 55" (1,23 m) |
+| `painelTV` | Painel ripado de madeira mel do piso ao teto (ripas de 4 cm, vão de 2 cm, chapa escura atrás), face p/ leste |
+| `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
 | `rack` | Rack baixo + pés + ranhura |
 | `coffee` | Mesa de centro + pernas baixas |
 | `sofa` | Base + encosto + braços + 3 almofadas, tons derivados de `s.color`; `acab3d: 'manta'` põe a manta no braço norte |
@@ -916,6 +918,8 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   (`forroCasa`; no V1/V2 fica no `roof` e aparece com a laje, no V3 fica no `floor2` sob a laje 1; o 2º piso tem
   o seu sob a laje 2). As vigas do térreo trocam de concreto (`lajeMat`, fases de obra) para pintadas na casa
   pronta pelo mesmo `userData.pilar` dos pilares; as do 2º piso já são pintadas.
+- **Canto da TV (parede oeste):** painel ripado de madeira mel do piso ao teto (2,0 m, centrado na TV), rack de madeira
+  com portas de palhinha (1,80 × 0,40 × 0,55, sobre pés) e TV de 55" (mínimo pedido pelo cliente), base a 0,78. Sem fita de LED.
 - Fora por decisão do cliente: prateleira aberta com potes e estante de livros (juntam poeira).
 
 ### Lavanderia e despensa
