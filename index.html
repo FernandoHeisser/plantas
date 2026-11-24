@@ -5596,6 +5596,8 @@
     // reboco das paredes (só relevo), trama de linho no sofá (só relevo), carvalho no balcão e relevo na grama.
     // Os materiais marcados com userData.foto recebem os mapas; as UVs viram coordenadas do mundo
     // (tam = metros por repetição), para a textura ter o mesmo tamanho em qualquer peça. Desligar restaura.
+    // Versão das imagens em /tex: subir ao trocar um JPG, senão o celular continua com a cópia guardada pelo app
+    const TEX_VER = 2;
     const FOTO_TEX = {
         piso:    { tam: 2.0,  cor: 'piso_cor', relevo: 'piso_relevo', rug: 'piso_rug' },
         parede:  { tam: 1.5,  relevo: 'parede_relevo', escala: 0.45 },
@@ -5615,7 +5617,7 @@
         const nomes = new Set();
         Object.values(FOTO_TEX).forEach(c => ['cor', 'relevo', 'rug'].forEach(k => c[k] && nomes.add(c[k])));
         const L = new THREE.TextureLoader();
-        _fotoTex = Promise.all([...nomes].map(n => new Promise((ok, err) => L.load('/tex/' + n + '.jpg', t => {
+        _fotoTex = Promise.all([...nomes].map(n => new Promise((ok, err) => L.load('/tex/' + n + '.jpg?v=' + TEX_VER, t => {
             t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
             if (n.endsWith('_cor')) t.encoding = THREE.sRGBEncoding;   // cor em sRGB; relevo/rugosidade lineares
             const r = Object.values(FOTO_TEX).find(c => c.repete && (c.cor === n || c.relevo === n || c.rug === n));

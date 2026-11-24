@@ -1,6 +1,6 @@
 // Service worker do Projeto Casa (PWA) — sem biblioteca.
 // Subir CACHE ao mudar a lista de pré-cache ou a estratégia (o activate apaga as versões antigas).
-const CACHE = 'casa-v6';
+const CACHE = 'casa-v7';
 
 // Site de arquivo único: a página "/" (index.html) + ícones/manifest + libs CDN de versão fixa.
 const SHELL = [
