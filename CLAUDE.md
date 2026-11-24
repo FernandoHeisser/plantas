@@ -870,9 +870,9 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
   leste: cooktop de indução com coifa embutida + pia sob a janela.
 - **Península** a oeste da bancada (mesma altura) com 3 banquetas (assento 0,65).
 - **Parede leste:** geladeira junto da porta dos fundos (frente alinhada a 0,65), balcão em L com o
-  canto, armário sobre a porta dos fundos.
+  canto. Sem armário sobre a porta dos fundos (decisão do cliente).
 - **Aéreos 1,65 → 2,55 m, profundidade 0,35** (norte e leste sobre o balcão) → folga de 0,70 m sobre
-  a bancada; sobre a geladeira 0,65 de profundidade (1,80 → 2,55). Ficam acima da janela da cozinha
+  a bancada; sobre a geladeira também 0,35 (1,80 → 2,55), alinhado aos demais (decisão do cliente). Ficam acima da janela da cozinha
   (verga 1,60) e o cliente prefere armário a prateleira (poeira).
 - **V3 (objetivo do cliente; V1/V2 são provisórios):** a despensa guarda o resto, a cozinha aberta fica
   com o essencial e todos ficam virados para a sala.
