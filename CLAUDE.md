@@ -393,7 +393,8 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `fridge` | Geladeira inox + fenda freezer + 2 puxadores |
 | `stove` | Fogão + forno + porta + puxador + cooktop |
 | `sink` | Pia + 2 cubas + torneira (sem saliência lateral) |
-| `counter` | Bancada segmentada: abre vãos p/ `stove` e `sink` via `model`. **Recebe `model` como 3º arg.** Recortes são **clampados ao próprio vão** (ignora fogão/pia fora do range da bancada — necessário p/ a península não vazar segmentos). |
+| `dishwasher` | Lava-louças de embutir sob a bancada, frente p/ **sul**: corpo + porta inox + faixa de comando + puxador + tampo contínuo. |
+| `counter` | Bancada segmentada: abre vãos p/ `stove`, `sink` e `dishwasher` via `model`. **Recebe `model` como 3º arg.** Recortes são **clampados ao próprio vão** (ignora fogão/pia fora do range da bancada — necessário p/ a península não vazar segmentos). |
 | `lavatory` | Lavatório + cuba + torneira |
 | `shower` | Box: base + 2 vidros sem sombra + ducha |
 | `toilet` | Vaso: bacia + assento + caixa acoplada |
@@ -880,8 +881,9 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
   - **Balcão de refeições vazado atrás do sofá** (0,44 × 1,75, h 0,95): quem come fica de frente para a TV.
     As 3 banquetas servem aos dois balcões e ficam guardadas embaixo dele.
   - Sofá 0,25 m para oeste (TV a 1,95 m).
-  - **Cooktop na parede norte** (saída do exaustor), 0,28 m para leste, deixando 0,40 de apoio depois do
-    canto da península. A pia fica 0,15 m para leste, ainda sob a janela.
+  - **Cooktop na parede norte** (saída do exaustor), 0,155 m para leste, deixando 0,275 de apoio depois do
+    canto da península (mais o tampo do canto). A pia fica 0,15 m para leste, ainda sob a janela.
+  - **Lava-louças de 60 cm** entre o cooktop e a pia (vão de 0,69), centrada pelo `LV_E`. Também no V1/V2 (vão 0,695).
   - Folgas: 1,00 entre o balcão e a península, 1,15 até a porta da despensa.
   - Variáveis `CK`/`PI`/`SF` em `buildLayers`.
 

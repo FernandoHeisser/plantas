@@ -2403,15 +2403,20 @@
             lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça)
             lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
             lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // bancada: do pilar oeste até a parede leste
-            // V3: cooktop 0,28 m p/ leste (0,40 m de apoio depois do canto da península; continua antes da janela,
-            // na parede norte, por onde sai o exaustor) e pia 0,15 m p/ leste (ainda sob a janela).
-            const CK = V3 ? 0.28 : 0, PI = V3 ? 0.15 : 0;
+            // V3: cooktop 0,155 m p/ leste (0,275 m de apoio depois do canto da península, mais o tampo do canto;
+            // continua na parede norte, por onde sai o exaustor) e pia 0,15 m p/ leste (ainda sob a janela).
+            // Entre os dois sobra 0,69 m: cabe a lava-louças de 60 cm.
+            const CK = V3 ? 0.155 : 0, PI = V3 ? 0.15 : 0;
             lys.push(COZ.rect(2.355, 0.995 + CK, 0.5, 0.51, '#111827', { color: '#0f172a', weight: 0.7, z3d: 0.95, h3d: 0.012 })); // cooktop de indução com coifa embutida (vidro sobre a bancada)
             lys.push(COZ.rect(2.575, 1.035 + CK, 0.05, 0.43, '#4b5563', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.004 })); // grelha da coifa embutida
             lys.push(COZ.circ(2.475, 1.125 + CK, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
             lys.push(COZ.circ(2.475, 1.375 + CK, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
             lys.push(COZ.circ(2.645, 1.125 + CK, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
             lys.push(COZ.circ(2.645, 1.375 + CK, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
+            // Lava-louças de 60 cm, centrada entre o cooktop (termina em 1,505+CK) e a pia (começa em 2,20+PI)
+            const LV_E = (1.505 + CK + 2.2 + PI) / 2 - 0.30;
+            lys.push(COZ.rect(2.275, LV_E, 0.6, 0.60, '#cbd5e1', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'dishwasher' })); // lava-louças sob a bancada
+            lys.push(L.polyline([COZ.rot(2.315, LV_E + 0.05), COZ.rot(2.315, LV_E + 0.55)], { color: '#475569', weight: 1.2, interactive: false })); // puxador
             lys.push(COZ.rect(2.275, 2.2 + PI, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'sink' })); // pia, sob a janela
             lys.push(COZ.rect(2.605, 2.27 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(COZ.rect(2.605, 2.52 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
@@ -3357,7 +3362,7 @@
         counter(g, s, model) {
             const end = s.e + s.de;
             // recortes (fogão/pia) clampados ao próprio vão da bancada — ignora os que ficam fora
-            const cuts = ['stove', 'sink'].map(t => model.find(o => o.m3d === t)).filter(Boolean)
+            const cuts = ['stove', 'sink', 'dishwasher'].map(t => model.find(o => o.m3d === t)).filter(Boolean)
                 .map(a => [Math.max(a.e, s.e), Math.min(a.e + a.de, end)])
                 .filter(c => c[1] > c[0] + 0.001).sort((p, q) => p[0] - q[0]);
             let cur = s.e; const segs = [];
@@ -3369,6 +3374,15 @@
                 fbox(g, s.n - 0.03, a, s.dn + 0.03, de, s.h - 0.04, s.h, '#b3ad9f', { roughness: 0.3 }); // tampo (saliência frontal)
                 fbox(g, s.n + 0.04, a + 0.02, 0.04, de - 0.04, 0, 0.08, '#33332f');                 // rodapé
             });
+        },
+        // Lava-louças de embutir sob a bancada (frente p/ SUL): porta inox + faixa de comando + puxador; tampo contínuo
+        dishwasher(g, s) {
+            fbox(g, s.n + 0.04, s.e + 0.003, s.dn - 0.04, s.de - 0.006, 0.08, s.h - 0.04, '#9aa0a6', { metalness: 0.5, roughness: 0.35 });   // corpo
+            fbox(g, s.n + 0.02, s.e + 0.005, 0.02, s.de - 0.01, 0.10, s.h - 0.06, '#c3c8cd', { metalness: 0.6, roughness: 0.28 });          // porta inox
+            fbox(g, s.n + 0.015, s.e + 0.005, 0.006, s.de - 0.01, s.h - 0.14, s.h - 0.06, '#2b2f33', { roughness: 0.4 });                   // faixa de comando
+            fbox(g, s.n - 0.005, s.e + 0.06, 0.02, s.de - 0.12, s.h - 0.18, s.h - 0.16, '#e5e7eb', { metalness: 0.8, roughness: 0.2 });       // puxador
+            fbox(g, s.n - 0.03, s.e, s.dn + 0.03, s.de, s.h - 0.04, s.h, '#b3ad9f', { roughness: 0.3 });                                    // tampo (contínuo)
+            fbox(g, s.n + 0.04, s.e + 0.02, 0.04, s.de - 0.04, 0, 0.08, '#33332f');                                                         // rodapé
         },
         // Guarda-roupa — corpo + fenda central + 2 puxadores (porta a oeste)
         wardrobe(g, s) {
