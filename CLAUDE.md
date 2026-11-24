@@ -387,24 +387,26 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `tv` | Painel fino de TV + tela emissiva |
 | `rack` | Rack baixo + pés + ranhura |
 | `coffee` | Mesa de centro + pernas baixas |
-| `sofa` | Base + encosto + braços + 3 almofadas |
+| `sofa` | Base + encosto + braços + 3 almofadas, tons derivados de `s.color`; `acab3d: 'manta'` põe a manta no braço norte |
 | `bed` | Estrado + colchão + cabeceira + 2 travesseiros + edredom (GAP=7cm da parede) |
 | `wardrobe` | Guarda-roupa + portas + puxadores |
 | `fridge` | Geladeira inox + fenda freezer + 2 puxadores |
 | `stove` | Fogão + forno + porta + puxador + cooktop |
 | `sink` | Pia + 2 cubas + torneira (sem saliência lateral) |
-| `counter` | Bancada segmentada: abre vãos p/ `stove` e `sink` via `model`. **Recebe `model` como 3º arg.** Recortes são **clampados ao próprio vão** (ignora fogão/pia fora do range da bancada — necessário p/ a península não vazar segmentos). |
+| `dishwasher` | Lava-louças de embutir sob a bancada, frente p/ **sul**: corpo + porta inox + faixa de comando + puxador + tampo contínuo. |
+| `counter` | Bancada segmentada: abre vãos p/ `stove`, `sink` e `dishwasher` via `model`. **Recebe `model` como 3º arg.** Recortes são **clampados ao próprio vão** (ignora fogão/pia fora do range da bancada — necessário p/ a península não vazar segmentos). |
 | `lavatory` | Lavatório + cuba + torneira |
 | `shower` | Box: base + 2 vidros sem sombra + ducha |
 | `toilet` | Vaso: bacia + assento + caixa acoplada |
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
 | `stool` | Banqueta alta de balcão: assento de madeira estofado + 4 pés metálicos abertos + apoio de pés. Usar com `circ` (`r` = raio do assento, `h3d` = altura do assento, padrão 0,70). |
-| `balcao` | Balcão **vazado**: tampo (cor `s.color`) + laterais finas nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas). Usa `h3d` como altura do tampo. No V3: balcão de refeições atrás do sofá e balanço da península. |
+| `balcao` | Balcão **vazado**: tampo (cor `s.color`) + laterais finas nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas). Usa `h3d` como altura do tampo. `fecha3d: 'O'` fecha a face oeste até o piso. Balcão de refeições atrás do sofá e balanço da península (V1/V2/V3). |
 | `torre` | Torre quente de embutir (forno + micro-ondas), frente p/ **sul**. No V3 fica na despensa, junto da porta da cozinha. |
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
 | `benchcorner` | Canto alemão: banco em **L** (assento 0→0,45 + encosto 0,45→0,85). Driver = **bbox do L** (rect transparente no 2D); encostos na face **N + L** (mN/mE altos). Bancos visíveis no 2D são `rect{no3d:true}` separados. |
+| `trilho` | Trilho eletrificado preto no teto (`z3d` = base) com spots a cada ~0,8 m inclinados p/ o norte |
 | `wallcab` | Armário **aéreo**, frente p/ **SUL** (costas na parede norte). Carcaça + porta + fenda central + puxadores na base. Usa `z3d` (base) + `h3d`. |
 | `wallcabW` | Armário **aéreo**, frente p/ **OESTE** (costas na parede leste, mE=s.e+s.de). `wallcab` espelhado — usado na coluna da geladeira. |
 | `wardrobeE` | Guarda-roupa com portas voltadas p/ **LESTE** (costas na parede oeste). Espelho do `wardrobe` — usado no quarto (parede oeste mE=28,5). |
@@ -762,24 +764,25 @@ visível no passeio.
   - Feito por `onBeforeCompile`, trocando a linha `gl_FragColor = vec4( outgoingLight, diffuseColor.a );`
     (o r128 não tem o trecho `output_fragment`), com `customProgramCacheKey` próprio.
   - Desligar restaura cor, opacidade, `envMap` e o shader.
-- **Decoração do V3 (`DECOR_V3`, `applyFotoDecor`, pasta `modelos/`, ~3,6 MB):**
+- **Decoração da sala e cozinha (`DECOR_SALA`, `applyFotoDecor`, pasta `modelos/`, ~3,6 MB):**
   - Modelos glTF CC0 do Poly Haven, com texturas reduzidas para 512 px. Carregados pelo `GLTFLoader`
-    só no modo foto e só no V3 térreo, no grupo `decorFoto`.
+    só no modo foto (V1/V2/V3, térreo), no grupo `decorFoto`.
   - Peças escolhidas por critério de design (aprovadas pelo cliente):
-    - 2 pendentes `modern_ceiling_lamp_01` sobre o balcão de refeições, encostados no teto (luz que
+    - 2 pendentes de vidro lapidado com latão (`proc: 'pendente'`) sobre o balcão de refeições (luz que
       delimita a zona de refeição);
+    - luminária de tripé (`proc: 'tripe'`) no canto noroeste da sala;
     - planta `potted_plant_02` na varanda norte, ao lado da porta de vidro (o hall não comporta: a porta
       de entrada varre o canto);
-    - almofadas `throw_pillows_01` no sofá, com a textura recolorida em tons de areia;
+    - almofadas `throw_pillows_01` no sofá, com a textura recolorida em verde-oliva;
     - vaso `ceramic_vase_02` na ponta norte do balcão;
     - suculenta `potted_plant_04` junto à janela da cozinha;
-    - quadro `hanging_picture_frame_01` na parede sul da sala.
+    - galeria de 5 quadros (`proc: 'quadro…'`, arte desenhada em canvas, `ARTE`) na parede sul da sala.
     - Poucas peças, porque o cliente evita objetos que juntam poeira.
   - Posição por tabela: `n`/`e` renderizados; `base`/`topo` acima do piso; `altura` (escala); `rot`;
     `parede: 'sul'` encosta a face fina na parede.
   - Os clones compartilham geometria e material com o modelo em cache (`_decorCache`), por isso levam
     `userData.semDispose`, e o `disposeObject3D` os ignora.
-- **Tapete da sala no V3** (2,0 × 1,4, `rug`, layout normal, não só modo foto): sob a frente do sofá,
+- **Tapete da sala** (V1/V2/V3, 2,0 × 1,4, `rug`, layout normal, não só modo foto): sob a frente do sofá,
   delimitando a sala.
 
 ---
@@ -870,20 +873,41 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
   leste: cooktop de indução com coifa embutida + pia sob a janela.
 - **Península** a oeste da bancada (mesma altura) com 3 banquetas (assento 0,65).
 - **Parede leste:** geladeira junto da porta dos fundos (frente alinhada a 0,65), balcão em L com o
-  canto, armário sobre a porta dos fundos.
+  canto. Sem armário sobre a porta dos fundos (decisão do cliente).
 - **Aéreos 1,65 → 2,55 m, profundidade 0,35** (norte e leste sobre o balcão) → folga de 0,70 m sobre
-  a bancada; sobre a geladeira 0,65 de profundidade (1,80 → 2,55). Ficam acima da janela da cozinha
+  a bancada; sobre a geladeira também 0,35 (1,80 → 2,55), alinhado aos demais (decisão do cliente). Ficam acima da janela da cozinha
   (verga 1,60) e o cliente prefere armário a prateleira (poeira).
-- **V3 (objetivo do cliente; V1/V2 são provisórios):** a despensa guarda o resto, a cozinha aberta fica
-  com o essencial e todos ficam virados para a sala.
+- **Mesma sala e cozinha no V1/V2/V3** (decisão do cliente; o layout nasceu no V3): no V3 a despensa guarda o
+  resto, a cozinha aberta fica com o essencial e todos ficam virados para a sala.
   - **Península de preparo** (que também serve de mesa): gabinete 0,45 + balanço de 0,25 para o oeste (`balcao`).
   - **Balcão de refeições vazado atrás do sofá** (0,44 × 1,75, h 0,95): quem come fica de frente para a TV.
-    As 3 banquetas servem aos dois balcões e ficam guardadas embaixo dele.
+    As 3 banquetas servem aos dois balcões e ficam guardadas embaixo dele. A face encostada no sofá é fechada
+    até o piso (`fecha3d: 'O'`, decisão do cliente): sem vão nem quina viva entre os dois.
   - Sofá 0,25 m para oeste (TV a 1,95 m).
-  - **Cooktop na parede norte** (saída do exaustor), 0,28 m para leste, deixando 0,40 de apoio depois do
-    canto da península. A pia fica 0,15 m para leste, ainda sob a janela.
+  - **Cooktop na parede norte** (saída do exaustor), 0,155 m para leste, deixando 0,275 de apoio depois do
+    canto da península (mais o tampo do canto). A pia fica 0,15 m para leste, ainda sob a janela.
+  - **Lava-louças de 60 cm** entre o cooktop e a pia (vão de 0,69), centrada pelo `LV_E`. Também no V1/V2 (vão 0,695).
   - Folgas: 1,00 entre o balcão e a península, 1,15 até a porta da despensa.
   - Variáveis `CK`/`PI`/`SF` em `buildLayers`.
+
+### Acabamentos da sala, cozinha e hall (V1/V2/V3) — paleta do cliente
+Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa). Cores em `COR_INT` (topo do script).
+- **Paredes internas:** Suvinil **Areia do Deserto** (`COR_INT.parede`), em painéis finos de 6 mm sobre a face
+  interna das paredes da sala, cozinha e hall (mesma técnica do azulejo do banho). A **fachada continua branca**.
+  Os vãos saem do próprio modelo (`openings`), então cada versão recorta as suas portas e janelas. Marcados `foto: 'parede'`.
+- **Faixa de azulejo Portobello Gouache Mer** (`texGouache`, verde-sálvia artesanal, peças de 10 cm, brilhante) de
+  0,95 a 1,65 m: parede norte do pilar à leste (por baixo da janela da cozinha) e parede leste sobre o balcão em L.
+- **Marcenaria** (`acab3d` nos `opts` do `rect`: `'coz'` = base mint + quartzo; `'pen'` = base mint + tampo de madeira):
+  base **MDF Mint** (Duratex), aéreos claros (`COR_INT.aereo`), bancada em **quartzo creme**, **península com tampo
+  único de madeira mel** (cobre o balanço; o `balcao` do balanço usa `acab3d: 'semTampo'`), puxadores redondos e
+  **torneira gourmet de latão**. Peças sem `acab3d` (lavanderia, despensa, 2º piso) mantêm as cores neutras.
+- **Trilho preto com spots** (`trilho`) no teto à frente dos aéreos, sobre a bancada.
+- **Sofá caramelo/conhaque** em tecido impermeável (`COR_INT.sofa`; o cliente não quer sofá claro por causa de
+  manchas) com **manta areia** no braço norte (`acab3d: 'manta'`). Base, braços e almofadas derivam do `s.color`.
+- **Modo foto:** almofadas `throw_pillows_01` recoloridas em **oliva**; **pendentes de vidro lapidado com latão** e
+  **luminária de tripé** (canto noroeste, entre o rack e a porta de vidro) e **galeria de 5 quadros** com arte
+  própria na paleta (parede sul da sala) — peças feitas no código (`decorProc`, `proc:` no `DECOR_SALA`).
+- Fora por decisão do cliente: prateleira aberta com potes e estante de livros (juntam poeira).
 
 ### Lavanderia e despensa
 - **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).

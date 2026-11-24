@@ -1815,6 +1815,21 @@
     const ESRI_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
     // Cor única do terreno — usada tanto no 2D (Leaflet) quanto no 3D (Three.js)
+    // Paleta dos acabamentos internos (sala, cozinha e hall; referência do cliente: Suvinil, Duratex, Portobello)
+    const COR_INT = {
+        parede: '#d3bd9d',     // tinta Areia do Deserto (Suvinil)
+        mint: '#a3baa3',       // MDF Mint (Duratex): armários de baixo da cozinha
+        aereo: '#eee7da',      // aéreos claros (não competem com o azulejo)
+        quartzo: '#e6ddca',    // tampo de pedra creme (bancada da pia e do cooktop)
+        madeira: '#9a7b46',    // madeira mel: península e balcão de refeições
+        latao: '#b89458',      // metais em latão escovado (torneira e puxadores)
+        sofa: '#6b3d1d',       // sofá caramelo/conhaque, tecido impermeável
+        manta: '#e3d5bd',      // manta waffle areia
+    };
+    // Acabamento por peça (opts.acab3d): 'coz' = base mint + pedra creme; 'pen' = base mint + tampo de madeira
+    const acabCoz = s => s.acab3d === 'coz' || s.acab3d === 'pen';
+    const LATAO = () => ({ metalness: 0.85, roughness: 0.32 });
+    const PEN_BAL = 0.25;   // balanço da península p/ oeste (joelhos)
     const LOT_FILL   = '#5f7a3f';   // verde grama (string para Leaflet)
     const LOT_FILL_N = 0x5f7a3f;   // numérico para Three.js
 
@@ -2099,7 +2114,7 @@
             GEO.push({ k: 'solid', shape: 'rect', n, e, dn, de,
                        h: (opts && opts.h3d != null) ? opts.h3d : 0.45,
                        z: (opts && opts.z3d) || 0, color: fill,
-                       m3d: opts && opts.m3d, folhas: opts && opts.folhas, rot3d: opts && opts.rot3d, ext3d: !!(opts && opts.ext3d),
+                       m3d: opts && opts.m3d, folhas: opts && opts.folhas, rot3d: opts && opts.rot3d, fecha3d: opts && opts.fecha3d, acab3d: opts && opts.acab3d, ext3d: !!(opts && opts.ext3d),
                        extZ3d: (opts && opts.extZ3d != null) ? opts.extZ3d : undefined });
         return L.polygon([rot(n,e), rot(n+dn,e), rot(n+dn,e+de), rot(n,e+de)],
             Object.assign({
@@ -2399,30 +2414,36 @@
 
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
             lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // geladeira, parede leste, porta p/ oeste, junto da porta dos fundos (planejado)
-            lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // balcão entre a geladeira e a bancada, em L com o canto
-            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça)
+            lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // balcão entre a geladeira e a bancada, em L com o canto
+            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'coz' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça)
             lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
-            lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // bancada: do pilar oeste até a parede leste
-            // V3: cooktop 0,28 m p/ leste (0,40 m de apoio depois do canto da península; continua antes da janela,
-            // na parede norte, por onde sai o exaustor) e pia 0,15 m p/ leste (ainda sob a janela).
-            const CK = V3 ? 0.28 : 0, PI = V3 ? 0.15 : 0;
+            lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // bancada: do pilar oeste até a parede leste
+            // Cooktop 0,155 m p/ leste (0,275 m de apoio depois do canto da península, mais o tampo do canto;
+            // continua na parede norte, por onde sai o exaustor) e pia 0,15 m p/ leste (ainda sob a janela).
+            // Entre os dois sobra 0,69 m: cabe a lava-louças de 60 cm.
+            const CK = 0.155, PI = 0.15;   // V1/V2/V3: mesma cozinha (decisão do cliente)
             lys.push(COZ.rect(2.355, 0.995 + CK, 0.5, 0.51, '#111827', { color: '#0f172a', weight: 0.7, z3d: 0.95, h3d: 0.012 })); // cooktop de indução com coifa embutida (vidro sobre a bancada)
             lys.push(COZ.rect(2.575, 1.035 + CK, 0.05, 0.43, '#4b5563', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.004 })); // grelha da coifa embutida
             lys.push(COZ.circ(2.475, 1.125 + CK, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
             lys.push(COZ.circ(2.475, 1.375 + CK, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
             lys.push(COZ.circ(2.645, 1.125 + CK, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
             lys.push(COZ.circ(2.645, 1.375 + CK, 0.08, '#374151', { color: '#0f172a', weight: 0.4, z3d: 0.962, h3d: 0.002 }));
-            lys.push(COZ.rect(2.275, 2.2 + PI, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'sink' })); // pia, sob a janela
+            // Lava-louças de 60 cm, centrada entre o cooktop (termina em 1,505+CK) e a pia (começa em 2,20+PI)
+            const LV_E = (1.505 + CK + 2.2 + PI) / 2 - 0.30;
+            lys.push(COZ.rect(2.275, LV_E, 0.6, 0.60, '#cbd5e1', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'dishwasher', acab3d: 'coz' })); // lava-louças sob a bancada
+            lys.push(L.polyline([COZ.rot(2.315, LV_E + 0.05), COZ.rot(2.315, LV_E + 0.55)], { color: '#475569', weight: 1.2, interactive: false })); // puxador
+            lys.push(COZ.rect(2.275, 2.2 + PI, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'sink', acab3d: 'coz' })); // pia, sob a janela
             lys.push(COZ.rect(2.605, 2.27 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(COZ.rect(2.605, 2.52 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
 
             // ─── ESTAR: TV na parede oeste, nos pontos de TV e internet ───
             // Sofá 0,30 m mais p/ oeste (sem mesa de centro): ~0,70 m livres até as banquetas da
             // península atrás dele; TV a ~2,2 m de quem senta.
-            // V3: sofá 0,25 m mais p/ oeste (TV a 1,95 m) p/ caber o balcão de refeições encostado nas costas dele.
-            const SF = V3 ? -0.25 : 0;
-            lys.push(SAL.rect(0.905, 2.325 + SF, 1.75, 0.85, '#7c2d12', { color: '#451a03', weight: 0.8, h3d: 0.75, m3d: 'sofa' })); // sofá
-            lys.push(SAL.rect(1.005, 2.325 + SF, 1.55, 0.65, '#9a3412', { color: '#451a03', weight: 0.4, no3d: true })); // assento
+            // Sofá 0,25 m mais p/ oeste (TV a 1,95 m) p/ caber o balcão de refeições encostado nas costas dele.
+            const SF = -0.25;
+            // Sofá caramelo em tecido impermeável (tom médio: disfarça mancha) + manta areia no braço norte
+            lys.push(SAL.rect(0.905, 2.325 + SF, 1.75, 0.85, COR_INT.sofa, { color: '#4a2a12', weight: 0.8, h3d: 0.75, m3d: 'sofa', acab3d: 'manta' })); // sofá
+            lys.push(SAL.rect(1.005, 2.325 + SF, 1.55, 0.65, '#a8703f', { color: '#4a2a12', weight: 0.4, no3d: true })); // assento
             lys.push(L.polyline([SAL.rot(1.522, 2.325 + SF), SAL.rot(1.522, 2.975 + SF)], { color: '#451a03', weight: 0.6, interactive: false }));
             lys.push(L.polyline([SAL.rot(2.038, 2.325 + SF), SAL.rot(2.038, 2.975 + SF)], { color: '#451a03', weight: 0.6, interactive: false }));
             lys.push(SAL.rect(1.075, 0.125, 1.4, 0.35, '#1f2937', { color: '#0f172a', weight: 0.6, h3d: 0.50, m3d: 'rack' })); // rack
@@ -2430,30 +2451,28 @@
 
             // Armários aéreos: parede norte, contínuos sobre a bancada (base 1,65 m, acima da verga da janela de
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
-            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab' })); // norte, do pilar até a parede leste (0,35 de profundidade)
-            lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.75, m3d: 'wallcabW' })); // leste, sobre a geladeira, mesma frente
-            // Planejados: canto entre bancada e península com armário de canto; armário sobre a porta dos fundos.
-            lys.push(COZ.rect(0.075, 3.025, 0.98, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 2.15, h3d: 0.40, m3d: 'wallcabW' })); // armário sobre a porta dos fundos, mesma frente
+            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab', acab3d: 'coz' })); // norte, do pilar até a parede leste (0,35 de profundidade)
+            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.75, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira, 0,35 como os demais aéreos
+            // Trilho preto com spots no teto, à frente dos aéreos, iluminando a bancada (sem pendente sobre a pia)
+            lys.push(COZ.rect(2.03, 0.55, 0.04, 2.9, '#1d1d1f', { color: '#1d1d1f', weight: 0.8, dashArray: '2 3', fillOpacity: 0.6, z3d: 2.64, h3d: 0.035, m3d: 'trilho' }));
+            // Planejados: canto entre bancada e península com armário de canto (sem armário sobre a porta dos fundos).
             lys.push(L.polyline([COZ.rot(2.275, 0.175), COZ.rot(2.875, 0.875)], { color: '#6b7280', weight: 0.8, dashArray: '3 2', interactive: false })); // canto bancada × península: armário de canto (giratório)
             
             // ─── REFEIÇÕES: península na ponta oeste da bancada, descendo p/ a sala ao lado da viga aparente
             // (desenho do cliente). Substitui a mesa; 3 banquetas no lado da sala (a da ponta saiu: ficava no caminho da despensa).
-            if (!V3) {
-                lys.push(COZ.rect(1.225, 0.175, 1.05, 0.7, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // península
-                lys.push(COZ.circ(2.485, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' })); // banquetas
-                lys.push(COZ.circ(2.025, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' }));
-                lys.push(COZ.circ(1.475, -0.145, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' }));
-            } else {
-                // V3 (a despensa guarda o resto): a península vira bancada de PREPARO, de frente p/ a sala, e serve de
+            {
+                // Península de PREPARO (V1/V2/V3; no V3 a despensa guarda o resto) vira bancada de PREPARO, de frente p/ a sala, e serve de
                 // mesa: gabinete de 0,45 + balanço de 0,25 p/ oeste (joelhos). Balanço termina na saliência da bancada norte.
-                lys.push(COZ.rect(1.225, 0.425, 1.05, 0.45, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter' })); // península: gabinete
-                lys.push(COZ.rect(1.225, 0.175, 1.02, 0.25, '#b3ad9f', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.6, h3d: 0.95, m3d: 'balcao' })); // península: balanço
+                lys.push(COZ.rect(1.225, 0.425, 1.05, 0.45, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'pen' })); // península: gabinete
+                lys.push(COZ.rect(1.225, 0.175, 1.02, 0.25, '#9a7b46', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.6, h3d: 0.95, m3d: 'balcao', acab3d: 'semTampo' })); // península: balanço (o tampo vem do gabinete, peça única)
                 // Balcão de refeições vazado atrás do sofá (0,44 × 1,75, h 0,95 = península): quem come fica virado p/ a TV.
                 // As 3 banquetas servem aos dois balcões e ficam guardadas embaixo deste (assento 0,65 < tampo 0,91).
-                lys.push(SAL.rect(0.905, 2.935, 1.75, 0.44, '#9a7b46', { color: '#5a4422', weight: 0.8, h3d: 0.95, m3d: 'balcao' })); // balcão atrás do sofá
+                // Face oeste (encostada nas costas do sofá) fechada até o piso: sem vão nem quina viva entre os dois.
+                lys.push(SAL.rect(0.905, 2.935, 1.75, 0.44, '#9a7b46', { color: '#5a4422', weight: 0.8, h3d: 0.95, m3d: 'balcao', fecha3d: 'O' })); // balcão atrás do sofá
+                lys.push(L.polyline([SAL.rot(0.905, 2.95), SAL.rot(2.655, 2.95)], { color: '#5a4422', weight: 2.2, interactive: false })); // painel de fechamento
                 [1.30, 1.78, 2.26].forEach(n => lys.push(SAL.circ(n, 3.155, 0.17, '#8a5a33', { color: '#451a03', weight: 0.5, h3d: 0.65, m3d: 'stool' }))); // banquetas guardadas
                 // Tapete 2,0 × 1,4 sob a frente do sofá até perto do rack: delimita a sala no ambiente integrado
-                lys.push(SAL.rect(0.775, 1.075, 2.0, 1.4, '#d8cfc0', { color: '#8b7d6b', weight: 0.6, fillOpacity: 0.6, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
+                lys.push(SAL.rect(0.775, 1.075, 2.0, 1.4, '#cfc4ae', { color: '#8b7d6b', weight: 0.6, fillOpacity: 0.6, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
             }
 
             // Hall 1,15 m: só o tapete
@@ -3132,6 +3151,28 @@
             ctx.strokeRect(0, 0, w, w);
         }, 128));
     }
+    // Azulejo artesanal verde-sálvia (Gouache Mer, Portobello): 4×4 peças de 10 cm por repetição (0,40 m),
+    // cada uma com tom e brilho levemente diferentes e borda ondulada, como a peça feita à mão.
+    function texGouache() {
+        return TEX3D.gouache || (TEX3D.gouache = canvasTex((ctx, w) => {
+            const n = 4, t = w / n;
+            ctx.fillStyle = '#e9e6dc'; ctx.fillRect(0, 0, w, w);   // rejunte claro
+            let sd = 7; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+            for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+                const x = i * t + 3, y = j * t + 3, a = t - 6, v = (rnd() - 0.5) * 18;
+                const gr = ctx.createLinearGradient(x, y, x + a, y + a);
+                gr.addColorStop(0, `rgb(${158 + v},${174 + v},${146 + v})`);
+                gr.addColorStop(0.55, `rgb(${142 + v},${161 + v},${131 + v})`);
+                gr.addColorStop(1, `rgb(${128 + v},${148 + v},${118 + v})`);
+                ctx.fillStyle = gr; ctx.fillRect(x, y, a, a);
+                const cx = x + a * (0.25 + rnd() * 0.5), cy = y + a * (0.25 + rnd() * 0.5);   // reflexo suave e irregular do esmalte
+                const rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, a * 0.6);
+                rg.addColorStop(0, `rgba(255,255,248,${0.08 + rnd() * 0.08})`); rg.addColorStop(1, 'rgba(255,255,248,0)');
+                ctx.fillStyle = rg; ctx.fillRect(x, y, a, a);
+            }
+            noise2d(ctx, w, 0, 0, 0, 6);
+        }, 256));
+    }
     function texWall() {
         return TEX3D.wall || (TEX3D.wall = canvasTex((ctx, w) => {
             ctx.fillStyle = '#efe9e0'; ctx.fillRect(0, 0, w, w);   // reboco pintado
@@ -3324,13 +3365,20 @@
         // Sofá — base + encosto (leste) + braços + 3 almofadas (frente oeste)
         sofa(g, s) {
             const tecido = m => { m.material.userData.foto = 'tecido'; };            // trama de linho no modo foto
-            fbox(g, s.n, s.e, s.dn, s.de, 0, 0.18, '#5a2310');
+            const tom = d => '#' + new THREE.Color(s.color).offsetHSL(0, 0, d).getHexString();   // base, braços e almofadas no tom do sofá
+            fbox(g, s.n, s.e, s.dn, s.de, 0, 0.18, tom(-0.12));
             tecido(fbox(g, s.n, s.e + s.de - 0.20, s.dn, 0.20, 0.18, 0.78, s.color));       // encosto (leste)
-            tecido(fbox(g, s.n, s.e, 0.16, s.de, 0.18, 0.56, '#6e2a12'));                   // braço sul
-            tecido(fbox(g, s.n + s.dn - 0.16, s.e, 0.16, s.de, 0.18, 0.56, '#6e2a12'));     // braço norte
+            tecido(fbox(g, s.n, s.e, 0.16, s.de, 0.18, 0.56, tom(-0.05)));                   // braço sul
+            tecido(fbox(g, s.n + s.dn - 0.16, s.e, 0.16, s.de, 0.18, 0.56, tom(-0.05)));     // braço norte
             const sw = (s.dn - 0.32) / 3;
             for (let i = 0; i < 3; i++)
-                tecido(fbox(g, s.n + 0.16 + i * sw + 0.02, s.e + 0.05, sw - 0.04, s.de - 0.28, 0.18, 0.36, '#a8451f', { roughness: 0.85 }));
+                tecido(fbox(g, s.n + 0.16 + i * sw + 0.02, s.e + 0.05, sw - 0.04, s.de - 0.28, 0.18, 0.36, tom(0.06), { roughness: 0.85 }));
+            if (s.acab3d === 'manta') {   // manta dobrada sobre o braço norte, caindo no assento e na lateral
+                const nm = s.n + s.dn - 0.16, mt = COR_INT.manta;
+                tecido(fbox(g, nm - 0.02, s.e + 0.08, 0.20, s.de - 0.30, 0.56, 0.575, mt, { roughness: 0.95 }));        // sobre o braço
+                tecido(fbox(g, nm - 0.30, s.e + 0.10, 0.30, s.de - 0.34, 0.36, 0.375, mt, { roughness: 0.95 }));       // no assento
+                tecido(fbox(g, s.n + s.dn, s.e + 0.08, 0.015, s.de - 0.30, 0.25, 0.575, mt, { roughness: 0.95 }));     // caindo pela lateral
+            }
         },
         // Vaso sanitário — bacia + assento + caixa acoplada (atrás, leste)
         toilet(g, s) {
@@ -3347,29 +3395,66 @@
         },
         // Pia da cozinha — gabinete + tampo + 2 cubas + torneira
         sink(g, s) {
-            fbox(g, s.n + 0.02, s.e, s.dn - 0.02, s.de, 0, s.h - 0.04, '#e6e2d8');
-            fbox(g, s.n - 0.02, s.e, s.dn + 0.02, s.de, s.h - 0.04, s.h, '#cfcabd', { roughness: 0.3 });
+            const ac = acabCoz(s);
+            fbox(g, s.n + 0.02, s.e, s.dn - 0.02, s.de, 0, s.h - 0.04, ac ? COR_INT.mint : '#e6e2d8');
+            fbox(g, s.n - 0.02, s.e, s.dn + 0.02, s.de, s.h - 0.04, s.h, ac ? COR_INT.quartzo : '#cfcabd', { roughness: 0.3 });
             const bw = (s.de - 0.18) / 2;
             fbox(g, s.n + 0.05, s.e + 0.06, s.dn - 0.12, bw, s.h - 0.13, s.h - 0.035, '#aeb8bf', { metalness: 0.5, roughness: 0.3 });
             fbox(g, s.n + 0.05, s.e + 0.12 + bw, s.dn - 0.12, bw, s.h - 0.13, s.h - 0.035, '#aeb8bf', { metalness: 0.5, roughness: 0.3 });
-            fcyl(g, s.n + s.dn - 0.07, s.e + s.de - 0.12, 0.02, s.h, s.h + 0.22, '#c7ccd1', { metalness: 0.7, roughness: 0.25 });
+            if (!ac) { fcyl(g, s.n + s.dn - 0.07, s.e + s.de - 0.12, 0.02, s.h, s.h + 0.22, '#c7ccd1', { metalness: 0.7, roughness: 0.25 }); return; }
+            // torneira gourmet de latão: coluna alta + bica curva para a frente, no meio das cubas
+            const tn = s.n + s.dn - 0.07, te = s.e + s.de / 2;
+            fcyl(g, tn, te, 0.022, s.h, s.h + 0.32, COR_INT.latao, LATAO());
+            fbox(g, tn - 0.20, te - 0.014, 0.21, 0.028, s.h + 0.30, s.h + 0.33, COR_INT.latao, LATAO());
+            fcyl(g, tn - 0.19, te, 0.013, s.h + 0.24, s.h + 0.30, COR_INT.latao, LATAO());
         },
         // Bancada — gabinete + tampo, segmentada deixando vãos p/ fogão e pia
         counter(g, s, model) {
             const end = s.e + s.de;
             // recortes (fogão/pia) clampados ao próprio vão da bancada — ignora os que ficam fora
-            const cuts = ['stove', 'sink'].map(t => model.find(o => o.m3d === t)).filter(Boolean)
+            const cuts = ['stove', 'sink', 'dishwasher'].map(t => model.find(o => o.m3d === t)).filter(Boolean)
                 .map(a => [Math.max(a.e, s.e), Math.min(a.e + a.de, end)])
                 .filter(c => c[1] > c[0] + 0.001).sort((p, q) => p[0] - q[0]);
             let cur = s.e; const segs = [];
             cuts.forEach(c => { if (c[0] > cur + 0.001) segs.push([cur, c[0]]); cur = Math.max(cur, c[1]); });
             if (cur < end - 0.001) segs.push([cur, end]);
+            const ac = acabCoz(s), pen = s.acab3d === 'pen';
             segs.forEach(([a, b]) => {
                 const de = b - a;
-                fbox(g, s.n + 0.04, a, s.dn - 0.04, de, 0.08, s.h - 0.04, '#d9d3c7');               // gabinete
-                fbox(g, s.n - 0.03, a, s.dn + 0.03, de, s.h - 0.04, s.h, '#b3ad9f', { roughness: 0.3 }); // tampo (saliência frontal)
+                fbox(g, s.n + 0.04, a, s.dn - 0.04, de, 0.08, s.h - 0.04, ac ? COR_INT.mint : '#d9d3c7');               // gabinete
+                const aT = pen && a <= s.e + 0.001 ? a - PEN_BAL : a;   // península: tampo único cobre também o balanço
+                const tampo = fbox(g, s.n - 0.03, aT, s.dn + 0.03, b - aT, s.h - 0.04, s.h,
+                    pen ? COR_INT.madeira : ac ? COR_INT.quartzo : '#b3ad9f', { roughness: pen ? 0.55 : 0.3 }); // tampo (saliência frontal)
+                if (pen) tampo.material.userData.foto = 'madeira';
                 fbox(g, s.n + 0.04, a + 0.02, 0.04, de - 0.04, 0, 0.08, '#33332f');                 // rodapé
+                if (s.acab3d === 'coz' && s.de > s.dn) {   // puxadores redondos de latão, um por porta (~0,45 m)
+                    const nP = Math.max(1, Math.round(de / 0.45));
+                    for (let i = 0; i < nP; i++) fcyl(g, s.n + 0.025, a + de * (i + 0.5) / nP, 0.014, s.h - 0.16, s.h - 0.13, COR_INT.latao, LATAO());
+                }
             });
+        },
+        // Trilho eletrificado preto no teto com spots orientáveis, inclinados p/ o NORTE (para a bancada).
+        // s.z = base do trilho; o trilho corre em mE (de) e os spots ficam a cada ~0,8 m.
+        trilho(g, s) {
+            const z = s.z || 2.64, preto = '#1d1d1f';
+            fbox(g, s.n, s.e, s.dn, s.de, z, z + 0.035, preto, { roughness: 0.5, metalness: 0.3 });
+            const nS = Math.max(2, Math.round(s.de / 0.8)), m = fmat(preto, { roughness: 0.45, metalness: 0.35 });
+            for (let i = 0; i < nS; i++) {
+                const e = s.e + s.de * (i + 0.5) / nS, nc = s.n + s.dn / 2;
+                fbox(g, nc - 0.01, e - 0.01, 0.02, 0.02, z - 0.06, z, preto);                            // haste
+                const c = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.13, 20), m);         // corpo do spot
+                c.rotation.x = -0.6; c.position.set(e, z - 0.09, -(nc + 0.035));
+                c.castShadow = true; g.add(c);
+            }
+        },
+        // Lava-louças de embutir sob a bancada (frente p/ SUL): porta inox + faixa de comando + puxador; tampo contínuo
+        dishwasher(g, s) {
+            fbox(g, s.n + 0.04, s.e + 0.003, s.dn - 0.04, s.de - 0.006, 0.08, s.h - 0.04, '#9aa0a6', { metalness: 0.5, roughness: 0.35 });   // corpo
+            fbox(g, s.n + 0.02, s.e + 0.005, 0.02, s.de - 0.01, 0.10, s.h - 0.06, '#c3c8cd', { metalness: 0.6, roughness: 0.28 });          // porta inox
+            fbox(g, s.n + 0.015, s.e + 0.005, 0.006, s.de - 0.01, s.h - 0.14, s.h - 0.06, '#2b2f33', { roughness: 0.4 });                   // faixa de comando
+            fbox(g, s.n - 0.005, s.e + 0.06, 0.02, s.de - 0.12, s.h - 0.18, s.h - 0.16, '#e5e7eb', { metalness: 0.8, roughness: 0.2 });       // puxador
+            fbox(g, s.n - 0.03, s.e, s.dn + 0.03, s.de, s.h - 0.04, s.h, acabCoz(s) ? COR_INT.quartzo : '#b3ad9f', { roughness: 0.3 });   // tampo (contínuo)
+            fbox(g, s.n + 0.04, s.e + 0.02, 0.04, s.de - 0.04, 0, 0.08, '#33332f');                                                         // rodapé
         },
         // Guarda-roupa — corpo + fenda central + 2 puxadores (porta a oeste)
         wardrobe(g, s) {
@@ -3389,10 +3474,11 @@
         // Balcão vazado — tampo + laterais nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas)
         balcao(g, s) {
             const t = 0.04, w = 0.03;
-            const pecas = [fbox(g, s.n, s.e, s.dn, s.de, s.h - t, s.h, s.color, { roughness: 0.55 }),
+            const pecas = [s.acab3d === 'semTampo' ? null : fbox(g, s.n, s.e, s.dn, s.de, s.h - t, s.h, s.color, { roughness: 0.55 }),
                            fbox(g, s.n, s.e, w, s.de, 0, s.h - t, s.color, { roughness: 0.6 }),
                            fbox(g, s.n + s.dn - w, s.e, w, s.de, 0, s.h - t, s.color, { roughness: 0.6 })];
-            if (s.color === '#9a7b46') pecas.forEach(m => { m.material.userData.foto = 'madeira'; });   // balcão de madeira
+            if (s.fecha3d === 'O') pecas.push(fbox(g, s.n + w, s.e, s.dn - 2 * w, w, 0, s.h - t, s.color, { roughness: 0.6 }));   // face oeste fechada (encostada no sofá)
+            if (s.color === '#9a7b46') pecas.forEach(m => { if (m) m.material.userData.foto = 'madeira'; });   // balcão de madeira
         },
         // Mesa de jantar — tampo + 4 pernas
         table(g, s) {
@@ -3417,14 +3503,14 @@
         },
         // Armário aéreo — carcaça + 2 portas + puxadores na face SUL (mN=s.n)
         wallcab(g, s) {
-            const z0 = s.z || 0, z1 = z0 + (s.h || 0.70);
-            fbox(g, s.n, s.e, s.dn, s.de, z0, z1, '#cfc9bb', { roughness: 0.5 });       // carcaça
+            const z0 = s.z || 0, z1 = z0 + (s.h || 0.70), ac = acabCoz(s);
+            fbox(g, s.n, s.e, s.dn, s.de, z0, z1, ac ? '#e4dccd' : '#cfc9bb', { roughness: 0.5 });       // carcaça
             fbox(g, s.n - 0.015, s.e + 0.01, 0.02, s.de - 0.02, z0 + 0.02, z1 - 0.02,
-                 '#e7e2d7', { roughness: 0.45 });                                       // frente (porta)
+                 ac ? COR_INT.aereo : '#e7e2d7', { roughness: 0.45 });                                       // frente (porta)
             fbox(g, s.n - 0.02, s.e + s.de / 2 - 0.004, 0.01, 0.008, z0 + 0.04, z1 - 0.04, '#9a9489'); // fenda central entre as 2 portas
             // puxadores (na base das portas — aéreo abre p/ cima)
-            fbox(g, s.n - 0.045, s.e + s.de * 0.30, 0.04, 0.03, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
-            fbox(g, s.n - 0.045, s.e + s.de * 0.70 - 0.03, 0.04, 0.03, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
+            fbox(g, s.n - 0.045, s.e + s.de * 0.30, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
+            fbox(g, s.n - 0.045, s.e + s.de * 0.70 - 0.03, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
         },
         // Coifa — canopy inox + boca de sucção escura + duto até o teto (z local 2,70)
         hood(g, s) {
@@ -3436,14 +3522,14 @@
         },
         // Armário aéreo virado p/ OESTE — costas na parede leste (mE=s.e+s.de), frente em mE=s.e
         wallcabW(g, s) {
-            const z0 = s.z || 0, z1 = z0 + (s.h || 0.70);
-            fbox(g, s.n, s.e, s.dn, s.de, z0, z1, '#cfc9bb', { roughness: 0.5 });       // carcaça
+            const z0 = s.z || 0, z1 = z0 + (s.h || 0.70), ac = acabCoz(s);
+            fbox(g, s.n, s.e, s.dn, s.de, z0, z1, ac ? '#e4dccd' : '#cfc9bb', { roughness: 0.5 });       // carcaça
             fbox(g, s.n + 0.01, s.e - 0.015, s.dn - 0.02, 0.02, z0 + 0.02, z1 - 0.02,
-                 '#e7e2d7', { roughness: 0.45 });                                       // frente (porta, face oeste)
+                 ac ? COR_INT.aereo : '#e7e2d7', { roughness: 0.45 });                                       // frente (porta, face oeste)
             fbox(g, s.n + s.dn / 2 - 0.004, s.e - 0.02, 0.008, 0.01, z0 + 0.04, z1 - 0.04, '#9a9489'); // fenda central
             // puxadores (base das portas — aéreo abre p/ cima)
-            fbox(g, s.n + s.dn * 0.30, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
-            fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, '#9aa0a7', { metalness: 0.6, roughness: 0.3 });
+            fbox(g, s.n + s.dn * 0.30, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
+            fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
         },
         // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
         // Torre quente de embutir — frente p/ SUL (costas na parede norte): forno elétrico na altura
@@ -4005,6 +4091,63 @@
             parede(true,  nN, -1, eO, eL);
             parede(false, eO, +1, nS, nN, { s: p.ini, e: p.ini + p.larg, z0: 0, z1: 2.1 });
             parede(false, eL, -1, nS, nN);
+        }
+
+        // ── Pintura interna (Areia do Deserto) e faixa de azulejo da cozinha (Gouache Mer) ──
+        // Painéis finos sobre a face interna das paredes da sala, cozinha e hall: a fachada continua branca.
+        // Os vãos (portas e janelas) vêm do próprio modelo, então cada versão recorta os seus.
+        {
+            const T = 0.006;
+            const matTinta = new THREE.MeshStandardMaterial({ color: col3d(COR_INT.parede), roughness: 0.9, metalness: 0, envMapIntensity: 0.3 });
+            matTinta.userData.foto = 'parede';
+            const matGouache = new THREE.MeshStandardMaterial({ map: texGouache(), roughness: 0.18, metalness: 0, envMapIntensity: 0.9 });
+            // vãos que cortam a face (emE: parede corre em mE, face em mN = pos)
+            const vaosNa = (emE, pos) => openings.filter(o => emE
+                ? (o.de >= o.dn && pos >= o.n - 0.02 && pos <= o.n + o.dn + 0.02)
+                : (o.dn > o.de && pos >= o.e - 0.02 && pos <= o.e + o.de + 0.02))
+                .map(o => ({ s: emE ? o.e : o.n, e: emE ? o.e + o.de : o.n + o.dn, z0: o.type === 'window' ? o.sill : 0, z1: o.head }));
+            const placa = (mat, emE, pos, lado, a0, a1, z0, z1, uvTam, off) => {
+                if (a1 - a0 < 0.005 || z1 - z0 < 0.005) return;
+                const d = off || 0, p0 = lado > 0 ? pos + d : pos - d - T;
+                const m = emE ? box3d(p0, a0, T, a1 - a0, CPA + z0, CPA + z1, mat)
+                              : box3d(a0, p0, a1 - a0, T, CPA + z0, CPA + z1, mat);
+                if (uvTam) {   // peças em tamanho real
+                    const uv = m.geometry.attributes.uv;
+                    for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * (a1 - a0) / uvTam, uv.getY(i) * (z1 - z0) / uvTam);
+                }
+                m.castShadow = false; m.userData.noWalk = true;
+                g.add(m);
+            };
+            // reveste a faixa a0→a1 × z0→z1 da face, pulando os vãos
+            const reveste = (mat, emE, pos, lado, a0, a1, z0, z1, uvTam, off) => {
+                const vs = vaosNa(emE, pos).filter(v => v.e > a0 && v.s < a1).sort((x, y) => x.s - y.s);
+                let cur = a0;
+                vs.forEach(v => {
+                    const s0 = Math.max(v.s, a0), s1 = Math.min(v.e, a1);
+                    placa(mat, emE, pos, lado, cur, s0, z0, z1, uvTam, off);
+                    placa(mat, emE, pos, lado, s0, s1, z0, Math.min(z1, Math.max(z0, v.z0)), uvTam, off);   // abaixo do vão
+                    placa(mat, emE, pos, lado, s0, s1, Math.max(z0, Math.min(z1, v.z1)), z1, uvTam, off);   // acima do vão
+                    cur = Math.max(cur, s1);
+                });
+                placa(mat, emE, pos, lado, cur, a1, z0, z1, uvTam, off);
+            };
+            const H = CEIL3D;
+            const nS = EIXO.S + ESP.ext / 2, nL = EIXO.LONG - ESP.int / 2, nL2 = EIXO.LONG + ESP.int / 2, nN = EIXO.N - ESP.ext / 2;
+            const eO = EIXO.O + ESP.ext / 2 + OE, eH = EIXO.HALL + ESP.int / 2 + OE, eL = EIXO.L - ESP.ext / 2 + OE;
+            const eB = EIXO.HALL - ESP.int / 2 + OE;   // face oeste do banho = ponta oeste da longitudinal
+            // sala + cozinha
+            reveste(matTinta, true,  nN,  -1, eO, eL, 0, H);              // norte
+            reveste(matTinta, true,  nL2, +1, eB, eL, 0, H);              // longitudinal (lado da sala)
+            reveste(matTinta, false, eO,  +1, nL2, nN, 0, H);             // oeste (TV)
+            reveste(matTinta, false, eL,  -1, nL2, nN, 0, H);             // leste (porta dos fundos)
+            // hall (aberto para a sala)
+            reveste(matTinta, true,  nS,  +1, eO, eB, 0, H);              // sul
+            reveste(matTinta, false, eO,  +1, nS, nL2, 0, H);             // oeste (porta de entrada)
+            reveste(matTinta, false, eB,  -1, nS, nL, 0, H);              // parede do banho
+            // Azulejo Gouache Mer: faixa entre a bancada (0,95) e os aéreos (1,65), sobre a tinta
+            const eCoz = EIXO.SERV + OE;                                   // eixo de referência da cozinha (COZ)
+            reveste(matGouache, true,  nN, -1, eCoz + 0.175, eL, 0.95, 1.65, 0.40, T);   // parede norte, do pilar à leste
+            reveste(matGouache, false, eL, -1, EIXO.LONG + 1.775, nN, 0.95, 1.65, 0.40, T); // parede leste, sobre o balcão em L
         }
 
         // ── Esquadrias: batentes, montantes, peitoris e folhas de porta ──────
@@ -5210,7 +5353,7 @@
         if (!root) return;
         const keepMat = new Set();
         if (satGroundMat) keepMat.add(satGroundMat);
-        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo].filter(Boolean));
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.gouache].filter(Boolean));
         if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
         if (_fotoTexMap) Object.values(_fotoTexMap).forEach(t => keepTex.add(t));
         root.traverse(obj => {
@@ -5532,23 +5675,89 @@
         S._dirty = true;
     }
 
-    // Decoração do V3 (térreo) só no modo foto: modelos CC0 do Poly Haven em /modelos (texturas 512 px).
+    // Decoração da sala e cozinha (térreo, V1/V2/V3) só no modo foto: modelos CC0 do Poly Haven em /modelos
+    // (texturas 512 px) e peças feitas aqui (proc), na paleta do cliente: pendentes de vidro lapidado com latão,
+    // luminária de tripé e galeria de quadros com arte própria.
     // n/e = metros do lote já renderizados (com OE); base/topo = altura acima do piso acabado (CPA);
     // altura = escala uniforme até essa altura; rot = giro em graus no eixo vertical.
     // Critérios de design: luz de tarefa zoneando a refeição, planta na varanda norte vista pelo vidro
     // (o hall não comporta: a porta de entrada varre o canto), textura macia no
     // sofá, poucos objetos (o cliente evita poeira) e uma parede de destaque para arte.
-    const DECOR_V3 = [
-        { id: 'modern_ceiling_lamp_01', n: 6.08, e: 20.23, topo: CEIL3D },             // pendentes sobre o balcão
-        { id: 'modern_ceiling_lamp_01', n: 6.93, e: 20.23, topo: CEIL3D },
+    const DECOR_SALA = [
+        { proc: 'pendente', n: 6.08, e: 20.23, topo: CEIL3D },                         // pendentes sobre o balcão
+        { proc: 'pendente', n: 6.93, e: 20.23, topo: CEIL3D },
+        { proc: 'tripe',    n: 7.36, e: 17.38, base: 0 },                              // luminária de tripé no canto NO (rack ↔ porta de vidro)
         { id: 'potted_plant_02',  n: 8.15, e: 19.60, base: 0 },                      // varanda norte, ao lado da porta de vidro
         { id: 'throw_pillows_01', n: 6.50, e: 19.70, base: 0.36, rot: 90 },          // almofadas no sofá
         { id: 'ceramic_vase_02',  n: 7.15, e: 20.23, base: 0.95 },                   // vaso na ponta do balcão
         { id: 'potted_plant_04',  n: 7.30, e: 24.55, base: 0.95 },                   // suculenta junto à janela da cozinha
-        { id: 'hanging_picture_frame_01', n: 4.80, e: 19.75, base: 1.08, parede: 'sul' },   // arte na parede sul da sala
+        // galeria na parede sul da sala (face 4,80), entre o hall e a porta da lavanderia
+        { proc: 'quadroSol',   n: 4.80, e: 19.05, base: 1.10, parede: 'sul' },
+        { proc: 'quadroArco',  n: 4.80, e: 19.62, base: 1.00, parede: 'sul' },
+        { proc: 'quadroFolha', n: 4.80, e: 20.12, base: 1.18, parede: 'sul' },
+        { proc: 'quadroBloco', n: 4.80, e: 19.30, base: 1.74, parede: 'sul' },
+        { proc: 'quadroLinha', n: 4.80, e: 19.86, base: 1.74, parede: 'sul' },
     ];
+    // Peças feitas aqui: criadas uma vez e clonadas como os modelos (geometria e material compartilhados)
+    function _artTex(desenho) {
+        const cv = document.createElement('canvas'); cv.width = 256; cv.height = 320;
+        const c = cv.getContext('2d'); desenho(c, 256, 320);
+        const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; return t;
+    }
+    const ARTE = {
+        quadroSol:   [0.40, 0.50, (c, w, h) => { c.fillStyle = '#efe6d2'; c.fillRect(0, 0, w, h);
+                        c.fillStyle = '#d4a84a'; c.beginPath(); c.arc(w * 0.5, h * 0.42, w * 0.2, 0, 7); c.fill();
+                        c.fillStyle = '#7d8250'; c.beginPath(); c.moveTo(0, h); c.quadraticCurveTo(w * 0.35, h * 0.55, w, h * 0.78); c.lineTo(w, h); c.fill();
+                        c.fillStyle = '#a8673d'; c.beginPath(); c.moveTo(0, h); c.quadraticCurveTo(w * 0.7, h * 0.7, w, h * 0.92); c.lineTo(w, h); c.fill(); }],
+        quadroArco:  [0.50, 0.65, (c, w, h) => { c.fillStyle = '#e8dcc6'; c.fillRect(0, 0, w, h);
+                        c.fillStyle = '#b5653d'; c.beginPath(); c.moveTo(w * 0.2, h * 0.85); c.lineTo(w * 0.2, h * 0.45); c.arc(w * 0.5, h * 0.45, w * 0.3, Math.PI, 0); c.lineTo(w * 0.8, h * 0.85); c.fill();
+                        c.fillStyle = '#d9b25e'; c.beginPath(); c.arc(w * 0.62, h * 0.30, w * 0.08, 0, 7); c.fill(); }],
+        quadroFolha: [0.34, 0.42, (c, w, h) => { c.fillStyle = '#f2ece0'; c.fillRect(0, 0, w, h);
+                        c.strokeStyle = '#6e7547'; c.lineWidth = 5; c.beginPath(); c.moveTo(w * 0.5, h * 0.85); c.lineTo(w * 0.5, h * 0.55); c.stroke();
+                        c.beginPath(); c.moveTo(w * 0.5, h * 0.55); c.bezierCurveTo(w * 0.1, h * 0.45, w * 0.2, h * 0.15, w * 0.5, h * 0.22);
+                        c.bezierCurveTo(w * 0.8, h * 0.15, w * 0.9, h * 0.45, w * 0.5, h * 0.55); c.stroke(); }],
+        quadroBloco: [0.36, 0.36, (c, w, h) => { c.fillStyle = '#efe6d2'; c.fillRect(0, 0, w, h);
+                        [['#9aae94', 0.12, 0.15, 0.45, 0.4], ['#c48a54', 0.45, 0.45, 0.42, 0.4], ['#d4a84a', 0.2, 0.6, 0.2, 0.2]]
+                          .forEach(([f, x, y, a, b]) => { c.fillStyle = f; c.fillRect(w * x, h * y, w * a, h * b); }); }],
+        quadroLinha: [0.30, 0.30, (c, w, h) => { c.fillStyle = '#f4efe5'; c.fillRect(0, 0, w, h);
+                        c.strokeStyle = '#3c3a33'; c.lineWidth = 3; c.beginPath();
+                        c.ellipse(w * 0.45, h * 0.5, w * 0.2, h * 0.28, 0.3, 0, 7); c.moveTo(w * 0.62, h * 0.3); c.quadraticCurveTo(w * 0.8, h * 0.55, w * 0.55, h * 0.8); c.stroke(); }],
+    };
+    function decorProc(nome) {
+        const grp = new THREE.Group();
+        const mat = (cor, x) => new THREE.MeshStandardMaterial(Object.assign({ color: col3d(cor), roughness: 0.5, metalness: 0 }, x || {}));
+        const latao = mat(COR_INT.latao, LATAO());
+        const add = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x || 0, y || 0, z || 0); grp.add(o); return o; };
+        if (nome === 'pendente') {        // vidro lapidado (facetado) + latão; base em y=0, topo no teto
+            add(new THREE.CylinderGeometry(0.055, 0.055, 0.025, 24), latao, 0, 0.9875);           // canopla
+            add(new THREE.CylinderGeometry(0.004, 0.004, 0.62, 8), latao, 0, 0.665);              // haste
+            add(new THREE.CylinderGeometry(0.035, 0.05, 0.05, 24), latao, 0, 0.33);               // galeria do vidro
+            const vidro = mat('#f3ead8', { transparent: true, opacity: 0.55, roughness: 0.08, flatShading: true,
+                                           emissive: col3d('#ffe2b0'), emissiveIntensity: 0.25, envMapIntensity: 1.2 });
+            const g0 = new THREE.IcosahedronGeometry(0.12, 1); g0.scale(1, 1.15, 1);
+            add(g0, vidro, 0, 0.17).castShadow = false;
+            add(new THREE.SphereGeometry(0.018, 12, 8), latao, 0, 0.02);                          // arremate
+        } else if (nome === 'tripe') {    // três pés de madeira + cúpula de tecido branco
+            const pau = mat(COR_INT.madeira, { roughness: 0.6 }); pau.userData.foto = 'madeira';
+            for (let i = 0; i < 3; i++) {
+                const a = i * Math.PI * 2 / 3, p = add(new THREE.CylinderGeometry(0.013, 0.016, 1.30, 10), pau, Math.cos(a) * 0.12, 0.64, Math.sin(a) * 0.12);
+                p.rotation.set(-Math.sin(a) * 0.19, 0, Math.cos(a) * 0.19);   // topo converge no centro
+            }
+            const cup = mat('#f4efe4', { side: THREE.DoubleSide, roughness: 0.9, emissive: col3d('#fff1d6'), emissiveIntensity: 0.15 });
+            add(new THREE.CylinderGeometry(0.19, 0.22, 0.30, 36, 1, true), cup, 0, 1.40);
+            add(new THREE.CylinderGeometry(0.012, 0.012, 0.18, 8), latao, 0, 1.28);
+        } else if (ARTE[nome]) {          // moldura de madeira + passe-partout + arte; frente para +X (girada na parede)
+            const [w, h, desenho] = ARTE[nome];
+            const mold = mat('#8a6a3e', { roughness: 0.6 });
+            add(new THREE.BoxGeometry(0.025, h, w), mold, 0, h / 2);
+            add(new THREE.BoxGeometry(0.03, h - 0.04, w - 0.04), mat('#f7f3ea', { roughness: 0.9 }), 0, h / 2);
+            add(new THREE.BoxGeometry(0.032, h - 0.12, w - 0.12), new THREE.MeshStandardMaterial({ map: _artTex(desenho), roughness: 0.85 }), 0, h / 2);
+        }
+        return grp;
+    }
     const _decorCache = {};
     function loadDecor(id) {
+        if (id.startsWith('proc:')) return _decorCache[id] || (_decorCache[id] = Promise.resolve(decorProc(id.slice(5))));
         if (!_decorCache[id]) _decorCache[id] = new Promise((ok, err) =>
             new THREE.GLTFLoader().load(`/modelos/${id}/${id}_1k.gltf`, g => ok(g.scene), undefined, () => err(new Error(id))))
             .catch(e => { delete _decorCache[id]; throw e; });
@@ -5558,12 +5767,12 @@
         if (!S.group) return;
         const velho = S.group.getObjectByName('decorFoto');
         if (velho) velho.parent.remove(velho);
-        if (!on || v !== 'v3' || !THREE.GLTFLoader) { S._dirty = true; return; }
+        if (!on || !THREE.GLTFLoader) { S._dirty = true; return; }
         const grupo = new THREE.Group(); grupo.name = 'decorFoto';
         const alvo = S.group;
-        await Promise.all(DECOR_V3.map(async d => {
+        await Promise.all(DECOR_SALA.map(async d => {
             let modelo;
-            try { modelo = await loadDecor(d.id); } catch (e) { console.warn('Modelo indisponível:', e.message); return; }
+            try { modelo = await loadDecor(d.proc ? 'proc:' + d.proc : d.id); } catch (e) { console.warn('Modelo indisponível:', e.message); return; }
             const o = modelo.clone(true);
             o.traverse(m => { m.userData.semDispose = true; m.userData.noWalk = d.topo != null;
                               if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
@@ -5576,7 +5785,7 @@
             if (d.altura) { o.scale.multiplyScalar(d.altura / tam.y); b = new THREE.Box3().setFromObject(o); tam = b.getSize(new THREE.Vector3()); }
             const c = b.getCenter(new THREE.Vector3());
             const y = d.topo != null ? CPA + d.topo - b.max.y : CPA + d.base - b.min.y;
-            const z = d.parede === 'sul' ? -(d.n + tam.z / 2 + 0.005) - c.z : -d.n - c.z;
+            const z = d.parede === 'sul' ? -(d.n + tam.z / 2 + 0.012) - c.z : -d.n - c.z;   // folga p/ a pintura
             o.position.add(new THREE.Vector3(d.e - c.x, y, z));
             grupo.add(o);
         }));
@@ -6078,7 +6287,7 @@
             `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
             'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
             `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
-            'Materiais: piso de porcelanato claro acetinado; paredes em pintura branca fosca; marcenaria planejada em MDF branco com detalhes em madeira natural clara; bancadas em quartzo branco; esquadrias de alumínio branco com vidro incolor; tecidos em tons neutros e terrosos.',
+            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, trilho preto com spots no teto; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete claro mesclado; pendentes de vidro lapidado com latão; luminária de piso com tripé de madeira; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
             `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
         ].join('\n\n');
     }
