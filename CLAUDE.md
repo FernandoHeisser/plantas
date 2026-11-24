@@ -391,6 +391,8 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
 | `rack` | Rack baixo + pés + ranhura |
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
+| `fornoBancada` | Forno elétrico de bancada solto, frente p/ **norte**: corpo grafite, porta de vidro escuro com puxador, botões à direita. Base em `z3d` (tampo) |
+| `microondas` | Micro-ondas solto, frente p/ **norte**: corpo claro, visor escuro, painel à direita. Base em `z3d` |
 | `freezer` | Freezer vertical inox, porta única com puxador vertical e grade de ventilação; frente por `acab3d` (padrão `'S'`) |
 | `coffee` | Mesa de centro + pernas baixas |
 | `sofa` | Base + encosto + braços + 3 almofadas, tons derivados de `s.color`; `acab3d: 'manta'` põe a manta no braço norte |
@@ -408,7 +410,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
 | `stool` | Banqueta alta de balcão: assento de madeira estofado + 4 pés metálicos abertos + apoio de pés. Usar com `circ` (`r` = raio do assento, `h3d` = altura do assento, padrão 0,70). |
 | `balcao` | Balcão **vazado**: tampo (cor `s.color`) + laterais finas nas pontas N e S; embaixo fica livre (joelhos, banquetas guardadas). Usa `h3d` como altura do tampo. `fecha3d: 'O'` fecha a face oeste até o piso. Balcão de refeições atrás do sofá e balanço da península (V1/V2/V3). |
-| `torre` | Torre quente de embutir (forno + micro-ondas), frente p/ **sul** (`acab3d: 'N'` = p/ norte). No V3 fica no canto sudeste da despensa. |
+| `torre` | Torre quente de embutir (forno + micro-ondas), frente p/ **sul** (`acab3d: 'N'` = p/ norte). Hoje sem uso (a despensa usa forno e micro-ondas soltos). |
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
 | `benchcorner` | Canto alemão: banco em **L** (assento 0→0,45 + encosto 0,45→0,85). Driver = **bbox do L** (rect transparente no 2D); encostos na face **N + L** (mN/mE altos). Bancos visíveis no 2D são `rect{no3d:true}` separados. |
@@ -939,10 +941,11 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   - **Norte** (parede interna, encosta na cozinha, seca e morna): só comida, **despenseiro de mantimentos de 2,6 m**
     (0,60 de fundo, até 2,55).
   - **Sul** (fria e úmida, só o que aguenta): **freezer vertical** 0,70 × 0,60 × 1,70 no canto sudoeste, porta p/ norte
-    (rende melhor no frio), com aéreo em cima; **bancada de dobrar** de 1,69 m sob a janela (topo 0,90 = peitoril) com
-    cestos de roupa suja embaixo; **coluna de limpeza** 0,50 × 0,60 até 2,55 logo depois da janela; **torre quente**
-    (forno + micro-ondas, `torre` com `acab3d: 'N'`) no canto sudeste, longe do freezer (pedido do cliente).
-  - **Leste** (sol da manhã): armário baixo de estoque sob a janela (água, bebidas).
+    (rende melhor no frio), com aéreo em cima; **bancada** de 2,19 m sob a janela (topo 0,90 = peitoril) com cestos de
+    roupa suja embaixo e, **em cima, forno elétrico de bancada e micro-ondas soltos, lado a lado na frente da janela**
+    (`fornoBancada` 0,55 e `microondas` 0,50; decisão do cliente: a janela é fraca, só luz e brisa, e canto é ruim de
+    tirar e pôr coisas, por isso a torre saiu); **coluna de limpeza** 0,60 × 0,60 até 2,55 no canto sudeste.
+  - **Leste** (sol da manhã): armário baixo de estoque sob a janela (água, bebidas); o tampo dele serve para dobrar roupa.
   - **Oeste** (interna): aéreo de roupa de cama sobre a porta de correr; aéreo sobre a porta da cozinha.
   - Sem aéreos nas paredes sul e leste (úmidas e com janela). Corredor livre de 1,30 m.
   - Builders genéricos `movel` (frente por `acab3d`: `'N'`/`'S'`/`'O'`/`'L'`) e `freezer`.

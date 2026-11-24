@@ -2402,17 +2402,18 @@
 
                 // V3: o dormitório vira despensa, por zonas de uso e de clima. Parede NORTE (interna, encosta na cozinha,
                 // seca e morna): só comida (despenseiro). Parede OESTE (interna): aéreo de roupa de cama. Parede SUL (fria e
-                // úmida): só o que aguenta: freezer (rende melhor no frio), bancada de dobrar com cestos de roupa suja,
-                // coluna de limpeza e torre quente (forno + micro-ondas) no canto oposto ao freezer. LESTE: estoque.
+                // úmida): só o que aguenta: freezer (rende melhor no frio), bancada com forno elétrico e micro-ondas soltos
+                // na frente da janela (janela fraca, só luz e brisa: decisão do cliente), coluna de limpeza. LESTE: estoque.
                 // Frentes: norte em n 1,975, sul em n 0,675, leste em e 3,125 → corredor de 1,30 m.
                 lys.push(QUA.rect(0.105, 0.085, 0.62, 0.04, '#8a5a33', { color: '#451a03', weight: 0.6, h3d: 2.10 })); // folhas da porta de correr, abertas
                 lys.push(QUA.rect(1.925, 0.085, 0.62, 0.04, '#8a5a33', { color: '#451a03', weight: 0.6, h3d: 2.10 }));
                 const MOV = { color: '#6b7280', weight: 0.7 };
                 lys.push(QUA.rect(1.975, 1.075, 0.6, 2.6, '#e9e2d4', { ...MOV, h3d: 2.55, m3d: 'movel', acab3d: 'S' }));               // despenseiro de mantimentos 2,6 m (aramados + gavetões), parede seca
                 lys.push(QUA.rect(0.075, 0.135, 0.6, 0.7, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'freezer', acab3d: 'N' })); // freezer vertical na parede fria, porta p/ norte
-                lys.push(QUA.rect(0.075, 0.885, 0.6, 1.69, '#e9e2d4', { ...MOV, h3d: 0.90, m3d: 'movel', acab3d: 'N' }));              // bancada de dobrar (topo = peitoril), cestos de roupa suja embaixo
-                lys.push(QUA.rect(0.075, 2.575, 0.6, 0.5, '#e9e2d4', { ...MOV, h3d: 2.55, m3d: 'movel', acab3d: 'N' }));               // coluna de limpeza 0,50, logo depois da janela: vassoura, rodo, aspirador, balde
-                lys.push(QUA.rect(0.075, 3.075, 0.6, 0.6, '#e5e7eb', { ...MOV, h3d: 2.55, m3d: 'torre', acab3d: 'N' }));              // torre quente (forno + micro-ondas) no canto sudeste, longe do freezer
+                lys.push(QUA.rect(0.075, 0.885, 0.6, 2.19, '#e9e2d4', { ...MOV, h3d: 0.90, m3d: 'movel', acab3d: 'N' }));              // bancada sul (topo = peitoril), cestos de roupa suja embaixo
+                lys.push(QUA.rect(0.12, 1.25, 0.45, 0.55, '#3f3f46', { color: '#18181b', weight: 0.7, z3d: 0.90, h3d: 0.36, m3d: 'fornoBancada' })); // forno elétrico de bancada, frente p/ norte
+                lys.push(QUA.rect(0.15, 1.90, 0.40, 0.50, '#e5e7eb', { color: '#475569', weight: 0.7, z3d: 0.90, h3d: 0.30, m3d: 'microondas' }));   // micro-ondas, ao lado
+                lys.push(QUA.rect(0.075, 3.075, 0.6, 0.6, '#e9e2d4', { ...MOV, h3d: 2.55, m3d: 'movel', acab3d: 'N' }));               // coluna de limpeza no canto: vassoura, rodo, aspirador, balde
                 lys.push(QUA.rect(0.675, 3.125, 1.3, 0.55, '#e9e2d4', { ...MOV, h3d: 0.88, m3d: 'movel', acab3d: 'O' }));              // armário baixo de estoque sob a janela leste (água, bebidas)
                 // Aéreos (0,35): sobre o freezer; parede oeste sobre a porta de correr (roupa de cama, parede seca); sobre a porta da cozinha
                 const AER = { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35 };
@@ -3516,6 +3517,24 @@
                     peca(ab, ab + 0.02, zp[0], zp[1], 0.018, 0.04, '#b9bec4', INOX);
                 }
             });
+        },
+        // Forno elétrico de bancada (solto), frente p/ NORTE: corpo grafite, porta de vidro escuro com puxador, painel de botões à direita
+        fornoBancada(g, s) {   // quem olha de frente (p/ sul) tem o leste à esquerda: painel no lado oeste (s.e)
+            const z0 = s.z || 0.90, H = z0 + (s.h || 0.36), F = s.n + s.dn, P = s.e + 0.12;
+            fbox(g, s.n, s.e, s.dn, s.de, z0 + 0.02, H, '#3a3a3f', { roughness: 0.45, metalness: 0.3 });
+            [s.e + 0.03, s.e + s.de - 0.06].forEach(e => fbox(g, s.n + 0.04, e, s.dn - 0.08, 0.03, z0, z0 + 0.02, '#1c1c1f'));      // pés
+            fbox(g, F, P, 0.008, s.e + s.de - 0.03 - P, z0 + 0.05, H - 0.04, '#141619', { roughness: 0.15, metalness: 0.4 });          // porta de vidro
+            fbox(g, F + 0.008, P + 0.03, 0.02, s.e + s.de - 0.09 - P, H - 0.07, H - 0.055, '#b9bec4', { metalness: 0.7, roughness: 0.3 }); // puxador
+            [0.35, 0.6, 0.85].forEach(t => fcyl(g, F + 0.012, s.e + 0.06, 0.018, z0 + (H - z0) * t - 0.006, z0 + (H - z0) * t + 0.006, '#d4d4d8', { metalness: 0.5 }));  // botões
+        },
+        // Micro-ondas (solto), frente p/ NORTE: corpo claro, porta com visor escuro, painel à direita de quem olha (oeste)
+        microondas(g, s) {
+            const z0 = s.z || 0.90, H = z0 + (s.h || 0.30), F = s.n + s.dn, P = s.e + 0.13, E1 = s.e + s.de - 0.02;
+            fbox(g, s.n, s.e, s.dn, s.de, z0 + 0.01, H, '#e7e5e4', { roughness: 0.4, metalness: 0.15 });
+            fbox(g, F, P, 0.006, E1 - P, z0 + 0.04, H - 0.04, '#cfcfcf', { roughness: 0.4 });                                          // porta
+            fbox(g, F + 0.006, P + 0.07, 0.004, E1 - P - 0.10, z0 + 0.07, H - 0.07, '#1d2023', { roughness: 0.15, metalness: 0.3 });   // visor
+            fbox(g, F, s.e + 0.02, 0.006, 0.11, z0 + 0.04, H - 0.04, '#2b2e33', { roughness: 0.3 });                                   // painel
+            fbox(g, F + 0.006, P + 0.02, 0.015, 0.015, z0 + 0.08, H - 0.08, '#a1a1aa', { metalness: 0.6 });                            // puxador
         },
         // Freezer vertical inox: porta única, puxador vertical; frente por acab3d ('N', 'S', 'O', 'L'; padrão 'S')
         freezer(g, s) {
