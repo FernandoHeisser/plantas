@@ -879,7 +879,7 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
 - **Parede leste:** geladeira junto da porta dos fundos (frente alinhada a 0,65), balcão em L com o
   canto. Sem armário sobre a porta dos fundos (decisão do cliente).
 - **Aéreos 1,65 → 2,55 m, profundidade 0,35** (norte e leste sobre o balcão) → folga de 0,70 m sobre
-  a bancada; sobre a geladeira também 0,35 (1,80 → 2,55), alinhado aos demais (decisão do cliente). Ficam acima da janela da cozinha
+  a bancada; sobre a geladeira também 0,35 × 0,90 (1,65 → 2,55), igual aos demais (decisão do cliente); por isso a geladeira tem no máximo 1,60. Ficam acima da janela da cozinha
   (verga 1,60) e o cliente prefere armário a prateleira (poeira).
 - **Mesma sala e cozinha no V1/V2/V3** (decisão do cliente; o layout nasceu no V3): no V3 a despensa guarda o
   resto, a cozinha aberta fica com o essencial e todos ficam virados para a sala.

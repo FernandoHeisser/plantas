@@ -2414,7 +2414,7 @@
             }
 
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
-            lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'fridge' })); // geladeira, parede leste, porta p/ oeste, junto da porta dos fundos (planejado)
+            lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.60, m3d: 'fridge' })); // geladeira de até 1,60 (o aéreo começa em 1,65), parede leste, porta p/ oeste, junto da porta dos fundos (planejado)
             lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // balcão entre a geladeira e a bancada, em L com o canto
             lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'coz' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça)
             lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
@@ -2453,7 +2453,7 @@
             // Armários aéreos: parede norte, contínuos sobre a bancada (base 1,65 m, acima da verga da janela de
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
             lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab', acab3d: 'coz' })); // norte, do pilar até a parede leste (0,35 de profundidade)
-            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.75, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira, 0,35 como os demais aéreos
+            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira: 0,35 × 0,90 a partir de 1,65, igual aos demais aéreos
             // Luz caseira: plafon de rattan Ø 45 no centro do teto da cozinha (luz geral) + fita de LED quente sob os
             // aéreos (luz da bancada, sem sombra de quem cozinha; ver wallcab/wallcabW)
             lys.push(COZ.circ(1.90, 2.05, 0.225, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.58, h3d: 0.12, m3d: 'plafon' }));
