@@ -2454,8 +2454,7 @@
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
             lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab', acab3d: 'coz' })); // norte, do pilar até a parede leste (0,35 de profundidade)
             lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira: 0,35 × 0,90 a partir de 1,65, igual aos demais aéreos
-            // Luz caseira: plafon de rattan Ø 45 no centro do teto da cozinha (luz geral) + fita de LED quente sob os
-            // aéreos (luz da bancada, sem sombra de quem cozinha; ver wallcab/wallcabW)
+            // Luz caseira: plafon de rattan Ø 45 no centro do teto da cozinha (sem fita de LED: o cliente não gosta)
             lys.push(COZ.circ(1.90, 2.05, 0.225, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.58, h3d: 0.12, m3d: 'plafon' }));
             // Planejados: canto entre bancada e península com armário de canto (sem armário sobre a porta dos fundos).
             lys.push(L.polyline([COZ.rot(2.275, 0.175), COZ.rot(2.875, 0.875)], { color: '#6b7280', weight: 0.8, dashArray: '3 2', interactive: false })); // canto bancada × península: armário de canto (giratório)
@@ -3527,7 +3526,6 @@
             // puxadores (na base das portas — aéreo abre p/ cima)
             fbox(g, s.n - 0.045, s.e + s.de * 0.30, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
             fbox(g, s.n - 0.045, s.e + s.de * 0.70 - 0.03, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
-            if (ac && z0 < 1.7) fbox(g, s.n + 0.03, s.e + 0.02, 0.03, s.de - 0.04, z0 - 0.008, z0, '#fff4dd', { emissive: col3d('#ffd9a0'), emissiveIntensity: 0.9 });   // fita de LED quente sob o aéreo (luz da bancada)
         },
         // Coifa — canopy inox + boca de sucção escura + duto até o teto (z local 2,70)
         hood(g, s) {
@@ -3547,7 +3545,6 @@
             // puxadores (base das portas — aéreo abre p/ cima)
             fbox(g, s.n + s.dn * 0.30, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
             fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
-            if (ac && z0 < 1.7) fbox(g, s.n + 0.02, s.e + s.de - 0.06, s.dn - 0.04, 0.03, z0 - 0.008, z0, '#fff4dd', { emissive: col3d('#ffd9a0'), emissiveIntensity: 0.9 });   // fita de LED quente sob o aéreo (luz da bancada)
         },
         // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
         // Torre quente de embutir — frente p/ SUL (costas na parede norte): forno elétrico na altura
@@ -6328,7 +6325,7 @@
             `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
             'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
             `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
-            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto e fita de LED quente sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete claro mesclado; pendentes de vidro lapidado com latão; luminária de piso com tripé de madeira; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
+            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete claro mesclado; pendentes de vidro lapidado com latão; luminária de piso com tripé de madeira; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
             `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
         ].join('\n\n');
     }
