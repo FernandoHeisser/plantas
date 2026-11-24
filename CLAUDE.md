@@ -406,7 +406,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
 | `benchcorner` | Canto alemão: banco em **L** (assento 0→0,45 + encosto 0,45→0,85). Driver = **bbox do L** (rect transparente no 2D); encostos na face **N + L** (mN/mE altos). Bancos visíveis no 2D são `rect{no3d:true}` separados. |
-| `trilho` | Trilho eletrificado preto no teto (`z3d` = base) com spots a cada ~0,8 m inclinados p/ o norte |
+| `plafon` | Plafon de rattan rente ao teto (usar com `circ`: `r`, `z3d` = base, `h3d` = altura): tambor trançado + difusor quente + canopla de latão |
 | `wallcab` | Armário **aéreo**, frente p/ **SUL** (costas na parede norte). Carcaça + porta + fenda central + puxadores na base. Usa `z3d` (base) + `h3d`. |
 | `wallcabW` | Armário **aéreo**, frente p/ **OESTE** (costas na parede leste, mE=s.e+s.de). `wallcab` espelhado — usado na coluna da geladeira. |
 | `wardrobeE` | Guarda-roupa com portas voltadas p/ **LESTE** (costas na parede oeste). Espelho do `wardrobe` — usado no quarto (parede oeste mE=28,5). |
@@ -741,6 +741,8 @@ visível no passeio.
   - Piso `marble_01` (cor, relevo e rugosidade), reboco `white_plaster_02` (só relevo), sofá `rough_linen`
     (só relevo), balcão de madeira `oak_veneer_01` (cor e relevo) e grama `sparse_grass` (só relevo:
     a cor da foto é marrom e fica o verde do lote).
+  - `piso_cor` e `madeira_cor` foram clareados (média ~226/216/198 e ~196/158/110) a pedido do cliente, para
+    ficarem perto do porcelanato claro e da madeira mel do modo normal.
   - Os materiais são marcados com `userData.foto` (`piso`, `parede`, `grama`, `tecido`, `madeira`).
     `applyFotoTex(S, on)` troca os mapas e guarda os originais em `userData.orig`. `uvMundo` reescreve as
     UVs em metros do mundo (`tam` por repetição) e guarda as originais. Ao desligar, tudo volta e a imagem
@@ -901,12 +903,17 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   base **MDF Mint** (Duratex), aéreos claros (`COR_INT.aereo`), bancada em **quartzo creme**, **península com tampo
   único de madeira mel** (cobre o balanço; o `balcao` do balanço usa `acab3d: 'semTampo'`), puxadores redondos e
   **torneira gourmet de latão**. Peças sem `acab3d` (lavanderia, despensa, 2º piso) mantêm as cores neutras.
-- **Trilho preto com spots** (`trilho`) no teto à frente dos aéreos, sobre a bancada.
+- **Luz caseira na cozinha** (o cliente achou o trilho com spots "cara de estúdio"): **plafon de rattan** Ø 45
+  (`plafon`, `texRattan`) no centro do teto da cozinha + **fita de LED quente sob os aéreos** de 1,65 m (`wallcab`/`wallcabW` com `acab3d`).
 - **Sofá caramelo/conhaque** em tecido impermeável (`COR_INT.sofa`; o cliente não quer sofá claro por causa de
   manchas) com **manta areia** no braço norte (`acab3d: 'manta'`). Base, braços e almofadas derivam do `s.color`.
 - **Modo foto:** almofadas `throw_pillows_01` recoloridas em **oliva**; **pendentes de vidro lapidado com latão** e
   **luminária de tripé** (canto noroeste, entre o rack e a porta de vidro) e **galeria de 5 quadros** com arte
   própria na paleta (parede sul da sala) — peças feitas no código (`decorProc`, `proc:` no `DECOR_SALA`).
+- **Tetos e vigas internas em branco fosco** (`COR_INT.teto`, `matTeto`): forro fino de 6 mm sob a laje
+  (`forroCasa`; no V1/V2 fica no `roof` e aparece com a laje, no V3 fica no `floor2` sob a laje 1; o 2º piso tem
+  o seu sob a laje 2). As vigas do térreo trocam de concreto (`lajeMat`, fases de obra) para pintadas na casa
+  pronta pelo mesmo `userData.pilar` dos pilares; as do 2º piso já são pintadas.
 - Fora por decisão do cliente: prateleira aberta com potes e estante de livros (juntam poeira).
 
 ### Lavanderia e despensa
@@ -1155,9 +1162,11 @@ estrutura do térreo abaixo. Casa segue a face das **paredes** (centradas → li
 garagem segue a face das **colunas** (na própria linha). Mesmo padrão da parede do depósito.
 
 **Duas coberturas (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
-piso), tem o **vão da escada** p/ subir; **"laje 2"** = teto do 2º piso — no V3 é o **telhado
-solar de uma água + usina FV** (grupo `roof`, `SOLAR`), não uma laje sólida (ver "Telhado solar
-do V3"). No 2D do 2º pav ainda é desenhada como laje sólida (esquemático).
+piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, concreto de 10 cm (`fz1 → fz1+COB.laje`)
+nas duas estruturas (casa e garagem, separadas pela junta), no grupo `floor2`. Por cima dela fica o
+**telhado solar de uma água + usina FV** (grupo `roof`, `SOLAR`), com vão ventilado (ver "Telhado solar do V3").
+A laje 2 isola o calor e o barulho de chuva da telha metálica (decisão do cliente: antes o 2º piso via a
+telha por dentro).
 
 - **2D:** botão `Piso: térreo ↔ 2º pav.` (`.map-floortoggle`) chama `setV3Floor(btn)`,
   que troca `map._overlay` entre `buildLayers('v3')` (térreo) e `buildFloor2Layers()`.
