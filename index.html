@@ -5675,23 +5675,89 @@
         S._dirty = true;
     }
 
-    // Decoração do V3 (térreo) só no modo foto: modelos CC0 do Poly Haven em /modelos (texturas 512 px).
+    // Decoração da sala e cozinha (térreo, V1/V2/V3) só no modo foto: modelos CC0 do Poly Haven em /modelos
+    // (texturas 512 px) e peças feitas aqui (proc), na paleta do cliente: pendentes de vidro lapidado com latão,
+    // luminária de tripé e galeria de quadros com arte própria.
     // n/e = metros do lote já renderizados (com OE); base/topo = altura acima do piso acabado (CPA);
     // altura = escala uniforme até essa altura; rot = giro em graus no eixo vertical.
     // Critérios de design: luz de tarefa zoneando a refeição, planta na varanda norte vista pelo vidro
     // (o hall não comporta: a porta de entrada varre o canto), textura macia no
     // sofá, poucos objetos (o cliente evita poeira) e uma parede de destaque para arte.
     const DECOR_SALA = [
-        { id: 'modern_ceiling_lamp_01', n: 6.08, e: 20.23, topo: CEIL3D },             // pendentes sobre o balcão
-        { id: 'modern_ceiling_lamp_01', n: 6.93, e: 20.23, topo: CEIL3D },
+        { proc: 'pendente', n: 6.08, e: 20.23, topo: CEIL3D },                         // pendentes sobre o balcão
+        { proc: 'pendente', n: 6.93, e: 20.23, topo: CEIL3D },
+        { proc: 'tripe',    n: 7.36, e: 17.38, base: 0 },                              // luminária de tripé no canto NO (rack ↔ porta de vidro)
         { id: 'potted_plant_02',  n: 8.15, e: 19.60, base: 0 },                      // varanda norte, ao lado da porta de vidro
         { id: 'throw_pillows_01', n: 6.50, e: 19.70, base: 0.36, rot: 90 },          // almofadas no sofá
         { id: 'ceramic_vase_02',  n: 7.15, e: 20.23, base: 0.95 },                   // vaso na ponta do balcão
         { id: 'potted_plant_04',  n: 7.30, e: 24.55, base: 0.95 },                   // suculenta junto à janela da cozinha
-        { id: 'hanging_picture_frame_01', n: 4.80, e: 19.75, base: 1.08, parede: 'sul' },   // arte na parede sul da sala
+        // galeria na parede sul da sala (face 4,80), entre o hall e a porta da lavanderia
+        { proc: 'quadroSol',   n: 4.80, e: 19.05, base: 1.10, parede: 'sul' },
+        { proc: 'quadroArco',  n: 4.80, e: 19.62, base: 1.00, parede: 'sul' },
+        { proc: 'quadroFolha', n: 4.80, e: 20.12, base: 1.18, parede: 'sul' },
+        { proc: 'quadroBloco', n: 4.80, e: 19.30, base: 1.74, parede: 'sul' },
+        { proc: 'quadroLinha', n: 4.80, e: 19.86, base: 1.74, parede: 'sul' },
     ];
+    // Peças feitas aqui: criadas uma vez e clonadas como os modelos (geometria e material compartilhados)
+    function _artTex(desenho) {
+        const cv = document.createElement('canvas'); cv.width = 256; cv.height = 320;
+        const c = cv.getContext('2d'); desenho(c, 256, 320);
+        const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; return t;
+    }
+    const ARTE = {
+        quadroSol:   [0.40, 0.50, (c, w, h) => { c.fillStyle = '#efe6d2'; c.fillRect(0, 0, w, h);
+                        c.fillStyle = '#d4a84a'; c.beginPath(); c.arc(w * 0.5, h * 0.42, w * 0.2, 0, 7); c.fill();
+                        c.fillStyle = '#7d8250'; c.beginPath(); c.moveTo(0, h); c.quadraticCurveTo(w * 0.35, h * 0.55, w, h * 0.78); c.lineTo(w, h); c.fill();
+                        c.fillStyle = '#a8673d'; c.beginPath(); c.moveTo(0, h); c.quadraticCurveTo(w * 0.7, h * 0.7, w, h * 0.92); c.lineTo(w, h); c.fill(); }],
+        quadroArco:  [0.50, 0.65, (c, w, h) => { c.fillStyle = '#e8dcc6'; c.fillRect(0, 0, w, h);
+                        c.fillStyle = '#b5653d'; c.beginPath(); c.moveTo(w * 0.2, h * 0.85); c.lineTo(w * 0.2, h * 0.45); c.arc(w * 0.5, h * 0.45, w * 0.3, Math.PI, 0); c.lineTo(w * 0.8, h * 0.85); c.fill();
+                        c.fillStyle = '#d9b25e'; c.beginPath(); c.arc(w * 0.62, h * 0.30, w * 0.08, 0, 7); c.fill(); }],
+        quadroFolha: [0.34, 0.42, (c, w, h) => { c.fillStyle = '#f2ece0'; c.fillRect(0, 0, w, h);
+                        c.strokeStyle = '#6e7547'; c.lineWidth = 5; c.beginPath(); c.moveTo(w * 0.5, h * 0.85); c.lineTo(w * 0.5, h * 0.55); c.stroke();
+                        c.beginPath(); c.moveTo(w * 0.5, h * 0.55); c.bezierCurveTo(w * 0.1, h * 0.45, w * 0.2, h * 0.15, w * 0.5, h * 0.22);
+                        c.bezierCurveTo(w * 0.8, h * 0.15, w * 0.9, h * 0.45, w * 0.5, h * 0.55); c.stroke(); }],
+        quadroBloco: [0.36, 0.36, (c, w, h) => { c.fillStyle = '#efe6d2'; c.fillRect(0, 0, w, h);
+                        [['#9aae94', 0.12, 0.15, 0.45, 0.4], ['#c48a54', 0.45, 0.45, 0.42, 0.4], ['#d4a84a', 0.2, 0.6, 0.2, 0.2]]
+                          .forEach(([f, x, y, a, b]) => { c.fillStyle = f; c.fillRect(w * x, h * y, w * a, h * b); }); }],
+        quadroLinha: [0.30, 0.30, (c, w, h) => { c.fillStyle = '#f4efe5'; c.fillRect(0, 0, w, h);
+                        c.strokeStyle = '#3c3a33'; c.lineWidth = 3; c.beginPath();
+                        c.ellipse(w * 0.45, h * 0.5, w * 0.2, h * 0.28, 0.3, 0, 7); c.moveTo(w * 0.62, h * 0.3); c.quadraticCurveTo(w * 0.8, h * 0.55, w * 0.55, h * 0.8); c.stroke(); }],
+    };
+    function decorProc(nome) {
+        const grp = new THREE.Group();
+        const mat = (cor, x) => new THREE.MeshStandardMaterial(Object.assign({ color: col3d(cor), roughness: 0.5, metalness: 0 }, x || {}));
+        const latao = mat(COR_INT.latao, LATAO());
+        const add = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x || 0, y || 0, z || 0); grp.add(o); return o; };
+        if (nome === 'pendente') {        // vidro lapidado (facetado) + latão; base em y=0, topo no teto
+            add(new THREE.CylinderGeometry(0.055, 0.055, 0.025, 24), latao, 0, 0.9875);           // canopla
+            add(new THREE.CylinderGeometry(0.004, 0.004, 0.62, 8), latao, 0, 0.665);              // haste
+            add(new THREE.CylinderGeometry(0.035, 0.05, 0.05, 24), latao, 0, 0.33);               // galeria do vidro
+            const vidro = mat('#f3ead8', { transparent: true, opacity: 0.55, roughness: 0.08, flatShading: true,
+                                           emissive: col3d('#ffe2b0'), emissiveIntensity: 0.25, envMapIntensity: 1.2 });
+            const g0 = new THREE.IcosahedronGeometry(0.12, 1); g0.scale(1, 1.15, 1);
+            add(g0, vidro, 0, 0.17).castShadow = false;
+            add(new THREE.SphereGeometry(0.018, 12, 8), latao, 0, 0.02);                          // arremate
+        } else if (nome === 'tripe') {    // três pés de madeira + cúpula de tecido branco
+            const pau = mat(COR_INT.madeira, { roughness: 0.6 }); pau.userData.foto = 'madeira';
+            for (let i = 0; i < 3; i++) {
+                const a = i * Math.PI * 2 / 3, p = add(new THREE.CylinderGeometry(0.013, 0.016, 1.30, 10), pau, Math.cos(a) * 0.12, 0.64, Math.sin(a) * 0.12);
+                p.rotation.set(-Math.sin(a) * 0.19, 0, Math.cos(a) * 0.19);   // topo converge no centro
+            }
+            const cup = mat('#f4efe4', { side: THREE.DoubleSide, roughness: 0.9, emissive: col3d('#fff1d6'), emissiveIntensity: 0.15 });
+            add(new THREE.CylinderGeometry(0.19, 0.22, 0.30, 36, 1, true), cup, 0, 1.40);
+            add(new THREE.CylinderGeometry(0.012, 0.012, 0.18, 8), latao, 0, 1.28);
+        } else if (ARTE[nome]) {          // moldura de madeira + passe-partout + arte; frente para +X (girada na parede)
+            const [w, h, desenho] = ARTE[nome];
+            const mold = mat('#8a6a3e', { roughness: 0.6 });
+            add(new THREE.BoxGeometry(0.025, h, w), mold, 0, h / 2);
+            add(new THREE.BoxGeometry(0.03, h - 0.04, w - 0.04), mat('#f7f3ea', { roughness: 0.9 }), 0, h / 2);
+            add(new THREE.BoxGeometry(0.032, h - 0.12, w - 0.12), new THREE.MeshStandardMaterial({ map: _artTex(desenho), roughness: 0.85 }), 0, h / 2);
+        }
+        return grp;
+    }
     const _decorCache = {};
     function loadDecor(id) {
+        if (id.startsWith('proc:')) return _decorCache[id] || (_decorCache[id] = Promise.resolve(decorProc(id.slice(5))));
         if (!_decorCache[id]) _decorCache[id] = new Promise((ok, err) =>
             new THREE.GLTFLoader().load(`/modelos/${id}/${id}_1k.gltf`, g => ok(g.scene), undefined, () => err(new Error(id))))
             .catch(e => { delete _decorCache[id]; throw e; });
@@ -5706,7 +5772,7 @@
         const alvo = S.group;
         await Promise.all(DECOR_SALA.map(async d => {
             let modelo;
-            try { modelo = await loadDecor(d.id); } catch (e) { console.warn('Modelo indisponível:', e.message); return; }
+            try { modelo = await loadDecor(d.proc ? 'proc:' + d.proc : d.id); } catch (e) { console.warn('Modelo indisponível:', e.message); return; }
             const o = modelo.clone(true);
             o.traverse(m => { m.userData.semDispose = true; m.userData.noWalk = d.topo != null;
                               if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
@@ -5719,7 +5785,7 @@
             if (d.altura) { o.scale.multiplyScalar(d.altura / tam.y); b = new THREE.Box3().setFromObject(o); tam = b.getSize(new THREE.Vector3()); }
             const c = b.getCenter(new THREE.Vector3());
             const y = d.topo != null ? CPA + d.topo - b.max.y : CPA + d.base - b.min.y;
-            const z = d.parede === 'sul' ? -(d.n + tam.z / 2 + 0.005) - c.z : -d.n - c.z;
+            const z = d.parede === 'sul' ? -(d.n + tam.z / 2 + 0.012) - c.z : -d.n - c.z;   // folga p/ a pintura
             o.position.add(new THREE.Vector3(d.e - c.x, y, z));
             grupo.add(o);
         }));
