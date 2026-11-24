@@ -2449,6 +2449,8 @@
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
             lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab', acab3d: 'coz' })); // norte, do pilar até a parede leste (0,35 de profundidade)
             lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.75, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira, 0,35 como os demais aéreos
+            // Trilho preto com spots no teto, à frente dos aéreos, iluminando a bancada (sem pendente sobre a pia)
+            lys.push(COZ.rect(2.03, 0.55, 0.04, 2.9, '#1d1d1f', { color: '#1d1d1f', weight: 0.8, dashArray: '2 3', fillOpacity: 0.6, z3d: 2.64, h3d: 0.035, m3d: 'trilho' }));
             // Planejados: canto entre bancada e península com armário de canto (sem armário sobre a porta dos fundos).
             lys.push(L.polyline([COZ.rot(2.275, 0.175), COZ.rot(2.875, 0.875)], { color: '#6b7280', weight: 0.8, dashArray: '3 2', interactive: false })); // canto bancada × península: armário de canto (giratório)
             
@@ -3418,6 +3420,20 @@
                     for (let i = 0; i < nP; i++) fcyl(g, s.n + 0.025, a + de * (i + 0.5) / nP, 0.014, s.h - 0.16, s.h - 0.13, COR_INT.latao, LATAO());
                 }
             });
+        },
+        // Trilho eletrificado preto no teto com spots orientáveis, inclinados p/ o NORTE (para a bancada).
+        // s.z = base do trilho; o trilho corre em mE (de) e os spots ficam a cada ~0,8 m.
+        trilho(g, s) {
+            const z = s.z || 2.64, preto = '#1d1d1f';
+            fbox(g, s.n, s.e, s.dn, s.de, z, z + 0.035, preto, { roughness: 0.5, metalness: 0.3 });
+            const nS = Math.max(2, Math.round(s.de / 0.8)), m = fmat(preto, { roughness: 0.45, metalness: 0.35 });
+            for (let i = 0; i < nS; i++) {
+                const e = s.e + s.de * (i + 0.5) / nS, nc = s.n + s.dn / 2;
+                fbox(g, nc - 0.01, e - 0.01, 0.02, 0.02, z - 0.06, z, preto);                            // haste
+                const c = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.13, 20), m);         // corpo do spot
+                c.rotation.x = -0.6; c.position.set(e, z - 0.09, -(nc + 0.035));
+                c.castShadow = true; g.add(c);
+            }
         },
         // Lava-louças de embutir sob a bancada (frente p/ SUL): porta inox + faixa de comando + puxador; tampo contínuo
         dishwasher(g, s) {
