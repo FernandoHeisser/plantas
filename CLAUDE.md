@@ -950,7 +950,8 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
     ao lado, balde e panos embaixo e produtos de limpeza acima de 1,07 (longe de criança); maleiro no topo (estoque raro).
   - **Leste** (sol da manhã): armário baixo de estoque sob a janela (água, bebidas); o tampo dele serve para dobrar roupa.
   - **Oeste:** livre, sem aéreo (decisão do cliente). Aéreo só sobre a porta da cozinha (parede norte) e sobre o freezer.
-  - Sem aéreos nas paredes sul e leste (úmidas e com janela). Corredor livre de 1,30 m.
+  - **Aéreo de panelas e potes** na parede sul, sobre a bancada inteira (2,19 × 0,35, de 1,55 a 2,55, 30 cm acima do forno):
+    tapa o alto da janela sul, a faixa de 0,90 a 1,55 continua aberta (pedido do cliente). Parede leste sem aéreo. Corredor livre de 1,30 m.
   - Builders genéricos `movel` (frente por `acab3d`: `'N'`/`'S'`/`'O'`/`'L'`) e `freezer`.
 
 ## Sistema de layout (atualizado)

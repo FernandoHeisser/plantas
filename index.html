@@ -2415,10 +2415,13 @@
                 lys.push(QUA.rect(0.15, 1.90, 0.40, 0.50, '#e5e7eb', { color: '#475569', weight: 0.7, z3d: 0.90, h3d: 0.30, m3d: 'microondas' }));   // micro-ondas, ao lado
                 lys.push(QUA.rect(0.075, 3.075, 0.6, 0.6, '#e9e2d4', { ...MOV, h3d: 2.55, m3d: 'colunaLimpeza' }));                    // coluna de limpeza no canto, dividida por uso (ver colunaLimpeza)
                 lys.push(QUA.rect(0.675, 3.125, 1.3, 0.55, '#e9e2d4', { ...MOV, h3d: 0.88, m3d: 'movel', acab3d: 'O' }));              // armário baixo de estoque sob a janela leste (água, bebidas)
-                // Aéreos (0,35): sobre o freezer e sobre a porta da cozinha (parede oeste livre: decisão do cliente)
+                // Aéreos (0,35): sobre o freezer, sobre a porta da cozinha e de panelas na parede sul (parede oeste livre: decisão do cliente)
                 const AER = { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35 };
                 lys.push(QUA.rect(0.075, 0.135, 0.35, 0.7, '#efece6', { ...AER, z3d: 1.80, h3d: 0.75, m3d: 'movel', acab3d: 'N' }));
                 lys.push(QUA.rect(2.225, 0.075, 0.35, 0.98, '#efece6', { ...AER, z3d: 2.15, h3d: 0.40, m3d: 'movel', acab3d: 'S' }));
+                // Aéreo de panelas e potes na parede sul, sobre a bancada inteira (1,55 → 2,55, 30 cm acima do forno). Tapa o alto
+                // da janela sul; a faixa de 0,90 a 1,55 continua aberta (decisão do cliente: janela fraca, só luz e brisa)
+                lys.push(QUA.rect(0.075, 0.885, 0.35, 2.19, '#efece6', { ...AER, z3d: 1.55, h3d: 1.00, m3d: 'movel', acab3d: 'N' }));
             }
 
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
