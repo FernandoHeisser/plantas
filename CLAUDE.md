@@ -406,7 +406,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
 | `benchcorner` | Canto alemão: banco em **L** (assento 0→0,45 + encosto 0,45→0,85). Driver = **bbox do L** (rect transparente no 2D); encostos na face **N + L** (mN/mE altos). Bancos visíveis no 2D são `rect{no3d:true}` separados. |
-| `trilho` | Trilho eletrificado preto no teto (`z3d` = base) com spots a cada ~0,8 m inclinados p/ o norte |
+| `plafon` | Plafon de rattan rente ao teto (usar com `circ`: `r`, `z3d` = base, `h3d` = altura): tambor trançado + difusor quente + canopla de latão |
 | `wallcab` | Armário **aéreo**, frente p/ **SUL** (costas na parede norte). Carcaça + porta + fenda central + puxadores na base. Usa `z3d` (base) + `h3d`. |
 | `wallcabW` | Armário **aéreo**, frente p/ **OESTE** (costas na parede leste, mE=s.e+s.de). `wallcab` espelhado — usado na coluna da geladeira. |
 | `wardrobeE` | Guarda-roupa com portas voltadas p/ **LESTE** (costas na parede oeste). Espelho do `wardrobe` — usado no quarto (parede oeste mE=28,5). |
@@ -903,7 +903,8 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   base **MDF Mint** (Duratex), aéreos claros (`COR_INT.aereo`), bancada em **quartzo creme**, **península com tampo
   único de madeira mel** (cobre o balanço; o `balcao` do balanço usa `acab3d: 'semTampo'`), puxadores redondos e
   **torneira gourmet de latão**. Peças sem `acab3d` (lavanderia, despensa, 2º piso) mantêm as cores neutras.
-- **Trilho preto com spots** (`trilho`) no teto à frente dos aéreos, sobre a bancada.
+- **Luz caseira na cozinha** (o cliente achou o trilho com spots "cara de estúdio"): **plafon de rattan** Ø 45
+  (`plafon`, `texRattan`) no centro do teto da cozinha + **fita de LED quente sob os aéreos** de 1,65 m (`wallcab`/`wallcabW` com `acab3d`).
 - **Sofá caramelo/conhaque** em tecido impermeável (`COR_INT.sofa`; o cliente não quer sofá claro por causa de
   manchas) com **manta areia** no braço norte (`acab3d: 'manta'`). Base, braços e almofadas derivam do `s.color`.
 - **Modo foto:** almofadas `throw_pillows_01` recoloridas em **oliva**; **pendentes de vidro lapidado com latão** e

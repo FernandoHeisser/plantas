@@ -2453,8 +2453,9 @@
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
             lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab', acab3d: 'coz' })); // norte, do pilar até a parede leste (0,35 de profundidade)
             lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.80, h3d: 0.75, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira, 0,35 como os demais aéreos
-            // Trilho preto com spots no teto, à frente dos aéreos, iluminando a bancada (sem pendente sobre a pia)
-            lys.push(COZ.rect(2.03, 0.55, 0.04, 2.9, '#1d1d1f', { color: '#1d1d1f', weight: 0.8, dashArray: '2 3', fillOpacity: 0.6, z3d: 2.64, h3d: 0.035, m3d: 'trilho' }));
+            // Luz caseira: plafon de rattan Ø 45 no centro do teto da cozinha (luz geral) + fita de LED quente sob os
+            // aéreos (luz da bancada, sem sombra de quem cozinha; ver wallcab/wallcabW)
+            lys.push(COZ.circ(1.90, 2.05, 0.225, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.58, h3d: 0.12, m3d: 'plafon' }));
             // Planejados: canto entre bancada e península com armário de canto (sem armário sobre a porta dos fundos).
             lys.push(L.polyline([COZ.rot(2.275, 0.175), COZ.rot(2.875, 0.875)], { color: '#6b7280', weight: 0.8, dashArray: '3 2', interactive: false })); // canto bancada × península: armário de canto (giratório)
             
@@ -3173,6 +3174,23 @@
             noise2d(ctx, w, 0, 0, 0, 6);
         }, 256));
     }
+    // Rattan / palha trançada (plafon da cozinha): trama em xadrez de fios claros e escuros, com frestas
+    function texRattan() {
+        return TEX3D.rattan || (TEX3D.rattan = (() => {
+            const t = canvasTex((ctx, w) => {
+                ctx.fillStyle = '#5b4126'; ctx.fillRect(0, 0, w, w);   // fresta (sombra atrás da trama)
+                const n = 16, p = w / n;
+                for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+                    const hz = (i + j) % 2 === 0, x = i * p, y = j * p;
+                    const gr = hz ? ctx.createLinearGradient(x, y, x, y + p) : ctx.createLinearGradient(x, y, x + p, y);
+                    gr.addColorStop(0, '#b98c55'); gr.addColorStop(0.5, '#e0bf8a'); gr.addColorStop(1, '#a67a46');
+                    ctx.fillStyle = gr;
+                    if (hz) ctx.fillRect(x + 1, y + p * 0.12, p - 2, p * 0.76); else ctx.fillRect(x + p * 0.12, y + 1, p * 0.76, p - 2);
+                }
+            }, 256);
+            t.repeat.set(6, 1); return t;
+        })());
+    }
     function texWall() {
         return TEX3D.wall || (TEX3D.wall = canvasTex((ctx, w) => {
             ctx.fillStyle = '#efe9e0'; ctx.fillRect(0, 0, w, w);   // reboco pintado
@@ -3433,19 +3451,16 @@
                 }
             });
         },
-        // Trilho eletrificado preto no teto com spots orientáveis, inclinados p/ o NORTE (para a bancada).
-        // s.z = base do trilho; o trilho corre em mE (de) e os spots ficam a cada ~0,8 m.
-        trilho(g, s) {
-            const z = s.z || 2.64, preto = '#1d1d1f';
-            fbox(g, s.n, s.e, s.dn, s.de, z, z + 0.035, preto, { roughness: 0.5, metalness: 0.3 });
-            const nS = Math.max(2, Math.round(s.de / 0.8)), m = fmat(preto, { roughness: 0.45, metalness: 0.35 });
-            for (let i = 0; i < nS; i++) {
-                const e = s.e + s.de * (i + 0.5) / nS, nc = s.n + s.dn / 2;
-                fbox(g, nc - 0.01, e - 0.01, 0.02, 0.02, z - 0.06, z, preto);                            // haste
-                const c = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.13, 20), m);         // corpo do spot
-                c.rotation.x = -0.6; c.position.set(e, z - 0.09, -(nc + 0.035));
-                c.castShadow = true; g.add(c);
-            }
+        // Plafon de rattan (palha trançada) rente ao teto: tambor aberto + difusor quente embaixo. Usar com circ
+        // (r = raio, z3d = base, h3d = altura do tambor).
+        plafon(g, s) {
+            const z = s.z || 2.58, h = s.h || 0.12, r = s.r;
+            const palha = new THREE.MeshStandardMaterial({ map: texRattan(), roughness: 0.85, metalness: 0, side: THREE.DoubleSide, envMapIntensity: 0.4 });   // fora do fmat: a assinatura não inclui o mapa
+            const tambor = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 0.96, h, 48, 1, true), palha);
+            tambor.position.set(s.e, z + h / 2, -s.n); tambor.castShadow = true; g.add(tambor);
+            fcyl(g, s.n, s.e, r * 0.94, z + h * 0.35, z + h * 0.35 + 0.006, '#fff3dc',
+                 { emissive: col3d('#ffe2b4'), emissiveIntensity: 0.55, roughness: 0.9 });          // difusor
+            fcyl(g, s.n, s.e, r * 0.25, CEIL3D - 0.02, CEIL3D, '#b89458', LATAO());                  // canopla
         },
         // Lava-louças de embutir sob a bancada (frente p/ SUL): porta inox + faixa de comando + puxador; tampo contínuo
         dishwasher(g, s) {
@@ -3511,6 +3526,7 @@
             // puxadores (na base das portas — aéreo abre p/ cima)
             fbox(g, s.n - 0.045, s.e + s.de * 0.30, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
             fbox(g, s.n - 0.045, s.e + s.de * 0.70 - 0.03, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
+            if (ac && z0 < 1.7) fbox(g, s.n + 0.03, s.e + 0.02, 0.03, s.de - 0.04, z0 - 0.008, z0, '#fff4dd', { emissive: col3d('#ffd9a0'), emissiveIntensity: 0.9 });   // fita de LED quente sob o aéreo (luz da bancada)
         },
         // Coifa — canopy inox + boca de sucção escura + duto até o teto (z local 2,70)
         hood(g, s) {
@@ -3530,6 +3546,7 @@
             // puxadores (base das portas — aéreo abre p/ cima)
             fbox(g, s.n + s.dn * 0.30, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
             fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
+            if (ac && z0 < 1.7) fbox(g, s.n + 0.02, s.e + s.de - 0.06, s.dn - 0.04, 0.03, z0 - 0.008, z0, '#fff4dd', { emissive: col3d('#ffd9a0'), emissiveIntensity: 0.9 });   // fita de LED quente sob o aéreo (luz da bancada)
         },
         // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
         // Torre quente de embutir — frente p/ SUL (costas na parede norte): forno elétrico na altura
@@ -5353,7 +5370,7 @@
         if (!root) return;
         const keepMat = new Set();
         if (satGroundMat) keepMat.add(satGroundMat);
-        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.gouache].filter(Boolean));
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.gouache, TEX3D.rattan].filter(Boolean));
         if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
         if (_fotoTexMap) Object.values(_fotoTexMap).forEach(t => keepTex.add(t));
         root.traverse(obj => {
@@ -6287,7 +6304,7 @@
             `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
             'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
             `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
-            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, trilho preto com spots no teto; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete claro mesclado; pendentes de vidro lapidado com latão; luminária de piso com tripé de madeira; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
+            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto e fita de LED quente sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete claro mesclado; pendentes de vidro lapidado com latão; luminária de piso com tripé de madeira; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
             `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
         ].join('\n\n');
     }
