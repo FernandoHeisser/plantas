@@ -2428,12 +2428,10 @@
             }
 
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
-            // Geladeira de 3 portas (French door, até 0,90 × 1,85 × 0,75; decisão do cliente), porta p/ oeste, junto da porta dos fundos.
-            // Saiu o balcão em L; nos 0,30 entre a geladeira e a bancada, coluna do piso ao teto p/ assadeiras e tábuas em pé.
-            lys.push(COZ.rect(1.055, 2.925, 0.92, 0.75, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.85, m3d: 'fridge3p' })); // geladeira 3 portas
-            lys.push(L.polyline([COZ.rot(1.075, 2.995), COZ.rot(1.955, 2.995)], { color: '#334155', weight: 0.6, interactive: false }));
-            lys.push(L.polyline([COZ.rot(1.515, 2.925), COZ.rot(1.515, 2.995)], { color: '#334155', weight: 0.6, interactive: false }));
-            lys.push(COZ.rect(1.975, 3.075, 0.30, 0.60, '#e9e2d4', { color: '#6b7280', weight: 0.7, h3d: 2.69, m3d: 'movel', acab3d: 'O' })); // coluna de assadeiras e tábuas
+            lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.60, m3d: 'fridge' })); // geladeira de até 1,60 (o aéreo começa em 1,65), parede leste, porta p/ oeste, junto da porta dos fundos (planejado)
+            lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // balcão entre a geladeira e a bancada, em L com o canto
+            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcabW', acab3d: 'cozSpot' })); // aéreo leste sobre o balcão até o canto (até o teto) (0,35: não bate a cabeça), com spot embaixo
+            lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
             lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // bancada: do pilar oeste até a parede leste
             // Cooktop 0,155 m p/ leste (0,275 m de apoio depois do canto da península, mais o tampo do canto;
             // continua na parede norte, por onde sai o exaustor) e pia 0,15 m p/ leste (ainda sob a janela).
@@ -2450,9 +2448,8 @@
             lys.push(COZ.rect(2.275, LV_E, 0.6, 0.60, '#cbd5e1', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'dishwasher', acab3d: 'coz' })); // lava-louças sob a bancada
             lys.push(L.polyline([COZ.rot(2.315, LV_E + 0.05), COZ.rot(2.315, LV_E + 0.55)], { color: '#475569', weight: 1.2, interactive: false })); // puxador
             // Cantinho do café na ponta leste da bancada (fora da janela): cafeteira e air fryer, de uso diário
-            // No canto atrás da coluna de assadeiras, virados p/ oeste (p/ a pia): a gaveta da air fryer abre sobre a bancada
-            lys.push(COZ.rect(2.31, 3.30, 0.30, 0.36, '#27272a', { color: '#111827', weight: 0.6, z3d: 0.95, h3d: 0.33, m3d: 'airfryer', acab3d: 'O' }));
-            lys.push(COZ.rect(2.63, 3.34, 0.24, 0.30, '#1f2937', { color: '#111827', weight: 0.6, z3d: 0.95, h3d: 0.38, m3d: 'cafeteira', acab3d: 'O' }));
+            lys.push(COZ.rect(2.50, 3.10, 0.30, 0.24, '#1f2937', { color: '#111827', weight: 0.6, z3d: 0.95, h3d: 0.38, m3d: 'cafeteira' }));
+            lys.push(COZ.rect(2.47, 3.36, 0.36, 0.30, '#27272a', { color: '#111827', weight: 0.6, z3d: 0.95, h3d: 0.33, m3d: 'airfryer' }));
             lys.push(COZ.rect(2.275, 2.2 + PI, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'sink', acab3d: 'coz' })); // pia, sob a janela; embaixo, a lixeira (2 baldes) com portinhola basculante na porta leste
             lys.push(COZ.rect(2.605, 2.27 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(COZ.rect(2.605, 2.52 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
@@ -2486,7 +2483,7 @@
             // Armários aéreos: parede norte, contínuos sobre a bancada (base 1,65 m, acima da verga da janela de
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
             lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcab', acab3d: 'cozSpot' })); // até o teto (2,69, sob o forro): menos poeira em cima; norte, do pilar até a parede leste (0,35 de profundidade), com spots embaixo
-            lys.push(COZ.rect(1.055, 3.325, 0.92, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.90, h3d: 0.79, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira de 3 portas: 0,35 de 1,90 até o teto
+            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira: 0,35 de 1,65 até o teto, igual aos demais aéreos
             // Luz caseira: plafon de rattan Ø 45 no centro do teto da cozinha (sem fita de LED: o cliente não gosta)
             lys.push(COZ.circ(1.90, 2.05, 0.225, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.58, h3d: 0.12, m3d: 'plafon' }));
             // Planejados: canto entre bancada e península com armário de canto (sem armário sobre a porta dos fundos).
@@ -3584,19 +3581,6 @@
             NS ? fbox(g, Math.min(face, face + sai * 0.006), A0, 0.006, W, 0.04, 0.06, '#3a3f45')
                : fbox(g, A0, Math.min(face, face + sai * 0.006), W, 0.006, 0.04, 0.06, '#3a3f45');      // grade de ventilação embaixo
         },
-        // Geladeira de 3 portas (French door), frente p/ OESTE (s.e): 2 portas em cima, gaveta do freezer embaixo,
-        // puxadores verticais no meio e horizontal na gaveta, dispenser na porta norte
-        fridge3p(g, s) {
-            const H = s.h || 1.85, F = s.e, M = s.n + s.dn / 2, zG = 0.72, INOX = { metalness: 0.55, roughness: 0.3 }, PUX = { metalness: 0.75, roughness: 0.25 };
-            fbox(g, s.n, s.e + 0.04, s.dn, s.de - 0.04, 0.02, H, '#cdd2d7', INOX);                                  // corpo
-            fbox(g, s.n + 0.004, F, s.dn / 2 - 0.006, 0.045, zG + 0.01, H - 0.01, '#d6dade', INOX);               // porta sul
-            fbox(g, M + 0.002, F, s.dn / 2 - 0.006, 0.045, zG + 0.01, H - 0.01, '#d6dade', INOX);                 // porta norte
-            fbox(g, s.n + 0.004, F, s.dn - 0.008, 0.045, 0.06, zG - 0.01, '#d6dade', INOX);                        // gaveta do freezer
-            fbox(g, s.n + 0.02, F + 0.01, s.dn - 0.04, 0.03, 0, 0.06, '#3a3f45');                                 // rodapé / ventilação
-            [M - 0.05, M + 0.03].forEach(n => fbox(g, n, F - 0.035, 0.02, 0.035, zG + 0.25, H - 0.25, '#9aa0a7', PUX));   // puxadores verticais
-            fbox(g, s.n + 0.15, F - 0.035, s.dn - 0.30, 0.035, zG - 0.12, zG - 0.09, '#9aa0a7', PUX);             // puxador da gaveta
-            fbox(g, M + 0.10, F - 0.004, 0.22, 0.006, 1.05, 1.40, '#3a3f45', { roughness: 0.3 });                 // dispenser de água
-        },
         // Cama — estrado + colchão + cabeceira (norte) + travesseiros + edredom
         // GAP: mantém 7cm de folga da parede norte p/ evitar z-fighting
         bed(g, s) {
@@ -3710,15 +3694,8 @@
             fbox(g, s.n - 0.03, s.e, s.dn + 0.03, s.de, s.h - 0.04, s.h, acabCoz(s) ? COR_INT.quartzo : '#b3ad9f', { roughness: 0.3 });   // tampo (contínuo)
             fbox(g, s.n + 0.04, s.e + 0.02, 0.04, s.de - 0.04, 0, 0.08, '#33332f');                                                         // rodapé
         },
-        // Eletro de bancada virado p/ OESTE (acab3d 'O'): monta como se a frente fosse p/ sul, centrado na origem, e gira −90°
-        _oeste(g, s, nome) {
-            const sub = new THREE.Group(), cn = s.n + s.dn / 2, ce = s.e + s.de / 2;
-            FURN3D[nome](sub, { ...s, acab3d: null, n: -s.de / 2, e: -s.dn / 2, dn: s.de, de: s.dn });
-            sub.rotation.y = -Math.PI / 2; sub.position.set(ce, 0, -cn); g.add(sub);
-        },
         // Cafeteira de bancada, frente p/ SUL: base e torre pretas, jarra de vidro
         cafeteira(g, s) {
-            if (s.acab3d === 'O') return FURN3D._oeste(g, s, 'cafeteira');
             const z = s.z || 0.95, H = z + (s.h || 0.38);
             fbox(g, s.n, s.e, s.dn, s.de, z, z + 0.03, '#18181b', { roughness: 0.4 });                                   // base
             fbox(g, s.n + s.dn * 0.55, s.e, s.dn * 0.45, s.de, z, H, '#18181b', { roughness: 0.4 });                     // torre (fundo)
@@ -3729,7 +3706,6 @@
         },
         // Air fryer, frente p/ SUL: corpo preto arredondado, gaveta com puxador
         airfryer(g, s) {
-            if (s.acab3d === 'O') return FURN3D._oeste(g, s, 'airfryer');
             const z = s.z || 0.95, H = z + (s.h || 0.33), r = Math.min(s.dn, s.de) / 2;
             const corpo = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.92, r, H - z, 28), fmat('#202024', { roughness: 0.45, metalness: 0.2 }));
             corpo.position.set(s.e + s.de / 2, (z + H) / 2, -(s.n + s.dn / 2)); corpo.castShadow = true; g.add(corpo);
@@ -4431,7 +4407,7 @@
             // Azulejo Gouache Mer: faixa entre a bancada (0,95) e os aéreos (1,65), sobre a tinta
             const eCoz = EIXO.SERV + OE;                                   // eixo de referência da cozinha (COZ)
             reveste(matGouache, true,  nN, -1, eCoz + 0.175, eL, 0.95, 1.65, 0.40, T);   // parede norte, do pilar à leste
-            reveste(matGouache, false, eL, -1, EIXO.LONG + 2.275, nN, 0.95, 1.65, 0.40, T); // parede leste, sobre o canto da bancada (o resto fica atrás da coluna e da geladeira)
+            reveste(matGouache, false, eL, -1, EIXO.LONG + 1.775, nN, 0.95, 1.65, 0.40, T); // parede leste, sobre o balcão em L
         }
 
         // ── Esquadrias: batentes, montantes, peitoris e folhas de porta ──────
