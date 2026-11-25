@@ -2751,7 +2751,50 @@
     // 3D (grupo floor2, base no piso do 2º). Coordenadas de código (sem OE). rot3d gira o
     // modelo 3D em graus, anti-horário visto de cima (180 = cabeceira da cama ao sul).
     function f2Moveis() {
-        const lys = [];
+        const lys = [], p = l => lys.push(l);
+        const MAD = '#8a5a33', ARM = '#efece6', CAMA = '#c8b99a', LOU = '#ffffff';
+        const sMad = { color: '#451a03', weight: 0.5 }, sArm = { color: '#78716c', weight: 0.6 }, sLou = { color: '#475569', weight: 0.6 };
+        const o = (base, extra) => Object.assign({}, base, extra);
+        // Suíte: cama queen com a cabeceira na parede sul (porta na ponta norte da parede oeste),
+        // criados-mudos, poltrona junto da janela leste. A porta do closet fica livre a leste da cama.
+        p(rect(4.85, 26.10, 2.10, 1.58, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 180 })));
+        p(rect(4.85, 25.55, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        p(rect(4.85, 27.73, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        p(rect(6.30, 29.55, 0.80, 0.80, '#9a3412', o(sMad, { h3d: 0.45 })));
+        // Closet: armário na parede sul + gaveteiro baixo na leste
+        p(rect(2.15, 28.20, 0.60, 2.30, ARM, o(sArm, { h3d: 2.30 })));
+        p(rect(2.85, 29.95, 1.10, 0.55, ARM, o(sArm, { h3d: 0.90 })));
+        // Banho da suíte: box no canto noroeste, vaso na parede sul, lavatório na norte
+        p(rect(3.60, 25.45, 1.00, 1.05, '#eff6ff', o(sLou, { h3d: 1.90, m3d: 'shower' })));
+        p(rect(2.15, 26.80, 0.70, 0.40, LOU, o(sLou, { h3d: 0.40, m3d: 'toilet', rot3d: 270 })));
+        p(rect(4.20, 26.70, 0.45, 0.90, LOU, o(sLou, { h3d: 0.85, m3d: 'lavatory' })));
+        // Estar (cinema / video game): TV na parede cega da junta, no braço norte; sofá de costas
+        // p/ a parede da suíte; poltrona junto da janela sul
+        p(rect(5.10, 22.62, 1.40, 0.35, '#1f2937', o(sMad, { h3d: 0.50, m3d: 'rack' })));
+        p(rect(5.18, 22.62, 1.23, 0.05, '#0a0e1a', o(sMad, { m3d: 'tv' })));
+        p(rect(4.95, 24.25, 1.75, 0.90, '#7c2d12', o(sMad, { h3d: 0.75, m3d: 'sofa' })));
+        p(rect(5.00, 23.10, 1.65, 1.00, '#d6c7a8', o(sArm, { m3d: 'rug' })));
+        p(rect(2.40, 20.60, 0.80, 0.80, '#9a3412', o(sMad, { h3d: 0.45 })));
+        // Escritório: mesa sob a janela sul + cadeira; armário fechado na parede norte
+        p(rect(2.25, 14.20, 0.60, 1.60, MAD, o(sMad, { m3d: 'table' })));
+        p(circ(3.15, 15.00, 0.24, '#334155', o(sMad, { m3d: 'chair' })));
+        p(rect(6.30, 13.75, 0.45, 1.80, ARM, o(sArm, { h3d: 2.00, m3d: 'movel', acab3d: 'S' })));
+        // Banheiro dos quartos: box no canto sudeste, vaso e lavatório na parede oeste
+        p(rect(2.20, 18.15, 1.00, 1.05, '#eff6ff', o(sLou, { h3d: 1.90, m3d: 'shower' })));
+        p(rect(2.40, 16.70, 0.40, 0.70, LOU, o(sLou, { h3d: 0.40, m3d: 'toilet', rot3d: 180 })));
+        p(rect(3.40, 16.70, 0.55, 0.45, LOU, o(sLou, { h3d: 0.85, m3d: 'lavatory', rot3d: 180 })));
+        // Rouparia: armário fechado na parede sul (antes das duas portas)
+        p(rect(4.50, 16.70, 0.60, 1.55, ARM, o(sArm, { h3d: 2.20, m3d: 'movel', acab3d: 'N' })));
+        // Quarto 1: cama com cabeceira ao sul, criados, guarda-roupa na parede leste
+        p(rect(6.97, 14.60, 2.10, 1.58, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 180 })));
+        p(rect(7.00, 14.10, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        p(rect(7.00, 16.23, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        p(rect(8.10, 16.85, 1.80, 0.60, '#9a7b46', o(sMad, { h3d: 2.20, m3d: 'wardrobe' })));
+        // Quarto 2 (em L): cama com a cabeceira a oeste, sob a janela norte; guarda-roupa na
+        // parede sul do braço (a que ficou livre com a porta no extremo oeste)
+        p(rect(8.45, 17.60, 1.58, 2.10, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 90 })));
+        p(rect(7.98, 17.60, 0.42, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        p(rect(6.95, 18.60, 0.60, 1.55, '#9a7b46', o(sMad, { h3d: 2.20, m3d: 'movel', acab3d: 'N' })));
         return lys;
     }
     // Linha de centro da parede externa da casa no 2º piso, por lado
@@ -6127,12 +6170,13 @@
         }
         if (v === 'v3') {
             P.push(
-                { nome: '2º · Sala íntima', n: 6.80, e: 17.70, yaw: -70, nivel: 1 },
-                { nome: '2º · Suíte', n: 7.10, e: 20.30, yaw: -30, nivel: 1 },
-                { nome: '2º · Quarto 1', n: 9.70, e: 14.20, yaw: -60, nivel: 1 },
-                { nome: '2º · Quarto 2', n: 9.80, e: 11.60, yaw: -150, nivel: 1 },
-                { nome: '2º · Escritório', n: 5.30, e: 11.80, yaw: 150, nivel: 1 },
-                { nome: '2º · Corredor', n: 4.00, e: 13.20, yaw: 0, nivel: 1 },
+                { nome: '2º · Estar', n: 3.40, e: 20.20 + OE, yaw: 0, nivel: 1 },
+                { nome: '2º · Cinema', n: 6.40, e: 24.80 + OE, yaw: 180, nivel: 1 },
+                { nome: '2º · Suíte', n: 7.20, e: 26.00 + OE, yaw: -40, nivel: 1 },
+                { nome: '2º · Quarto 1', n: 9.80, e: 17.00 + OE, yaw: -150, nivel: 1 },
+                { nome: '2º · Quarto 2', n: 7.60, e: 20.00 + OE, yaw: 140, nivel: 1 },
+                { nome: '2º · Escritório', n: 6.20, e: 16.20 + OE, yaw: -120, nivel: 1 },
+                { nome: '2º · Corredor', n: 6.25, e: 20.00 + OE, yaw: 180, nivel: 1 },
             );
         }
         return P;
@@ -6145,11 +6189,10 @@
             { n: 3.40, e: 19.10 }, { n: 3.40, e: 20.55 }, { n: 3.40, e: 17.70 },
         ];
         if (v === 'v2' || v === 'v3') R.push({ n: 6.50, e: 12.40 });
-        if (v === 'v3') R.push(
-            { n: 5.25, e: 18.45, nivel: 1 }, { n: 6.20, e: 22.40, nivel: 1 }, { n: 3.40, e: 21.00, nivel: 1 },
-            { n: 3.40, e: 23.60, nivel: 1 }, { n: 8.30, e: 15.20, nivel: 1 }, { n: 8.90, e: 10.20, nivel: 1 },
-            { n: 5.95, e: 10.20, nivel: 1 }, { n: 3.40, e: 15.80, nivel: 1 }, { n: 4.00, e: 13.00, nivel: 1 },
-        );
+        if (v === 'v3') R.push(...[
+            [3.40, 21.00], [6.20, 23.90], [6.20, 27.90], [3.40, 26.70], [3.40, 29.30], [4.40, 15.10],
+            [3.30, 17.90], [5.10, 17.90], [6.25, 18.50], [8.60, 15.50], [9.20, 19.40],
+        ].map(([n, e]) => ({ n, e: e + OE, nivel: 1 })));
         return R.map(r => ({ x: r.e, z: -r.n, y: (r.nivel ? TOPO_LAJE : CPA) + 2.45, nivel: r.nivel || 0 }));
     }
 
