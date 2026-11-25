@@ -395,6 +395,8 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `microondas` | Micro-ondas solto, frente p/ **norte**: corpo claro, visor escuro, painel à direita. Base em `z3d` |
 | `varalTeto` | Varal de teto suspenso: 4 varões de alumínio ao longo de mN, 2 suportes pendurados por cordas no forro; `z3d` = altura dos varões |
 | `colunaLimpeza` | Coluna de limpeza frente p/ **norte**: porta alta estreita (vassouras, aspirador) + 2 portas empilhadas (balde/panos, produtos) + maleiro no topo |
+| `cafeteira` | Cafeteira de bancada frente p/ **sul**: base e torre pretas, jarra de vidro. Base em `z3d` |
+| `airfryer` | Air fryer frente p/ **sul**: corpo preto arredondado, gaveta com puxador. Base em `z3d` |
 | `freezer` | Freezer vertical inox, porta única com puxador vertical e grade de ventilação; frente por `acab3d` (padrão `'S'`) |
 | `coffee` | Mesa de centro + pernas baixas |
 | `sofa` | Base + encosto + braços + 3 almofadas, tons derivados de `s.color`; `acab3d: 'manta'` põe a manta no braço norte |
@@ -907,6 +909,8 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
   - **Lixeira sob a pia** (2 baldes: orgânico e reciclável): o gabinete da pia (`sink` com `acab3d`) tem 2 portas e uma
     **portinhola basculante** no alto da porta leste (empurra e joga sem abrir o armário). A ponta leste da bancada é canto
     cego (o balcão em L fica na frente), por isso a lixeira não vai lá.
+  - **Cantinho do café** na ponta leste da bancada norte (fora da janela): cafeteira e air fryer, de uso diário (`cafeteira`,
+    `airfryer`). Liquidificador, batedeira e similares ficam guardados na despensa (decisão do cliente).
 
 ### Acabamentos da sala, cozinha e hall (V1/V2/V3) — paleta do cliente
 Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa). Cores em `COR_INT` (topo do script).

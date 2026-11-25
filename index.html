@@ -2447,6 +2447,9 @@
             const LV_E = (1.505 + CK + 2.2 + PI) / 2 - 0.30;
             lys.push(COZ.rect(2.275, LV_E, 0.6, 0.60, '#cbd5e1', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'dishwasher', acab3d: 'coz' })); // lava-louças sob a bancada
             lys.push(L.polyline([COZ.rot(2.315, LV_E + 0.05), COZ.rot(2.315, LV_E + 0.55)], { color: '#475569', weight: 1.2, interactive: false })); // puxador
+            // Cantinho do café na ponta leste da bancada (fora da janela): cafeteira e air fryer, de uso diário
+            lys.push(COZ.rect(2.50, 3.10, 0.30, 0.24, '#1f2937', { color: '#111827', weight: 0.6, z3d: 0.95, h3d: 0.38, m3d: 'cafeteira' }));
+            lys.push(COZ.rect(2.47, 3.36, 0.36, 0.30, '#27272a', { color: '#111827', weight: 0.6, z3d: 0.95, h3d: 0.33, m3d: 'airfryer' }));
             lys.push(COZ.rect(2.275, 2.2 + PI, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'sink', acab3d: 'coz' })); // pia, sob a janela; embaixo, a lixeira (2 baldes) com portinhola basculante na porta leste
             lys.push(COZ.rect(2.605, 2.27 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(COZ.rect(2.605, 2.52 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
@@ -3690,6 +3693,24 @@
             fbox(g, s.n - 0.005, s.e + 0.06, 0.02, s.de - 0.12, s.h - 0.18, s.h - 0.16, '#e5e7eb', { metalness: 0.8, roughness: 0.2 });       // puxador
             fbox(g, s.n - 0.03, s.e, s.dn + 0.03, s.de, s.h - 0.04, s.h, acabCoz(s) ? COR_INT.quartzo : '#b3ad9f', { roughness: 0.3 });   // tampo (contínuo)
             fbox(g, s.n + 0.04, s.e + 0.02, 0.04, s.de - 0.04, 0, 0.08, '#33332f');                                                         // rodapé
+        },
+        // Cafeteira de bancada, frente p/ SUL: base e torre pretas, jarra de vidro
+        cafeteira(g, s) {
+            const z = s.z || 0.95, H = z + (s.h || 0.38);
+            fbox(g, s.n, s.e, s.dn, s.de, z, z + 0.03, '#18181b', { roughness: 0.4 });                                   // base
+            fbox(g, s.n + s.dn * 0.55, s.e, s.dn * 0.45, s.de, z, H, '#18181b', { roughness: 0.4 });                     // torre (fundo)
+            fbox(g, s.n, s.e, s.dn, s.de, H - 0.06, H, '#18181b', { roughness: 0.4 });                                    // tampa superior
+            const jarra = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.065, 0.16, 20),
+                new THREE.MeshStandardMaterial({ color: col3d('#3b2a1e'), transparent: true, opacity: 0.75, roughness: 0.1, metalness: 0.2 }));
+            jarra.position.set(s.e + s.de / 2, z + 0.03 + 0.08, -(s.n + s.dn * 0.3)); jarra.castShadow = false; g.add(jarra);   // jarra com café
+        },
+        // Air fryer, frente p/ SUL: corpo preto arredondado, gaveta com puxador
+        airfryer(g, s) {
+            const z = s.z || 0.95, H = z + (s.h || 0.33), r = Math.min(s.dn, s.de) / 2;
+            const corpo = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.92, r, H - z, 28), fmat('#202024', { roughness: 0.45, metalness: 0.2 }));
+            corpo.position.set(s.e + s.de / 2, (z + H) / 2, -(s.n + s.dn / 2)); corpo.castShadow = true; g.add(corpo);
+            fbox(g, s.n - 0.015, s.e + s.de * 0.2, 0.03, s.de * 0.6, z + 0.03, z + (H - z) * 0.55, '#2a2a2e', { roughness: 0.4 });     // gaveta
+            fbox(g, s.n - 0.04, s.e + s.de * 0.42, 0.03, s.de * 0.16, z + 0.08, z + 0.12, '#3f3f46', { roughness: 0.4 });              // puxador
         },
         // Guarda-roupa — corpo + fenda central + 2 puxadores (porta a oeste)
         wardrobe(g, s) {
@@ -6540,7 +6561,7 @@
             `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
             'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
             `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
-            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto e spots redondos de luz quente sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
+            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, cafeteira e air fryer pretas na ponta da bancada, plafon redondo de rattan no teto e spots redondos de luz quente sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
             `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
         ].join('\n\n');
     }
