@@ -5025,13 +5025,19 @@
             // Laje 2 (teto do 2º piso, sob o telhado solar): concreto de 10 cm apoiado nas vigas do topo, nas duas
             // estruturas (casa e garagem, separadas pela junta). Isola o calor e o barulho de chuva da telha
             // metálica; o telhado fica por cima com um vão ventilado. Embaixo, forro pintado de branco.
+            // Grupo próprio ('laje2'): some e aparece junto com o telhado (botão "Telhado"), p/ dar
+            // p/ ver o 2º piso de cima.
             _ph = PH.vigaS;
-            F2.add(box3d(S, Wcasa + OE, Ncasa - S, Ecasa - Wcasa, fz1, fz1 + COB.laje, lajeMat));   // casa
-            F2.add(box3d(S, W + OE, Ngar - S, Egar - W, fz1, fz1 + COB.laje, lajeMat));              // garagem
+            const L2 = new THREE.Group();
+            L2.name = 'laje2';
+            L2.visible = false;
+            L2.add(box3d(S, Wcasa + OE, Ncasa - S, Ecasa - Wcasa, fz1, fz1 + COB.laje, lajeMat));   // casa
+            L2.add(box3d(S, W + OE, Ngar - S, Egar - W, fz1, fz1 + COB.laje, lajeMat));              // garagem
             [[S, Wcasa, Ncasa, Ecasa], [S, W, Ngar, Egar]].forEach(([n0, e0, n1, e1]) => {
                 const m = box3d(n0 + EW, e0 + OE + EW, n1 - n0 - 2 * EW, e1 - e0 - 2 * EW, fz1 - 0.006, fz1, matTeto);
-                m.castShadow = false; m.userData.noWalk = true; F2.add(m);                         // forro pintado do 2º piso
+                m.castShadow = false; m.userData.noWalk = true; L2.add(m);                         // forro pintado do 2º piso
             });
+            F2.add(L2);
             forroCasa(F2, CEIL3D + CPA);   // teto pintado do térreo da casa (sob a laje 1)
             g.add(F2);
         }
@@ -6126,6 +6132,8 @@
         // V3: o dreno pluvial (calhas + prumadas + coletor) aparece junto com o telhado.
         const drain = S.group.getObjectByName('drainV3');
         if (drain) drain.visible = roof.visible;
+        const laje2 = S.group.getObjectByName('laje2');   // V3: laje 2 (teto do 2º piso) vai junto com o telhado
+        if (laje2) laje2.visible = roof.visible;
         btn.textContent = noun + ': ' + (roof.visible ? 'visível' : 'oculto');
     }
 
@@ -6147,6 +6155,8 @@
                 roof.visible = false;          // 2º piso oculto → telhado some junto
                 const drain = S.group.getObjectByName('drainV3');
                 if (drain) drain.visible = false;   // dreno some com o telhado
+                const laje2 = S.group.getObjectByName('laje2');
+                if (laje2) laje2.visible = false;   // laje 2 também
                 const noun = (v === 'v3') ? 'Telhado' : 'Laje';
                 const host = document.getElementById('scene3d-' + v);
                 const rbtn = host && [...host.querySelectorAll('.scene3d-toolbar button')]
@@ -6331,16 +6341,17 @@
         const cam = S.camera;
         const roof = S.group.getObjectByName('roof'), f2 = S.group.getObjectByName('floor2');
         const drain = S.group.getObjectByName('drainV3'), espB = S.group.getObjectByName('esperasBars');
-        const telha = roof && roof.getObjectByName('telha');
+        const telha = roof && roof.getObjectByName('telha'), laje2 = S.group.getObjectByName('laje2');
         // "Exportar p/ IA" continua visível no passeio (a vista na altura dos olhos é a melhor p/ render)
         const outros = [...host.querySelectorAll('.scene3d-toolbar button')].filter(b => b !== btn && !b.classList.contains('btn-ia') && !b.classList.contains('btn-foto'));
         if (!w.on) {
             w.on = true;
             w.salvo = { pos: cam.position.clone(), alvo: S.controls.target.clone(), fov: cam.fov, near: cam.near,
-                        vis: [roof, f2, drain, telha].map(o => o && o.visible), roofY: roof && roof.position.y };
+                        vis: [roof, f2, drain, telha, laje2].map(o => o && o.visible), roofY: roof && roof.position.y };
             if (f2) f2.visible = true;
             if (roof) { roof.visible = true; if (v === 'v3') roof.position.y = CEIL3D + COB.laje; }
             if (drain) drain.visible = true;
+            if (laje2) laje2.visible = true;
             if (telha) telha.visible = !(espB && espB.visible);
             S.controls.enabled = false;
             cam.fov = 70; cam.near = 0.05; cam.updateProjectionMatrix();
@@ -6357,7 +6368,7 @@
             w.on = false;
             w.keys.clear(); w.joy.x = w.joy.y = 0;
             (w.ocultos || []).forEach(o => { o.visible = true; });
-            [roof, f2, drain, telha].forEach((o, i) => { if (o) o.visible = w.salvo.vis[i]; });
+            [roof, f2, drain, telha, laje2].forEach((o, i) => { if (o) o.visible = w.salvo.vis[i]; });
             if (roof && w.salvo.roofY != null) roof.position.y = w.salvo.roofY;
             cam.fov = w.salvo.fov; cam.near = w.salvo.near; cam.updateProjectionMatrix();
             cam.position.copy(w.salvo.pos); S.controls.target.copy(w.salvo.alvo);

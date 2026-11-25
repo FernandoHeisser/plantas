@@ -1209,7 +1209,8 @@ garagem segue a face das **colunas** (na própria linha). Mesmo padrão da pared
 
 **Duas coberturas (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
 piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, concreto de 10 cm (`fz1 → fz1+COB.laje`)
-nas duas estruturas (casa e garagem, separadas pela junta), no grupo `floor2`. Por cima dela fica o
+nas duas estruturas (casa e garagem, separadas pela junta), no subgrupo `laje2` do `floor2`
+(com o forro do 2º): **some e aparece junto com o botão "Telhado"** (`set3DRoof`; o passeio liga), p/ ver o 2º piso de cima. Por cima dela fica o
 **telhado solar de uma água + usina FV** (grupo `roof`, `SOLAR`), com vão ventilado (ver "Telhado solar do V3").
 A laje 2 isola o calor e o barulho de chuva da telha metálica (decisão do cliente: antes o 2º piso via a
 telha por dentro).
