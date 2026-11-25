@@ -1209,7 +1209,8 @@ garagem segue a face das **colunas** (na própria linha). Mesmo padrão da pared
 
 **Duas coberturas (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
 piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, concreto de 10 cm (`fz1 → fz1+COB.laje`)
-nas duas estruturas (casa e garagem, separadas pela junta), no grupo `floor2`. Por cima dela fica o
+nas duas estruturas (casa e garagem, separadas pela junta), no subgrupo `laje2` do `floor2`
+(com o forro do 2º): **some e aparece junto com o botão "Telhado"** (`set3DRoof`; o passeio liga), p/ ver o 2º piso de cima. Por cima dela fica o
 **telhado solar de uma água + usina FV** (grupo `roof`, `SOLAR`), com vão ventilado (ver "Telhado solar do V3").
 A laje 2 isola o calor e o barulho de chuva da telha metálica (decisão do cliente: antes o 2º piso via a
 telha por dentro).
@@ -1235,7 +1236,7 @@ telha por dentro).
 (código, sem OE; nomes = esboço estrutural do artifact "Segundo piso do sobrado").
 - **Pilares `GPIL`** (canto SO, seção `GCOL`=0,20): linhas N-S em mE 13,6 / 16,6 / 20,25 / 22,37
   (centros) × E-O em mN 2,1 / 6,85 / 10,4 → G1–G11 (sem G6), mais **E1–E4** nos cantos da escada
-  (mN 4,6 e 8,05). `sobe` = continua no 2º piso (E1 e E3 param na laje 1). Laje 1 em **6 painéis**
+  (mN 4,2 e 7,65). `sobe` = continua no 2º piso (E1 e E3 param na laje 1). Laje 1 em **6 painéis**
   (vãos 3,0 / 3,65 / 2,1 m). Saíram a linha mN 3,40 e o G6. **Não pôr pilar no meio das vagas** além do G5.
 - **Vigas** `GVIGA_EO`/`GVIGA_NS` (laje 1 e teto do 2º) + `GVIGA_VAO` (E1–E2, E3–E4, só laje 1).
   A viga mN 6,85 para na linha 20,25.
@@ -1243,7 +1244,7 @@ telha por dentro).
   norte a partir do vestíbulo, patamar ao norte, 2º lance a oeste sobe p/ o sul e chega no estar
   do 2º. Parede entre os lances sobe até o guarda-corpo do 2º. Vão na laje 1 = quadro inteiro.
 - **Núcleo `VEST`** (V2 e V3): vestíbulo entre a porta da casa e o pé da escada; paredes de 0,20
-  sob as vigas (oeste na linha 20,25 com a porta p/ a garagem; norte em mN 8,05 atrás do patamar);
+  sob as vigas (oeste na linha 20,25 com a porta p/ a garagem; norte em mN 7,65 atrás do patamar, **face alinhada à fachada norte da casa**);
   **depósito** sob o 2º lance e o patamar, porta pelo vestíbulo. 3D manual (`box3d`), 2D `no3d`.
 - Esperas do V2 = pilares com `sobe`.
 
@@ -1255,7 +1256,7 @@ Pórticos independentes pela junta. Helpers locais `col2`/`beamEW`/`beamNS`.
 **Layout do 2º piso — opção I** (decisão do cliente, 2026-11-25, depois de comparar as opções A–I no
 artifact "Segundo piso do sobrado"). Coordenadas de código:
 - **Estar em L (cinema / video game, 25 m²)**: faixa sul mE 19,25→25,3 × mN 2,0→4,75, cruzando a junta
-  pela passagem `F2_JUNTA_VAO` (mN 2,2→4,5, entre G3 e E2, 2,25 de altura), + braço norte na casa
+  pela passagem `F2_JUNTA_VAO` (mN 2,2→4,1, entre G3 e E2, 2,25 de altura), + braço norte na casa
   (mE 22,5→25,3). TV na parede cega da junta, no braço norte. A escada chega aqui.
 - **Suíte** (casa, norte, 15,6 m²): porta na ponta norte da parede oeste (`EIXO.BANHO`), cama na parede
   sul. **Quarto → closet → banho** (o cliente não quer banheiro abrindo direto no quarto): closet a
@@ -1263,10 +1264,11 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
 - **Garagem:** escritório no canto sudoeste (14,7 m²); banheiro (sul) com a **rouparia como
   antecâmara** (rouparia sem janela); corredor mN 5,75→6,75 com guarda-corpo no vão; **quarto 1**
   (noroeste, 15 m²) e **quarto 2 em L** (nordeste, 16,1 m², porta no extremo oeste p/ liberar parede).
-- **Paredes:** alvenaria de 0,20 sobre as vigas (mN 6,85; linha 20,25 e mN 8,05 em volta do vão);
+- **Paredes:** alvenaria de 0,20 sobre as vigas (mN 6,85; linha 20,25 e mN 7,65 em volta do vão);
   drywall de 0,10 no resto; parede entre os quartos = drywall acústico (sem viga embaixo).
 - **Janelas** (`F2_WINDOWS`/`F2G_WINDOWS`): grandes ao norte (peitoril 0,40 → 2,25) e na suíte a leste;
-  a oeste só pequenas. Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
+  **mínimo 1,50 m de largura** (pedido do cliente), médias com peitoril 0,90 → 2,20, banheiros 1,40 → 2,20;
+  só o banho da suíte fica em 1,20 (entre os pilares P8 e P6). Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
   **Estilo padrão** = grade de caixilho (`winGrid` no `winWall`), cor `matFrame`, igual ao térreo.
 - **Móveis** em `f2Moveis()` (fonte única 2D + 3D, base no piso do 2º; `rot3d` gira o modelo).
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
