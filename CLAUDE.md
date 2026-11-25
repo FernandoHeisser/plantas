@@ -395,14 +395,15 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `microondas` | Micro-ondas solto, frente p/ **norte**: corpo claro, visor escuro, painel à direita. Base em `z3d` |
 | `varalTeto` | Varal de teto suspenso: 4 varões de alumínio ao longo de mN, 2 suportes pendurados por cordas no forro; `z3d` = altura dos varões |
 | `colunaLimpeza` | Coluna de limpeza frente p/ **norte**: porta alta estreita (vassouras, aspirador) + 2 portas empilhadas (balde/panos, produtos) + maleiro no topo |
-| `cafeteira` | Cafeteira de bancada frente p/ **sul**: base e torre pretas, jarra de vidro. Base em `z3d` |
-| `airfryer` | Air fryer frente p/ **sul**: corpo preto arredondado, gaveta com puxador. Base em `z3d` |
+| `cafeteira` | Cafeteira de bancada frente p/ **sul** (`acab3d: 'O'` = p/ oeste): base e torre pretas, jarra de vidro. Base em `z3d` |
+| `airfryer` | Air fryer frente p/ **sul** (`acab3d: 'O'` = p/ oeste): corpo preto arredondado, gaveta com puxador. Base em `z3d` |
 | `freezer` | Freezer vertical inox, porta única com puxador vertical e grade de ventilação; frente por `acab3d` (padrão `'S'`) |
 | `coffee` | Mesa de centro + pernas baixas |
 | `sofa` | Base + encosto + braços + 3 almofadas, tons derivados de `s.color`; `acab3d: 'manta'` põe a manta no braço norte |
 | `bed` | Estrado + colchão + cabeceira + 2 travesseiros + edredom (GAP=7cm da parede) |
 | `wardrobe` | Guarda-roupa + portas + puxadores |
 | `fridge` | Geladeira inox + fenda freezer + 2 puxadores |
+| `fridge3p` | Geladeira de 3 portas (French door), frente p/ **oeste**: 2 portas em cima, gaveta do freezer embaixo, puxadores, dispenser |
 | `stove` | Fogão + forno + porta + puxador + cooktop |
 | `sink` | Pia + 2 cubas + torneira (sem saliência lateral) |
 | `dishwasher` | Lava-louças de embutir sob a bancada, frente p/ **sul**: corpo + porta inox + faixa de comando + puxador + tampo contínuo. |
@@ -889,10 +890,11 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
 - **Bancada a 0,95 m** (sob medida: cotovelo do cliente ~1,10 m) na parede norte, do pilar à parede
   leste: cooktop de indução com coifa embutida + pia sob a janela.
 - **Península** a oeste da bancada (mesma altura) com 3 banquetas (assento 0,65).
-- **Parede leste:** geladeira junto da porta dos fundos (frente alinhada a 0,65), balcão em L com o
-  canto. Sem armário sobre a porta dos fundos (decisão do cliente).
-- **Aéreos de 1,65 até o teto (2,69, sob o forro), profundidade 0,35** (norte e leste sobre o balcão) → folga de 0,70 m sobre
-  a bancada; sobre a geladeira também 0,35 (1,65 → teto), igual aos demais (decisão do cliente); por isso a geladeira tem no máximo 1,60. Ficam acima da janela da cozinha
+- **Parede leste:** **geladeira de 3 portas** (French door, nicho 0,92 × 1,87 × 0,75, `fridge3p`) junto da porta dos fundos e,
+  nos 0,30 até a bancada, **coluna do piso ao teto para assadeiras e tábuas** em pé. O balcão em L saiu (decisão do cliente).
+  Sem armário sobre a porta dos fundos (decisão do cliente).
+- **Aéreos de 1,65 até o teto (2,69, sob o forro), profundidade 0,35** (parede norte) → folga de 0,70 m sobre
+  a bancada; sobre a geladeira também 0,35, de 1,90 até o teto (geladeira de até 1,85). Ficam acima da janela da cozinha
   (verga 1,60) e o cliente prefere armário a prateleira (poeira).
 - **Mesma sala e cozinha no V1/V2/V3** (decisão do cliente; o layout nasceu no V3): no V3 a despensa guarda o
   resto, a cozinha aberta fica com o essencial e todos ficam virados para a sala.
@@ -908,9 +910,9 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
   - Variáveis `CK`/`PI`/`SF` em `buildLayers`.
   - **Lixeira sob a pia** (2 baldes: orgânico e reciclável): o gabinete da pia (`sink` com `acab3d`) tem 2 portas e uma
     **portinhola basculante** no alto da porta leste (empurra e joga sem abrir o armário). A ponta leste da bancada é canto
-    cego (o balcão em L fica na frente), por isso a lixeira não vai lá.
-  - **Cantinho do café** na ponta leste da bancada norte (fora da janela): cafeteira e air fryer, de uso diário (`cafeteira`,
-    `airfryer`). Liquidificador, batedeira e similares ficam guardados na despensa (decisão do cliente).
+    cego (a coluna de assadeiras fica na frente), por isso a lixeira não vai lá.
+  - **Cantinho do café** no canto leste da bancada norte, atrás da coluna de assadeiras: cafeteira e air fryer, de uso diário
+    (`cafeteira`, `airfryer`), **virados p/ oeste** (`acab3d: 'O'`, helper `FURN3D._oeste`) para a gaveta da air fryer abrir sobre a bancada. Liquidificador, batedeira e similares ficam guardados na despensa (decisão do cliente).
 
 ### Acabamentos da sala, cozinha e hall (V1/V2/V3) — paleta do cliente
 Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa). Cores em `COR_INT` (topo do script).
@@ -918,14 +920,14 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   interna das paredes da sala, cozinha e hall (mesma técnica do azulejo do banho). A **fachada continua branca**.
   Os vãos saem do próprio modelo (`openings`), então cada versão recorta as suas portas e janelas. Marcados `foto: 'parede'`.
 - **Faixa de azulejo Portobello Gouache Mer** (`texGouache`, verde-sálvia artesanal, peças de 10 cm, brilhante) de
-  0,95 a 1,65 m: parede norte do pilar à leste (por baixo da janela da cozinha) e parede leste sobre o balcão em L.
+  0,95 a 1,65 m: parede norte do pilar à leste (por baixo da janela da cozinha) e parede leste sobre o canto da bancada.
 - **Marcenaria** (`acab3d` nos `opts` do `rect`: `'coz'` = base mint + quartzo; `'pen'` = base mint + tampo de madeira):
   base **MDF Mint** (Duratex), aéreos claros (`COR_INT.aereo`), bancada em **quartzo creme**, **península com tampo
   único de madeira mel** (cobre o balanço; o `balcao` do balanço usa `acab3d: 'semTampo'`), puxadores redondos e
   **torneira gourmet de latão**. Peças sem `acab3d` (lavanderia, despensa, 2º piso) mantêm as cores neutras.
 - **Luz caseira na cozinha** (o cliente achou o trilho com spots "cara de estúdio"): **plafon de rattan** Ø 45
   (`plafon`, `texRattan`) no centro do teto da cozinha + **spots redondos de embutir sob os aéreos** (Ø 6,4 cm, um a cada ~0,60 m, `acab3d: 'cozSpot'` no `wallcab`/`wallcabW`,
-  helper `spotsSobAereo`) sobre a bancada norte e o balcão leste; sobre a geladeira, não. **Sem fita de LED** em lugar nenhum:
+  helper `spotsSobAereo`) sobre a bancada norte; sobre a geladeira, não. **Sem fita de LED** em lugar nenhum:
   o cliente acha que deixa a casa com cara de shopping ou consultório.
 - **Sofá caramelo/conhaque** em tecido impermeável (`COR_INT.sofa`; o cliente não quer sofá claro por causa de
   manchas) com **manta areia** no braço norte (`acab3d: 'manta'`). Base, braços e almofadas derivam do `s.color`.
