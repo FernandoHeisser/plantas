@@ -904,6 +904,9 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
   - **Lava-louças de 60 cm** entre o cooktop e a pia (vão de 0,69), centrada pelo `LV_E`. Também no V1/V2 (vão 0,695).
   - Folgas: 1,00 entre o balcão e a península, 1,15 até a porta da despensa.
   - Variáveis `CK`/`PI`/`SF` em `buildLayers`.
+  - **Lixeira sob a pia** (2 baldes: orgânico e reciclável): o gabinete da pia (`sink` com `acab3d`) tem 2 portas e uma
+    **portinhola basculante** no alto da porta leste (empurra e joga sem abrir o armário). A ponta leste da bancada é canto
+    cego (o balcão em L fica na frente), por isso a lixeira não vai lá.
 
 ### Acabamentos da sala, cozinha e hall (V1/V2/V3) — paleta do cliente
 Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa). Cores em `COR_INT` (topo do script).
