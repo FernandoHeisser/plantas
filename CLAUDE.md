@@ -1242,7 +1242,7 @@ telha por dentro).
   (centros) × E-O em mN 2,1 / 6,85 / 10,4 → G1–G11 (sem G6), mais **E1–E4** nos cantos da escada
   (mN 4,2 e 7,65). `sobe` = continua no 2º piso (hoje todos sobem; E1 aparente no estar, na ponta do guarda-corpo). Laje 1 em **6 painéis**
   (vãos 3,0 / 3,65 / 2,1 m). Saíram a linha mN 3,40 e o G6. **Não pôr pilar no meio das vagas** além do G5.
-- **Vigas** `GVIGA_EO`/`GVIGA_NS` (laje 1 e teto do 2º) + `GVIGA_VAO` (E1–E2, E3–E4, só laje 1).
+- **Vigas** `GVIGA_EO`/`GVIGA_NS` (laje 1 e teto do 2º) + `GVIGA_VAO` (E1–E2, E3–E4: na laje 1 bordejam o vão; no teto do 2º amarram os pilares da escada).
   A viga mN 6,85 para na linha 20,25.
 - **Escada em U `ESC`** (18 espelhos, pisos 0,28): 1º lance a leste (junto da junta) sobe p/ o
   norte a partir do vestíbulo, patamar ao norte, 2º lance a oeste sobe p/ o sul e chega no estar
