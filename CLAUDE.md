@@ -97,8 +97,8 @@ Acesso: http://localhost:3131
 Config em `.claude/launch.json`.
 
 > **`--single` é obrigatório:** o app usa rotas resolvidas no cliente (`/v2` → V2,
-> `/v3` → V3, `/v1.1` → V1.1, `/v0.1`…`/v0.5` → V1 numa
-> **fase da obra** (3D), `/` ou qualquer outra → V1). Sem o modo SPA, o `serve` devolve **404**
+> `/v3` → V3, `/v1.1` → V1.1, e as **etapas da obra** `/v0.1`…`/v0.4`, `/v1.2`…`/v1.4`,
+> `/v2.1`…`/v2.3` (ver "Etapas da obra"), `/` ou qualquer outra → V1). Sem o modo SPA, o `serve` devolve **404**
 > em `/v2` e `/v3` (só `/` funciona). Na Vercel isso é tratado pelo rewrite catch-all
 > do `vercel.json`.
 
@@ -1077,44 +1077,48 @@ O V1 é compatível com **Caixa FGTS/SFH** (construção em terreno próprio):
 | **V1** | ✅ Completo | ✅ Completo (cotas 3D + declive/aterro + **esperas p/ V3**, botão revelar) | ✅ Completo |
 | **V2** | 🔶 Garagem parcial (paredes sul ✅, portão ⬜, cotas ⬜) | ✅ Casa + garagem (colunas/vigas/laje/escada ✅; portão ⬜) + **esperas p/ V3** | ✅ Preenchida (garagem + depósito + escada) |
 | **V3** | 🔶 Sobrado — botão alterna térreo ↔ 2º piso (laje + paredes ext. em L) ✅; interno do 2º ⬜ | 🔶 Cena ativa: térreo + 2º piso togglável + **telhado solar (uma água + usina FV)** que sobe sobre o 2º ✅; interno do 2º ⬜ | ⬜ Placeholder |
-| **V0.1–V0.6** | — | ✅ **Fases da obra do V1** (timeline construtiva) — não é versão nova, é o V1 revelado por fase | — |
+| **Etapas** (V0.1–V0.4, V1.2–V1.4, V2.1–V2.3) | versão base | ✅ **Etapas da obra** no menu de versões — a versão base revelada até a etapa | versão base |
 
 ---
 
-## Fases da obra (V0.1–V0.6) — timeline construtiva do V1
+## Etapas da obra (menu de versões) — linha do tempo V0.1 → V3
 
-Não são casas novas: é **o V1 (default) revelado fase a fase**, terminando exatamente
-no V1 completo. Tudo é o mesmo `buildBuilding3D('v1')` — só muda **o que fica visível**.
+O menu de versões (`#version-select`) lista as 4 versões completas e as etapas da obra entre
+elas (pedido do cliente; substituiu o antigo slider 🏗 do V1):
 
-**Mecânica (fonte única):** dentro de `buildBuilding3D`, `g.add` é envolto por um override
-que **carimba cada objeto com `userData.ph`** (a fase em que ele "existiria" na obra),
-lido de uma variável `_ph` setada antes de cada seção. `g.add` é **restaurado ao original
-antes de `buildDims3D`** (cotas ficam sem carimbo → sempre visíveis).
+| Etapa | Rota | Base | Fase | O que aparece |
+|---|---|---|---|---|
+| V0.1 | `/v0.1` | v1 | 1 | fundação |
+| V0.2 | `/v0.2` | v1 | 3 | + colunas e vigas da casa |
+| V0.3 | `/v0.3` | v1 | 4 | + laje |
+| V0.4 | `/v0.4` | v1 | 5 | + paredes |
+| **V1** | `/` | v1 | 99 | casa completa |
+| **V1.1** | `/v1.1` | v11 | 99 | + muros |
+| V1.2 | `/v1.2` | v2 | 9 | + fundação da garagem |
+| V1.3 | `/v1.3` | v2 | 10 | + colunas e vigas da garagem |
+| V1.4 | `/v1.4` | v2 | 11 | + laje da garagem, escada e núcleo |
+| **V2** | `/v2` | v2 | 99 | garagem completa |
+| V2.1 | `/v2.1` | v3 | 12 | + colunas e vigas do 2º piso |
+| V2.2 | `/v2.2` | v3 | 13 | + paredes estruturais (alvenaria) |
+| V2.3 | `/v2.3` | v3 | 14 | + drywall |
+| **V3** | `/v3` | v3 | 99 | sobrado completo |
 
-| `ph` | Fase | O que entra |
-|---|---|---|
-| 0 | entorno (sempre visível) | satélite, grama, saia de terra, contorno do lote |
-| 1 | **Fundação** | baldrame (`emSides`), manta, contrapiso, escadas externas |
-| 2 | **Colunas** | 12 pilares 15×15 (`matEmbase`) |
-| 3 | **Vigas** | grade de vigas (`lajeMat`, bloco `VH/VW`) — **sem** a laje plana |
-| 4 | **Laje** | laje plana (grupo `roof`) cobrindo as vigas — sem geometria com `_ph` próprio |
-| 5 | **Paredes** | `walls.forEach` (alvenaria com vãos recortados) |
-| 6 | **Esquadrias** | batentes, peitoris, vidros, folhas de porta |
-| 7 | **Acabamento** | mobiliário (`solids`/`FURN3D`) = **V1 completo** |
-| `null` | cotas (`buildDims3D`) | sempre visíveis |
-
-- **`applyBuildPhase(v)`** (estado `buildPhase`, default 7): oculta o que tem `ph > buildPhase`.
-  Só age no **V1**; outras versões sempre completas (ignoram o carimbo). A **laje** (`roof`)
-  aparece da fase **4 (Laje) até 6 (Esquadrias)** e some no acabamento (7) — espelha o default
-  do V1 (laje oculta p/ ver o interior). Chamado em `init3D` após `buildBuilding3D`.
-- **Slider 🏗 no HUD 3D** (só V1, em `buildHud3D`): `.phase-hud`, range 1–7, empilhado acima
-  do HUD de horário. Arrastar = `buildPhase = valor` + `applyBuildPhase`.
-- **Rotas `/v0.1`…`/v0.6`** (`PHASE_ROUTES`, `phaseFromPath`): `versionFromPath` devolve `'v1'`;
-  o boot abre direto em **Planta 3D**, mantém `/v0.x` na barra e seta `buildPhase`. Clicar numa
-  **aba** (`setVersion` com `push=true`) volta à casa completa (`buildPhase=7`); **popstate**
-  respeita a fase da rota. `applyBuildPhase` re-sincroniza o slider quando a fase muda por URL.
-- **Ao adicionar nova geometria 3D ao V1:** setar `_ph` antes da seção (ou ela herda a fase
-  anterior). Geometria de garagem/V2+/floor2 não precisa — fora do escopo do filtro de fase.
+- **Fonte única:** tabela `ETAPAS` (chave → `base`, `fase`, `rota`). `ver` = versão base (painéis,
+  cenas e mapas são só das 4 versões); `etapa` = chave do menu; `buildPhase` = fase. `faseDe(v)`
+  dá a fase que vale p/ a cena `v` (99 = `FASE_TODA` se a cena não é a base da etapa).
+  `setVersion(k)` troca a etapa (abre no 3D se for intermediária); boot e `popstate` usam
+  `etapaFromPath()`. O 2D e as Medidas de uma etapa mostram a versão base.
+- **Carimbo:** dentro de `buildBuilding3D`, `g.add` (e o `add` de `roof` e `floor2`, via
+  `stampAdd`) grava `userData.ph = _ph`. Escala única em `PH`: casa 1–7 (fundação, colunas,
+  vigas, laje, paredes, esquadrias, acabamento), muros 8, garagem 9–11, 2º piso 12–15
+  (colunas e vigas, alvenaria, drywall, esquadrias/acabamento/laje 2/telhado); carros do V2 = 50
+  (só na garagem pronta). Paredes do 2º piso: `t < 0,15` = drywall. Cotas sem carimbo.
+- **`applyBuildPhase(v)`**: oculta o que tem `ph > fase` nos filhos de `S.group`, `roof` e
+  `floor2`. Numa etapa: laje/telhado (`roof`) visível da fase 4 até a garagem pronta (não no V3),
+  2º piso visível, `laje2` e `drainV3` ocultos. Na versão completa os botões mandam (laje
+  começa oculta, também ao voltar de uma etapa). Pilares trocam concreto → reboco na fase 5.
+- **Ao adicionar geometria 3D:** setar `_ph` com a chave `PH` da etapa em que ela é construída
+  (ou ela herda o `_ph` anterior). Nova etapa = nova entrada em `ETAPAS` + `<option>` no menu.
 
 ### Esperas (arranques do sobrado V3) — V1/V2
 

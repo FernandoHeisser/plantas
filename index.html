@@ -494,9 +494,6 @@
         }
         .scene3d-hud .hud-clock { font-weight: 600; color: #fbbf24; min-width: 86px; }
         /* HUD da fase da obra (V1) — empilhado acima do HUD de horário */
-        .scene3d-hud.phase-hud { bottom: 58px; }
-        .scene3d-hud.phase-hud input[type=range] { accent-color: #f97316; }
-        .scene3d-hud.phase-hud .hud-clock { color: #fb923c; min-width: 92px; }
         /* Bússola */
         .scene3d-compass {
             position: absolute; top: 10px; left: 10px; z-index: 5;
@@ -697,9 +694,19 @@
         </div>
         <div class="version-tabs">
             <select class="version-select" id="version-select" onchange="setVersion(this.value)" aria-label="Selecionar versão">
+                <option value="v01">V0.1 · Fundação</option>
+                <option value="v02">V0.2 · Estrutura da casa</option>
+                <option value="v03">V0.3 · Laje da casa</option>
+                <option value="v04">V0.4 · Paredes da casa</option>
                 <option value="v1">V1 · MVP</option>
                 <option value="v11">V1.1 · Muro</option>
+                <option value="v12">V1.2 · Fundação da garagem</option>
+                <option value="v13">V1.3 · Estrutura da garagem</option>
+                <option value="v14">V1.4 · Laje da garagem</option>
                 <option value="v2">V2 · Garagem</option>
+                <option value="v21">V2.1 · Estrutura do 2º piso</option>
+                <option value="v22">V2.2 · Paredes estruturais</option>
+                <option value="v23">V2.3 · Drywall</option>
                 <option value="v3">V3 · Sobrado</option>
             </select>
         </div>
@@ -1766,42 +1773,57 @@
 
 <script>
     let ver = 'v1', sec = '2d';
-    // Fase da obra (timeline construtiva — só V1). 6 = casa pronta (= V1 default).
-    const PHASE_LABELS = ['Fundação', 'Colunas', 'Vigas', 'Laje', 'Paredes', 'Esquadrias', 'Acabamento'];
-    let buildPhase = 7;
+    // ── Versões e etapas da obra (menu de versões) ──────────────────────────────
+    // Cada entrada = uma versão completa (V1, V1.1, V2, V3) ou uma etapa intermediária da obra.
+    // base = a versão cujo modelo é montado (2D, 3D e Medidas); fase = corte na linha do tempo
+    // da obra (PH em buildBuilding3D): aparece no 3D só o que tem ph ≤ fase. FASE_TODA = completa.
+    // As etapas intermediárias abrem direto no 3D; o 2D e as Medidas mostram a versão base.
+    const FASE_TODA = 99;
+    const ETAPAS = {
+        v01: { base: 'v1',  fase: 1,  rota: '/v0.1' },   // fundação
+        v02: { base: 'v1',  fase: 3,  rota: '/v0.2' },   // estrutura da casa térrea (colunas e vigas)
+        v03: { base: 'v1',  fase: 4,  rota: '/v0.3' },   // + laje
+        v04: { base: 'v1',  fase: 5,  rota: '/v0.4' },   // + paredes
+        v1:  { base: 'v1',  fase: FASE_TODA, rota: '/' },
+        v11: { base: 'v11', fase: FASE_TODA, rota: '/v1.1' },
+        v12: { base: 'v2',  fase: 9,  rota: '/v1.2' },   // fundação da garagem
+        v13: { base: 'v2',  fase: 10, rota: '/v1.3' },   // estrutura da garagem (colunas e vigas)
+        v14: { base: 'v2',  fase: 11, rota: '/v1.4' },   // + laje (escada e núcleo)
+        v2:  { base: 'v2',  fase: FASE_TODA, rota: '/v2' },
+        v21: { base: 'v3',  fase: 12, rota: '/v2.1' },   // estrutura do 2º piso (colunas e vigas)
+        v22: { base: 'v3',  fase: 13, rota: '/v2.2' },   // + paredes estruturais
+        v23: { base: 'v3',  fase: 14, rota: '/v2.3' },   // + drywall
+        v3:  { base: 'v3',  fase: FASE_TODA, rota: '/v3' },
+    };
+    let etapa = 'v1';
+    let buildPhase = FASE_TODA;   // fase da etapa atual (vale p/ a cena da versão base)
+    const faseDe = v => (ETAPAS[etapa] && ETAPAS[etapa].base === v) ? ETAPAS[etapa].fase : FASE_TODA;
 
-    // ── Roteamento por URL: / → v1, /v2 → v2, /v3 → v3, qualquer outro → v1 ──
-    // Rotas de fase da obra (/v0.1.../v0.5) → V1 numa fase construtiva (3D).
-    const PHASE_ROUTES = { '/v0.1': 1, '/v0.2': 2, '/v0.3': 3, '/v0.4': 4, '/v0.5': 5, '/v0.6': 6 };
-    function phaseFromPath() {
-        return PHASE_ROUTES[location.pathname.replace(/\/+$/, '').toLowerCase()] || 7;
-    }
-    function versionFromPath() {
-        const p = location.pathname.replace(/\/+$/, '').toLowerCase();
-        if (PHASE_ROUTES[p]) return 'v1';   // /v0.x = V1 numa fase
-        if (p === '/v1.1') return 'v11';
-        if (p === '/v2')   return 'v2';
-        if (p === '/v3')   return 'v3';
-        return 'v1';
-    }
-    function pathFromVersion(v) {
-        if (v === 'v1')  return '/';
-        if (v === 'v11') return '/v1.1';
-        return '/' + v;
+    // ── Roteamento por URL: a rota de cada etapa (ETAPAS.rota); qualquer outra → V1 ──
+    function etapaFromPath() {
+        const p = location.pathname.replace(/\/+$/, '').toLowerCase() || '/';
+        const k = Object.keys(ETAPAS).find(k => ETAPAS[k].rota === p);
+        return k || 'v1';
     }
 
-    // Dropdown de versões: reflete a versão atual no select
+    // Dropdown de versões: reflete a etapa atual no select
     function syncTabs() {
         const sel = document.getElementById('version-select');
-        if (sel) sel.value = ver;
+        if (sel) sel.value = etapa;
     }
 
-    function setVersion(v, push = true) {
-        ver = v;
-        // Navegação explícita por aba volta à casa completa (push=false vem do
-        // popstate/boot, que já ajustou buildPhase pela rota /v0.x).
-        if (push) { history.pushState({ v }, '', pathFromVersion(v)); buildPhase = 7; }
+    function setVersion(k, push = true) {
+        const E = ETAPAS[k] || ETAPAS.v1;
+        etapa = ETAPAS[k] ? k : 'v1';
+        ver = E.base;
+        buildPhase = E.fase;
+        if (push) history.pushState({ k: etapa }, '', E.rota);
+        if (E.fase < FASE_TODA && sec !== '3d') {        // etapa intermediária: abre no 3D
+            sec = '3d';
+            document.querySelectorAll('.stab').forEach(t => t.classList.toggle('active', t.dataset.s === '3d'));
+        }
         syncTabs();
+        if (scenes3d[ver] && scenes3d[ver].group) applyBuildPhase(ver);   // cena já aberta: só refiltra
         render();
     }
 
@@ -3985,20 +4007,17 @@
         // a fase em que "existiria" na obra. applyBuildPhase() depois oculta o que
         // tem ph > fase atual. 0 = sempre visível (terreno/entorno). Restaurado
         // antes das cotas (buildDims3D) p/ elas nunca sumirem.
-        // V1 (7 fases): 1 fundação · 2 colunas · 3 vigas · 4 laje · 5 paredes · 6 esquadrias · 7 acabamento
-        //   (a laje/fase 4 = grupo `roof`, tratado por nome em applyBuildPhase).
-        // V4 (11 fases, sobrado solar): números maiores, separando os 2 pavimentos +
-        //   telhado. Os blocos compartilhados (casa) usam as chaves PH.* — assim o
-        //   MESMO código carimba o número certo conforme a versão (V1 vs V4). As demais
-        //   versões ignoram o carimbo (applyBuildPhase só age em V1).
-        // V4: 3 blocos cronológicos (casa V1 → garagem V2 → sobrado V3). Chaves com
-        //   prefixo g* = garagem; *S = 2º pavimento. Demais versões: chaves da casa = as
-        //   7 fases do V1; o resto não é usado (V1 não tem garagem/2º piso).
-        // Fases da obra do V1 (timeline V0.1–V0.6): a casa é revelada fase a fase.
-        // Chaves da casa = as 7 fases do V1; as chaves de garagem/2º piso (g*, *S) só
-        // são usadas por outras versões (que ignoram o carimbo — applyBuildPhase só age em V1).
-        const PH = { found:1, colT:2, vigaT:3, laje1:4, alven:5, esquad:6, acab:7, cap:7, muro:7,
-                     gFound:1, gColT:2, gVigaT:3, gLaje:4, colS:5, vigaS:6, laje2:4, alvenS:5, telhado:4, esquadS:6, paint:7 };
+        // LINHA DO TEMPO DA OBRA (V0.1 → V3), numa escala só. Cada etapa do menu de versões
+        // (ETAPAS) é um corte: aparece o que tem ph ≤ fase da etapa.
+        //   Casa térrea (V1):  1 fundação · 2 colunas · 3 vigas · 4 laje · 5 paredes · 6 esquadrias · 7 acabamento
+        //   Muros (V1.1): 8
+        //   Garagem (V2):      9 fundação · 10 colunas e vigas · 11 laje, escada e núcleo
+        //   2º piso (V3):      12 colunas e vigas · 13 paredes estruturais · 14 drywall · 15 esquadrias,
+        //                      acabamento, laje 2 e telhado
+        // O mesmo código carimba o número certo em qualquer versão: a etapa só filtra.
+        const PH = { found:1, colT:2, vigaT:3, laje1:4, laje2:4, alven:5, esquad:6, acab:7, cap:7, paint:7, muro:8,
+                     gFound:9, gColT:10, gVigaT:10, gLaje:11, gPronto:50,
+                     colS:12, vigaS:12, alvenS:13, drywall:14, esquadS:15, acabS:15, telhado:15 };
         let _ph = 0;
         // Carimba qualquer grupo (g, roof, floor2) com o _ph corrente. roof/floor2 têm
         // seu próprio .add → embrulhados também p/ o V1 revelar seus filhos por fase.
@@ -4289,6 +4308,7 @@
         _ph = PH.acab; // ── acabamento (mobiliário, louças, bancadas) ──
         solids.forEach(s => {
             const base = (s.extZ3d != null ? s.extZ3d : (s.ext3d ? 0 : CPA));
+            _ph = s.m3d === 'car' ? PH.gPronto : PH.acab;   // carros (V2): só com a garagem pronta
             if (s.m3d && FURN3D[s.m3d]) {                 // móvel realista por tipo
                 const fg = new THREE.Group();
                 FURN3D[s.m3d](fg, s, model);
@@ -4953,8 +4973,12 @@
                 if (cur < a1) box(cur, a1, fz0, fz1);              // segmento final
             };
             _ph = PH.alvenS;   // divisórias internas do 2º pav (garagem + casa), com os vãos das portas
-            F2_PAREDES.forEach(p => intWall(p.axis, p.pos, p.a0, p.a1,
-                F2_DOORS.filter(d => d.axis === p.axis && d.pos === p.pos).map(d => [d.a0, d.a1]), p.t));
+            F2_PAREDES.forEach(p => {
+                _ph = p.t < 0.15 ? PH.drywall : PH.alvenS;   // 0,10 = drywall (etapa V2.3); 0,15/0,20 = alvenaria
+                intWall(p.axis, p.pos, p.a0, p.a1,
+                    F2_DOORS.filter(d => d.axis === p.axis && d.pos === p.pos).map(d => [d.a0, d.a1]), p.t);
+            });
+            _ph = PH.drywall;
             F2_GUARDA.forEach(gc => F2.add(gc.axis === 'EW'
                 ? box3d(gc.pos - 0.03, gc.a0 + OE, 0.06, gc.a1 - gc.a0, fz0, fz0 + 1.10, matWall)
                 : box3d(gc.a0, gc.pos + OE - 0.03, gc.a1 - gc.a0, 0.06, fz0, fz0 + 1.10, matWall)));
@@ -4975,7 +4999,7 @@
             }));
 
             // ── Móveis do 2º piso (mesma fonte do 2D: f2Moveis) — base no piso do 2º (fz0) ──
-            _ph = PH.acab;
+            _ph = PH.acabS;
             const geoAntes = GEO; GEO = [];
             f2Moveis();
             const f2m = GEO.filter(s => s.k === 'solid'); GEO = geoAntes;
@@ -5029,7 +5053,7 @@
             // metálica; o telhado fica por cima com um vão ventilado. Embaixo, forro pintado de branco.
             // Grupo próprio ('laje2'): some e aparece junto com o telhado (botão "Telhado"), p/ dar
             // p/ ver o 2º piso de cima.
-            _ph = PH.vigaS;
+            _ph = PH.telhado;
             const L2 = new THREE.Group();
             L2.name = 'laje2';
             L2.visible = false;
@@ -5040,6 +5064,7 @@
                 m.castShadow = false; m.userData.noWalk = true; L2.add(m);                         // forro pintado do 2º piso
             });
             F2.add(L2);
+            _ph = PH.paint;
             forroCasa(F2, CEIL3D + CPA);   // teto pintado do térreo da casa (sob a laje 1)
             g.add(F2);
         }
@@ -5180,7 +5205,7 @@
 
             // Laje + platibanda da garagem — para em GE1j (junta; não encosta na casa)
             const gn0 = GN0 - COB.beiral, gn1 = GN1 + COB.beiral, ge0 = GE0 - COB.beiral; // beiral igual ao da casa; leste = junta
-            _ph = PH.laje2;
+            _ph = SOLAR ? PH.telhado : PH.gLaje;   // V2: laje da garagem; V3: telhado solar da garagem
             if (SOLAR) {
                 // V3: shed independente da garagem caindo p/ norte + painéis FV.
                 // Leste para na junta (GE1j); não encosta na casa.
@@ -6035,48 +6060,57 @@
     // Fase da obra: oculta tudo que tem userData.ph > fase. Só V1; outras versões
     // sempre completas. A laje (roof) aparece da fase 4 (Laje) até 6 (Esquadrias) e
     // some no acabamento (7), espelhando o default do V1 (laje oculta p/ ver o interior).
+    // Aplica a etapa da obra (faseDe(v)) à cena: some o que tem ph > fase, inclusive dentro do
+    // telhado/laje (roof) e do 2º piso (floor2). Na versão completa (FASE_TODA) tudo volta e os
+    // botões (Laje/Telhado, 2º piso) mandam; numa etapa intermediária a etapa manda.
     function applyBuildPhase(v) {
         if (scenes3d[v] && scenes3d[v].walk) scenes3d[v].walk.geoDirty = true;   // passeio: piso/colisão mudaram
         const S = scenes3d[v];
         if (!S || !S.group) return;
         S._dirty = true;
-        const ph = (v === 'v1') ? buildPhase : 7;
-        S.group.children.forEach(o => {
-            if (o.name === 'roof' || o.name === 'floor2' || o.name === 'drainV3') return; // tratados à parte (visibilidade só nos toggles)
+        const ph = faseDe(v), parcial = ph < FASE_TODA;
+        const filtra = (grp, pula) => grp.children.forEach(o => {
+            if (pula(o)) return;
             if (o.userData && o.userData.pilar) o.material = ph < 5 ? o.userData.pilar.obra : o.userData.pilar.pronto;
             const p = o.userData ? o.userData.ph : null;
             if (p == null) return;                                // entorno/cotas → sempre visível
             o.visible = p <= ph;
         });
+        filtra(S.group, o => o.name === 'roof' || o.name === 'floor2' || o.name === 'drainV3');
+        const host = document.getElementById('scene3d-' + v);
+        const botao = (re, txt) => { const b = host && [...host.querySelectorAll('.scene3d-toolbar button')]
+            .find(x => re.test(x.getAttribute('onclick') || '')); if (b) b.textContent = txt; };
         const roof = S.group.getObjectByName('roof');
+        const f2 = S.group.getObjectByName('floor2');
+        const laje2 = S.group.getObjectByName('laje2');
+        const drain = S.group.getObjectByName('drainV3');
+        const noun = (v === 'v3') ? 'Telhado' : 'Laje';
         if (roof) {
-            // V1: a laje segue só a fase (4–6) e some no acabamento. V2+: estado do botão
-            // Laje (não forçamos aqui). As esperas NÃO controlam mais a laje.
-            if (v === 'v1') roof.visible = (ph >= 4 && ph <= 6);
+            filtra(roof, () => false);
+            // Etapa: laje à mostra da laje da casa (fase 4) até a garagem pronta; o telhado do V3
+            // só vem com o sobrado. Versão completa: começa oculta (botão) — também ao voltar de uma etapa.
+            if (parcial) roof.visible = (v !== 'v3') && ph >= 4;
+            else if (v === 'v1' || S._etapaParcial) roof.visible = false;
+            if (parcial || S._etapaParcial) botao(/set3DRoof/, noun + ': ' + (roof.visible ? 'visível' : 'oculto'));
         }
+        if (f2) {
+            filtra(f2, o => o.name === 'laje2');
+            if (parcial) { f2.visible = true; botao(/set3DFloor2/, '2º piso: visível'); }
+            if (parcial || S._etapaParcial) { if (laje2) laje2.visible = false; if (drain) drain.visible = false; }
+        }
+        S._etapaParcial = parcial;
         // Esperas (V1/V2) — independentes da laje (irmãs do roof): ferro cru durante a obra
-        // (fases da laje 4–6) ou quando revelado; boneca de concreto só com a laje visível,
-        // no acabamento e não-revelado.
+        // (fases da laje 4–6) ou quando revelado. Só existem com os pilares (fase ≥ 2).
         const espB = S.group.getObjectByName('esperasBars');
         const espC = S.group.getObjectByName('esperasCaps');
         const telha = S.group.getObjectByName('telha');
         if (espB && espC) {
-            const revealed = !!S.espRevealed;
-            // Esperas saem do topo dos pilares → só existem se há coluna (V1: fase ≥ 2 = Colunas).
-            // Sem isso, "revelar" deixava o ferro flutuando na Fundação (fase 1, sem colunas).
-            const colsExist = (v === 'v1') ? (ph >= 2) : true;
-            espB.visible = colsExist && ((ph >= 4 && ph <= 6) || revealed);
+            espB.visible = ph >= 2 && ((ph >= 4 && ph <= 6) || !!S.espRevealed);
             espC.visible = false;   // bonecas removidas — a telha embutida esconde o ferro
         }
         // Telha embutida: aparece só quando o ferro NÃO está à mostra (durante a obra ou
-        // revelado), senão o ferro atravessaria a telha. Filha de `roof` → efetiva só com
-        // a laje visível.
+        // revelado), senão o ferro atravessaria a telha. Filha de `roof`.
         if (telha) telha.visible = !(espB && espB.visible);
-        // Mantém o slider em sincronia quando a fase muda por URL (popstate/boot)
-        if (v === 'v1' && S.phaseRange) {
-            S.phaseRange.value = String(ph);
-            S.phaseLabel.textContent = ph + '/7 ' + PHASE_LABELS[ph - 1];
-        }
     }
 
     // Revela/oculta os ferros de espera (arranques do sobrado V3). Revelar = "demolir"
@@ -6087,7 +6121,7 @@
         S._dirty = true;
         S.espRevealed = !S.espRevealed;
         const revealed = S.espRevealed;
-        const ph = (v === 'v1') ? buildPhase : 7;
+        const ph = faseDe(v);
         const roof = S.group.getObjectByName('roof');
         const espB = S.group.getObjectByName('esperasBars');
         const espC = S.group.getObjectByName('esperasCaps');
@@ -6095,7 +6129,7 @@
         // Revelar = tirar a TELHA e expor o ferro; ocultar = telha de volta (esconde o ferro).
         // NÃO mexe na laje/platibanda/cubo (botão "Laje" é independente da telha).
         // Ferro só existe se há coluna (V1: fase ≥ 2); senão "revelar" flutua sem pilar.
-        const colsExist = (v === 'v1') ? (ph >= 2) : true;
+        const colsExist = ph >= 2;
         if (espB) espB.visible = colsExist && ((ph >= 4 && ph <= 6) || revealed);
         if (espC) espC.visible = false;                          // bonecas removidas
         if (telha) telha.visible = !(espB && espB.visible);      // telha some quando o ferro aparece
@@ -6108,7 +6142,7 @@
         const roof = S.group.getObjectByName('roof');
         if (!roof) return;
         S._dirty = true;
-        const ph = (v === 'v1') ? buildPhase : 7;
+        const ph = faseDe(v);
         const noun = (v === 'v3') ? 'Telhado' : 'Laje';
         // V3: o telhado é EXCLUSIVO do 2º pavimento — não pode ser revelado com o 2º piso
         // oculto (senão apareceria "solto" sobre o térreo). Mostre o 2º piso primeiro.
@@ -6691,29 +6725,6 @@
         host.appendChild(hud);
         S.hudRange = rng; S.hudSel = sel; S.hudClock = clock;
 
-        // ── Slider da fase da obra (timeline construtiva do V1 — 7 fases, rotas /v0.x) ──
-        if (v === 'v1') {
-            const labels = PHASE_LABELS;
-            const nMax = labels.length;
-            const phud = document.createElement('div');
-            phud.className = 'scene3d-hud phase-hud';
-            const prng = document.createElement('input');
-            prng.type = 'range'; prng.min = '1'; prng.max = String(nMax); prng.step = '1';
-            prng.value = String(buildPhase);
-            const plabel = document.createElement('span');
-            plabel.className = 'hud-clock';
-            const papply = () => {
-                const val = parseInt(prng.value, 10);
-                buildPhase = val;
-                plabel.textContent = val + '/' + nMax + ' ' + labels[val - 1];
-                applyBuildPhase(v);
-            };
-            prng.addEventListener('input', papply);
-            phud.append('🏗', prng, plabel);
-            host.appendChild(phud);
-            S.phaseRange = prng; S.phaseLabel = plabel;
-            papply();
-        }
     }
 
     function syncHud3D(S) {
@@ -6787,22 +6798,12 @@
 
     // Inicializa o mapa do painel inicial
     window.addEventListener('load', () => {
-        ver = versionFromPath();
-        buildPhase = phaseFromPath();
-        const isPhase = buildPhase < 7;          // rota /v0.x → V1 numa fase, abre em 3D
-        if (isPhase) {
-            sec = '3d';
-            document.querySelectorAll('.stab').forEach(t => t.classList.toggle('active', t.dataset.s === '3d'));
-            history.replaceState({ v: ver }, '', location.pathname);  // mantém /v0.x na barra
-        } else {
-            history.replaceState({ v: ver }, '', pathFromVersion(ver));
-        }
-        syncTabs();
+        setVersion(etapaFromPath(), false);   // inclui a fase e abre no 3D se for etapa intermediária
+        history.replaceState({ k: etapa }, '', ETAPAS[etapa].rota);
         setViewHeight();
-        setTimeout(() => render(), 150);
     });
-    // Botões voltar/avançar do navegador respeitam a rota (versão + fase)
-    window.addEventListener('popstate', () => { buildPhase = phaseFromPath(); setVersion(versionFromPath(), false); });
+    // Botões voltar/avançar do navegador respeitam a rota (versão + etapa)
+    window.addEventListener('popstate', () => setVersion(etapaFromPath(), false));
 </script>
 <script>
     // PWA: service worker só no site publicado (em localhost o cache atrapalharia o desenvolvimento).
