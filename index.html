@@ -1923,7 +1923,8 @@
         { id: 'E3',  n: 7.55, e: 20.15, sobe: 1 }, { id: 'E4',  n: 7.55, e: GE1J - GCOL, sobe: 1 },
     ];
     // Vigas da garagem (canto SO da seção 0,20; e0/e1 e n0/n1 = extensão). Iguais no térreo
-    // (laje 1) e no teto do 2º piso (laje 2), menos o quadro do vão, que só existe na laje 1.
+    // (laje 1) e no teto do 2º piso (laje 2), inclusive E1–E2 e E3–E4: lá em cima elas não
+    // bordejam vão, mas amarram os pilares da escada nas duas direções (pórtico).
     const GVIGA_EO = [ { n: 2.00, e0: 13.50, e1: GE1J }, { n: 6.75, e0: 13.50, e1: 20.15 }, { n: 10.30, e0: 13.50, e1: GE1J } ];
     const GVIGA_NS = [ { e: 13.50, n0: 2.00, n1: 10.50 }, { e: 16.50, n0: 2.00, n1: 10.50 },
                        { e: 20.15, n0: 2.00, n1: 10.50 }, { e: GE1J - GCOL, n0: 2.00, n1: 10.50 } ];
@@ -5042,11 +5043,11 @@
             VIGAS_NS.forEach(({ e, n0, n1 }) => beamNS(e, n0, n1));
 
             // GARAGEM — pilares que sobem (GPIL.sobe: E1 e E3 param na laje 1) + grelha do teto
-            // (mesmas linhas da laje 1, sem o quadro do vão: no teto não há escada).
+            // (mesmas linhas da laje 1, inclusive E1–E2 e E3–E4, que amarram os pilares da escada).
             _ph = PH.colS;
             GPIL.filter(p => p.sobe).forEach(p => col2(p.n, p.e));
             _ph = PH.vigaS;
-            GVIGA_EO.forEach(b => beamEW(b.n + VW/2, b.e0, b.e1));
+            GVIGA_EO.concat(GVIGA_VAO).forEach(b => beamEW(b.n + VW/2, b.e0, b.e1));
             GVIGA_NS.forEach(b => beamNS(b.e + VW/2, b.n0, b.n1));
 
             // Laje 2 (teto do 2º piso, sob o telhado solar): concreto de 10 cm apoiado nas vigas do topo, nas duas
