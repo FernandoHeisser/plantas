@@ -2395,8 +2395,8 @@
                 lys.push(SER.rect(1.575, 0.075, 1, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 }));
                 lys.push(SER.rect(0.075, 0.725, 0.67, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 })); // pedra sobre a lavadora (perna sul do C)
                 lys.push(SER.rect(1.905, 0.725, 0.67, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 })); // pedra sobre a secadora (perna norte do C)
-                // aéreo fechado na parede oeste (interna), 1,55 → 2,55 sobre a pedra; começa 0,28 depois da parede sul p/ não tapar a janela
-                lys.push(SER.rect(0.355, 0.075, 2.22, 0.35, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.55, h3d: 1.00, m3d: 'movel', acab3d: 'L' }));
+                // aéreo fechado na parede oeste (interna), 1,55 → teto sobre a pedra; começa 0,28 depois da parede sul p/ não tapar a janela
+                lys.push(SER.rect(0.355, 0.075, 2.22, 0.35, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.55, h3d: 1.14, m3d: 'movel', acab3d: 'L' }));
                 // varal de teto suspenso sobre o corredor entre as máquinas, junto da janela (sobe por corda quando não está em uso)
                 lys.push(SER.rect(0.725, 0.80, 1.2, 0.48, '#cbd5e1', { color: '#64748b', weight: 0.6, dashArray: '2 3', fillOpacity: 0.15, z3d: 2.30, h3d: 0.40, m3d: 'varalTeto' }));
 
@@ -2411,26 +2411,26 @@
                 lys.push(QUA.rect(0.105, 0.085, 0.62, 0.04, '#8a5a33', { color: '#451a03', weight: 0.6, h3d: 2.10 })); // folhas da porta de correr, abertas
                 lys.push(QUA.rect(1.925, 0.085, 0.62, 0.04, '#8a5a33', { color: '#451a03', weight: 0.6, h3d: 2.10 }));
                 const MOV = { color: '#6b7280', weight: 0.7 };
-                lys.push(QUA.rect(1.975, 1.075, 0.6, 2.6, '#e9e2d4', { ...MOV, h3d: 2.55, m3d: 'movel', acab3d: 'S' }));               // despenseiro de mantimentos 2,6 m (aramados + gavetões), parede seca
+                lys.push(QUA.rect(1.975, 1.075, 0.6, 2.6, '#e9e2d4', { ...MOV, h3d: 2.69, m3d: 'movel', acab3d: 'S' }));               // despenseiro de mantimentos 2,6 m (aramados + gavetões), parede seca
                 lys.push(QUA.rect(0.075, 0.135, 0.6, 0.7, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'freezer', acab3d: 'N' })); // freezer vertical na parede fria, porta p/ norte
                 lys.push(QUA.rect(0.075, 0.885, 0.6, 2.19, '#e9e2d4', { ...MOV, h3d: 0.90, m3d: 'movel', acab3d: 'N' }));              // bancada sul (topo = peitoril), cestos de roupa suja embaixo
                 lys.push(QUA.rect(0.12, 1.25, 0.45, 0.55, '#3f3f46', { color: '#18181b', weight: 0.7, z3d: 0.90, h3d: 0.36, m3d: 'fornoBancada' })); // forno elétrico de bancada, frente p/ norte
                 lys.push(QUA.rect(0.15, 1.90, 0.40, 0.50, '#e5e7eb', { color: '#475569', weight: 0.7, z3d: 0.90, h3d: 0.30, m3d: 'microondas' }));   // micro-ondas, ao lado
-                lys.push(QUA.rect(0.075, 3.075, 0.6, 0.6, '#e9e2d4', { ...MOV, h3d: 2.55, m3d: 'colunaLimpeza' }));                    // coluna de limpeza no canto, dividida por uso (ver colunaLimpeza)
+                lys.push(QUA.rect(0.075, 3.075, 0.6, 0.6, '#e9e2d4', { ...MOV, h3d: 2.69, m3d: 'colunaLimpeza' }));                    // coluna de limpeza no canto, dividida por uso (ver colunaLimpeza)
                 lys.push(QUA.rect(0.675, 3.125, 1.3, 0.55, '#e9e2d4', { ...MOV, h3d: 0.88, m3d: 'movel', acab3d: 'O' }));              // armário baixo de estoque sob a janela leste (água, bebidas)
                 // Aéreos (0,35): sobre o freezer, sobre a porta da cozinha e de panelas na parede sul (parede oeste livre: decisão do cliente)
                 const AER = { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35 };
-                lys.push(QUA.rect(0.075, 0.135, 0.35, 0.7, '#efece6', { ...AER, z3d: 1.80, h3d: 0.75, m3d: 'movel', acab3d: 'N' }));
-                lys.push(QUA.rect(2.225, 0.075, 0.35, 0.98, '#efece6', { ...AER, z3d: 2.15, h3d: 0.40, m3d: 'movel', acab3d: 'S' }));
-                // Aéreo de panelas e potes na parede sul, sobre a bancada inteira (1,55 → 2,55, 30 cm acima do forno). Tapa o alto
+                lys.push(QUA.rect(0.075, 0.135, 0.35, 0.7, '#efece6', { ...AER, z3d: 1.80, h3d: 0.89, m3d: 'movel', acab3d: 'N' }));
+                lys.push(QUA.rect(2.225, 0.075, 0.35, 0.98, '#efece6', { ...AER, z3d: 2.15, h3d: 0.54, m3d: 'movel', acab3d: 'S' }));
+                // Aéreo de panelas e potes na parede sul, sobre a bancada inteira (1,55 → teto, 30 cm acima do forno). Tapa o alto
                 // da janela sul; a faixa de 0,90 a 1,55 continua aberta (decisão do cliente: janela fraca, só luz e brisa)
-                lys.push(QUA.rect(0.075, 0.885, 0.35, 2.19, '#efece6', { ...AER, z3d: 1.55, h3d: 1.00, m3d: 'movel', acab3d: 'N' }));
+                lys.push(QUA.rect(0.075, 0.885, 0.35, 2.19, '#efece6', { ...AER, z3d: 1.55, h3d: 1.14, m3d: 'movel', acab3d: 'N' }));
             }
 
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
             lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.60, m3d: 'fridge' })); // geladeira de até 1,60 (o aéreo começa em 1,65), parede leste, porta p/ oeste, junto da porta dos fundos (planejado)
             lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // balcão entre a geladeira e a bancada, em L com o canto
-            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'cozSpot' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça), com spot embaixo
+            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcabW', acab3d: 'cozSpot' })); // aéreo leste sobre o balcão até o canto (até o teto) (0,35: não bate a cabeça), com spot embaixo
             lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
             lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // bancada: do pilar oeste até a parede leste
             // Cooktop 0,155 m p/ leste (0,275 m de apoio depois do canto da península, mais o tampo do canto;
@@ -2447,7 +2447,10 @@
             const LV_E = (1.505 + CK + 2.2 + PI) / 2 - 0.30;
             lys.push(COZ.rect(2.275, LV_E, 0.6, 0.60, '#cbd5e1', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'dishwasher', acab3d: 'coz' })); // lava-louças sob a bancada
             lys.push(L.polyline([COZ.rot(2.315, LV_E + 0.05), COZ.rot(2.315, LV_E + 0.55)], { color: '#475569', weight: 1.2, interactive: false })); // puxador
-            lys.push(COZ.rect(2.275, 2.2 + PI, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'sink', acab3d: 'coz' })); // pia, sob a janela
+            // Cantinho do café na ponta leste da bancada (fora da janela): cafeteira e air fryer, de uso diário
+            lys.push(COZ.rect(2.50, 3.10, 0.30, 0.24, '#1f2937', { color: '#111827', weight: 0.6, z3d: 0.95, h3d: 0.38, m3d: 'cafeteira' }));
+            lys.push(COZ.rect(2.47, 3.36, 0.36, 0.30, '#27272a', { color: '#111827', weight: 0.6, z3d: 0.95, h3d: 0.33, m3d: 'airfryer' }));
+            lys.push(COZ.rect(2.275, 2.2 + PI, 0.6, 0.55, '#f3f4f6', { color: '#475569', weight: 0.7, h3d: 0.95, m3d: 'sink', acab3d: 'coz' })); // pia, sob a janela; embaixo, a lixeira (2 baldes) com portinhola basculante na porta leste
             lys.push(COZ.rect(2.605, 2.27 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(COZ.rect(2.605, 2.52 + PI, 0.17, 0.2, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
 
@@ -2479,8 +2482,8 @@
 
             // Armários aéreos: parede norte, contínuos sobre a bancada (base 1,65 m, acima da verga da janela de
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
-            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab', acab3d: 'cozSpot' })); // norte, do pilar até a parede leste (0,35 de profundidade), com spots embaixo
-            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira: 0,35 × 0,90 a partir de 1,65, igual aos demais aéreos
+            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcab', acab3d: 'cozSpot' })); // até o teto (2,69, sob o forro): menos poeira em cima; norte, do pilar até a parede leste (0,35 de profundidade), com spots embaixo
+            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira: 0,35 de 1,65 até o teto, igual aos demais aéreos
             // Luz caseira: plafon de rattan Ø 45 no centro do teto da cozinha (sem fita de LED: o cliente não gosta)
             lys.push(COZ.circ(1.90, 2.05, 0.225, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.58, h3d: 0.12, m3d: 'plafon' }));
             // Planejados: canto entre bancada e península com armário de canto (sem armário sobre a porta dos fundos).
@@ -3627,6 +3630,14 @@
             const ac = acabCoz(s);
             fbox(g, s.n + 0.02, s.e, s.dn - 0.02, s.de, 0, s.h - 0.04, ac ? COR_INT.mint : '#e6e2d8');
             fbox(g, s.n - 0.02, s.e, s.dn + 0.02, s.de, s.h - 0.04, s.h, ac ? COR_INT.quartzo : '#cfcabd', { roughness: 0.3 });
+            if (ac) {   // gabinete da pia = lixeira (2 baldes, orgânico e reciclável) com 2 portas; portinhola basculante na do leste
+                const m = s.e + s.de / 2;
+                [[s.e + 0.004, m - 0.002], [m + 0.002, s.e + s.de - 0.004]].forEach(([a0, a1]) =>
+                    fbox(g, s.n + 0.002, a0, 0.018, a1 - a0, 0.09, s.h - 0.06, COR_INT.mint, { roughness: 0.55 }));
+                fbox(g, s.n - 0.004, m + 0.04, 0.008, s.de / 2 - 0.08, s.h - 0.32, s.h - 0.12, '#7f9a80', { roughness: 0.5 });      // portinhola
+                fbox(g, s.n - 0.012, m + 0.07, 0.01, s.de / 2 - 0.14, s.h - 0.14, s.h - 0.125, COR_INT.latao, LATAO());            // pega
+                fbox(g, s.n - 0.012, m - 0.05, 0.02, 0.02, s.h - 0.25, s.h - 0.19, COR_INT.latao, LATAO());                      // puxador da porta oeste
+            }
             const bw = (s.de - 0.18) / 2;
             fbox(g, s.n + 0.05, s.e + 0.06, s.dn - 0.12, bw, s.h - 0.13, s.h - 0.035, '#aeb8bf', { metalness: 0.5, roughness: 0.3 });
             fbox(g, s.n + 0.05, s.e + 0.12 + bw, s.dn - 0.12, bw, s.h - 0.13, s.h - 0.035, '#aeb8bf', { metalness: 0.5, roughness: 0.3 });
@@ -3642,6 +3653,7 @@
             const end = s.e + s.de;
             // recortes (fogão/pia) clampados ao próprio vão da bancada — ignora os que ficam fora
             const cuts = ['stove', 'sink', 'dishwasher'].map(t => model.find(o => o.m3d === t)).filter(Boolean)
+                .filter(a => a.n < s.n + s.dn - 0.001 && a.n + a.dn > s.n + 0.001)          // só o que está na mesma fileira
                 .map(a => [Math.max(a.e, s.e), Math.min(a.e + a.de, end)])
                 .filter(c => c[1] > c[0] + 0.001).sort((p, q) => p[0] - q[0]);
             let cur = s.e; const segs = [];
@@ -3681,6 +3693,24 @@
             fbox(g, s.n - 0.005, s.e + 0.06, 0.02, s.de - 0.12, s.h - 0.18, s.h - 0.16, '#e5e7eb', { metalness: 0.8, roughness: 0.2 });       // puxador
             fbox(g, s.n - 0.03, s.e, s.dn + 0.03, s.de, s.h - 0.04, s.h, acabCoz(s) ? COR_INT.quartzo : '#b3ad9f', { roughness: 0.3 });   // tampo (contínuo)
             fbox(g, s.n + 0.04, s.e + 0.02, 0.04, s.de - 0.04, 0, 0.08, '#33332f');                                                         // rodapé
+        },
+        // Cafeteira de bancada, frente p/ SUL: base e torre pretas, jarra de vidro
+        cafeteira(g, s) {
+            const z = s.z || 0.95, H = z + (s.h || 0.38);
+            fbox(g, s.n, s.e, s.dn, s.de, z, z + 0.03, '#18181b', { roughness: 0.4 });                                   // base
+            fbox(g, s.n + s.dn * 0.55, s.e, s.dn * 0.45, s.de, z, H, '#18181b', { roughness: 0.4 });                     // torre (fundo)
+            fbox(g, s.n, s.e, s.dn, s.de, H - 0.06, H, '#18181b', { roughness: 0.4 });                                    // tampa superior
+            const jarra = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.065, 0.16, 20),
+                new THREE.MeshStandardMaterial({ color: col3d('#3b2a1e'), transparent: true, opacity: 0.75, roughness: 0.1, metalness: 0.2 }));
+            jarra.position.set(s.e + s.de / 2, z + 0.03 + 0.08, -(s.n + s.dn * 0.3)); jarra.castShadow = false; g.add(jarra);   // jarra com café
+        },
+        // Air fryer, frente p/ SUL: corpo preto arredondado, gaveta com puxador
+        airfryer(g, s) {
+            const z = s.z || 0.95, H = z + (s.h || 0.33), r = Math.min(s.dn, s.de) / 2;
+            const corpo = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.92, r, H - z, 28), fmat('#202024', { roughness: 0.45, metalness: 0.2 }));
+            corpo.position.set(s.e + s.de / 2, (z + H) / 2, -(s.n + s.dn / 2)); corpo.castShadow = true; g.add(corpo);
+            fbox(g, s.n - 0.015, s.e + s.de * 0.2, 0.03, s.de * 0.6, z + 0.03, z + (H - z) * 0.55, '#2a2a2e', { roughness: 0.4 });     // gaveta
+            fbox(g, s.n - 0.04, s.e + s.de * 0.42, 0.03, s.de * 0.16, z + 0.08, z + 0.12, '#3f3f46', { roughness: 0.4 });              // puxador
         },
         // Guarda-roupa — corpo + fenda central + 2 puxadores (porta a oeste)
         wardrobe(g, s) {
@@ -5943,7 +5973,7 @@
         { id: 'potted_plant_02',  n: 7.24, e: 17.40, base: 0.55, altura: 0.48 },     // planta na ponta norte do rack (no piso ela fecharia a passagem do hall)
         { id: 'throw_pillows_01', n: 6.50, e: 19.70, base: 0.36, rot: 90 },          // almofadas no sofá
         { id: 'ceramic_vase_02',  n: 7.15, e: 20.23, base: 0.95 },                   // vaso na ponta do balcão
-        { id: 'potted_plant_04',  n: 7.30, e: 24.55, base: 0.95 },                   // suculenta junto à janela da cozinha
+        { id: 'potted_plant_04',  n: 7.42, e: 23.30, base: 0.95 },                   // suculenta junto à janela da cozinha (a ponta leste é o cantinho do café)
         // galeria na parede sul da sala (face 4,80), entre o hall e a porta da lavanderia
         { proc: 'quadroSol',   n: 4.80, e: 19.05, base: 1.10, parede: 'sul' },
         { proc: 'quadroArco',  n: 4.80, e: 19.62, base: 1.00, parede: 'sul' },
@@ -6531,7 +6561,7 @@
             `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
             'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
             `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
-            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, plafon redondo de rattan no teto e spots redondos de luz quente sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
+            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, cafeteira e air fryer pretas na ponta da bancada, plafon redondo de rattan no teto e spots redondos de luz quente sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
             `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
         ].join('\n\n');
     }
