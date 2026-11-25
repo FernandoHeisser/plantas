@@ -1395,8 +1395,8 @@
 
           <div class="med-room-card col-slate">
             <div class="med-room-name">Vestíbulo</div>
-            <div class="med-room-dims">1,90 × 2,50 m</div>
-            <div class="med-room-area">~4,7 m²</div>
+            <div class="med-room-dims">1,90 × 2,10 m</div>
+            <div class="med-room-area">~4,0 m²</div>
             <div class="med-room-meta">Entre a porta da casa e o pé da escada, fechado<br>Paredes de 20 cm sob as vigas · porta 0,80 m p/ a garagem</div>
           </div>
 
@@ -1574,8 +1574,8 @@
           </div>
           <div class="med-room-card col-slate">
             <div class="med-room-name">Vestíbulo</div>
-            <div class="med-room-dims">1,90 × 2,50 m</div>
-            <div class="med-room-area">~4,7 m²</div>
+            <div class="med-room-dims">1,90 × 2,10 m</div>
+            <div class="med-room-area">~4,0 m²</div>
             <div class="med-room-meta">Entre a porta da casa e o pé da escada, fechado<br>Paredes de 20 cm sob as vigas · porta 0,80 m p/ a garagem</div>
           </div>
         </div>
@@ -1725,7 +1725,7 @@
             <table class="med-table">
               <thead><tr><th>Local</th><th>Larg.</th><th>Tipo</th></tr></thead>
               <tbody>
-                <tr><td class="td-name">Estar ↔ estar (junta)</td><td class="td-dims">2,30 m</td><td><span class="td-tag">passagem</span></td></tr>
+                <tr><td class="td-name">Estar ↔ estar (junta)</td><td class="td-dims">1,90 m</td><td><span class="td-tag">passagem</span></td></tr>
                 <tr><td class="td-name">Estar → suíte</td><td class="td-dims">0,80 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Suíte → closet</td><td class="td-dims">0,80 m</td><td><span class="td-tag">madeira</span></td></tr>
                 <tr><td class="td-name">Closet → banho da suíte</td><td class="td-dims">0,70 m</td><td><span class="td-tag">madeira</span></td></tr>
@@ -1896,23 +1896,25 @@
         { id: 'G4',  n: 6.75, e: 13.50, sobe: 1 }, { id: 'G5',  n: 6.75, e: 16.50, sobe: 1 },
         { id: 'G7',  n: 10.30, e: 13.50, sobe: 1 }, { id: 'G8', n: 10.30, e: 16.50, sobe: 1 },
         { id: 'G11', n: 10.30, e: 20.15, sobe: 1 }, { id: 'G9', n: 10.30, e: GE1J - GCOL, sobe: 1 },
-        { id: 'E1',  n: 4.50, e: 20.15, sobe: 0 }, { id: 'E2',  n: 4.50, e: GE1J - GCOL, sobe: 1 },
-        { id: 'E3',  n: 7.95, e: 20.15, sobe: 0 }, { id: 'E4',  n: 7.95, e: GE1J - GCOL, sobe: 1 },
+        { id: 'E1',  n: 4.10, e: 20.15, sobe: 0 }, { id: 'E2',  n: 4.10, e: GE1J - GCOL, sobe: 1 },
+        { id: 'E3',  n: 7.55, e: 20.15, sobe: 0 }, { id: 'E4',  n: 7.55, e: GE1J - GCOL, sobe: 1 },
     ];
     // Vigas da garagem (canto SO da seção 0,20; e0/e1 e n0/n1 = extensão). Iguais no térreo
     // (laje 1) e no teto do 2º piso (laje 2), menos o quadro do vão, que só existe na laje 1.
     const GVIGA_EO = [ { n: 2.00, e0: 13.50, e1: GE1J }, { n: 6.75, e0: 13.50, e1: 20.15 }, { n: 10.30, e0: 13.50, e1: GE1J } ];
     const GVIGA_NS = [ { e: 13.50, n0: 2.00, n1: 10.50 }, { e: 16.50, n0: 2.00, n1: 10.50 },
                        { e: 20.15, n0: 2.00, n1: 10.50 }, { e: GE1J - GCOL, n0: 2.00, n1: 10.50 } ];
-    const GVIGA_VAO = [ { n: 4.50, e0: 20.15, e1: GE1J }, { n: 7.95, e0: 20.15, e1: GE1J } ];   // E1–E2, E3–E4
+    const GVIGA_VAO = [ { n: 4.10, e0: 20.15, e1: GE1J }, { n: 7.55, e0: 20.15, e1: GE1J } ];   // E1–E2, E3–E4
     // Escada em U (18 espelhos): 1º lance a leste (junto da junta) sobe p/ o norte a partir do
     // vestíbulo, patamar no norte, 2º lance a oeste sobe p/ o sul e chega no estar do 2º.
     // Vão na laje 1 = todo o quadro (e0→e1 × n0→n1). Depósito sob o 2º lance e o patamar.
-    const ESC = { e0: 20.35, eM0: 21.25, eM1: 21.35, e1: 22.27, n0: 4.70, nPat: 6.94, n1: 7.95, piso: 0.28, nEsp: 18 };
+    // Parede norte do núcleo alinhada à fachada norte da casa (face em FACE.N = 7,75).
+    const ESC = { e0: 20.35, eM0: 21.25, eM1: 21.35, e1: 22.27, n0: 4.30, nPat: 6.54, n1: 7.55, piso: 0.28, nEsp: 18 };
     // Vestíbulo (térreo, V2/V3): entre a porta da casa e o pé da escada. Parede oeste na linha
     // dos pilares (eixo mE 20,25) com a porta p/ a garagem; o norte abre p/ a escada. O núcleo
-    // (vestíbulo + escada + depósito) é fechado por paredes de 0,20 sob as vigas.
-    const VEST = { e: 20.25, nN: 8.05, p0: 2.55, p1: 3.35, dep0: 20.45, dep1: 21.15 };
+    // (vestíbulo + escada + depósito) é fechado por paredes de 0,20 sob as vigas; a norte (eixo 7,65)
+    // tem a face na mesma linha da fachada norte da casa.
+    const VEST = { e: 20.25, nN: 7.65, p0: 2.55, p1: 3.35, dep0: 20.45, dep1: 21.15 };
     const CAIXA_DAGUA = { n: 3.40, e: 19.10 - OE, dn: 2.80, de: 1.60, topo: 5.50 };
     const COTA_LAT_E = (EIXO.O + EIXO.L) / 2;                                       // mE das cotas laterais
     const COTA_FUNDO_E = EIXO.L - 1.5;                               // mE de origem da cota de fundo
@@ -2653,8 +2655,8 @@
             doorArc(VEST.p1, VEST.e - T/2, VEST.p0 - VEST.p1, 0, -1, { no3d: true }).forEach(l => lys.push(l));  // porta p/ a garagem
             lys.push(wall(ESC.n0 - T/2, ESC.e0, ESC.n0 - T/2, ESC.eM1, T, { no3d: true }));          // sul do depósito (sob a viga E1–E2)
             doorArc(ESC.n0 - T, VEST.dep0, 0, VEST.dep1 - VEST.dep0, -1, { no3d: true }).forEach(l => lys.push(l)); // porta do depósito
-            lys.push(roomLabel(3.35, 21.35, 'Vestíbulo', '1,9 × 2,5 m', '~4,7 m²'));
-            lys.push(roomLabel(5.40, 20.80, 'Depósito', 'sob a escada', ''));
+            lys.push(roomLabel(3.15, 21.35, 'Vestíbulo', '1,9 × 2,1 m', '~4,0 m²'));
+            lys.push(roomLabel(5.00, 20.80, 'Depósito', 'sob a escada', ''));
 
             // Escada p/ 2º pavimento (desenho 2D — fonte única em stair2D)
             stair2D().forEach(l => lys.push(l));
@@ -2691,7 +2693,7 @@
     // Opção I (cliente): estar em L que cruza a junta (cinema / video game), suíte quarto →
     // closet → banho na casa; na garagem escritório (oeste), banheiro + rouparia, corredor e os
     // quartos 1 e 2 ao norte. Coordenadas mE de código (sem OE). Esboço: artifact "Segundo piso".
-    const F2_JUNTA_VAO = { s: 2.20, e: 4.50, head: 2.25 };   // passagem do estar pela junta (entre G3 e E2)
+    const F2_JUNTA_VAO = { s: 2.20, e: 4.10, head: 2.25 };   // passagem do estar pela junta (entre G3 e E2)
     const F2_WALLS_CASA = [
         [FACE.S + F2_T_CASA / 2, FACE.O - OE, FACE.S + F2_T_CASA / 2, FACE.L - OE],   // sul
         [FACE.N - F2_T_CASA / 2, FACE.O - OE, FACE.N - F2_T_CASA / 2, FACE.L - OE],   // norte
@@ -2720,8 +2722,8 @@
         { axis:'EW', pos:5.75,  a0:16.65, a1:19.25, t:0.10 },   // rouparia × corredor
         { axis:'EW', pos:4.45,  a0:16.65, a1:19.25, t:0.10 },   // banheiro × rouparia
         { axis:'NS', pos:19.25, a0:2.20,  a1:5.80,  t:0.10 },   // banheiro e rouparia × estar
-        { axis:'NS', pos:20.25, a0:6.95,  a1:8.15,  t:0.20 },   // quarto 2 × vão da escada (sobre a parede do núcleo)
-        { axis:'EW', pos:8.05,  a0:20.15, a1:GE1J - 0.20, t:0.20 },   // quarto 2 × patamar
+        { axis:'NS', pos:20.25, a0:6.95,  a1:7.75,  t:0.20 },   // quarto 2 × vão da escada (sobre a parede do núcleo)
+        { axis:'EW', pos:7.65,  a0:20.15, a1:GE1J - 0.20, t:0.20 },   // quarto 2 × patamar (alinhada à fachada norte da casa)
         // Casa (eixos do térreo)
         { axis:'NS', pos:EIXO.BANHO, a0:FACE.S, a1:FACE.N, t:ESP.int },          // estar × suíte e banho da suíte
         { axis:'EW', pos:EIXO.LONG,  a0:EIXO.BANHO, a1:FACE.L - OE, t:ESP.int }, // suíte × banho e closet
