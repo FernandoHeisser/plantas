@@ -1266,7 +1266,8 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
 - **Paredes:** alvenaria de 0,20 sobre as vigas (mN 6,85; linha 20,25 e mN 8,05 em volta do vão);
   drywall de 0,10 no resto; parede entre os quartos = drywall acústico (sem viga embaixo).
 - **Janelas** (`F2_WINDOWS`/`F2G_WINDOWS`): grandes ao norte (peitoril 0,40 → 2,25) e na suíte a leste;
-  a oeste só pequenas. Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
+  **mínimo 1,50 m de largura** (pedido do cliente), médias com peitoril 0,90 → 2,20, banheiros 1,40 → 2,20;
+  só o banho da suíte fica em 1,20 (entre os pilares P8 e P6). Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
   **Estilo padrão** = grade de caixilho (`winGrid` no `winWall`), cor `matFrame`, igual ao térreo.
 - **Móveis** em `f2Moveis()` (fonte única 2D + 3D, base no piso do 2º; `rot3d` gira o modelo).
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro

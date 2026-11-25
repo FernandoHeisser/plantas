@@ -1615,13 +1615,13 @@
             <div class="med-room-name">Escritório</div>
             <div class="med-room-dims">3,10 × 4,75 m</div>
             <div class="med-room-area">14,7 m²</div>
-            <div class="med-room-meta">Canto sudoeste · janela sul + pequena a oeste<br>Mesa sob a janela sul</div>
+            <div class="med-room-meta">Canto sudoeste · janelas sul (2,10) e oeste (1,50)<br>Mesa sob a janela sul</div>
           </div>
           <div class="med-room-card col-green">
             <div class="med-room-name">Quarto 1</div>
             <div class="med-room-dims">4,00 × 3,75 m</div>
             <div class="med-room-area">15,0 m²</div>
-            <div class="med-room-meta">Noroeste · janela norte 2,50 m + pequena a oeste</div>
+            <div class="med-room-meta">Noroeste · janelas norte (2,50) e oeste (1,50)</div>
           </div>
           <div class="med-room-card col-green">
             <div class="med-room-name">Quarto 2</div>
@@ -1745,15 +1745,15 @@
                 <tr><td class="td-name">Suíte</td><td class="td-dims">3,20 m, peitoril 0,40</td><td><span class="td-tag">Norte</span></td></tr>
                 <tr><td class="td-name">Suíte</td><td class="td-dims">1,80 m, peitoril 0,40</td><td><span class="td-tag">Leste</span></td></tr>
                 <tr><td class="td-name">Estar</td><td class="td-dims">2,00 m, peitoril 0,40</td><td><span class="td-tag">Norte</span></td></tr>
-                <tr><td class="td-name">Estar</td><td class="td-dims">1,40 × 1,10 m</td><td><span class="td-tag">Sul</span></td></tr>
-                <tr><td class="td-name">Banho da suíte</td><td class="td-dims">0,80 × 0,60 m</td><td><span class="td-tag">Sul</span></td></tr>
+                <tr><td class="td-name">Estar</td><td class="td-dims">1,50 × 1,30 m</td><td><span class="td-tag">Sul</span></td></tr>
+                <tr><td class="td-name">Banho da suíte</td><td class="td-dims">1,20 × 0,80 m</td><td><span class="td-tag">Sul</span></td></tr>
                 <tr><td class="td-name">Escritório</td><td class="td-dims">2,10 m, peitoril 0,90</td><td><span class="td-tag">Sul</span></td></tr>
-                <tr><td class="td-name">Escritório</td><td class="td-dims">0,80 × 1,10 m</td><td><span class="td-tag">Oeste</span></td></tr>
-                <tr><td class="td-name">Banheiro</td><td class="td-dims">1,20 × 0,60 m</td><td><span class="td-tag">Sul</span></td></tr>
+                <tr><td class="td-name">Escritório</td><td class="td-dims">1,50 × 1,30 m</td><td><span class="td-tag">Oeste</span></td></tr>
+                <tr><td class="td-name">Banheiro</td><td class="td-dims">1,50 × 0,80 m</td><td><span class="td-tag">Sul</span></td></tr>
                 <tr><td class="td-name">Quarto 1</td><td class="td-dims">2,50 m, peitoril 0,40</td><td><span class="td-tag">Norte</span></td></tr>
-                <tr><td class="td-name">Quarto 1</td><td class="td-dims">0,80 × 1,10 m</td><td><span class="td-tag">Oeste</span></td></tr>
+                <tr><td class="td-name">Quarto 1</td><td class="td-dims">1,50 × 1,30 m</td><td><span class="td-tag">Oeste</span></td></tr>
                 <tr><td class="td-name">Quarto 2</td><td class="td-dims">2,10 + 1,60 m, peitoril 0,40</td><td><span class="td-tag">Norte</span></td></tr>
-                <tr><td class="td-name">Quarto 2</td><td class="td-dims">1,20 × 1,10 m</td><td><span class="td-tag">Leste</span></td></tr>
+                <tr><td class="td-name">Quarto 2</td><td class="td-dims">1,50 × 1,30 m</td><td><span class="td-tag">Leste</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -2751,12 +2751,13 @@
 
     // Janelas do 2º piso da casa — compartilhado 2D (win) + 3D (winWall: peitoril/verga/vidro).
     // side = parede (S/N/L); vão [s,e] ao longo dela; sill/head relativos ao piso do 2º.
-    // Grandes: peitoril 0,40 → 2,25 (sob a viga); pequenas 1,00 → 2,10; banheiros 1,50 → 2,10.
+    // Mínimo 1,50 m de largura (pedido do cliente). Grandes: peitoril 0,40 → 2,25 (sob a viga);
+    // médias 0,90 → 2,20; banheiros 1,40 → 2,20. O banho da suíte fica em 1,20 (pilares P8 e P6).
     const F2_WINDOWS = [
         { side:'N', s:22.90, e:24.90, sill:0.40, head:2.25 },               // estar — norte
         { side:'N', s:27.05, e:30.25, sill:0.40, head:2.25 },               // suíte — norte (entre P4 e P1)
         { side:'L', s:5.40,  e:7.20,  sill:0.40, head:2.25 },               // suíte — leste
-        { side:'S', s:25.63, e:26.43, sill:1.50, head:2.10, vpanes:true },  // banho da suíte (entre P8 e P6)
+        { side:'S', s:25.45, e:26.65, sill:1.40, head:2.20, vpanes:true },  // banho da suíte (máx. entre P8 e P6)
     ];
     // Móveis do 2º piso do V3 (referência de escala) — fonte única: 2D (buildFloor2Layers) e
     // 3D (grupo floor2, base no piso do 2º). Coordenadas de código (sem OE). rot3d gira o
@@ -2815,14 +2816,14 @@
     // G11 e G10 (opção I) dividem as janelas norte dos quartos e deslocam a do estar.
     const F2G_WINDOWS = [
         { axis:'EW', line:10.5, s:13.90, e:16.40, sill:0.40, head:2.25, side:'N' },   // quarto 1 — norte
-        { axis:'NS', line:13.5, s:8.30,  e:9.10,  sill:1.00, head:2.10, side:'W' },   // quarto 1 — oeste (pequena)
+        { axis:'NS', line:13.5, s:7.85,  e:9.35,  sill:0.90, head:2.20, side:'W' },   // quarto 1 — oeste
         { axis:'EW', line:10.5, s:17.90, e:20.00, sill:0.40, head:2.25, side:'N' },   // quarto 2 — norte, a oeste do G11
         { axis:'EW', line:10.5, s:20.50, e:22.10, sill:0.40, head:2.25, side:'N' },   // quarto 2 — norte, a leste do G11
-        { axis:'NS', line:GE1J - 0.10, s:8.60, e:9.80, sill:1.00, head:2.10, side:'E' },   // quarto 2 — leste (pequena)
+        { axis:'NS', line:GE1J - 0.10, s:8.45, e:9.95, sill:0.90, head:2.20, side:'E' },   // quarto 2 — leste (entre E4 e G9)
         { axis:'EW', line:FACE.S + 0.10, s:14.00, e:16.10, sill:0.90, head:2.25, side:'S' },   // escritório — sul
-        { axis:'NS', line:13.5, s:4.00,  e:4.80,  sill:1.00, head:2.10, side:'W' },   // escritório — oeste (pequena)
-        { axis:'EW', line:FACE.S + 0.10, s:17.30, e:18.50, sill:1.50, head:2.10, side:'S', vpanes:true },   // banheiro — sul
-        { axis:'EW', line:FACE.S + 0.10, s:20.50, e:21.90, sill:1.00, head:2.10, side:'S' },   // estar — sul (pequena, a leste do G10)
+        { axis:'NS', line:13.5, s:3.65,  e:5.15,  sill:0.90, head:2.20, side:'W' },   // escritório — oeste
+        { axis:'EW', line:FACE.S + 0.10, s:17.05, e:18.55, sill:1.40, head:2.20, side:'S', vpanes:true },   // banheiro — sul
+        { axis:'EW', line:FACE.S + 0.10, s:20.60, e:22.10, sill:0.90, head:2.20, side:'S' },   // estar — sul (entre G10 e G3)
     ];
 
     // Escada 2D (só desenho, no3d) — fonte única: térreo V2/V3 + visão 2º piso V3.
