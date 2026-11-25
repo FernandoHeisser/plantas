@@ -4235,8 +4235,8 @@
         // ── Paredes: extrudadas até o teto, recortando portas e janelas ──────
         _ph = PH.alven; // ── alvenaria (paredes do térreo) ──
         walls.forEach(w => {
-            // As únicas paredes do GEO a OESTE da junta (mE<16, c/ OE) são as do depósito
-            // sob a escada da garagem → entram no bloco V2 (não na alvenaria da casa).
+            // Parede do GEO a OESTE da junta (mE<16, c/ OE) seria da garagem → bloco V2.
+            // Hoje não há nenhuma (o núcleo da escada é 3D manual).
             _ph = (Math.min(w.e1, w.e2) < 16) ? PH.gLaje : PH.alven;
             const horiz = Math.abs(w.n2 - w.n1) < 1e-6;   // corre no eixo E (mN const)
             const t = w.t;
