@@ -1240,7 +1240,7 @@ telha por dentro).
 (código, sem OE; nomes = esboço estrutural do artifact "Segundo piso do sobrado").
 - **Pilares `GPIL`** (canto SO, seção `GCOL`=0,20): linhas N-S em mE 13,6 / 16,6 / 20,25 / 22,37
   (centros) × E-O em mN 2,1 / 6,85 / 10,4 → G1–G11 (sem G6), mais **E1–E4** nos cantos da escada
-  (mN 4,2 e 7,65). `sobe` = continua no 2º piso (E1 e E3 param na laje 1). Laje 1 em **6 painéis**
+  (mN 4,2 e 7,65). `sobe` = continua no 2º piso (hoje todos sobem; E1 aparente no estar, na ponta do guarda-corpo). Laje 1 em **6 painéis**
   (vãos 3,0 / 3,65 / 2,1 m). Saíram a linha mN 3,40 e o G6. **Não pôr pilar no meio das vagas** além do G5.
 - **Vigas** `GVIGA_EO`/`GVIGA_NS` (laje 1 e teto do 2º) + `GVIGA_VAO` (E1–E2, E3–E4, só laje 1).
   A viga mN 6,85 para na linha 20,25.
@@ -1252,8 +1252,9 @@ telha por dentro).
   **depósito** sob o 2º lance e o patamar, porta pelo vestíbulo. 3D manual (`box3d`), 2D `no3d`.
 - Esperas do V2 = pilares com `sobe`.
 
-**Estrutura do 2º piso (no grupo `floor2`):** **garagem** = pilares `GPIL` com `sobe` (inclui E2 e
-E4, que substituem o G6 na junta) + grelha `GVIGA_EO`/`GVIGA_NS` no teto; **casa** = pilares e vigas
+**Estrutura do 2º piso (no grupo `floor2`):** **garagem** = pilares `GPIL` com `sobe` (todos: E2 e E4
+substituem o G6 na junta; E1 e E3 apoiam a viga da linha 20,25, onde chega a viga G4–G5 — sem eles
+ela ficaria com 8,30 m sem apoio) + grelha `GVIGA_EO`/`GVIGA_NS` no teto; **casa** = pilares e vigas
 da arquiteta (`PILARES`, `VIGAS_EO/NS`). Vigas no teto do 2º (VH 0,45, VW 0,20) sob a laje 2.
 Pórticos independentes pela junta. Helpers locais `col2`/`beamEW`/`beamNS`.
 

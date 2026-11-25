@@ -1910,7 +1910,8 @@
     // Garagem V2/V3 (opção I): laje 1 em 6 painéis. Linhas de pilares N-S em mE 13,6 / 16,6 /
     // 20,25 / 22,37 (centros) e E-O em mN 2,1 / 6,85 / 10,4; a linha mN 6,85 para no vão da escada.
     // Escada em U nos cantos E1–E4. Código, sem OE; [n, e] = CANTO SO do pilar (box3d/rect),
-    // sobe = continua no 2º piso do V3 (E1 e E3 param na laje 1). Nomes do esboço estrutural.
+    // sobe = continua no 2º piso do V3 (todos sobem: no teto do 2º a viga G4–G5 apoia na viga
+    // E1–E3, como na laje 1; o E1 fica aparente no estar, na ponta do guarda-corpo). Nomes do esboço estrutural.
     const GCOL = 0.20;
     const GPIL = [
         { id: 'G1',  n: 2.00, e: 13.50, sobe: 1 }, { id: 'G2',  n: 2.00, e: 16.50, sobe: 1 },
@@ -1918,8 +1919,8 @@
         { id: 'G4',  n: 6.75, e: 13.50, sobe: 1 }, { id: 'G5',  n: 6.75, e: 16.50, sobe: 1 },
         { id: 'G7',  n: 10.30, e: 13.50, sobe: 1 }, { id: 'G8', n: 10.30, e: 16.50, sobe: 1 },
         { id: 'G11', n: 10.30, e: 20.15, sobe: 1 }, { id: 'G9', n: 10.30, e: GE1J - GCOL, sobe: 1 },
-        { id: 'E1',  n: 4.10, e: 20.15, sobe: 0 }, { id: 'E2',  n: 4.10, e: GE1J - GCOL, sobe: 1 },
-        { id: 'E3',  n: 7.55, e: 20.15, sobe: 0 }, { id: 'E4',  n: 7.55, e: GE1J - GCOL, sobe: 1 },
+        { id: 'E1',  n: 4.10, e: 20.15, sobe: 1 }, { id: 'E2',  n: 4.10, e: GE1J - GCOL, sobe: 1 },
+        { id: 'E3',  n: 7.55, e: 20.15, sobe: 1 }, { id: 'E4',  n: 7.55, e: GE1J - GCOL, sobe: 1 },
     ];
     // Vigas da garagem (canto SO da seção 0,20; e0/e1 e n0/n1 = extensão). Iguais no térreo
     // (laje 1) e no teto do 2º piso (laje 2), menos o quadro do vão, que só existe na laje 1.
