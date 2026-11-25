@@ -883,13 +883,14 @@ Planta da arquiteta (prancha A01), migrada em camadas — estado e itens provis�
   peitoril 0,90) · sala (norte 1,20, peitoril 1,10) · cozinha (norte 1,20, peitoril 1,10, verga 1,60).
 
 ### Cozinha (V1/V2/V3) — planejados
+- **Todos os armários altos e aéreos (cozinha, despensa, lavanderia) vão até o teto** (2,69, sob o forro de 6 mm): menos poeira em cima e mais espaço (decisão do cliente).
 - **Bancada a 0,95 m** (sob medida: cotovelo do cliente ~1,10 m) na parede norte, do pilar à parede
   leste: cooktop de indução com coifa embutida + pia sob a janela.
 - **Península** a oeste da bancada (mesma altura) com 3 banquetas (assento 0,65).
 - **Parede leste:** geladeira junto da porta dos fundos (frente alinhada a 0,65), balcão em L com o
   canto. Sem armário sobre a porta dos fundos (decisão do cliente).
-- **Aéreos 1,65 → 2,55 m, profundidade 0,35** (norte e leste sobre o balcão) → folga de 0,70 m sobre
-  a bancada; sobre a geladeira também 0,35 × 0,90 (1,65 → 2,55), igual aos demais (decisão do cliente); por isso a geladeira tem no máximo 1,60. Ficam acima da janela da cozinha
+- **Aéreos de 1,65 até o teto (2,69, sob o forro), profundidade 0,35** (norte e leste sobre o balcão) → folga de 0,70 m sobre
+  a bancada; sobre a geladeira também 0,35 (1,65 → teto), igual aos demais (decisão do cliente); por isso a geladeira tem no máximo 1,60. Ficam acima da janela da cozinha
   (verga 1,60) e o cliente prefere armário a prateleira (poeira).
 - **Mesma sala e cozinha no V1/V2/V3** (decisão do cliente; o layout nasceu no V3): no V3 a despensa guarda o
   resto, a cozinha aberta fica com o essencial e todos ficam virados para a sala.
@@ -939,24 +940,24 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 - **V3, lavanderia em C:** lavadora (sul) e secadora (norte) frente a frente, cuba no meio (oeste),
   tampo de pedra 0,90. Mesmo critério da despensa (uso, clima, poeira):
   - **armários fechados** sob a pedra, dos dois lados da cuba (sabão, amaciante, panos; sem prateleira aberta);
-  - **aéreo fechado** na parede oeste (interna), de 1,55 a 2,55, começando 0,28 depois da parede sul para não tapar a janela;
+  - **aéreo fechado** na parede oeste (interna), de 1,55 até o teto, começando 0,28 depois da parede sul para não tapar a janela;
   - **varal de teto suspenso** (`varalTeto`, 4 varões de 1,20 em suportes pendurados) sobre o corredor entre as máquinas,
     junto da janela, recolhido a 2,30. Saíram o varal de parede (pingava na pedra) e a prateleira alta aberta;
   - a parede sul fica sem armário: a janela pequena é a única ventilação da lavanderia. **Tábua de passar rebatível** na parede norte, sobre a pedra
   da secadora (fechada: 0,50 × 0,10, de 0,95 a 2,25), pedido do cliente.
 - **V3, despensa — por zonas de uso e de clima** (decisão do cliente: o sul é frio e úmido, ruim p/ comida):
   - **Norte** (parede interna, encosta na cozinha, seca e morna): só comida, **despenseiro de mantimentos de 2,6 m**
-    (0,60 de fundo, até 2,55).
+    (0,60 de fundo, até o teto).
   - **Sul** (fria e úmida, só o que aguenta): **freezer vertical** 0,70 × 0,60 × 1,70 no canto sudoeste, porta p/ norte
     (rende melhor no frio), com aéreo em cima; **bancada** de 2,19 m sob a janela (topo 0,90 = peitoril) com cestos de
     roupa suja embaixo e, **em cima, forno elétrico de bancada e micro-ondas soltos, lado a lado na frente da janela**
     (`fornoBancada` 0,55 e `microondas` 0,50; decisão do cliente: a janela é fraca, só luz e brisa, e canto é ruim de
-    tirar e pôr coisas, por isso a torre saiu); **coluna de limpeza** 0,60 × 0,60 até 2,55 no canto sudeste (`colunaLimpeza`),
+    tirar e pôr coisas, por isso a torre saiu); **coluna de limpeza** 0,60 × 0,60 até o teto no canto sudeste (`colunaLimpeza`),
     dividida por uso: porta alta e estreita (0,32, até 2,10) para vassoura, rodo, mop e aspirador em pé com tomada interna;
     ao lado, balde e panos embaixo e produtos de limpeza acima de 1,07 (longe de criança); maleiro no topo (estoque raro).
   - **Leste** (sol da manhã): armário baixo de estoque sob a janela (água, bebidas); o tampo dele serve para dobrar roupa.
   - **Oeste:** livre, sem aéreo (decisão do cliente). Aéreo só sobre a porta da cozinha (parede norte) e sobre o freezer.
-  - **Aéreo de panelas e potes** na parede sul, sobre a bancada inteira (2,19 × 0,35, de 1,55 a 2,55, 30 cm acima do forno):
+  - **Aéreo de panelas e potes** na parede sul, sobre a bancada inteira (2,19 × 0,35, de 1,55 até o teto, 30 cm acima do forno):
     tapa o alto da janela sul, a faixa de 0,90 a 1,55 continua aberta (pedido do cliente). Parede leste sem aéreo. Corredor livre de 1,30 m.
   - Builders genéricos `movel` (frente por `acab3d`: `'N'`/`'S'`/`'O'`/`'L'`) e `freezer`.
 

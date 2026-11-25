@@ -2395,8 +2395,8 @@
                 lys.push(SER.rect(1.575, 0.075, 1, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 }));
                 lys.push(SER.rect(0.075, 0.725, 0.67, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 })); // pedra sobre a lavadora (perna sul do C)
                 lys.push(SER.rect(1.905, 0.725, 0.67, 0.65, '#d6d0c4', { color: '#78716c', weight: 0.8, dashArray: '4 3', fillOpacity: 0.3, z3d: 0.86, h3d: 0.04 })); // pedra sobre a secadora (perna norte do C)
-                // aéreo fechado na parede oeste (interna), 1,55 → 2,55 sobre a pedra; começa 0,28 depois da parede sul p/ não tapar a janela
-                lys.push(SER.rect(0.355, 0.075, 2.22, 0.35, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.55, h3d: 1.00, m3d: 'movel', acab3d: 'L' }));
+                // aéreo fechado na parede oeste (interna), 1,55 → teto sobre a pedra; começa 0,28 depois da parede sul p/ não tapar a janela
+                lys.push(SER.rect(0.355, 0.075, 2.22, 0.35, '#efece6', { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.55, h3d: 1.14, m3d: 'movel', acab3d: 'L' }));
                 // varal de teto suspenso sobre o corredor entre as máquinas, junto da janela (sobe por corda quando não está em uso)
                 lys.push(SER.rect(0.725, 0.80, 1.2, 0.48, '#cbd5e1', { color: '#64748b', weight: 0.6, dashArray: '2 3', fillOpacity: 0.15, z3d: 2.30, h3d: 0.40, m3d: 'varalTeto' }));
 
@@ -2411,26 +2411,26 @@
                 lys.push(QUA.rect(0.105, 0.085, 0.62, 0.04, '#8a5a33', { color: '#451a03', weight: 0.6, h3d: 2.10 })); // folhas da porta de correr, abertas
                 lys.push(QUA.rect(1.925, 0.085, 0.62, 0.04, '#8a5a33', { color: '#451a03', weight: 0.6, h3d: 2.10 }));
                 const MOV = { color: '#6b7280', weight: 0.7 };
-                lys.push(QUA.rect(1.975, 1.075, 0.6, 2.6, '#e9e2d4', { ...MOV, h3d: 2.55, m3d: 'movel', acab3d: 'S' }));               // despenseiro de mantimentos 2,6 m (aramados + gavetões), parede seca
+                lys.push(QUA.rect(1.975, 1.075, 0.6, 2.6, '#e9e2d4', { ...MOV, h3d: 2.69, m3d: 'movel', acab3d: 'S' }));               // despenseiro de mantimentos 2,6 m (aramados + gavetões), parede seca
                 lys.push(QUA.rect(0.075, 0.135, 0.6, 0.7, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.70, m3d: 'freezer', acab3d: 'N' })); // freezer vertical na parede fria, porta p/ norte
                 lys.push(QUA.rect(0.075, 0.885, 0.6, 2.19, '#e9e2d4', { ...MOV, h3d: 0.90, m3d: 'movel', acab3d: 'N' }));              // bancada sul (topo = peitoril), cestos de roupa suja embaixo
                 lys.push(QUA.rect(0.12, 1.25, 0.45, 0.55, '#3f3f46', { color: '#18181b', weight: 0.7, z3d: 0.90, h3d: 0.36, m3d: 'fornoBancada' })); // forno elétrico de bancada, frente p/ norte
                 lys.push(QUA.rect(0.15, 1.90, 0.40, 0.50, '#e5e7eb', { color: '#475569', weight: 0.7, z3d: 0.90, h3d: 0.30, m3d: 'microondas' }));   // micro-ondas, ao lado
-                lys.push(QUA.rect(0.075, 3.075, 0.6, 0.6, '#e9e2d4', { ...MOV, h3d: 2.55, m3d: 'colunaLimpeza' }));                    // coluna de limpeza no canto, dividida por uso (ver colunaLimpeza)
+                lys.push(QUA.rect(0.075, 3.075, 0.6, 0.6, '#e9e2d4', { ...MOV, h3d: 2.69, m3d: 'colunaLimpeza' }));                    // coluna de limpeza no canto, dividida por uso (ver colunaLimpeza)
                 lys.push(QUA.rect(0.675, 3.125, 1.3, 0.55, '#e9e2d4', { ...MOV, h3d: 0.88, m3d: 'movel', acab3d: 'O' }));              // armário baixo de estoque sob a janela leste (água, bebidas)
                 // Aéreos (0,35): sobre o freezer, sobre a porta da cozinha e de panelas na parede sul (parede oeste livre: decisão do cliente)
                 const AER = { color: '#6b7280', weight: 0.6, dashArray: '4 3', fillOpacity: 0.35 };
-                lys.push(QUA.rect(0.075, 0.135, 0.35, 0.7, '#efece6', { ...AER, z3d: 1.80, h3d: 0.75, m3d: 'movel', acab3d: 'N' }));
-                lys.push(QUA.rect(2.225, 0.075, 0.35, 0.98, '#efece6', { ...AER, z3d: 2.15, h3d: 0.40, m3d: 'movel', acab3d: 'S' }));
-                // Aéreo de panelas e potes na parede sul, sobre a bancada inteira (1,55 → 2,55, 30 cm acima do forno). Tapa o alto
+                lys.push(QUA.rect(0.075, 0.135, 0.35, 0.7, '#efece6', { ...AER, z3d: 1.80, h3d: 0.89, m3d: 'movel', acab3d: 'N' }));
+                lys.push(QUA.rect(2.225, 0.075, 0.35, 0.98, '#efece6', { ...AER, z3d: 2.15, h3d: 0.54, m3d: 'movel', acab3d: 'S' }));
+                // Aéreo de panelas e potes na parede sul, sobre a bancada inteira (1,55 → teto, 30 cm acima do forno). Tapa o alto
                 // da janela sul; a faixa de 0,90 a 1,55 continua aberta (decisão do cliente: janela fraca, só luz e brisa)
-                lys.push(QUA.rect(0.075, 0.885, 0.35, 2.19, '#efece6', { ...AER, z3d: 1.55, h3d: 1.00, m3d: 'movel', acab3d: 'N' }));
+                lys.push(QUA.rect(0.075, 0.885, 0.35, 2.19, '#efece6', { ...AER, z3d: 1.55, h3d: 1.14, m3d: 'movel', acab3d: 'N' }));
             }
 
             // ─── COZINHA: bancada linear na parede norte (fogão e pia sob a janela) + geladeira na parede leste ───
             lys.push(COZ.rect(1.055, 3.025, 0.7, 0.65, '#94a3b8', { color: '#334155', weight: 0.9, h3d: 1.60, m3d: 'fridge' })); // geladeira de até 1,60 (o aéreo começa em 1,65), parede leste, porta p/ oeste, junto da porta dos fundos (planejado)
             lys.push(COZ.rect(1.775, 3.025, 0.5, 0.65, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // balcão entre a geladeira e a bancada, em L com o canto
-            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'cozSpot' })); // aéreo leste sobre o balcão até o canto (0,35: não bate a cabeça), com spot embaixo
+            lys.push(COZ.rect(1.775, 3.325, 0.75, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcabW', acab3d: 'cozSpot' })); // aéreo leste sobre o balcão até o canto (até o teto) (0,35: não bate a cabeça), com spot embaixo
             lys.push(L.polyline([COZ.rot(1.125, 3.095), COZ.rot(1.685, 3.095)], { color: '#334155', weight: 0.6, interactive: false }));
             lys.push(COZ.rect(2.275, 0.175, 0.6, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, h3d: 0.95, m3d: 'counter', acab3d: 'coz' })); // bancada: do pilar oeste até a parede leste
             // Cooktop 0,155 m p/ leste (0,275 m de apoio depois do canto da península, mais o tampo do canto;
@@ -2479,8 +2479,8 @@
 
             // Armários aéreos: parede norte, contínuos sobre a bancada (base 1,65 m, acima da verga da janela de
             // 1,60 m; a coifa está embutida no cooktop); parede leste sobre a geladeira.
-            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcab', acab3d: 'cozSpot' })); // norte, do pilar até a parede leste (0,35 de profundidade), com spots embaixo
-            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 0.90, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira: 0,35 × 0,90 a partir de 1,65, igual aos demais aéreos
+            lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcab', acab3d: 'cozSpot' })); // até o teto (2,69, sob o forro): menos poeira em cima; norte, do pilar até a parede leste (0,35 de profundidade), com spots embaixo
+            lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira: 0,35 de 1,65 até o teto, igual aos demais aéreos
             // Luz caseira: plafon de rattan Ø 45 no centro do teto da cozinha (sem fita de LED: o cliente não gosta)
             lys.push(COZ.circ(1.90, 2.05, 0.225, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.58, h3d: 0.12, m3d: 'plafon' }));
             // Planejados: canto entre bancada e península com armário de canto (sem armário sobre a porta dos fundos).
