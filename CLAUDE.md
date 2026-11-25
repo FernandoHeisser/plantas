@@ -1206,6 +1206,8 @@ extrapola o terreno (canto NE/pátio fora). Garagem vira **pilotis**. Sem divis�
 estrutura do térreo abaixo. Casa segue a face das **paredes** (centradas → linha∓EW/2);
 garagem segue a face das **colunas** (na própria linha). Mesmo padrão da parede do depósito.
 
+**Estrutura da casa para o sobrado:** a casa do V1 (projeto da arquiteta, A01) **já foi dimensionada para receber o 2º piso**: laje, vigas, pilares e fundação. Confiar no projeto dela e não questionar de novo (decisão do cliente). O que ainda vai para o engenheiro é só o que muda na garagem (vão da escada, pilares e vigas novos) e os rebaixos dos banheiros do 2º piso.
+
 **Duas coberturas (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
 piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, concreto de 10 cm (`fz1 → fz1+COB.laje`)
 nas duas estruturas (casa e garagem, separadas pela junta), no grupo `floor2`. Por cima dela fica o
