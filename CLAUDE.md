@@ -254,7 +254,7 @@ mexer nelas; não reintroduzir número solto em `buildLayers`/`buildBuilding3D`.
   precisa ser reposicionado se a largura do ambiente mudar.
 - **Ainda em literal:** V2/V3 (garagem, 2º piso, drenagem do V3). `COTA_FUNDO_E` só divide o polígono do chão no 2D.
 - **Pilares:** `userData.pilar` guarda o material de obra (concreto) e o pronto (reboco); `applyBuildPhase` troca na fase 5. Azulejo do banho: painéis finos em `buildBuilding3D`, com UV em tamanho real.
-- **Junta e 2º piso:** `GE1J` (face leste da garagem, 3 cm antes de `FACE.O`) é a única fonte da junta no V2, no 2º piso e na drenagem do V3. No V3, `F2_WALLS_CASA`/`F2_T_CASA` seguem as faces oficiais e `F2_CASA_LAYOUT` liga cômodos, portas (`F2_DOORS`) e janelas (`F2_WINDOWS`, por lado S/N/L) da casa no 2º piso: opção B, com divisórias nos eixos do térreo. A seção "Cômodos do 2º piso da casa" abaixo descreve o layout antigo. Estado em `docs/RECONCILIACAO-V2-V3.md`.
+- **Junta e 2º piso:** `GE1J` (face leste da garagem, 3 cm antes de `FACE.O`) é a única fonte da junta no V2, no 2º piso e na drenagem do V3. No V3, `F2_WALLS_CASA`/`F2_T_CASA` seguem as faces oficiais; o 2º piso é a **opção I** (ver "Layout do 2º piso — opção I"): paredes internas em `F2_PAREDES`, portas em `F2_DOORS`, janelas em `F2_WINDOWS` (casa, por lado S/N/L) e `F2G_WINDOWS` (garagem). Estado em `docs/RECONCILIACAO-V2-V3.md`.
 - **Migração do V1 em andamento:** ver o estado em `docs/RECONCILIACAO-V1.md`. As tabelas de "Layout V1" descrevem a planta antiga até o fim da migração.
 
 ---
@@ -1191,8 +1191,7 @@ espessura `WT=0,15 m`. Fase `_ph=PH.muro` (só aparece no acabamento).
 - Cotas 2D/3D da garagem (`dimLine` + `buildDims3D` parametrizado por versão)
 
 **Garagem já implementada:** `GN0=2,0 / GN1=10,5 / GE0=13,5 / GE1=22,5` → 8,5×9,0 m = 76,5 m²  
-Depósito sob escada: mN 2,0→3,4 × mE 13,5→15,9 (1,4×2,4 m ≈ 3 m²)  
-Escada: 18 degraus, 1,20 m largura, leste→oeste (mE 20,9→15,9 code)
+Estrutura, escada em U, vestíbulo e depósito: ver "Garagem V2/V3 — opção I" abaixo (V2 e V3 iguais no térreo).
 
 ### V3 — Sobrado (pilotis)
 
@@ -1205,6 +1204,8 @@ extrapola o terreno (canto NE/pátio fora). Garagem vira **pilotis**. Sem divis�
 **Padrão das paredes (alinhamento):** face externa de cada parede do 2º piso = face da
 estrutura do térreo abaixo. Casa segue a face das **paredes** (centradas → linha∓EW/2);
 garagem segue a face das **colunas** (na própria linha). Mesmo padrão da parede do depósito.
+
+**Estrutura da casa para o sobrado:** a casa do V1 (projeto da arquiteta, A01) **já foi dimensionada para receber o 2º piso**: laje, vigas, pilares e fundação. Confiar no projeto dela e não questionar de novo (decisão do cliente). O que ainda vai para o engenheiro é só o que muda na garagem (vão da escada, pilares e vigas novos) e os rebaixos dos banheiros do 2º piso.
 
 **Duas coberturas (nomenclatura):** **laje 1** = intermediária (teto do térreo + chão do 2º
 piso), tem o **vão da escada** p/ subir; **laje 2** = teto do 2º piso, concreto de 10 cm (`fz1 → fz1+COB.laje`)
@@ -1230,57 +1231,52 @@ telha por dentro).
   (`set3DRoof`, só alterna `roof.visible`; rótulo "Laje" no V1/V2, "Telhado" no V3). No **V2**
   a laje da garagem mantém o vão da escada.
 
-**Estrutura do 2º piso (no grupo `floor2`, some/aparece com o 2º piso):** espelha o
-térreo, com caminho de carga vertical contínuo e a junta subindo junto. **Garagem** =
-12 colunas (3×3 em mN 2/6,75/10,3 + linha extra em **mN 3,40** junto à escada — todas
-alinhadas ao pilotis do térreo, mE 13,5/~17,8/~22,2) da laje 1 (3,01) ao teto do 2º (5,71)
-+ grelha de vigas (viga N-S central só ao NORTE da escada, reapoiada em mN 3,40 — como o
-térreo); **casa** = 12 colunas nos nós da grade (mE 22,5/25,5/28,5/31,5 × mN 2/4,5/7,5,
-centradas, embutidas nas paredes/divisórias — helper `col2c`) + grelha 3×3. Vigas no teto
-do 2º (y 5,26→5,71, **VH=0,45** = casa térreo, VW=0,20), sustentando a laje 2. Pórticos
-independentes pela junta (vigas da garagem param em GE1j, da casa em 22,5). Helpers locais
-`col2`/`col2c`/`beamEW`/`beamNS`.
+**Garagem V2/V3 — opção I (estrutura, térreo):** fonte única nas tabelas do topo do script
+(código, sem OE; nomes = esboço estrutural do artifact "Segundo piso do sobrado").
+- **Pilares `GPIL`** (canto SO, seção `GCOL`=0,20): linhas N-S em mE 13,6 / 16,6 / 20,25 / 22,37
+  (centros) × E-O em mN 2,1 / 6,85 / 10,4 → G1–G11 (sem G6), mais **E1–E4** nos cantos da escada
+  (mN 4,6 e 8,05). `sobe` = continua no 2º piso (E1 e E3 param na laje 1). Laje 1 em **6 painéis**
+  (vãos 3,0 / 3,65 / 2,1 m). Saíram a linha mN 3,40 e o G6. **Não pôr pilar no meio das vagas** além do G5.
+- **Vigas** `GVIGA_EO`/`GVIGA_NS` (laje 1 e teto do 2º) + `GVIGA_VAO` (E1–E2, E3–E4, só laje 1).
+  A viga mN 6,85 para na linha 20,25.
+- **Escada em U `ESC`** (18 espelhos, pisos 0,28): 1º lance a leste (junto da junta) sobe p/ o
+  norte a partir do vestíbulo, patamar ao norte, 2º lance a oeste sobe p/ o sul e chega no estar
+  do 2º. Parede entre os lances sobe até o guarda-corpo do 2º. Vão na laje 1 = quadro inteiro.
+- **Núcleo `VEST`** (V2 e V3): vestíbulo entre a porta da casa e o pé da escada; paredes de 0,20
+  sob as vigas (oeste na linha 20,25 com a porta p/ a garagem; norte em mN 8,05 atrás do patamar);
+  **depósito** sob o 2º lance e o patamar, porta pelo vestíbulo. 3D manual (`box3d`), 2D `no3d`.
+- Esperas do V2 = pilares com `sobe`.
 
-**Layout atual (opção B revisada, branch feat/v3-segundo-piso):** casa = sala íntima (coluna oeste, 14,2 m²,
-entrada pela junta) + suíte (porta na ponta norte) + banho da suíte + closet; garagem = quartos 1 e 2, escritório,
-corredor da chegada da escada (a oeste; guarda-corpo 1,10 m no vão), armário de rouparia na parede oeste e
-banheiro dos quartos no canto sudeste, com porta pelo hall da junta. Móveis de referência em `f2Moveis()` — fonte única 2D + 3D (base no piso do 2º).
-**Paredes internas do 2º piso = drywall** (decisão do cliente, 2026-11-11; a validar na pergunta 26): alvenaria só
-no perímetro, sobre as vigas de borda. A garagem não pode ganhar pilares (vagas entre as linhas mN 3,4 / 6,75 / 10,3).
-**Garagem V2/V3 — núcleo estrutural (G13):** parede de 0,20 no lado norte do depósito e da escada (sob a viga
-mN 3,40), escada fechada com corrimãos; no V3, vestíbulo (`VEST`) entre a porta da casa e o pé da escada, com
-paredes de 0,20 sob as do banheiro dos quartos, pilares nas quinas (`VEST.pil` + `GCOL_PORTA`), vigas sobre as
-paredes (laje rebaixada do banheiro) e shaft dos canos (`VEST.shaft`).
-O texto abaixo descreve o layout antigo.
+**Estrutura do 2º piso (no grupo `floor2`):** **garagem** = pilares `GPIL` com `sobe` (inclui E2 e
+E4, que substituem o G6 na junta) + grelha `GVIGA_EO`/`GVIGA_NS` no teto; **casa** = pilares e vigas
+da arquiteta (`PILARES`, `VIGAS_EO/NS`). Vigas no teto do 2º (VH 0,45, VW 0,20) sob a laje 2.
+Pórticos independentes pela junta. Helpers locais `col2`/`beamEW`/`beamNS`.
 
-**Cômodos do 2º piso da casa (grade 2×3, divididos por mN 4,5 / mE 25,5 / mE 28,5):**
-- NORTE (mN 4,5→7,5): **acesso** (coluna 1, mE 22,5→25,5) + **quarto da suíte** (colunas
-  2+3, mE 25,5→31,5, vão único).
-- SUL (mN 2→4,5): **banheiro 2º pav** (col 1) · **banheiro da suíte** (col 2) · **closet**
-  (col 3).
-- Divisórias internas (IW=0,10, no `floor2` 3D + `buildFloor2Layers` 2D): E-O em mN 4,5
-  (mE 22,5→31,5); N-S em mE 25,5 (inteira, mN 2→7,5); N-S em mE 28,5 (só sul, mN 2→4,5).
-- **Portas** (`F2_DOORS`, compartilhado 2D arcos + 3D vãos/folhas; helper 3D `intWall`
-  recorta vão + verga, base no piso fz0): banheiro 2º pav→acesso (mN 4,5, abre p/ sul);
-  closet→quarto (mN 4,5, **dupla**, abre p/ norte); quarto→acesso (mE 25,5, abre p/ leste);
-  closet→banh.suíte (mE 28,5, abre p/ leste). Vãos centrados; simples 0,80 m / dupla 2×0,70 m.
-- **Janelas** (`F2_WINDOWS`, compartilhado 2D `win` + 3D helper `winWall`: peitoril+vidro+verga,
-  sill/head rel. a fz0; `matGlass` sem sombra). QUARTO: **panorâmicas** no norte (parede mN 7,5,
-  2 panos entre colunas: mE 25,6–28,4 e 28,6–31,4) e leste (mE 31,5, mN 4,6–7,4), peitoril 0,40
-  → viga 2,25. CLOSET: **normais** no sul (mE 29,4–30,6) e leste (mN 2,65–3,85), sill 1,0 / head 2,1.
-  BANHEIROS (sul, mN 2,0): banheiro 2º pav (mE 23,5–24,5) e banheiro da suíte (mE 26,5–27,5),
-  normais. **Estilo padrão** = grade de caixilho (montantes + travessas, ~0,55 m por pano),
-  via `winGrid` dentro do `winWall`. **Cor `matFrame`** (creme, cor original do caixilho — não
-  madeira). Mesmo formato aplicado às janelas do **térreo V1/V2/V3** (pipeline GEO) — estilo único.
-
-**Próximas etapas:** ligação acesso↔garagem cruzando a junta; guarda-corpo no vão da
-escada; uso do 2º piso da garagem; ficha de medidas V3.
+**Layout do 2º piso — opção I** (decisão do cliente, 2026-11-25, depois de comparar as opções A–I no
+artifact "Segundo piso do sobrado"). Coordenadas de código:
+- **Estar em L (cinema / video game, 25 m²)**: faixa sul mE 19,25→25,3 × mN 2,0→4,75, cruzando a junta
+  pela passagem `F2_JUNTA_VAO` (mN 2,2→4,5, entre G3 e E2, 2,25 de altura), + braço norte na casa
+  (mE 22,5→25,3). TV na parede cega da junta, no braço norte. A escada chega aqui.
+- **Suíte** (casa, norte, 15,6 m²): porta na ponta norte da parede oeste (`EIXO.BANHO`), cama na parede
+  sul. **Quarto → closet → banho** (o cliente não quer banheiro abrindo direto no quarto): closet a
+  leste (mE 28,1→30,6), banho da suíte a oeste, sobre a lavanderia (aproveita o encanamento).
+- **Garagem:** escritório no canto sudoeste (14,7 m²); banheiro (sul) com a **rouparia como
+  antecâmara** (rouparia sem janela); corredor mN 5,75→6,75 com guarda-corpo no vão; **quarto 1**
+  (noroeste, 15 m²) e **quarto 2 em L** (nordeste, 16,1 m², porta no extremo oeste p/ liberar parede).
+- **Paredes:** alvenaria de 0,20 sobre as vigas (mN 6,85; linha 20,25 e mN 8,05 em volta do vão);
+  drywall de 0,10 no resto; parede entre os quartos = drywall acústico (sem viga embaixo).
+- **Janelas** (`F2_WINDOWS`/`F2G_WINDOWS`): grandes ao norte (peitoril 0,40 → 2,25) e na suíte a leste;
+  a oeste só pequenas. Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
+  **Estilo padrão** = grade de caixilho (`winGrid` no `winWall`), cor `matFrame`, igual ao térreo.
+- **Móveis** em `f2Moveis()` (fonte única 2D + 3D, base no piso do 2º; `rot3d` gira o modelo).
+- Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
+  junto com a estrutura nova da garagem.
 
 ---
 
 ## Desejos do cliente (a discutir antes de implementar)
 
-- [ ] **2º piso do V3:** discutir quartos, layout e a melhor forma de organizar (rever a opção B atual).
+- [x] **2º piso do V3:** redesenhado (opção I, 2026-11-25).
 - [ ] **V4: área gourmet nos fundos** do lote (nova versão, herda o V3).
 - [ ] **Paisagismo dos fundos:** plantas no quintal e **bananeiras na faixa permeável**.
 
