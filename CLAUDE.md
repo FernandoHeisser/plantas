@@ -1249,7 +1249,8 @@ telha por dentro).
   do 2º. Parede entre os lances sobe até o guarda-corpo do 2º. Vão na laje 1 = quadro inteiro.
 - **Núcleo `VEST`** (V2 e V3): vestíbulo entre a porta da casa e o pé da escada; paredes de 0,20
   sob as vigas (oeste na linha 20,25 com a porta p/ a garagem; norte em mN 7,65 atrás do patamar, **face alinhada à fachada norte da casa**);
-  **depósito** sob o 2º lance e o patamar, porta pelo vestíbulo. 3D manual (`box3d`), 2D `no3d`.
+  **depósito** sob o 2º lance e o patamar, **porta pela garagem** (parede oeste do núcleo, logo ao norte
+  do E1, 0,70 × 2,00 por causa do lance de cima; `VEST.dep`); a parede vestíbulo × depósito é cega. 3D manual (`box3d`), 2D `no3d`.
 - Esperas do V2 = pilares com `sobe`.
 
 **Estrutura do 2º piso (no grupo `floor2`):** **garagem** = pilares `GPIL` com `sobe` (todos: E2 e E4
