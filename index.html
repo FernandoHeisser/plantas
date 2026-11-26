@@ -2562,7 +2562,15 @@
                 lys.push(SAL.rect(0.775, 0.875, 2.0, 1.6, '#d6c9b0', { color: '#8b7d6b', weight: 0.6, fillOpacity: 0.6, dashArray: '4 2', h3d: 0.02, m3d: 'rug', acab3d: 'la' }));
             }
 
-            // Hall 1,15 m: só o tapete
+            // Hall 1,15 m: armário de entrada no canto sul, atrás da porta aberta (a folha para em mN 2,97; sobra 0,42 livre)
+            lys.push(HAL.rect(0.082, 0.082, 0.40, 1.136, '#c9a46a', { color: '#5a4422', weight: 0.6, h3d: 2.69, m3d: 'armEntrada' }));
+            // Espelho de corpo inteiro 0,50 × 1,70 na parede leste (do banho), de frente para a porta de entrada
+            lys.push(HAL.rect(1.10, 1.199, 0.50, 0.02, '#cbd5e1', { color: '#b89458', weight: 1.2, z3d: 0.30, h3d: 1.70, m3d: 'espelho' }));
+            // Luz própria: plafon de rattan Ø 30 no centro do hall (mesma família do plafon da cozinha)
+            lys.push(HAL.circ(1.55, 0.65, 0.15, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.60, h3d: 0.09, m3d: 'plafon' }));
+            // Porta-chaves na parede oeste, ao norte da porta (lado da fechadura): pega a chave ao abrir
+            lys.push(HAL.rect(2.05, 0.081, 0.30, 0.06, '#c9a46a', { color: '#5a4422', weight: 0.6, z3d: 1.40, h3d: 0.18, m3d: 'portaChaves' }));
+            // capacho
             lys.push(HAL.rect(0.925, 0.195, 0.8, 0.9, '#fde68a', { color: '#a16207', weight: 0.6, fillOpacity: 0.55, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
 
             // ─── LABELS DOS CÔMODOS ──────────────────────────────────────────
@@ -3494,6 +3502,64 @@
                 const m = box3d(n0 + 0.045, F - 0.001, L - 0.09, 0.003, P + 0.06, H - 0.09, palha);          // palhinha
                 g.add(m);
                 fcyl(g, n0 + (i === nP - 1 ? 0.06 : L - 0.06), F + 0.01, 0.012, H - 0.20, H - 0.16, COR_INT.latao, LATAO());   // puxador de latão
+            }
+        },
+        // Armário de entrada (hall), costas na parede sul, frente p/ NORTE, em madeira mel como o rack da sala:
+        // embaixo sapateira ABERTA e ripada (0 → 0,60: uso diário, o sapato respira), 4 gavetas (0,60 → 1,00),
+        // nicho ABERTO de casacos (1,00 → 2,10) com 5 ganchos de latão no fundo (0,40 de fundo não comporta cabide)
+        // e maleiro fechado no topo (2,10 → teto). Puxadores redondos de latão.
+        armEntrada(g, s) {
+            const H = s.h || 2.69, F = s.n + s.dn, Z1 = 0.60, Z2 = 1.00, Z3 = 2.10, T = 0.018, G = 0.003;
+            const mad = fmat(COR_INT.madeira, { roughness: 0.55 }), fundo = fmat('#6f5530', { roughness: 0.7 });
+            mad.userData.foto = 'madeira';
+            const pux = (e, z) => fcyl(g, F + 0.022, e, 0.013, z - 0.013, z + 0.013, COR_INT.latao, LATAO());
+            fbox(g, s.n, s.e, T, s.de, 0, Z1, fundo);                                              // fundo da sapateira (escuro)
+            fbox(g, s.n, s.e + T, T, s.de - 2 * T, Z2, Z3, mad);                                    // fundo do nicho dos casacos
+            [s.e, s.e + s.de - T].forEach(e => fbox(g, s.n, e, s.dn, T, 0, H, mad));                // laterais até o teto
+            fbox(g, s.n, s.e + T, s.dn, s.de - 2 * T, H - T, H, mad);                               // tampo
+            [0.04, 0.24, 0.44].forEach(z => {                                                       // 3 prateleiras ripadas
+                for (let i = 0; i < 6; i++) fbox(g, s.n + T + i * (s.dn - T - 0.01) / 6, s.e + T, 0.035, s.de - 2 * T, z, z + 0.018, mad);
+            });
+            fbox(g, s.n, s.e + T, s.dn, s.de - 2 * T, Z1 - T, Z1, mad);                             // base das gavetas
+            fbox(g, s.n, s.e + T, s.dn - T, s.de - 2 * T, Z1, Z2, '#e9e1d2');                       // corpo das gavetas
+            fbox(g, s.n, s.e + T, s.dn, s.de - 2 * T, Z2, Z2 + T, mad);                             // tampo das gavetas (piso do nicho)
+            fbox(g, s.n, s.e + T, s.dn - T, s.de - 2 * T, Z3, H - T, '#e9e1d2');                    // corpo do maleiro
+            const meio = s.e + s.de / 2, zm = (Z1 + Z2) / 2;
+            [[Z1, zm], [zm, Z2]].forEach(([z0, z1]) => [[s.e, meio], [meio, s.e + s.de]].forEach(([e0, e1]) => {
+                fbox(g, F - T, e0 + G, T, e1 - e0 - 2 * G, z0 + G, z1 - G, mad);                   // frente da gaveta
+                pux((e0 + e1) / 2, (z0 + z1) / 2);
+            }));
+            for (let i = 0; i < 5; i++) {                                                           // ganchos de latão a 1,75
+                const e = s.e + T + (i + 0.5) * (s.de - 2 * T) / 5;
+                fbox(g, s.n + T, e - 0.012, 0.012, 0.024, 1.72, 1.78, COR_INT.latao, LATAO());     // espelho do gancho
+                fbox(g, s.n + T, e - 0.006, 0.07, 0.012, 1.735, 1.75, COR_INT.latao, LATAO());     // haste
+                fbox(g, s.n + T + 0.058, e - 0.006, 0.012, 0.012, 1.735, 1.78, COR_INT.latao, LATAO());   // ponta
+            }
+            [[s.e, meio, meio - 0.05], [meio, s.e + s.de, meio + 0.05]].forEach(([e0, e1, ep]) => {
+                fbox(g, F - T, e0 + G, T, e1 - e0 - 2 * G, Z3 + G, H - G, mad);                    // portas do maleiro
+                pux(ep, Z3 + 0.06);
+            });
+        },
+        // Espelho de corpo inteiro, costas na parede LESTE (face p/ oeste): moldura fina de latão + vidro espelhado.
+        // s.z = base (padrão 0,30), s.h = altura (padrão 1,70); s.dn = largura ao longo da parede.
+        espelho(g, s) {
+            const z0 = s.z || 0.30, z1 = z0 + (s.h || 1.70), W = s.e + s.de, M = 0.015;
+            fbox(g, s.n, W - 0.02, s.dn, 0.02, z0, z1, COR_INT.latao, LATAO());                                   // moldura
+            const vidro = box3d(s.n + M, W - 0.024, s.dn - 2 * M, 0.006, z0 + M, z1 - M,
+                new THREE.MeshStandardMaterial({ color: 0xe9eef0, metalness: 1, roughness: 0.04, envMapIntensity: 1.2 }));
+            g.add(vidro);
+        },
+        // Porta-chaves de parede, costas na parede OESTE (face p/ leste): plaquinha de madeira mel com 4 ganchinhos
+        // de latão (chaves, coleira) e uma prateleirinha de 6 cm em cima para a carteira. s.z = base, s.h = altura.
+        portaChaves(g, s) {
+            const z0 = s.z || 1.40, z1 = z0 + (s.h || 0.18), F = s.e + s.de;
+            const mad = fmat(COR_INT.madeira, { roughness: 0.55 }); mad.userData.foto = 'madeira';
+            fbox(g, s.n, s.e, s.dn, 0.018, z0, z1, mad);                                                     // plaquinha
+            fbox(g, s.n, s.e, s.dn, s.de, z1 - 0.015, z1, mad);                                              // prateleirinha
+            for (let i = 0; i < 4; i++) {
+                const n = s.n + (i + 0.5) * s.dn / 4;
+                fbox(g, n - 0.004, s.e + 0.018, 0.008, 0.035, z0 + 0.04, z0 + 0.05, COR_INT.latao, LATAO());   // haste
+                fbox(g, n - 0.004, s.e + 0.045, 0.008, 0.008, z0 + 0.04, z0 + 0.07, COR_INT.latao, LATAO());   // ponta
             }
         },
         // Geladeira — corpo inox, fenda do freezer + 2 puxadores. Porta p/ sul quando mais larga em mE; senão p/ oeste.
