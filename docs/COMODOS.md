@@ -25,7 +25,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 | Cômodo | Situação | O que já tem |
 |---|---|---|
 | Vestíbulo | ⏳ pendente | Vazio: paredes, porta p/ a garagem e o pé da escada |
-| Depósito sob a escada | ⏳ pendente | Vazio |
+| Depósito sob a escada | ⏳ pendente | Porta pela garagem (0,70 × 2,00, com chave), decidida em 2026-11-26; por dentro, vazio. Altura livre de ~2,0 m na porta a ~1,3 m sob o patamar |
 | Garagem (vagas) | ⏳ pendente | Carros só no V2; portão oeste ainda a definir |
 
 ## 2º piso (layout da opção I aprovado; móveis em esboço)
