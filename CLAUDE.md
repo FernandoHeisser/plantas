@@ -389,7 +389,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `arandela` | Arandela (usar com `circ`: centro da cúpula, `r`, `z3d`, `h3d`): espelho e braço de latão saindo da parede **oeste** + cúpula de linho com difusor quente |
 | `painelTV` | Painel ripado de madeira mel do piso ao teto (ripas de 4 cm, vão de 2 cm, chapa escura atrás), face p/ leste |
 | `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
-| `armEntrada` | Armário de entrada do hall, costas na parede sul, frente p/ **norte**, madeira mel até o teto: sapateira **aberta** ripada (0→0,60, o sapato respira), 4 gavetas (0,60→1,00), 2 portas p/ casacos (1,00→teto). Puxadores redondos de latão |
+| `armEntrada` | Armário de entrada do hall, costas na parede sul, frente p/ **norte**, madeira mel até o teto: sapateira **aberta** ripada (0→0,60, o sapato respira), 4 gavetas (0,60→1,00), nicho **aberto** de casacos (1,00→2,10) com 5 ganchos de latão a 1,75, maleiro fechado (2,10→teto). Puxadores redondos de latão |
 | `rack` | Rack baixo + pés + ranhura |
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
 | `fornoBancada` | Forno elétrico de bancada solto, frente p/ **norte**: corpo grafite, porta de vidro escuro com puxador, botões à direita. Base em `z3d` (tampo) |
@@ -946,7 +946,8 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 ### Hall de entrada (V1/V2/V3)
 - **Armário de entrada** (`armEntrada`, 1,14 × 0,40, até o teto) no canto sul, atrás da porta aberta (a folha para em mN 2,97;
   sobram 0,42 até a frente do armário). Sapateira aberta embaixo (pedido do cliente: uso diário e o sapato precisa respirar),
-  gavetas no meio, casacos em cima. Capacho na frente da porta.
+  gavetas no meio, casacos à vista em ganchos de latão (também aberto, pedido do cliente; 0,40 de fundo não comporta cabide)
+  e maleiro fechado no topo. Capacho na frente da porta.
 
 ### Lavanderia e despensa
 - **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).
