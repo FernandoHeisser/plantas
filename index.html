@@ -2564,6 +2564,8 @@
 
             // Hall 1,15 m: armário de entrada no canto sul, atrás da porta aberta (a folha para em mN 2,97; sobra 0,42 livre)
             lys.push(HAL.rect(0.082, 0.082, 0.40, 1.136, '#c9a46a', { color: '#5a4422', weight: 0.6, h3d: 2.69, m3d: 'armEntrada' }));
+            // Espelho de corpo inteiro 0,50 × 1,70 na parede leste (do banho), de frente para a porta de entrada
+            lys.push(HAL.rect(1.10, 1.199, 0.50, 0.02, '#cbd5e1', { color: '#b89458', weight: 1.2, z3d: 0.30, h3d: 1.70, m3d: 'espelho' }));
             // capacho
             lys.push(HAL.rect(0.925, 0.195, 0.8, 0.9, '#fde68a', { color: '#a16207', weight: 0.6, fillOpacity: 0.55, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
 
@@ -3533,6 +3535,15 @@
                 fbox(g, F - T, e0 + G, T, e1 - e0 - 2 * G, Z3 + G, H - G, mad);                    // portas do maleiro
                 pux(ep, Z3 + 0.06);
             });
+        },
+        // Espelho de corpo inteiro, costas na parede LESTE (face p/ oeste): moldura fina de latão + vidro espelhado.
+        // s.z = base (padrão 0,30), s.h = altura (padrão 1,70); s.dn = largura ao longo da parede.
+        espelho(g, s) {
+            const z0 = s.z || 0.30, z1 = z0 + (s.h || 1.70), W = s.e + s.de, M = 0.015;
+            fbox(g, s.n, W - 0.02, s.dn, 0.02, z0, z1, COR_INT.latao, LATAO());                                   // moldura
+            const vidro = box3d(s.n + M, W - 0.024, s.dn - 2 * M, 0.006, z0 + M, z1 - M,
+                new THREE.MeshStandardMaterial({ color: 0xe9eef0, metalness: 1, roughness: 0.04, envMapIntensity: 1.2 }));
+            g.add(vidro);
         },
         // Geladeira — corpo inox, fenda do freezer + 2 puxadores. Porta p/ sul quando mais larga em mE; senão p/ oeste.
         fridge(g, s) {
