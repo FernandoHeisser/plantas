@@ -2562,7 +2562,9 @@
                 lys.push(SAL.rect(0.775, 0.875, 2.0, 1.6, '#d6c9b0', { color: '#8b7d6b', weight: 0.6, fillOpacity: 0.6, dashArray: '4 2', h3d: 0.02, m3d: 'rug', acab3d: 'la' }));
             }
 
-            // Hall 1,15 m: só o tapete
+            // Hall 1,15 m: armário de entrada no canto sul, atrás da porta aberta (a folha para em mN 2,97; sobra 0,42 livre)
+            lys.push(HAL.rect(0.082, 0.082, 0.40, 1.136, '#c9a46a', { color: '#5a4422', weight: 0.6, h3d: 2.69, m3d: 'armEntrada' }));
+            // capacho
             lys.push(HAL.rect(0.925, 0.195, 0.8, 0.9, '#fde68a', { color: '#a16207', weight: 0.6, fillOpacity: 0.55, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
 
             // ─── LABELS DOS CÔMODOS ──────────────────────────────────────────
@@ -3495,6 +3497,32 @@
                 g.add(m);
                 fcyl(g, n0 + (i === nP - 1 ? 0.06 : L - 0.06), F + 0.01, 0.012, H - 0.20, H - 0.16, COR_INT.latao, LATAO());   // puxador de latão
             }
+        },
+        // Armário de entrada (hall), costas na parede sul, frente p/ NORTE, em madeira mel como o rack da sala:
+        // embaixo sapateira ABERTA e ripada (0 → 0,60: uso diário, o sapato respira), no meio 4 gavetas (0,60 → 1,00),
+        // em cima 2 portas até o teto p/ casacos (cabide frontal, cabe em 0,40 de fundo). Puxadores redondos de latão.
+        armEntrada(g, s) {
+            const H = s.h || 2.69, F = s.n + s.dn, Z1 = 0.60, Z2 = 1.00, T = 0.018, G = 0.003;
+            const mad = fmat(COR_INT.madeira, { roughness: 0.55 }), fundo = fmat('#6f5530', { roughness: 0.7 });
+            mad.userData.foto = 'madeira';
+            const pux = (e, z) => fcyl(g, F + 0.022, e, 0.013, z - 0.013, z + 0.013, COR_INT.latao, LATAO());
+            fbox(g, s.n, s.e, T, s.de, 0, Z1, fundo);                                              // fundo da sapateira (escuro)
+            [s.e, s.e + s.de - T].forEach(e => fbox(g, s.n, e, s.dn, T, 0, H, mad));                // laterais até o teto
+            fbox(g, s.n, s.e + T, s.dn, s.de - 2 * T, H - T, H, mad);                               // tampo
+            [0.04, 0.24, 0.44].forEach(z => {                                                       // 3 prateleiras ripadas
+                for (let i = 0; i < 6; i++) fbox(g, s.n + T + i * (s.dn - T - 0.01) / 6, s.e + T, 0.035, s.de - 2 * T, z, z + 0.018, mad);
+            });
+            fbox(g, s.n, s.e + T, s.dn, s.de - 2 * T, Z1 - T, Z1, mad);                             // base das gavetas
+            fbox(g, s.n, s.e + T, s.dn - T, s.de - 2 * T, Z1, H - T, '#e9e1d2');                    // corpo interno (por trás das frentes)
+            const meio = s.e + s.de / 2, zm = (Z1 + Z2) / 2;
+            [[Z1, zm], [zm, Z2]].forEach(([z0, z1]) => [[s.e, meio], [meio, s.e + s.de]].forEach(([e0, e1]) => {
+                fbox(g, F - T, e0 + G, T, e1 - e0 - 2 * G, z0 + G, z1 - G, mad);                   // frente da gaveta
+                pux((e0 + e1) / 2, (z0 + z1) / 2);
+            }));
+            [[s.e, meio, meio - 0.05], [meio, s.e + s.de, meio + 0.05]].forEach(([e0, e1, ep]) => {
+                fbox(g, F - T, e0 + G, T, e1 - e0 - 2 * G, Z2 + G, H - G, mad);                    // portas dos casacos
+                pux(ep, Z2 + 0.12);
+            });
         },
         // Geladeira — corpo inox, fenda do freezer + 2 puxadores. Porta p/ sul quando mais larga em mE; senão p/ oeste.
         fridge(g, s) {

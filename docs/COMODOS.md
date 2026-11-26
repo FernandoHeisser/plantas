@@ -1,6 +1,6 @@
 # Cômodos — revisão dos móveis e da organização
 
-**Atualizado:** 2026-11-25 · versão de referência: **V3** (a final).
+**Atualizado:** 2026-11-26 · versão de referência: **V3** (a final).
 
 Controle de quais ambientes já foram discutidos móvel por móvel com o cliente e quais faltam.
 Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atualizar a data.
@@ -18,7 +18,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 | Despensa (dormitório no V1/V2) | ✅ revisado | Despenseiro ao norte, freezer no canto sudoeste, forno e micro-ondas sob a janela sul, aéreo de panelas, coluna de limpeza, armário baixo a leste |
 | Lavanderia | ✅ revisado | Em C (lavadora, secadora, cuba), armários fechados, aéreo na parede oeste, varal de teto, tábua de passar rebatível |
 | Banho | ⏳ pendente | Azulejo, box, vaso e pia padrão; nunca organizado |
-| Hall de entrada | ⏳ pendente | Só a cor das paredes; definir o que entra (sapateira, cabideiro, espelho) |
+| Hall de entrada | 🔶 em revisão | Armário de entrada no canto sul (sapateira aberta, gavetas, casacos), decidido em 2026-11-26; falta a parede leste (espelho?) |
 
 ## Térreo — garagem
 
