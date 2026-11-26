@@ -391,6 +391,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
 | `armEntrada` | Armário de entrada do hall, costas na parede sul, frente p/ **norte**, madeira mel até o teto: sapateira **aberta** ripada (0→0,60, o sapato respira), 4 gavetas (0,60→1,00), nicho **aberto** de casacos (1,00→2,10) com 5 ganchos de latão a 1,75, maleiro fechado (2,10→teto). Puxadores redondos de latão |
 | `espelho` | Espelho de corpo inteiro, costas na parede **leste** (face p/ oeste): moldura fina de latão + vidro espelhado. `z3d` = base (0,30), `h3d` = altura (1,70) |
+| `portaChaves` | Porta-chaves de parede, costas na parede **oeste** (face p/ leste): plaquinha de madeira mel, 4 ganchinhos de latão e prateleirinha de 6 cm no topo. `z3d` = base |
 | `rack` | Rack baixo + pés + ranhura |
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
 | `fornoBancada` | Forno elétrico de bancada solto, frente p/ **norte**: corpo grafite, porta de vidro escuro com puxador, botões à direita. Base em `z3d` (tampo) |
@@ -951,6 +952,8 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   e maleiro fechado no topo. Capacho na frente da porta.
 - **Espelho de corpo inteiro** (`espelho`, 0,50 × 1,70, base 0,30) na parede leste, de frente para a porta de entrada.
 - **Luz própria:** plafon de rattan Ø 30 (`plafon`, base 2,60) no centro do hall, mesma família do da cozinha.
+- **Porta-chaves** (`portaChaves`, 0,30 × 0,18, base 1,40) na parede oeste, logo ao norte da porta (lado da fechadura).
+- Guarda-chuva fica na garagem (decisão do cliente).
 
 ### Lavanderia e despensa
 - **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).

@@ -18,7 +18,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 | Despensa (dormitório no V1/V2) | ✅ revisado | Despenseiro ao norte, freezer no canto sudoeste, forno e micro-ondas sob a janela sul, aéreo de panelas, coluna de limpeza, armário baixo a leste |
 | Lavanderia | ✅ revisado | Em C (lavadora, secadora, cuba), armários fechados, aéreo na parede oeste, varal de teto, tábua de passar rebatível |
 | Banho | ⏳ pendente | Azulejo, box, vaso e pia padrão; nunca organizado |
-| Hall de entrada | 🔶 em revisão | Armário de entrada no canto sul (sapateira aberta, gavetas, casacos abertos em ganchos, maleiro), decidido em 2026-11-26; espelho de corpo inteiro na parede leste |
+| Hall de entrada | ✅ revisado | Armário de entrada no canto sul (sapateira aberta, gavetas, casacos abertos em ganchos, maleiro), espelho de corpo inteiro na parede leste, plafon de rattan Ø 30, porta-chaves junto da fechadura; guarda-chuva fica na garagem. Falta definir o interfone e o quadro de luz |
 
 ## Térreo — garagem
 
