@@ -411,7 +411,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `dishwasher` | Lava-louças de embutir sob a bancada, frente p/ **sul**: corpo + porta inox + faixa de comando + puxador + tampo contínuo. |
 | `counter` | Bancada segmentada: abre vãos p/ `stove`, `sink` e `dishwasher` via `model`. **Recebe `model` como 3º arg.** Recortes são **clampados ao próprio vão** (ignora fogão/pia fora do range da bancada — necessário p/ a península não vazar segmentos). |
 | `lavatory` | Lavatório + cuba + torneira |
-| `shower` | Box: base + 2 vidros sem sombra + ducha |
+| `shower` | Box: base + 2 vidros sem sombra + ducha. `acab3d: 'teto'` = box de parede a parede **até o teto** (2,69): painel fixo a leste + folha de correr a oeste, perfis de latão, ducha de teto (banho do térreo) |
 | `toilet` | Vaso: bacia + assento + caixa acoplada |
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
@@ -954,6 +954,11 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 - **Luz própria:** plafon de rattan Ø 30 (`plafon`, base 2,60) no centro do hall, mesma família do da cozinha.
 - **Porta-chaves** (`portaChaves`, 0,30 × 0,18, base 1,40) na parede oeste, logo ao norte da porta (lado da fechadura).
 - Guarda-chuva fica na garagem (decisão do cliente).
+
+### Banho do térreo (V1/V2/V3) — em revisão
+- **Box até o teto** (`shower` com `acab3d: 'teto'`, pedido do cliente: o vapor não passa para o resto do banho), de parede a
+  parede, 0,80 de fundo. Frente: fixo a leste (lado do vaso) + folha de correr a oeste (entrada pelo lado livre). A janela
+  (peitoril 1,50) fica dentro do box e faz a exaustão do vapor. Perfis em latão escovado.
 
 ### Lavanderia e despensa
 - **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).

@@ -2403,7 +2403,7 @@
 
             // ─── BANHO 1,30 × 2,50 m (A01) ───
             // Box: limite norte provisório, na linha fina da prancha (M5, a confirmar com a arquiteta)
-            lys.push(BAN.rect(0.075, 0.075, 0.8, 1.3, '#eff6ff', { color: '#3b82f6', weight: 1, dashArray: '3 2', h3d: 1.90, m3d: 'shower' }));
+            lys.push(BAN.rect(0.075, 0.075, 0.8, 1.3, '#eff6ff', { color: '#3b82f6', weight: 1, dashArray: '3 2', h3d: 2.69, m3d: 'shower', acab3d: 'teto' }));   // box até o teto
             lys.push(BAN.circ(0.475, 0.725, 0.07, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(BAN.circ(0.475, 0.725, 0.025, '#475569', { color: '#1e293b', weight: 0.3, no3d: true }));
             // Vaso: parede leste, virado para oeste
@@ -3927,6 +3927,20 @@
             const glass = fmat('#cfe3ee', { transparent: true, opacity: 0.22, roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
             glass.userData.foto = 'vidro';
             fbox(g, s.n, s.e, s.dn, s.de, 0, 0.05, '#cfd6da', { roughness: 0.4 });   // base
+            if (s.acab3d === 'teto') {
+                // Box de parede a parede, fechado até o teto (o vapor não sai para o resto do banho; a janela fica
+                // dentro do box e faz a exaustão). Frente norte: painel fixo a leste (lado do vaso) + folha de correr
+                // a oeste, 3 cm para dentro; perfis finos de latão no piso, no teto e nas pontas.
+                const H = 2.69, F = s.n + s.dn, meio = s.e + s.de / 2, L = LATAO();
+                fbox(g, F - 0.02, meio - 0.05, 0.01, s.e + s.de - meio + 0.05, 0.05, H - 0.03, glass).castShadow = false;   // fixo (leste)
+                fbox(g, F - 0.05, s.e + 0.02, 0.01, s.de / 2 + 0.03, 0.06, H - 0.03, glass).castShadow = false;            // folha de correr (oeste)
+                fbox(g, F - 0.06, s.e, 0.06, s.de, H - 0.03, H, COR_INT.latao, L);                                          // trilho no teto
+                fbox(g, F - 0.06, s.e, 0.06, s.de, 0.05, 0.065, COR_INT.latao, L);                                          // guia no piso
+                [s.e, s.e + s.de - 0.015].forEach(e => fbox(g, F - 0.06, e, 0.06, 0.015, 0.05, H, COR_INT.latao, L));      // perfis nas paredes
+                fbox(g, F - 0.07, s.e + s.de / 2 - 0.03, 0.015, 0.015, 0.95, 1.25, COR_INT.latao, L);                       // puxador da folha
+                fcyl(g, s.n + s.dn / 2, s.e + s.de / 2, 0.11, H - 0.02, H, '#c7a36a', L);                                   // ducha de teto
+                return;
+            }
             fbox(g, s.n + s.dn - 0.02, s.e, 0.02, s.de, 0.05, s.h, glass).castShadow = false;  // vidro norte
             fbox(g, s.n, s.e, s.dn, 0.02, 0.05, s.h, glass).castShadow = false;                // vidro oeste
             fbox(g, s.n + s.dn - 0.18, s.e + 0.10, 0.16, 0.16, s.h - 0.05, s.h - 0.02, '#cccfd3', { metalness: 0.6 }); // ducha
