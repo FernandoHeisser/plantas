@@ -950,6 +950,7 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   gavetas no meio, casacos à vista em ganchos de latão (também aberto, pedido do cliente; 0,40 de fundo não comporta cabide)
   e maleiro fechado no topo. Capacho na frente da porta.
 - **Espelho de corpo inteiro** (`espelho`, 0,50 × 1,70, base 0,30) na parede leste, de frente para a porta de entrada.
+- **Luz própria:** plafon de rattan Ø 30 (`plafon`, base 2,60) no centro do hall, mesma família do da cozinha.
 
 ### Lavanderia e despensa
 - **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).
