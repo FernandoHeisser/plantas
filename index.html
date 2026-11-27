@@ -2411,7 +2411,7 @@
             lys.push(BAN.rect(1.085, 0.705, 0.37, 0.67, '#ffffff', { color: '#475569', weight: 0.8, h3d: 0.40, m3d: 'toilet' })); // bacia
             lys.push(BAN.circ(1.27, 0.955, 0.12, '#f8fafc', { color: '#475569', weight: 0.5, no3d: true })); // tampa
             // Lavatório: canto nordeste, encostado na parede leste
-            lys.push(BAN.rect(1.675, 0.925, 0.9, 0.45, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.85, m3d: 'lavatory' }));
+            lys.push(BAN.rect(1.675, 0.925, 0.9, 0.45, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'lavatory', acab3d: 'pedra' }));   // bancada de pedra suspensa, cuba esculpida
             lys.push(BAN.rect(1.945, 1.005, 0.36, 0.25, '#dbeafe', { color: '#475569', weight: 0.4, no3d: true }));
 
             if (!V3) {
@@ -3916,6 +3916,21 @@
         },
         // Lavatório — gabinete + cuba + torneira
         lavatory(g, s) {
+            if (s.acab3d === 'pedra') {
+                // Bancada de pedra suspensa, costas na parede LESTE (frente p/ oeste), sem gabinete: nada que estrague
+                // com água, piso livre embaixo para lavar com mangueira. Cuba esculpida na própria pedra (sem emenda),
+                // torneira de parede e sifão aparente em latão. Topo em s.h.
+                const H = s.h || 0.90, W = s.e + s.de, PED = COR_INT.quartzo, L = LATAO();
+                fbox(g, s.n, s.e, s.dn, s.de, H - 0.04, H, PED, { roughness: 0.3 });                                   // tampo
+                fbox(g, s.n, s.e - 0.02, s.dn, 0.02, H - 0.14, H, PED, { roughness: 0.3 });                             // saia frontal
+                fbox(g, s.n + 0.16, s.e + 0.06, s.dn - 0.32, s.de - 0.16, H - 0.12, H - 0.04, PED, { roughness: 0.3 }); // corpo da cuba esculpida
+                fbox(g, s.n + 0.18, s.e + 0.08, s.dn - 0.36, s.de - 0.20, H - 0.035, H + 0.001, '#cfc4ae', { roughness: 0.35 });  // fundo rebaixado (lê como cavidade)
+                fbox(g, s.n + s.dn / 2 - 0.015, W - 0.16, 0.03, 0.16, H + 0.20, H + 0.225, COR_INT.latao, L);          // bica da torneira de parede
+                fcyl(g, s.n + s.dn / 2 + 0.09, W - 0.03, 0.02, H + 0.19, H + 0.25, COR_INT.latao, L);                  // registro
+                fcyl(g, s.n + s.dn / 2, s.e + s.de / 2, 0.02, H - 0.40, H - 0.12, COR_INT.latao, L);                   // sifão
+                fbox(g, s.n + s.dn / 2 - 0.02, s.e + s.de / 2, 0.04, W - s.e - s.de / 2, H - 0.42, H - 0.38, COR_INT.latao, L);   // saída na parede
+                return;
+            }
             fbox(g, s.n, s.e, s.dn, s.de, 0, s.h - 0.06, '#e8e4da');
             fbox(g, s.n - 0.02, s.e - 0.02, s.dn + 0.04, s.de + 0.04, s.h - 0.06, s.h, '#ffffff', { roughness: 0.3 });
             fbox(g, s.n + 0.05, s.e + 0.06, s.dn - 0.10, s.de - 0.14, s.h - 0.05, s.h, '#dfe7ee', { roughness: 0.2 });
