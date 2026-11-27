@@ -2803,7 +2803,7 @@
         { axis:'EW', pos:4.45,  a0:18.35, a1:19.05, leaves:[{hn:4.45, he:18.35, dn:0, de:0.70, sw:-1}] },   // banheiro (pela rouparia)
         // Casa
         { axis:'NS', pos:EIXO.BANHO, a0:6.85, a1:7.65, leaves:[{hn:7.65, he:EIXO.BANHO, dn:-0.80, de:0, sw:+1}] },   // suíte, na ponta norte (cama na parede sul)
-        { axis:'EW', pos:EIXO.LONG,  a0:29.00, a1:29.80, leaves:[{hn:EIXO.LONG, he:29.80, dn:0, de:-0.80, sw:+1}] }, // suíte → closet
+        { axis:'EW', pos:EIXO.LONG,  a0:29.00, a1:29.80, leaves:[{hn:EIXO.LONG, he:29.80, dn:0, de:-0.80, sw:-1}] }, // suíte → closet (abre p/ a suíte: no closet bateria no roupeiro leste)
         { axis:'NS', pos:28.10, a0:3.25, a1:3.95, leaves:[{hn:3.95, he:28.10, dn:-0.70, de:0, sw:-1}] },              // closet → banho da suíte (ao norte do box, que vai de parede a parede)
     ];
 
@@ -2866,12 +2866,15 @@
             p(rect(7.06, fL - 0.14, 0.40, 0.12, BLK, o(sC, { rot3d: 90 })));             // leste, maço norte
             p(rect(4.95, fL - 0.14, 0.45, 0.12, BLK, o(sC, { rot3d: 90 })));             // leste, maço sul
         }
-        // Closet (2,30 × 2,50, sem janela): roupeiros fechados até o teto em L. Parede sul inteira (2,30, frente p/ norte) e
-        // parede leste de 3,35 até a parede norte (1,30, frente p/ oeste), deixando 0,60 livres diante do canto para as portas
-        // do sul abrirem (o cliente não quer canto morto). Espelho de corpo inteiro numa porta do roupeiro leste (pedido do
-        // cliente: no próprio armário, para ganhar espaço). Livres: o giro da porta da suíte e o acesso ao banho (parede oeste).
-        p(rect(2.16, 28.16, 0.60, 2.28, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'N' })));
-        p(rect(3.36, 29.84, 1.28, 0.60, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'O e1' })));
+        // Closet (2,30 × 2,50, sem janela): roupeiros fechados até o teto em L, nas paredes sul e leste inteiras, com módulo de
+        // canto de porta em L (abre o canto todo; sem canto morto). Espelho de corpo inteiro numa porta do roupeiro leste (pedido
+        // do cliente: no próprio armário, para ganhar espaço). Na parede norte, a oeste da porta da suíte (que abre para a suíte,
+        // sem bater nos armários): banco estofado com sapateira aberta embaixo (sentar para calçar; pedido do cliente). A parede
+        // oeste fica livre: passagem da suíte para o banho. Meio livre de 1,40.
+        p(rect(2.16, 28.16, 0.59, 1.69, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'N' })));        // sul, 1,70
+        p(rect(2.16, 29.85, 0.59, 0.59, ARM, o(sArm, { h3d: CEIL3D })));                                         // canto (porta em L)
+        p(rect(2.75, 29.85, 1.89, 0.59, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'O e1' })));      // leste, 1,90
+        p(rect(4.19, 28.16, 0.45, 0.83, ARM, o(sArm, { h3d: 0.46, m3d: 'bancoSapateira' })));                  // banco + sapateira
         // Banho da suíte (2,65 × 2,50): mesmas regras do banho de baixo (tudo pode molhar; só pedra, louça, vidro e metal), mas
         // neutro: porcelanato off-white fosco até o teto e metais de cobre escovado fosco (pedido do cliente: nada dourado nem
         // brilhante). Box até o teto na metade oeste da parede sul (1,30 × 1,00, da parede oeste ao pilar P6; a lateral de vidro fica sob a
@@ -3711,6 +3714,18 @@
         // embaixo sapateira ABERTA e ripada (0 → 0,60: uso diário, o sapato respira), 4 gavetas (0,60 → 1,00),
         // nicho ABERTO de casacos (1,00 → 2,10) com 5 ganchos de latão no fundo (0,40 de fundo não comporta cabide)
         // e maleiro fechado no topo (2,10 → teto). Puxadores redondos de latão.
+        // Banco do closet: costas na parede NORTE, frente p/ sul. Caixa na cor do armário, assento estofado de linho areia e
+        // sapateira aberta ripada embaixo (2 prateleiras; o sapato respira). h3d = altura do assento.
+        bancoSapateira(g, s) {
+            const H = s.h || 0.46, T = 0.02, cor = fmat(s.color || '#efece6', { roughness: 0.6 }), tec = fmat('#b9a98c', { roughness: 0.95 });
+            tec.userData.foto = 'tecido';
+            fbox(g, s.n, s.e, s.dn, T, 0, H - 0.08, cor); fbox(g, s.n, s.e + s.de - T, s.dn, T, 0, H - 0.08, cor);   // laterais
+            fbox(g, s.n + s.dn - T, s.e + T, T, s.de - 2 * T, 0, H - 0.08, cor);                                     // fundo
+            fbox(g, s.n, s.e, s.dn, s.de, H - 0.10, H - 0.08, cor);                                                  // tampo
+            [0.03, 0.20].forEach(z => { for (let i = 0; i < 5; i++)                                                  // prateleiras ripadas
+                fbox(g, s.n + 0.02 + i * 0.083, s.e + T, 0.06, s.de - 2 * T, z, z + 0.018, cor); });
+            fbox(g, s.n + 0.01, s.e + 0.01, s.dn - 0.02, s.de - 0.02, H - 0.08, H, tec);                           // assento estofado
+        },
         armEntrada(g, s) {
             const H = s.h || 2.69, F = s.n + s.dn, Z1 = 0.60, Z2 = 1.00, Z3 = 2.10, T = 0.018, G = 0.003;
             const mad = fmat(COR_INT.madeira, { roughness: 0.55 }), fundo = fmat('#6f5530', { roughness: 0.7 });

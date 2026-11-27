@@ -398,6 +398,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `puff` | Puff de apoio dos pés: bloco estofado sobre pés baixos. `h3d` = altura (0,42). Cor em `s.color` |
 | `mesaLateral` | Mesa lateral redonda com abajur de linho (usar com `circ`: `r` = raio do tampo, `h3d` = altura do tampo) |
 | `roupeiro` | Roupeiro de closet até o teto: portas de giro de ~0,50 (rodapé → 2,18) + maleiro (2,20 → teto), puxadores verticais de latão. `acab3d` = lado da frente (`'N'`/`'S'`/`'O'`/`'L'`) + opcional `e<i>` = porta i com espelho de corpo inteiro (ex.: `'O e1'`) |
+| `bancoSapateira` | Banco do closet, costas na parede **norte** (frente p/ sul): caixa na cor do armário, assento estofado de linho areia e sapateira aberta ripada embaixo (2 prateleiras). `h3d` = altura do assento |
 | `boxSuite` | Box até o teto encostado na parede sul (com misturador, ducha de mão em barra deslizante e nicho embutido com prateleira de pedra na parede oeste, dentro do box): frente norte (fixo a oeste + folha de correr a leste) + lateral fixa a leste, perfis e ducha no metal do banho (`acab3d: 'cobre'`). `parede` = de parede a parede (sem lateral); `inv` = folha de correr a oeste; `viga` = lateral só até o fundo da viga do teto (2,25) |
 | `revest` | Revestimento de parede: painel de 8 mm em porcelanato off-white fosco 60 × 30 deitado, rejunte aparente (`texPorcelanato`), UV em tamanho real, `polygonOffset` negativo (vence a parede coplanar). **Passar `h3d`** (sem ele o rect vale 0,45); `z3d`/`h3d` para recortes de vãos |
 | `acessVaso` | Porta-papel + ducha higiênica de parede, costas na parede **oeste**, no metal do banho (`acab3d: 'cobre'`) |
@@ -1339,10 +1340,13 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   **Canto do cuidado** junto da janela leste: **poltrona de braços verde-oliva + puff** na frente para apoiar o pé (cortar as unhas,
   passar creme; pedido do cliente, que preferiu isso à chaise), olhando para o norte com a luz da manhã de lado, ao norte da área de
   acesso à porta do closet; mesa lateral com abajur (`mesaLateral`) a oeste da poltrona.
-- **Closet** (2,30 × 2,50, sem janela): roupeiros fechados até o teto em L (`roupeiro`): parede sul inteira (2,28, frente p/ norte)
-  e parede leste de mN 3,36 à parede norte (1,28, frente p/ oeste). Os 0,60 diante do canto ficam livres para as portas do sul
-  abrirem (sem canto morto). **Espelho de corpo inteiro na porta do meio do roupeiro leste** (pedido do cliente: no próprio
-  armário, para ganhar espaço). Livres: o giro da porta da suíte e o acesso ao banho da suíte (parede oeste).
+- **Closet** (2,30 × 2,50, sem janela; revisado a pedido do cliente: antes a porta da suíte batia no roupeiro leste e
+  sobrava um canto vazio): roupeiros fechados até o teto em L nas **paredes sul (1,70, frente p/ norte) e leste inteiras
+  (1,90, frente p/ oeste)**, com **módulo de canto de porta em L** (abre o canto todo; no 3D é a caixa cheia do canto).
+  ~5 m de armário (antes 3,56). **Espelho de corpo inteiro numa porta do roupeiro leste** (pedido do cliente: no próprio
+  armário). **Banco estofado com sapateira aberta embaixo** na parede norte, a oeste da porta (`bancoSapateira`, 0,83 × 0,45,
+  assento a 0,46; pedido do cliente: sentar para calçar). **A porta da suíte abre para a suíte.** Parede oeste livre (porta do
+  banho) e 1,40 livres no meio.
 - **Banho da suíte** (2,65 × 2,50) — mesmas regras do banho de baixo (tudo pode molhar; só pedra, louça, vidro e metal), mas
   **neutro**: porcelanato off-white fosco 60 × 30 deitado até o teto nas 4 paredes e nos pilares aparentes (`revest`) e **metais de cobre escovado fosco**
   (`COBRE`/`COBRE_M`, `metalBanho`; pedido do cliente: nada dourado nem brilhante). **Box até o teto na metade oeste** da parede sul
