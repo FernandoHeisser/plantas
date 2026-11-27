@@ -386,13 +386,17 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `rug` | Tapete plano fosco (respeita `z3d`); `acab3d: 'la'` = lã de trama grossa (`texLa`) com borda |
 | `tv` | TV fina, tela desligada com reflexo. Altura 16:9 a partir da largura (`dn`), base em `z3d` (padrão 0,80). Sala: 55" (1,23 m) |
 | `cortina` | Cortina de linho aberta (maço franzido): plano ondulado do piso a `h3d`, ondas ao longo de mE, trilho embutido no forro. Marcada `foto: 'tecido'` |
-| `arandela` | Arandela (usar com `circ`: centro da cúpula, `r`, `z3d`, `h3d`): espelho e braço de latão saindo da parede **oeste** + cúpula de linho com difusor quente |
+| `arandela` | Arandela (usar com `circ`: centro da cúpula, `r`, `z3d`, `h3d`): espelho e braço de latão saindo da parede + cúpula de linho com difusor quente. `acab3d` = lado da parede: `'O'` (padrão), `'L'`, `'S'`, `'N'` |
+| `luzEspelho` | Barra de luz neutra cromada sobre o espelho do banho, costas na parede **leste** (sobre o azulejo). `z3d` = base |
 | `painelTV` | Painel ripado de madeira mel do piso ao teto (ripas de 4 cm, vão de 2 cm, chapa escura atrás), face p/ leste |
 | `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
 | `armEntrada` | Armário de entrada do hall, costas na parede sul, frente p/ **norte**, madeira mel até o teto: sapateira **aberta** ripada (0→0,60, o sapato respira), 4 gavetas (0,60→1,00), nicho **aberto** de casacos (1,00→2,10) com 5 ganchos de latão a 1,75, maleiro fechado (2,10→teto). Puxadores redondos de latão |
 | `espelho` | Espelho de corpo inteiro, costas na parede **leste** (face p/ oeste): moldura fina de latão + vidro espelhado. `z3d` = base (0,30), `h3d` = altura (1,70). `acab3d: 'bisote'` = colado sobre o azulejo, sem moldura, borda bisotada (banho) |
 | `portaChaves` | Porta-chaves de parede, costas na parede **oeste** (face p/ leste): plaquinha de madeira mel, 4 ganchinhos de latão e prateleirinha de 6 cm no topo. `z3d` = base |
 | `toalheiro` | Toalheiro de barra cromado com toalha pendurada, costas na parede **oeste** (face p/ leste), sobre o azulejo. `z3d` = altura da barra |
+| `poltrona` | Poltrona de braços estofada sobre pés de madeira, encosto na ponta **sul** (`s.n`, olha p/ o norte), almofada de apoio. Cor em `s.color` |
+| `puff` | Puff de apoio dos pés: bloco estofado sobre pés baixos. `h3d` = altura (0,42). Cor em `s.color` |
+| `mesaLateral` | Mesa lateral redonda com abajur de linho (usar com `circ`: `r` = raio do tampo, `h3d` = altura do tampo) |
 | `rack` | Rack baixo + pés + ranhura |
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
 | `fornoBancada` | Forno elétrico de bancada solto, frente p/ **norte**: corpo grafite, porta de vidro escuro com puxador, botões à direita. Base em `z3d` (tampo) |
@@ -422,7 +426,8 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
 | `benchcorner` | Canto alemão: banco em **L** (assento 0→0,45 + encosto 0,45→0,85). Driver = **bbox do L** (rect transparente no 2D); encostos na face **N + L** (mN/mE altos). Bancos visíveis no 2D são `rect{no3d:true}` separados. |
-| `plafon` | Plafon de rattan rente ao teto (usar com `circ`: `r`, `z3d` = base, `h3d` = altura): tambor trançado + difusor quente + canopla de latão |
+| `plafon` | Plafon de rattan rente ao teto (usar com `circ`: `r`, `z3d` = base, `h3d` = altura): tambor trançado + difusor quente + canopla de latão. **Hoje sem uso** (saiu pela regra de iluminação) |
+| `luzTeto` | Luz de teto de embutir (usar com `circ`: `r`): aro branco rente ao forro + difusor. `acab3d` = `'fria'` (limpeza, padrão) ou `'neutra'` (banheiros e closet); cores em `LUZ` |
 | `wallcab` | Armário **aéreo**, frente p/ **SUL** (costas na parede norte). Carcaça + porta + fenda central + puxadores na base. Usa `z3d` (base) + `h3d`. |
 | `wallcabW` | Armário **aéreo**, frente p/ **OESTE** (costas na parede leste, mE=s.e+s.de). `wallcab` espelhado — usado na coluna da geladeira. |
 | `wardrobeE` | Guarda-roupa com portas voltadas p/ **LESTE** (costas na parede oeste). Espelho do `wardrobe` — usado no quarto (parede oeste mE=28,5). |
@@ -927,8 +932,8 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   base **MDF Mint** (Duratex), aéreos claros (`COR_INT.aereo`), bancada em **quartzo creme**, **península com tampo
   único de madeira mel** (cobre o balanço; o `balcao` do balanço usa `acab3d: 'semTampo'`), puxadores redondos e
   **torneira gourmet de latão**. Peças sem `acab3d` (lavanderia, despensa, 2º piso) mantêm as cores neutras.
-- **Luz caseira na cozinha** (o cliente achou o trilho com spots "cara de estúdio"): **plafon de rattan** Ø 45
-  (`plafon`, `texRattan`) no centro do teto da cozinha + **spots redondos de embutir sob os aéreos** (Ø 6,4 cm, um a cada ~0,60 m, `acab3d: 'cozSpot'` no `wallcab`/`wallcabW`,
+- **Luz na cozinha** (o cliente achou o trilho com spots "cara de estúdio"): **luz de limpeza fria de embutir** no centro do teto
+  (`luzTeto`; antes um plafon de rattan, trocado pela regra de iluminação) + **spots redondos de embutir sob os aéreos** em luz neutra (Ø 6,4 cm, um a cada ~0,60 m, `acab3d: 'cozSpot'` no `wallcab`/`wallcabW`,
   helper `spotsSobAereo`) sobre a bancada norte e o balcão leste; sobre a geladeira, não. **Sem fita de LED** em lugar nenhum:
   o cliente acha que deixa a casa com cara de shopping ou consultório.
 - **Sofá caramelo/conhaque** em tecido impermeável (`COR_INT.sofa`; o cliente não quer sofá claro por causa de
@@ -946,13 +951,25 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   em 3 maços: oeste da porta, entre a porta e a janela, leste da janela. A luminária de tripé saiu (o canto noroeste é da cortina).
 - Fora por decisão do cliente: prateleira aberta com potes e estante de livros (juntam poeira).
 
+### Iluminação — regra do cliente (todos os ambientes, V1/V2/V3)
+- **Limpeza:** luz de teto **direta, forte e fria** (6500 K, `LUZ.fria`), uma luminária lisa de embutir no forro por ambiente
+  (`luzTeto`). Substituiu os plafons de rattan da cozinha e do hall.
+- **Dia a dia:** luz **indireta e quente** (2700 K, `LUZ.quente`): arandelas, abajures, luminárias de chão. Sem fita de LED.
+- **Exceções, luz neutra** (4000 K, `LUZ.neutra`, cor real): spots de preparo sob os aéreos da cozinha (`SPOT_LUZ`), teto e
+  espelho dos banheiros, e o closet (ver a cor da roupa).
+- **Luzes quentes já postas:** arandelas da sala (TV), do hall (parede leste, entre o armário e o espelho), da suíte e do
+  quarto 1 (sobre os criados), do quarto 2 (cabeceira a oeste), do estar do 2º (dos dois lados da TV) e do escritório; abajur
+  da mesa lateral da suíte. **Neutra:** barra sobre o espelho do banho do térreo (`luzEspelho`).
+- Áreas de serviço (lavanderia, despensa, rouparia, corredor) só têm a luz de teto. Os banheiros do 2º piso ganham a luz do
+  espelho quando forem revisados.
+
 ### Hall de entrada (V1/V2/V3)
 - **Armário de entrada** (`armEntrada`, 1,14 × 0,40, até o teto) no canto sul, atrás da porta aberta (a folha para em mN 2,97;
   sobram 0,42 até a frente do armário). Sapateira aberta embaixo (pedido do cliente: uso diário e o sapato precisa respirar),
   gavetas no meio, casacos à vista em ganchos de latão (também aberto, pedido do cliente; 0,40 de fundo não comporta cabide)
   e maleiro fechado no topo. Capacho na frente da porta.
 - **Espelho de corpo inteiro** (`espelho`, 0,50 × 1,70, base 0,30) na parede leste, de frente para a porta de entrada.
-- **Luz própria:** plafon de rattan Ø 30 (`plafon`, base 2,60) no centro do hall, mesma família do da cozinha.
+- **Luz própria:** luz de limpeza fria de embutir no centro do teto (`luzTeto`; antes era um plafon de rattan).
 - **Porta-chaves** (`portaChaves`, 0,30 × 0,18, base 1,40) na parede oeste, logo ao norte da porta (lado da fechadura).
 - Guarda-chuva fica na garagem (decisão do cliente).
 
@@ -1312,6 +1329,12 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   só o banho da suíte fica em 1,20 (entre os pilares P8 e P6). Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
   **Estilo padrão** = grade de caixilho (`winGrid` no `winWall`), cor `matFrame`, igual ao térreo.
 - **Móveis** em `f2Moveis()` (fonte única 2D + 3D, base no piso do 2º; `rot3d` gira o modelo).
+- **Suíte (em revisão):** cama **king** 1,93 × 2,03 (a maior possível, pedido do cliente) com a cabeceira na parede sul (lado do
+  banho e do closet, longe do barulho do cinema); o pé para em mN 6,84, fora do giro da porta. **Cortinas blackout** com face de
+  linho areia, do forro ao piso, nas 2 janelas (norte e leste), abertas em maços nas pontas (`cortina`; as do leste com `rot3d: 90`).
+  **Canto do cuidado** junto da janela leste: **poltrona de braços verde-oliva + puff** na frente para apoiar o pé (cortar as unhas,
+  passar creme; pedido do cliente, que preferiu isso à chaise), olhando para o norte com a luz da manhã de lado, ao norte da área de
+  acesso à porta do closet; mesa lateral com abajur (`mesaLateral`) a oeste da poltrona.
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 

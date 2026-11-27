@@ -32,7 +32,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 
 | Cômodo | Situação | O que já tem |
 |---|---|---|
-| Suíte | 🔶 esboço | Cama na parede sul, criados-mudos, poltrona junto da janela leste |
+| Suíte | 🔶 em revisão | Cama king na parede sul (longe do cinema), criados-mudos, cortinas blackout nas 2 janelas, poltrona com puff (apoio do pé para unhas e creme) e mesa lateral com abajur junto da janela leste (2026-11-27) |
 | Closet | 🔶 esboço | Armário na parede sul, gaveteiro na leste |
 | Banho da suíte | 🔶 esboço | Box, vaso e lavatório |
 | Estar (cinema / video game) | 🔶 esboço | TV na parede cega da junta, sofá, tapete, poltrona junto da janela sul |
@@ -66,4 +66,5 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 - Canto é ruim de tirar e pôr coisas: evitar armário de canto.
 - Sul frio e úmido: nada sensível (comida) nas paredes sul.
 - Banheiros: tudo pode molhar e ser lavado com água (só pedra, louça, vidro e metal).
+- Iluminação: teto forte e fria para limpeza + luz quente indireta (arandelas, abajures) para o dia a dia; neutra (4000 K) no preparo da cozinha, nos banheiros e no closet.
 - Portas de 0,70 a 0,80 m são confortáveis; janelas com no mínimo 1,50 m de largura.

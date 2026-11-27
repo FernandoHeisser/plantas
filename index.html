@@ -1865,7 +1865,10 @@
     const LATAO = () => ({ metalness: 0.85, roughness: 0.32 });
     const CROMO = '#d7dbde', CROMO_M = () => ({ metalness: 0.95, roughness: 0.12 });   // metais do banho (retrô, decisão do cliente)
     // Spots redondos de embutir sob os aéreos (luz da bancada; o cliente não gosta de fita de LED): Ø 6,4 cm, um a cada ~0,60 m
-    const SPOT_LUZ = () => ({ emissive: col3d('#ffd9a0'), emissiveIntensity: 1.0, roughness: 0.4 });
+    // Temperatura de cor por uso (regra do cliente, todos os ambientes): teto de limpeza = forte e FRIA (6500 K);
+    // conforto do dia a dia = indireta e QUENTE (2700 K); preparo na cozinha e banheiros = NEUTRA (4000 K, cor real).
+    const LUZ = { fria: '#e4eeff', neutra: '#fff6e8', quente: '#ffd9a0' };
+    const SPOT_LUZ = () => ({ emissive: col3d(LUZ.neutra), emissiveIntensity: 1.0, roughness: 0.4 });   // spots de preparo: neutros
     function spotsSobAereo(g, ini, len, put) {
         const n = Math.max(1, Math.round(len / 0.60));
         for (let i = 0; i < n; i++) put(ini + len * (i + 0.5) / n);
@@ -2415,6 +2418,8 @@
             lys.push(BAN.rect(1.675, 0.925, 0.9, 0.45, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'lavatory', acab3d: 'pedra' }));   // bancada de pedra suspensa, cuba esculpida
             // Toalheiro de barra cromado 0,60 na parede oeste, na saída do box e de frente para a pia (mãos e banho)
             lys.push(BAN.rect(1.00, 0.075, 0.60, 0.08, '#cbd5e1', { color: '#94a3b8', weight: 1, z3d: 1.20, h3d: 0.04, m3d: 'toalheiro' }));
+            // Luz do espelho (neutra, 4000 K): barra cromada sobre o espelho, para barbear e maquiar
+            lys.push(BAN.rect(1.775, 1.30, 0.70, 0.075, '#fff3d6', { color: '#94a3b8', weight: 0.8, z3d: 2.00, h3d: 0.05, m3d: 'luzEspelho' }));
             // Espelho bisotado 0,80 × 0,70 sobre a bancada (colado no azulejo, sem moldura: retrô anos 90/2000)
             lys.push(BAN.rect(1.725, 1.367, 0.80, 0.008, '#cbd5e1', { color: '#94a3b8', weight: 1.2, z3d: 1.25, h3d: 0.70, m3d: 'espelho', acab3d: 'bisote' }));
             lys.push(BAN.rect(1.945, 1.005, 0.36, 0.25, '#dbeafe', { color: '#475569', weight: 0.4, no3d: true }));
@@ -2545,7 +2550,7 @@
             lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcab', acab3d: 'cozSpot' })); // até o teto (2,69, sob o forro): menos poeira em cima; norte, do pilar até a parede leste (0,35 de profundidade), com spots embaixo
             lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira: 0,35 de 1,65 até o teto, igual aos demais aéreos
             // Luz caseira: plafon de rattan Ø 45 no centro do teto da cozinha (sem fita de LED: o cliente não gosta)
-            lys.push(COZ.circ(1.90, 2.05, 0.225, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.58, h3d: 0.12, m3d: 'plafon' }));
+            lys.push(COZ.circ(1.90, 2.05, 0.20, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));   // luz de limpeza fria no teto (regra do cliente)
             // Planejados: canto entre bancada e península com armário de canto (sem armário sobre a porta dos fundos).
             lys.push(L.polyline([COZ.rot(2.275, 0.175), COZ.rot(2.875, 0.875)], { color: '#6b7280', weight: 0.8, dashArray: '3 2', interactive: false })); // canto bancada × península: armário de canto (giratório)
             
@@ -2572,11 +2577,19 @@
             // Espelho de corpo inteiro 0,50 × 1,70 na parede leste (do banho), de frente para a porta de entrada
             lys.push(HAL.rect(1.10, 1.199, 0.50, 0.02, '#cbd5e1', { color: '#b89458', weight: 1.2, z3d: 0.30, h3d: 1.70, m3d: 'espelho' }));
             // Luz própria: plafon de rattan Ø 30 no centro do hall (mesma família do plafon da cozinha)
-            lys.push(HAL.circ(1.55, 0.65, 0.15, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.60, h3d: 0.09, m3d: 'plafon' }));
+            lys.push(HAL.circ(1.55, 0.65, 0.15, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));   // luz de limpeza fria no teto
             // Porta-chaves na parede oeste, ao norte da porta (lado da fechadura): pega a chave ao abrir
             lys.push(HAL.rect(2.05, 0.081, 0.30, 0.06, '#c9a46a', { color: '#5a4422', weight: 0.6, z3d: 1.40, h3d: 0.18, m3d: 'portaChaves' }));
+            // Luz quente do dia a dia (indireta): arandela de latão e linho na parede leste, entre o armário e o espelho
+            lys.push(HAL.circ(0.78, 1.02, 0.08, '#ead9b8', { color: '#8a6a3e', weight: 0.6, dashArray: '2 2', z3d: 1.75, h3d: 0.15, m3d: 'arandela', acab3d: 'L' }));
             // capacho
             lys.push(HAL.rect(0.925, 0.195, 0.8, 0.9, '#fde68a', { color: '#a16207', weight: 0.6, fillOpacity: 0.55, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
+
+            // ─── LUZ DE LIMPEZA NO TETO (regra do cliente): forte e fria; banho em neutra (4000 K) ───
+            lys.push(SAL.circ(1.45, 1.70, 0.20, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));
+            lys.push(QUA.circ(1.325, 1.875, 0.18, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));
+            lys.push(SER.circ(2.25, 0.90, 0.13, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));
+            lys.push(BAN.circ(1.60, 0.70, 0.13, '#fff3d6', { color: '#fcd34d', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto', acab3d: 'neutra' }));
 
             // ─── LABELS DOS CÔMODOS ──────────────────────────────────────────
             lys.push(BAN.rotulo(1.35, 0.85, 'Banho', '1,30 × 2,50 m', '3,25 m²'));
@@ -2809,12 +2822,46 @@
         const MAD = '#8a5a33', ARM = '#efece6', CAMA = '#c8b99a', LOU = '#ffffff';
         const sMad = { color: '#451a03', weight: 0.5 }, sArm = { color: '#78716c', weight: 0.6 }, sLou = { color: '#475569', weight: 0.6 };
         const o = (base, extra) => Object.assign({}, base, extra);
-        // Suíte: cama queen com a cabeceira na parede sul (porta na ponta norte da parede oeste),
-        // criados-mudos, poltrona junto da janela leste. A porta do closet fica livre a leste da cama.
-        p(rect(4.85, 26.10, 2.10, 1.58, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 180 })));
-        p(rect(4.85, 25.55, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
-        p(rect(4.85, 27.73, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
-        p(rect(6.30, 29.55, 0.80, 0.80, '#9a3412', o(sMad, { h3d: 0.45 })));
+        // Luz de limpeza no teto de cada ambiente (regra do cliente): forte e fria; banheiros e closet em neutra (4000 K)
+        {
+            const LT = o(sArm, { color: '#93c5fd', fillOpacity: 0.35, dashArray: '2 3', m3d: 'luzTeto' }), LN = o(LT, { color: '#fcd34d', acab3d: 'neutra' });
+            [[6.20, 27.90, 0.20], [3.40, 20.80, 0.18], [3.40, 23.90, 0.18], [6.20, 23.90, 0.18], [4.40, 15.05, 0.18],
+             [5.10, 17.90, 0.12], [6.30, 18.00, 0.12], [8.70, 15.50, 0.20], [9.10, 19.60, 0.20]]
+                .forEach(([n, e, r]) => p(circ(n, e, r, '#e0ecff', LT)));                          // suíte, estar (3), escritório, rouparia, corredor, quartos
+            [[3.45, 29.30, 0.15], [3.45, 26.70, 0.13], [3.20, 17.90, 0.13]]
+                .forEach(([n, e, r]) => p(circ(n, e, r, '#fff3d6', LN)));                          // closet, banho da suíte, banheiro
+        }
+        // Luz quente do dia a dia (indireta): arandelas de latão e linho (lado = parede em que ficam presas)
+        {
+            const AR = (lado, z) => o(sMad, { color: '#8a6a3e', dashArray: '2 2', z3d: z, h3d: 0.17, m3d: 'arandela', acab3d: lado });
+            [25.645, 28.085].forEach(e => p(circ(5.01, e, 0.09, '#ead9b8', AR('S', 1.15))));       // suíte: leitura, sobre os criados
+            [14.325, 16.455].forEach(e => p(circ(7.16, e, 0.09, '#ead9b8', AR('S', 1.15))));       // quarto 1: sobre os criados
+            [8.19, 10.20].forEach(n => p(circ(n, 17.76, 0.09, '#ead9b8', AR('O', 1.15))));        // quarto 2: cabeceira a oeste
+            [4.90, 6.70].forEach(n => p(circ(n, 22.86, 0.09, '#ead9b8', AR('O', 1.42))));         // estar: dos dois lados da TV
+            p(circ(3.00, 13.91, 0.09, '#ead9b8', AR('O', 1.60)));                                   // escritório: parede oeste
+        }
+        // Suíte: cama KING (1,93 × 2,03, a maior possível, pedido do cliente) com a cabeceira na parede sul (lado do banho
+        // e do closet, longe do barulho do cinema); o pé para em 6,84, fora do giro da porta (ponta norte da parede oeste).
+        // Criados-mudos dos dois lados, poltrona junto da janela leste. A porta do closet fica livre a leste.
+        p(rect(4.81, 25.90, 2.03, 1.93, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 180 })));
+        p(rect(4.85, 25.42, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        p(rect(4.85, 27.86, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        // Canto do cuidado junto da janela leste: poltrona de braços + puff na frente para apoiar o pé (cortar as unhas,
+        // passar creme; pedido do cliente). Quem senta olha para o norte com a luz da manhã de lado. Fica ao norte da
+        // área de acesso à porta do closet; a mesa lateral com abajur fica a oeste da poltrona.
+        p(rect(5.70, 29.45, 0.78, 0.80, '#7a7448', o(sMad, { h3d: 0.88, m3d: 'poltrona' })));
+        p(rect(6.60, 29.62, 0.45, 0.46, '#7a7448', o(sMad, { h3d: 0.42, m3d: 'puff' })));
+        p(circ(6.05, 29.17, 0.20, COR_INT.madeira, o(sMad, { h3d: 0.55, m3d: 'mesaLateral' })));
+        // Cortinas blackout com face de linho areia, do forro ao piso, nas 2 janelas da suíte (norte grande + leste, sol da
+        // manhã), abertas em maços nas pontas, num trilho embutido no forro. As do leste giram 90° (plano ao longo de mN).
+        {
+            const BLK = '#cdbb9c', sC = o(sArm, { color: '#8a7a62', h3d: CEIL3D - 0.02, m3d: 'cortina' });
+            const fN = F2_LINHA.N - F2_T_CASA / 2, fL = F2_LINHA.L - F2_T_CASA / 2;   // faces internas norte e leste
+            p(rect(fN - 0.14, 26.85, 0.12, 0.45, BLK, sC));                              // norte, maço oeste
+            p(rect(fN - 0.14, 29.83, 0.12, 0.45, BLK, sC));                              // norte, maço leste
+            p(rect(7.06, fL - 0.14, 0.40, 0.12, BLK, o(sC, { rot3d: 90 })));             // leste, maço norte
+            p(rect(4.95, fL - 0.14, 0.45, 0.12, BLK, o(sC, { rot3d: 90 })));             // leste, maço sul
+        }
         // Closet: armário na parede sul + gaveteiro baixo na leste
         p(rect(2.15, 28.20, 0.60, 2.30, ARM, o(sArm, { h3d: 2.30 })));
         p(rect(2.85, 29.95, 1.10, 0.55, ARM, o(sArm, { h3d: 0.90 })));
@@ -3509,14 +3556,29 @@
         // Arandela (usar com circ: centro da cúpula em n,e; r = raio): espelho e braço de latão saindo da parede OESTE
         // (mE = e − r − 0,12) + cúpula de linho com difusor quente — luz p/ cima e p/ baixo, sem ofuscar
         arandela(g, s) {
-            const z0 = s.z || 1.42, h = s.h || 0.17, r = s.r, zc = z0 + h / 2, eP = s.e - r - 0.12;
-            fbox(g, s.n - 0.04, eP, 0.08, 0.012, zc - 0.07, zc + 0.03, COR_INT.latao, LATAO());           // espelho
-            fbox(g, s.n - 0.007, eP, 0.014, s.e - eP, zc - 0.03, zc - 0.016, COR_INT.latao, LATAO());     // braço
+            // s.acab3d = lado da parede em que ela fica presa: 'O' (padrão), 'L', 'S' ou 'N'; o braço sai da parede até a cúpula
+            const z0 = s.z || 1.42, h = s.h || 0.17, r = s.r, zc = z0 + h / 2, D = r + 0.12, lado = s.acab3d || 'O', L = LATAO();
+            if (lado === 'O' || lado === 'L') {
+                const eP = lado === 'O' ? s.e - D : s.e + D - 0.012, a0 = Math.min(eP, s.e), a1 = Math.max(eP + 0.012, s.e);
+                fbox(g, s.n - 0.04, eP, 0.08, 0.012, zc - 0.07, zc + 0.03, COR_INT.latao, L);                // espelho
+                fbox(g, s.n - 0.007, a0, 0.014, a1 - a0, zc - 0.03, zc - 0.016, COR_INT.latao, L);           // braço
+            } else {
+                const nP = lado === 'S' ? s.n - D : s.n + D - 0.012, a0 = Math.min(nP, s.n), a1 = Math.max(nP + 0.012, s.n);
+                fbox(g, nP, s.e - 0.04, 0.012, 0.08, zc - 0.07, zc + 0.03, COR_INT.latao, L);
+                fbox(g, a0, s.e - 0.007, a1 - a0, 0.014, zc - 0.03, zc - 0.016, COR_INT.latao, L);
+            }
             const linho = new THREE.MeshStandardMaterial({ color: col3d('#efe3cb'), roughness: 0.95, side: THREE.DoubleSide,
-                emissive: col3d('#ffd9a0'), emissiveIntensity: 0.35 });
+                emissive: col3d(LUZ.quente), emissiveIntensity: 0.35 });
             const cup = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.85, r, h, 32, 1, true), linho);
             cup.position.set(s.e, zc, -s.n); cup.castShadow = true; g.add(cup);
-            fcyl(g, s.n, s.e, 0.006, zc - 0.03, zc, COR_INT.latao, LATAO());                              // haste do soquete
+            fcyl(g, s.n, s.e, 0.006, zc - 0.03, zc, COR_INT.latao, L);                                       // haste do soquete
+        },
+        // Luz do espelho do banho (neutra, 4000 K): barra fina de luz sobre o espelho, costas na parede LESTE (sobre o azulejo)
+        luzEspelho(g, s) {
+            const W = s.e + s.de - 0.009, z0 = s.z || 2.00;
+            fbox(g, s.n, W - 0.05, s.dn, 0.05, z0, z0 + 0.05, CROMO, CROMO_M());                                // corpo cromado
+            fbox(g, s.n + 0.01, W - 0.052, s.dn - 0.02, 0.004, z0 + 0.008, z0 + 0.042, LUZ.neutra,
+                 { emissive: col3d(LUZ.neutra), emissiveIntensity: 0.9, roughness: 0.5 });                    // difusor
         },
         // Painel ripado da TV — chapa de madeira + ripas verticais (4 cm, vão de 2 cm), do piso ao teto; face p/ LESTE
         painelTV(g, s) {
@@ -3616,6 +3678,39 @@
             [s.n + 0.02, s.n + s.dn - 0.04].forEach(n => fbox(g, n, E, 0.02, 0.07, z - 0.02, z + 0.02, CROMO, M));   // suportes
             fbox(g, s.n, E + 0.055, s.dn, 0.016, z - 0.008, z + 0.008, CROMO, M);                                   // barra
             fbox(g, s.n + 0.10, E + 0.045, s.dn - 0.20, 0.035, z - 0.50, z + 0.01, '#9fc3dc', { roughness: 0.95 });   // toalha azul-clara
+        },
+        // Poltrona de braços estofada, encosto na ponta SUL (s.n), quem senta olha para o norte. Cor em s.color.
+        poltrona(g, s) {
+            const C = s.color || '#7a7448', A = { roughness: 0.9 }, esc = '#5a4a36', B = 0.12;
+            [[0.06, 0.06], [0.06, s.de - 0.08], [s.dn - 0.08, 0.06], [s.dn - 0.08, s.de - 0.08]]
+                .forEach(([dn, de]) => fcyl(g, s.n + dn, s.e + de, 0.018, 0, 0.14, esc));                   // pés de madeira
+            fbox(g, s.n, s.e, s.dn, s.de, 0.14, 0.30, C, A);                                                 // base
+            fbox(g, s.n + 0.16, s.e + B, s.dn - 0.18, s.de - 2 * B, 0.30, 0.44, C, A);                       // almofada do assento
+            fbox(g, s.n, s.e, 0.16, s.de, 0.30, 0.88, C, A);                                                 // encosto
+            [s.e, s.e + s.de - B].forEach(e => fbox(g, s.n, e, s.dn, B, 0.30, 0.62, C, A));                  // braços
+            fbox(g, s.n + 0.16, s.e + 0.22, 0.10, s.de - 0.44, 0.50, 0.70, '#e3d5bd', A);                    // almofada de apoio (areia)
+        },
+        // Puff (apoio dos pés): bloco estofado sobre pés baixos, tampo levemente abaulado. Cor em s.color.
+        puff(g, s) {
+            const C = s.color || '#7a7448', A = { roughness: 0.9 };
+            [[0.05, 0.05], [0.05, s.de - 0.07], [s.dn - 0.07, 0.05], [s.dn - 0.07, s.de - 0.07]]
+                .forEach(([dn, de]) => fcyl(g, s.n + dn, s.e + de, 0.015, 0, 0.08, '#5a4a36'));
+            fbox(g, s.n, s.e, s.dn, s.de, 0.08, (s.h || 0.42) - 0.03, C, A);
+            fbox(g, s.n + 0.02, s.e + 0.02, s.dn - 0.04, s.de - 0.04, (s.h || 0.42) - 0.03, s.h || 0.42, C, A);
+        },
+        // Mesa lateral redonda com abajur (usar com circ: centro, r = raio do tampo): pé central, tampo de madeira,
+        // abajur de cúpula de linho com luz quente para leitura.
+        mesaLateral(g, s) {
+            const H = s.h || 0.55, mad = fmat(COR_INT.madeira, { roughness: 0.55 });
+            fcyl(g, s.n, s.e, s.r * 0.55, 0, 0.02, mad);                                                     // base
+            fcyl(g, s.n, s.e, 0.025, 0.02, H - 0.025, mad);                                                  // pé
+            fcyl(g, s.n, s.e, s.r, H - 0.025, H, mad);                                                       // tampo
+            fcyl(g, s.n, s.e, 0.06, H, H + 0.03, '#d8cfc2', { roughness: 0.5 });                             // base do abajur
+            fcyl(g, s.n, s.e, 0.008, H + 0.03, H + 0.30, COR_INT.latao, LATAO());                            // haste
+            const linho = new THREE.MeshStandardMaterial({ color: col3d('#efe3cb'), roughness: 0.95, side: THREE.DoubleSide,
+                emissive: col3d('#ffd9a0'), emissiveIntensity: 0.35 });
+            const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.13, 0.18, 32, 1, true), linho);
+            cup.position.set(s.e, H + 0.30, -s.n); cup.castShadow = true; g.add(cup);
         },
         // Geladeira — corpo inox, fenda do freezer + 2 puxadores. Porta p/ sul quando mais larga em mE; senão p/ oeste.
         fridge(g, s) {
@@ -3830,6 +3925,13 @@
                  { emissive: col3d('#ffe2b4'), emissiveIntensity: 0.55, roughness: 0.9 });          // difusor
             fcyl(g, s.n, s.e, r * 0.25, CEIL3D - 0.02, CEIL3D, '#b89458', LATAO());                  // canopla
         },
+        // Luz de teto de embutir (usar com circ: centro, r = raio): aro branco rente ao forro + difusor liso. acab3d = 'fria'
+        // (limpeza, 6500 K, padrão) ou 'neutra' (banheiros e closet, 4000 K). Base no forro (2,69 acima do piso).
+        luzTeto(g, s) {
+            const F = CEIL3D - 0.01, cor = LUZ[s.acab3d || 'fria'] || LUZ.fria;
+            fcyl(g, s.n, s.e, s.r, F - 0.008, F, '#f4f4f2', { roughness: 0.5 });                                  // aro
+            fcyl(g, s.n, s.e, s.r * 0.86, F - 0.012, F - 0.008, cor, { emissive: col3d(cor), emissiveIntensity: 0.9, roughness: 0.6 });   // difusor
+        },
         // Lava-louças de embutir sob a bancada (frente p/ SUL): porta inox + faixa de comando + puxador; tampo contínuo
         dishwasher(g, s) {
             fbox(g, s.n + 0.04, s.e + 0.003, s.dn - 0.04, s.de - 0.006, 0.08, s.h - 0.04, '#9aa0a6', { metalness: 0.5, roughness: 0.35 });   // corpo
@@ -3912,7 +4014,7 @@
             // puxadores (na base das portas — aéreo abre p/ cima)
             fbox(g, s.n - 0.045, s.e + s.de * 0.30, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
             fbox(g, s.n - 0.045, s.e + s.de * 0.70 - 0.03, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
-            if (s.acab3d === 'cozSpot') spotsSobAereo(g, s.e, s.de, n => fcyl(g, s.n + 0.12, n, 0.032, z0 - 0.006, z0, '#fff4dd', SPOT_LUZ()));   // spots ao longo de mE
+            if (s.acab3d === 'cozSpot') spotsSobAereo(g, s.e, s.de, n => fcyl(g, s.n + 0.12, n, 0.032, z0 - 0.006, z0, '#fffaf2', SPOT_LUZ()));   // spots ao longo de mE
         },
         // Coifa — canopy inox + boca de sucção escura + duto até o teto (z local 2,70)
         hood(g, s) {
@@ -3932,7 +4034,7 @@
             // puxadores (base das portas — aéreo abre p/ cima)
             fbox(g, s.n + s.dn * 0.30, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
             fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
-            if (s.acab3d === 'cozSpot') spotsSobAereo(g, s.n, s.dn, n => fcyl(g, n, s.e + 0.12, 0.032, z0 - 0.006, z0, '#fff4dd', SPOT_LUZ()));   // spots ao longo de mN
+            if (s.acab3d === 'cozSpot') spotsSobAereo(g, s.n, s.dn, n => fcyl(g, n, s.e + 0.12, 0.032, z0 - 0.006, z0, '#fffaf2', SPOT_LUZ()));   // spots ao longo de mN
         },
         // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
         // Torre quente de embutir — frente p/ SUL (costas na parede norte): forno elétrico na altura
@@ -6702,7 +6804,7 @@
             `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
             'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
             `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
-            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, cafeteira e air fryer pretas na ponta da bancada, plafon redondo de rattan no teto e spots redondos de luz quente sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
+            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, cafeteira e air fryer pretas na ponta da bancada, luz de embutir no teto e spots redondos de luz neutra sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
             `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
         ].join('\n\n');
     }
