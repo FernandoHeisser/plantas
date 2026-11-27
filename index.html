@@ -3243,29 +3243,22 @@
             noise2d(ctx, w, 0, 0, 0, 6);
         }, 256));
     }
-    // Mármore branco com veios dourados (porcelanato/sinterizado tipo Calacatta Gold): bancada de pedra do banho
-    function texCalacatta() {
-        return TEX3D.calacatta || (TEX3D.calacatta = canvasTex((ctx, w) => {
-            ctx.fillStyle = '#f1ede6'; ctx.fillRect(0, 0, w, w);
-            let sd = 11; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
-            for (let k = 0; k < 40; k++) {                                   // nuvens cinza-claras de fundo
-                const x = rnd() * w, y = rnd() * w, r = w * (0.08 + rnd() * 0.2);
-                const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-                g.addColorStop(0, 'rgba(205,198,188,0.18)'); g.addColorStop(1, 'rgba(205,198,188,0)');
-                ctx.fillStyle = g; ctx.fillRect(0, 0, w, w);
-            }
-            const veio = (x, y, larg, cor, passos, prof = 0) => {                      // veio que serpenteia em diagonal
-                ctx.strokeStyle = cor; ctx.lineCap = 'round';
-                let a = 0.6 + rnd() * 0.5;
-                for (let i = 0; i < passos; i++) {
-                    const nx = x + Math.cos(a) * w * 0.035, ny = y + Math.sin(a) * w * 0.035;
-                    ctx.lineWidth = larg * (0.5 + rnd()); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(nx, ny); ctx.stroke();
-                    x = nx; y = ny; a += (rnd() - 0.5) * 0.7;
-                    if (prof < 1 && rnd() < 0.12) veio(x, y, larg * 0.5, cor, 6 + (rnd() * 10 | 0), prof + 1);   // ramificação fina (um nível só)
+    // Granito branco salpicado (tipo Branco Dallas / Itaúnas), polido: a pedra de banheiro dos anos 90/2000, pedido do
+    // cliente para o banho retrô. Fundo branco-acinzentado com pintas pretas, cinza e bege de 1 a 4 mm.
+    function texGranito() {
+        return TEX3D.granito || (TEX3D.granito = canvasTex((ctx, w) => {
+            ctx.fillStyle = '#e8e6e1'; ctx.fillRect(0, 0, w, w);
+            let sd = 13; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+            const pinta = (n, cores, r0, r1) => {
+                for (let k = 0; k < n; k++) {
+                    ctx.fillStyle = cores[(rnd() * cores.length) | 0];
+                    const x = rnd() * w, y = rnd() * w, r = r0 + rnd() * (r1 - r0);
+                    ctx.beginPath(); ctx.ellipse(x, y, r, r * (0.5 + rnd() * 0.5), rnd() * 3.14, 0, 6.29); ctx.fill();
                 }
             };
-            for (let k = 0; k < 4; k++) veio(rnd() * w * 0.6, rnd() * w * 0.3, 2.4, 'rgba(184,140,78,0.75)', 30);
-            for (let k = 0; k < 5; k++) veio(rnd() * w, rnd() * w, 1.2, 'rgba(150,140,128,0.35)', 18);
+            pinta(900, ['rgba(205,198,186,0.7)', 'rgba(190,184,176,0.6)'], 1.5, 4);   // grãos bege e cinza claros
+            pinta(500, ['#3a3a3c', '#55565a', '#2a2a2c'], 0.6, 2.2);                  // pintas pretas
+            pinta(150, ['#8b6f55', '#7a6a5e'], 0.6, 1.6);                             // pintas castanhas
             noise2d(ctx, w, 0, 0, 0, 4);
         }, 512));
     }
@@ -3960,12 +3953,12 @@
         // Lavatório — gabinete + cuba + torneira
         lavatory(g, s) {
             if (s.acab3d === 'pedra') {
-                // Bancada monolítica de pedra (mármore branco com veios dourados, referência do cliente), suspensa,
+                // Bancada monolítica de pedra (granito branco salpicado, retrô anos 90/2000, pedido do cliente), suspensa,
                 // costas na parede LESTE (frente p/ oeste), sem gabinete: tudo pode molhar e o piso embaixo fica livre.
                 // Bloco de 0,20 de altura, rodabanca, cuba esculpida deslocada p/ o sul (apoio ao norte), torneira de
                 // parede com 2 registros redondos em metal cromado e prateleira de pedra solta embaixo (toalhas). Topo em s.h.
                 const H = s.h || 0.90, W = s.e + s.de, L = CROMO_M();
-                const mar = new THREE.MeshStandardMaterial({ map: texCalacatta(), roughness: 0.22, metalness: 0, envMapIntensity: 0.6 });   // fora do fmat (mapa)
+                const mar = new THREE.MeshStandardMaterial({ map: texGranito(), roughness: 0.18, metalness: 0, envMapIntensity: 0.6 });   // fora do fmat (mapa)
                 const pedra = (n, e, dn, de, z0, z1) => fbox(g, n, e, dn, de, z0, z1, mar);
                 const cN0 = s.n + 0.10, cN1 = cN0 + 0.46, cE0 = s.e + 0.07, cE1 = W - 0.07;   // cuba 0,46 × 0,31
                 pedra(s.n, s.e, s.dn, s.de, H - 0.20, H - 0.12);                                   // fundo do bloco
@@ -5738,7 +5731,7 @@
         if (!root) return;
         const keepMat = new Set();
         if (satGroundMat) keepMat.add(satGroundMat);
-        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.pastilha, TEX3D.calacatta, TEX3D.gouache, TEX3D.rattan, TEX3D.palhinha, TEX3D.la].filter(Boolean));
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.pastilha, TEX3D.granito, TEX3D.gouache, TEX3D.rattan, TEX3D.palhinha, TEX3D.la].filter(Boolean));
         if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
         if (_fotoTexMap) Object.values(_fotoTexMap).forEach(t => keepTex.add(t));
         root.traverse(obj => {

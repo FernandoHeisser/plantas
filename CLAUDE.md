@@ -410,7 +410,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `sink` | Pia + 2 cubas + torneira (sem saliência lateral) |
 | `dishwasher` | Lava-louças de embutir sob a bancada, frente p/ **sul**: corpo + porta inox + faixa de comando + puxador + tampo contínuo. |
 | `counter` | Bancada segmentada: abre vãos p/ `stove`, `sink` e `dishwasher` via `model`. **Recebe `model` como 3º arg.** Recortes são **clampados ao próprio vão** (ignora fogão/pia fora do range da bancada — necessário p/ a península não vazar segmentos). |
-| `lavatory` | Lavatório + cuba + torneira. `acab3d: 'pedra'` = bloco monolítico de mármore branco com veios dourados (`texCalacatta`), suspenso, sem gabinete: cuba esculpida deslocada p/ o sul, rodabanca, torneira de parede com 2 registros cromados e prateleira de pedra embaixo (toalhas); costas na parede **leste** (banho do térreo) |
+| `lavatory` | Lavatório + cuba + torneira. `acab3d: 'pedra'` = bloco monolítico de granito branco salpicado (`texGranito`), suspenso, sem gabinete: cuba esculpida deslocada p/ o sul, rodabanca, torneira de parede com 2 registros cromados e prateleira de pedra embaixo (toalhas); costas na parede **leste** (banho do térreo) |
 | `shower` | Box: base + 2 vidros sem sombra + ducha. `acab3d: 'teto'` = box de parede a parede **até o teto** (2,69): painel fixo a leste + folha de correr a oeste, perfis e ducha de teto cromados (banho do térreo) |
 | `toilet` | Vaso: bacia + assento + caixa acoplada |
 | `table` | Mesa de jantar + 4 pernas |
@@ -964,7 +964,7 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 - **Regra do cliente para o banho: tudo pode molhar.** Lavar o banheiro inteiro com água, sem preocupação, é o mais
   importante. Nada de madeira, MDF ou gabinete: só pedra, louça, vidro e metal.
 - **Bancada de pedra suspensa** (`lavatory` com `acab3d: 'pedra'`, 0,90 × 0,45, topo 0,90) na parede leste, conforme a foto de
-  referência do cliente: bloco de 0,20 em mármore branco com veios dourados (porcelanato/sinterizado, `texCalacatta`), sem
+  referência do cliente: bloco de 0,20 em **granito branco salpicado** (tipo Branco Dallas, polido; retrô anos 90/2000, `texGranito`), sem
   gabinete; **cuba esculpida** (0,46 × 0,31) deslocada para o sul, apoio ao norte, rodabanca de 8 cm; **torneira de parede**
   com 2 registros redondos cromados; **prateleira de pedra** de 6 cm embaixo (topo 0,32) para toalhas, com o piso livre embaixo.
 - **Revestimento retrô** (referência do cliente): azulejo **branco brilhante** de 30 cm até o forro em todas as paredes
