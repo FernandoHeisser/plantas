@@ -397,6 +397,10 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `poltrona` | Poltrona de braços estofada sobre pés de madeira, encosto na ponta **sul** (`s.n`, olha p/ o norte), almofada de apoio. Cor em `s.color` |
 | `puff` | Puff de apoio dos pés: bloco estofado sobre pés baixos. `h3d` = altura (0,42). Cor em `s.color` |
 | `mesaLateral` | Mesa lateral redonda com abajur de linho (usar com `circ`: `r` = raio do tampo, `h3d` = altura do tampo) |
+| `roupeiro` | Roupeiro de closet até o teto: portas de giro de ~0,50 (rodapé → 2,18) + maleiro (2,20 → teto), puxadores verticais de latão. `acab3d` = lado da frente (`'N'`/`'S'`/`'O'`/`'L'`) + opcional `e<i>` = porta i com espelho de corpo inteiro (ex.: `'O e1'`) |
+| `boxSuite` | Box até o teto encostado na parede sul (com misturador, ducha de mão em barra deslizante e nicho embutido com prateleira de pedra na parede oeste, dentro do box): frente norte (fixo a oeste + folha de correr a leste) + lateral fixa a leste, perfis e ducha no metal do banho (`acab3d: 'cobre'`). `parede` = de parede a parede (sem lateral); `inv` = folha de correr a oeste |
+| `revest` | Revestimento de parede: painel de 8 mm em porcelanato off-white fosco 60 × 30 deitado, rejunte aparente (`texPorcelanato`), UV em tamanho real, `polygonOffset` negativo (vence a parede coplanar). **Passar `h3d`** (sem ele o rect vale 0,45); `z3d`/`h3d` para recortes de vãos |
+| `acessVaso` | Porta-papel + ducha higiênica de parede, costas na parede **oeste**, no metal do banho (`acab3d: 'cobre'`) |
 | `rack` | Rack baixo + pés + ranhura |
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
 | `fornoBancada` | Forno elétrico de bancada solto, frente p/ **norte**: corpo grafite, porta de vidro escuro com puxador, botões à direita. Base em `z3d` (tampo) |
@@ -415,9 +419,9 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `sink` | Pia + 2 cubas + torneira (sem saliência lateral) |
 | `dishwasher` | Lava-louças de embutir sob a bancada, frente p/ **sul**: corpo + porta inox + faixa de comando + puxador + tampo contínuo. |
 | `counter` | Bancada segmentada: abre vãos p/ `stove`, `sink` e `dishwasher` via `model`. **Recebe `model` como 3º arg.** Recortes são **clampados ao próprio vão** (ignora fogão/pia fora do range da bancada — necessário p/ a península não vazar segmentos). |
-| `lavatory` | Lavatório + cuba + torneira. `acab3d: 'pedra'` = bloco monolítico de granito branco salpicado (`texGranito`), suspenso, sem gabinete: cuba esculpida deslocada p/ o sul, rodabanca, torneira de parede com 2 registros cromados e prateleira de pedra embaixo (toalhas); costas na parede **leste** (banho do térreo) |
+| `lavatory` | Lavatório + cuba + torneira. `acab3d: 'pedra'` = bloco monolítico de granito branco salpicado (`texGranito`), suspenso, sem gabinete: cuba esculpida deslocada p/ o sul, rodabanca, torneira de parede com 2 registros cromados e prateleira de pedra embaixo (toalhas); costas na parede **leste** (banho do térreo). Somam-se `duas` (2 cubas), `offwhite` (pedra off-white lisa) e `cobre` (metais de cobre fosco) |
 | `shower` | Box: base + 2 vidros sem sombra + ducha. `acab3d: 'teto'` = box de parede a parede **até o teto** (2,69): painel fixo a leste + folha de correr a oeste, perfis e ducha de teto cromados (banho do térreo) |
-| `toilet` | Vaso: bacia + assento + caixa acoplada. `acab3d: 'reto'` = linhas retas, base fechada até o piso (sifão escondido), caixa acoplada retangular e botão duplo cromado; frente p/ oeste (banho do térreo) |
+| `toilet` | Vaso: bacia + assento + caixa acoplada. `acab3d: 'reto'` = linhas retas, base fechada até o piso (sifão escondido), caixa acoplada retangular e botão duplo cromado; frente p/ oeste (banho do térreo); `'reto cobre'` = botão de cobre |
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
 | `stool` | Banqueta alta de balcão: assento de madeira estofado + 4 pés metálicos abertos + apoio de pés. Usar com `circ` (`r` = raio do assento, `h3d` = altura do assento, padrão 0,70). |
@@ -1326,7 +1330,7 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   drywall de 0,10 no resto; parede entre os quartos = drywall acústico (sem viga embaixo).
 - **Janelas** (`F2_WINDOWS`/`F2G_WINDOWS`): grandes ao norte (peitoril 0,40 → 2,25) e na suíte a leste;
   **mínimo 1,50 m de largura** (pedido do cliente), médias com peitoril 0,90 → 2,20, banheiros 1,40 → 2,20;
-  só o banho da suíte fica em 1,20 (entre os pilares P8 e P6). Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
+  só o banho da suíte fica abaixo: 2 janelas no box, 1,20 (entre P8 e P6) e 1,10 (entre P6 e a parede do closet). Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
   **Estilo padrão** = grade de caixilho (`winGrid` no `winWall`), cor `matFrame`, igual ao térreo.
 - **Móveis** em `f2Moveis()` (fonte única 2D + 3D, base no piso do 2º; `rot3d` gira o modelo).
 - **Suíte (em revisão):** cama **king** 1,93 × 2,03 (a maior possível, pedido do cliente) com a cabeceira na parede sul (lado do
@@ -1335,6 +1339,20 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   **Canto do cuidado** junto da janela leste: **poltrona de braços verde-oliva + puff** na frente para apoiar o pé (cortar as unhas,
   passar creme; pedido do cliente, que preferiu isso à chaise), olhando para o norte com a luz da manhã de lado, ao norte da área de
   acesso à porta do closet; mesa lateral com abajur (`mesaLateral`) a oeste da poltrona.
+- **Closet** (2,30 × 2,50, sem janela): roupeiros fechados até o teto em L (`roupeiro`): parede sul inteira (2,28, frente p/ norte)
+  e parede leste de mN 3,36 à parede norte (1,28, frente p/ oeste). Os 0,60 diante do canto ficam livres para as portas do sul
+  abrirem (sem canto morto). **Espelho de corpo inteiro na porta do meio do roupeiro leste** (pedido do cliente: no próprio
+  armário, para ganhar espaço). Livres: o giro da porta da suíte e o acesso ao banho da suíte (parede oeste).
+- **Banho da suíte** (2,65 × 2,50) — mesmas regras do banho de baixo (tudo pode molhar; só pedra, louça, vidro e metal), mas
+  **neutro**: porcelanato off-white fosco 60 × 30 deitado até o teto nas 4 paredes e nos pilares aparentes (`revest`) e **metais de cobre escovado fosco**
+  (`COBRE`/`COBRE_M`, `metalBanho`; pedido do cliente: nada dourado nem brilhante). **Box até o teto de parede a parede** na parede sul
+  (`boxSuite` `'cobre parede inv'`, 2,65 × 1,00, pedido do cliente) com **2 janelas dentro, uma de cada lado do pilar P6** (1,20 e 1,10, peitoril 1,40 → 2,20; exaustão do vapor e ventilação contra a umidade, pedido do cliente); folha de correr a oeste.
+  Por causa dele a **porta do closet subiu para mN 3,25–3,95** (antes 2,85–3,55, caía dentro do box). **Vaso de linhas retas** na parede oeste
+  (`toilet` `'reto cobre'`, `rot3d: 180`). **Bancada de pedra off-white suspensa com 2 cubas** na parede norte, **de parede a parede**
+  (2,65 × 0,45, pedido do cliente; a pedra é recortada em volta do pilar P5; `lavatory` `'pedra duas offwhite cobre'`, `rot3d: 90`),
+  **2 espelhos bisotados**, cada um ocupando todo o trecho de parede de um lado do pilar P5 (1,28 e 1,18 × 0,70; o pilar fica
+  aparente entre eles, decisão do cliente) e uma barra de luz
+  neutra sobre cada cuba. **Toalheiro** de cobre sobre o vaso (parede oeste, barra a 1,45), na saída do box; porta-papel e ducha higiênica ao lado do vaso (`acessVaso`). Dentro do box: misturador, ducha de mão em barra, nicho embutido e **prateleiras de pedra nos cantos do pilar P6** (0,20 × 0,09, dos dois lados, a 1,10 e 1,40; pedido do cliente). Os pilares P5/P6 avançam 0,10 da parede porque a parede de baixo (lavanderia × despensa) não sobe; ficam aparentes (decisão do cliente).
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 
