@@ -390,7 +390,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `painelTV` | Painel ripado de madeira mel do piso ao teto (ripas de 4 cm, vão de 2 cm, chapa escura atrás), face p/ leste |
 | `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
 | `armEntrada` | Armário de entrada do hall, costas na parede sul, frente p/ **norte**, madeira mel até o teto: sapateira **aberta** ripada (0→0,60, o sapato respira), 4 gavetas (0,60→1,00), nicho **aberto** de casacos (1,00→2,10) com 5 ganchos de latão a 1,75, maleiro fechado (2,10→teto). Puxadores redondos de latão |
-| `espelho` | Espelho de corpo inteiro, costas na parede **leste** (face p/ oeste): moldura fina de latão + vidro espelhado. `z3d` = base (0,30), `h3d` = altura (1,70) |
+| `espelho` | Espelho de corpo inteiro, costas na parede **leste** (face p/ oeste): moldura fina de latão + vidro espelhado. `z3d` = base (0,30), `h3d` = altura (1,70). `acab3d: 'bisote'` = colado sobre o azulejo, sem moldura, borda bisotada (banho) |
 | `portaChaves` | Porta-chaves de parede, costas na parede **oeste** (face p/ leste): plaquinha de madeira mel, 4 ganchinhos de latão e prateleirinha de 6 cm no topo. `z3d` = base |
 | `rack` | Rack baixo + pés + ranhura |
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
@@ -970,6 +970,7 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 - **Revestimento retrô** (referência do cliente): azulejo **branco brilhante** de 30 cm até o forro em todas as paredes
   (`texAzulejo`) e a **parede do fundo do box** (sul, com a janela) em **pastilha de vidro azul e branca** de 2,5 cm
   (`texPastilha`, 4 tons de azul + branco ao acaso), até o forro. Tudo lavável.
+- **Espelho bisotado** (`espelho` com `acab3d: 'bisote'`, 0,80 × 0,70, de 1,25 a 1,95) colado no azulejo sobre a bancada, sem moldura.
 
 ### Lavanderia e despensa
 - **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).

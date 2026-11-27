@@ -2413,6 +2413,8 @@
             lys.push(BAN.circ(1.27, 0.955, 0.12, '#f8fafc', { color: '#475569', weight: 0.5, no3d: true })); // tampa
             // Lavatório: canto nordeste, encostado na parede leste
             lys.push(BAN.rect(1.675, 0.925, 0.9, 0.45, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'lavatory', acab3d: 'pedra' }));   // bancada de pedra suspensa, cuba esculpida
+            // Espelho bisotado 0,80 × 0,70 sobre a bancada (colado no azulejo, sem moldura: retrô anos 90/2000)
+            lys.push(BAN.rect(1.725, 1.367, 0.80, 0.008, '#cbd5e1', { color: '#94a3b8', weight: 1.2, z3d: 1.25, h3d: 0.70, m3d: 'espelho', acab3d: 'bisote' }));
             lys.push(BAN.rect(1.945, 1.005, 0.36, 0.25, '#dbeafe', { color: '#475569', weight: 0.4, no3d: true }));
 
             if (!V3) {
@@ -3580,6 +3582,14 @@
         // s.z = base (padrão 0,30), s.h = altura (padrão 1,70); s.dn = largura ao longo da parede.
         espelho(g, s) {
             const z0 = s.z || 0.30, z1 = z0 + (s.h || 1.70), W = s.e + s.de, M = 0.015;
+            if (s.acab3d === 'bisote') {   // espelho colado, sem moldura, com borda bisotada (banho retrô anos 90/2000)
+                const esp = new THREE.MeshStandardMaterial({ color: 0xe9eef0, metalness: 1, roughness: 0.04, envMapIntensity: 1.2 });
+                const bis = new THREE.MeshStandardMaterial({ color: 0xcfd8dc, metalness: 0.9, roughness: 0.15, envMapIntensity: 1.0 });
+                const A = W - 0.009;   // sobre o azulejo (8 mm) da parede
+                g.add(box3d(s.n, A - 0.006, s.dn, 0.006, z0, z1, bis));                                    // borda bisotada
+                g.add(box3d(s.n + 0.02, A - 0.008, s.dn - 0.04, 0.002, z0 + 0.02, z1 - 0.02, esp));        // face espelhada
+                return;
+            }
             fbox(g, s.n, W - 0.02, s.dn, 0.02, z0, z1, COR_INT.latao, LATAO());                                   // moldura
             const vidro = box3d(s.n + M, W - 0.024, s.dn - 2 * M, 0.006, z0 + M, z1 - M,
                 new THREE.MeshStandardMaterial({ color: 0xe9eef0, metalness: 1, roughness: 0.04, envMapIntensity: 1.2 }));
