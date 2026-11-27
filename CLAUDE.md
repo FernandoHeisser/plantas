@@ -398,6 +398,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `puff` | Puff de apoio dos pés: bloco estofado sobre pés baixos. `h3d` = altura (0,42). Cor em `s.color` |
 | `mesaLateral` | Mesa lateral redonda com abajur de linho (usar com `circ`: `r` = raio do tampo, `h3d` = altura do tampo) |
 | `roupeiro` | Roupeiro de closet até o teto: portas de giro de ~0,50 (rodapé → 2,18) + maleiro (2,20 → teto), puxadores verticais de latão. `acab3d` = lado da frente (`'N'`/`'S'`/`'O'`/`'L'`) + opcional `e<i>` = porta i com espelho de corpo inteiro (ex.: `'O e1'`); `correr` = folhas de correr do rodapé ao teto (~0,95) em 2 trilhos, o espelho ocupa a folha inteira |
+| `moduloSofa` | Módulo de sofá modular (módulos soltos que se reorganizam): base recuada escura, estrado e assento baixos e fundos; `acab3d` = lados com encosto (`'N'`, `'S'`, `'L'`, `'O'`, combinados) ou `''` = pufe. Cor em `s.color` (padrão `COR_INT.sofa`) |
 | `bancoSapateira` | Banco do closet, costas na parede **norte** (frente p/ sul): caixa na cor do armário, assento estofado de linho areia e sapateira aberta ripada embaixo (2 prateleiras). `h3d` = altura do assento |
 | `boxSuite` | Box até o teto encostado na parede sul (com misturador, ducha de mão em barra deslizante e nicho embutido com prateleira de pedra na parede oeste, dentro do box): frente norte (fixo a oeste + folha de correr a leste) + lateral fixa a leste, perfis e ducha no metal do banho (`acab3d: 'cobre'`). `parede` = de parede a parede (sem lateral); `inv` = folha de correr a oeste; `viga` = lateral só até o fundo da viga do teto (2,25) |
 | `revest` | Revestimento de parede: painel de 8 mm em porcelanato off-white fosco 60 × 30 deitado, rejunte aparente (`texPorcelanato`), UV em tamanho real, `polygonOffset` negativo (vence a parede coplanar). **Passar `h3d`** (sem ele o rect vale 0,45); `z3d`/`h3d` para recortes de vãos |
@@ -963,7 +964,7 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 - **Exceções, luz neutra** (4000 K, `LUZ.neutra`, cor real): spots de preparo sob os aéreos da cozinha (`SPOT_LUZ`), teto e
   espelho dos banheiros, e o closet (ver a cor da roupa).
 - **Luzes quentes já postas:** arandelas da sala (TV), do hall (parede leste, entre o armário e o espelho), da suíte e do
-  quarto 1 (sobre os criados), do quarto 2 (cabeceira a oeste), do estar do 2º (dos dois lados da TV) e do escritório; abajur
+  quarto 1 (sobre os criados), do quarto 2 (cabeceira a oeste), do estar do 2º (parede da junta, sobre as pontas do sofá) e do escritório; abajur
   da mesa lateral da suíte. **Neutra:** barra sobre o espelho do banho do térreo (`luzEspelho`).
 - Áreas de serviço (lavanderia, despensa, rouparia, corredor) só têm a luz de teto. Os banheiros do 2º piso ganham a luz do
   espelho quando forem revisados.
@@ -1320,7 +1321,12 @@ Pórticos independentes pela junta. Helpers locais `col2`/`beamEW`/`beamNS`.
 artifact "Segundo piso do sobrado"). Coordenadas de código:
 - **Estar em L (cinema / video game, 25 m²)**: faixa sul mE 19,25→25,3 × mN 2,0→4,75, cruzando a junta
   pela passagem `F2_JUNTA_VAO` (mN 2,2→4,1, entre G3 e E2, 2,25 de altura), + braço norte na casa
-  (mE 22,5→25,3). TV na parede cega da junta, no braço norte. A escada chega aqui.
+  (mE 22,5→25,3). A escada chega aqui. **Layout C (escolha do cliente, depois de comparar ~14 esboços):** TV 75" na parede da
+  suíte (braço norte) sobre painel ripado e rack de palhinha; **sofá modular em L** de módulos soltos (`moduloSofa`; vira um
+  "ninho" para ver filme) encostado na parede da junta, com a ponta sob a janela norte, a ≈2,3 m da TV; **2 poltronas leves juntas
+  no leste** (de costas p/ a parede sul, com mesa lateral), para puxar quando vem mais gente. **Pilar solto P9** (0,25 × 0,15, na
+  linha da parede suíte × banho, que não entra no estar) fica junto da ponta sul do sofá, fora da visão: TV na parede sul foi
+  descartada porque ele tapava a tela. Caminho da escada à suíte: passagem da junta → entre o sofá e o rack → porta da suíte.
 - **Suíte** (casa, norte, 15,6 m²): porta na ponta norte da parede oeste (`EIXO.BANHO`), cama na parede
   sul. **Quarto → closet → banho** (o cliente não quer banheiro abrindo direto no quarto): closet a
   leste (mE 28,1→30,6), banho da suíte a oeste, sobre a lavanderia (aproveita o encanamento).

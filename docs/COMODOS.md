@@ -35,7 +35,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 | Suíte | 🔶 em revisão | Cama king na parede sul (longe do cinema), criados-mudos, cortinas blackout nas 2 janelas, poltrona com puff (apoio do pé para unhas e creme) e mesa lateral com abajur junto da janela leste (2026-11-27) |
 | Closet | ✅ revisado | Roupeiros fechados até o teto em L nas paredes sul e leste inteiras com canto de porta em L (~5 m), portas de correr até o teto, uma folha inteira de espelho, banco estofado com sapateira aberta, porta da suíte abrindo para a suíte, luz neutra no teto (2026-11-27) |
 | Banho da suíte | ✅ revisado | Tudo pode molhar, estilo neutro: porcelanato off-white até o teto, metais de cobre fosco; box até o teto na metade oeste (1,30 × 1,00) e vaso reto na metade leste, uma janela sobre cada um (contra a umidade), bancada e espelho de parede a parede com 2 cubas e uma luz neutra por cuba, toalheiro sobre o vaso (2026-11-27) |
-| Estar (cinema / video game) | 🔶 esboço | TV na parede cega da junta, sofá, tapete, poltrona junto da janela sul |
+| Estar (cinema / video game) | ✅ revisado | TV 75" na parede da suíte sobre painel ripado, sofá modular em L encostado na junta (vira "ninho"), 2 poltronas juntas no leste para puxar, tapete de lã; pilar solto fora da visão (2026-11-27) |
 | Escritório | 🔶 esboço | Mesa sob a janela sul, cadeira, armário fechado |
 | Quarto 1 | 🔶 esboço | Cama, criados-mudos, guarda-roupa na parede leste |
 | Quarto 2 | 🔶 esboço | Cama sob a janela norte, guarda-roupa na parede sul do braço |
