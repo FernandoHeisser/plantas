@@ -2871,9 +2871,9 @@
         // do cliente: no próprio armário, para ganhar espaço). Na parede norte, a oeste da porta da suíte (que abre para a suíte,
         // sem bater nos armários): banco estofado com sapateira aberta embaixo (sentar para calçar; pedido do cliente). A parede
         // oeste fica livre: passagem da suíte para o banho. Meio livre de 1,40.
-        p(rect(2.16, 28.16, 0.59, 1.69, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'N' })));        // sul, 1,70
+        p(rect(2.16, 28.16, 0.59, 1.69, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'N correr' })));  // sul, 1,70, 2 folhas de correr
         p(rect(2.16, 29.85, 0.59, 0.59, ARM, o(sArm, { h3d: CEIL3D })));                                         // canto (porta em L)
-        p(rect(2.75, 29.85, 1.89, 0.59, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'O e1' })));      // leste, 1,90
+        p(rect(2.75, 29.85, 1.89, 0.59, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'O correr e0' }))); // leste, 1,90, 2 folhas de correr; a do sul é de espelho inteiro
         p(rect(4.19, 28.16, 0.45, 0.83, ARM, o(sArm, { h3d: 0.46, m3d: 'bancoSapateira' })));                  // banco + sapateira
         // Banho da suíte (2,65 × 2,50): mesmas regras do banho de baixo (tudo pode molhar; só pedra, louça, vidro e metal), mas
         // neutro: porcelanato off-white fosco até o teto e metais de cobre escovado fosco (pedido do cliente: nada dourado nem
@@ -3797,7 +3797,8 @@
         },
         // Roupeiro de closet até o teto: portas de giro de ~0,50 do rodapé a 2,18 + maleiro em cima (2,20 → teto), puxadores
         // verticais longos de latão. acab3d = '<lado da frente>' ('N', 'S', 'O', 'L') + opcional 'e<i>' = a porta i (0 = a
-        // primeira no sentido crescente de mN/mE) é de espelho de corpo inteiro (ex.: 'O e1').
+        // primeira no sentido crescente de mN/mE) é de espelho de corpo inteiro (ex.: 'O e1'); + 'correr' = folhas de correr do
+        // rodapé ao teto (~0,95) em 2 trilhos, sem maleiro separado (o espelho ocupa a folha inteira).
         roupeiro(g, s) {
             const cod = s.acab3d || 'S', f = cod[0], m = /e(\d+)/.exec(cod), iEsp = m ? +m[1] : -1;
             const H = CEIL3D - 0.01, R = 0.08, ZP = 2.18, ZM = 2.20, NS = f === 'N' || f === 'S', T = 0.018, G = 0.003;
@@ -3810,6 +3811,23 @@
             const CORPO = '#e4ddd0', PORTA = COR_INT.aereo, esp = new THREE.MeshStandardMaterial({ color: 0xe9eef0, metalness: 1, roughness: 0.04, envMapIntensity: 1.2 });
             fbox(g, s.n, s.e, s.dn, s.de, R, H, CORPO);                                                      // caixa
             peca(A0 + 0.01, A0 + W - 0.01, 0, R, -0.05, -0.03, '#4b4842');                                  // rodapé recuado
+            if (/correr/.test(cod)) {
+                // Portas de correr do rodapé ao teto em 2 trilhos (folhas de ~0,85–0,95, sobrepostas 3 cm), trilho de teto e
+                // puxador vertical de latão na borda livre. A folha iEsp é inteira de espelho.
+                const nF = Math.max(2, Math.round(W / 0.95)), LF = (W + 0.03 * (nF - 1)) / nF, ZT = H - 0.045;
+                peca(A0, A0 + W, ZT, H, 0, 0.075, '#d6d0c4');                                                     // trilho de teto
+                peca(A0, A0 + W, R - 0.01, R, 0, 0.075, '#bdb6a8');                                               // guia de piso
+                for (let i = 0; i < nF; i++) {
+                    const a0 = A0 + i * (LF - 0.03), a1 = a0 + LF, d = i % 2 ? 0.045 : 0.008;                    // trilho de trás / da frente
+                    peca(a0, a1, R + 0.005, ZT - 0.005, d, d + 0.022, PORTA, { roughness: 0.5 });
+                    if (i === iEsp) {
+                        const mm = peca(a0 + 0.025, a1 - 0.025, R + 0.04, ZT - 0.04, d + 0.022, d + 0.026, esp); mm.userData.quina = false;   // espelho na folha inteira
+                    }
+                    const pu = i === 0 ? a0 + 0.05 : a1 - 0.07;                                                   // puxador na borda de fora
+                    peca(pu, pu + 0.02, 0.70, 1.80, d + 0.022, d + 0.045, COR_INT.latao, LATAO());
+                }
+                return;
+            }
             const nP = Math.max(1, Math.round(W / 0.50)), L = W / nP;
             for (let i = 0; i < nP; i++) {
                 const a0 = A0 + i * L + G, a1 = A0 + (i + 1) * L - G, abre = i % 2 === 0 ? a1 - 0.05 : a0 + 0.03;

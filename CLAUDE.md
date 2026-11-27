@@ -397,7 +397,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `poltrona` | Poltrona de braços estofada sobre pés de madeira, encosto na ponta **sul** (`s.n`, olha p/ o norte), almofada de apoio. Cor em `s.color` |
 | `puff` | Puff de apoio dos pés: bloco estofado sobre pés baixos. `h3d` = altura (0,42). Cor em `s.color` |
 | `mesaLateral` | Mesa lateral redonda com abajur de linho (usar com `circ`: `r` = raio do tampo, `h3d` = altura do tampo) |
-| `roupeiro` | Roupeiro de closet até o teto: portas de giro de ~0,50 (rodapé → 2,18) + maleiro (2,20 → teto), puxadores verticais de latão. `acab3d` = lado da frente (`'N'`/`'S'`/`'O'`/`'L'`) + opcional `e<i>` = porta i com espelho de corpo inteiro (ex.: `'O e1'`) |
+| `roupeiro` | Roupeiro de closet até o teto: portas de giro de ~0,50 (rodapé → 2,18) + maleiro (2,20 → teto), puxadores verticais de latão. `acab3d` = lado da frente (`'N'`/`'S'`/`'O'`/`'L'`) + opcional `e<i>` = porta i com espelho de corpo inteiro (ex.: `'O e1'`); `correr` = folhas de correr do rodapé ao teto (~0,95) em 2 trilhos, o espelho ocupa a folha inteira |
 | `bancoSapateira` | Banco do closet, costas na parede **norte** (frente p/ sul): caixa na cor do armário, assento estofado de linho areia e sapateira aberta ripada embaixo (2 prateleiras). `h3d` = altura do assento |
 | `boxSuite` | Box até o teto encostado na parede sul (com misturador, ducha de mão em barra deslizante e nicho embutido com prateleira de pedra na parede oeste, dentro do box): frente norte (fixo a oeste + folha de correr a leste) + lateral fixa a leste, perfis e ducha no metal do banho (`acab3d: 'cobre'`). `parede` = de parede a parede (sem lateral); `inv` = folha de correr a oeste; `viga` = lateral só até o fundo da viga do teto (2,25) |
 | `revest` | Revestimento de parede: painel de 8 mm em porcelanato off-white fosco 60 × 30 deitado, rejunte aparente (`texPorcelanato`), UV em tamanho real, `polygonOffset` negativo (vence a parede coplanar). **Passar `h3d`** (sem ele o rect vale 0,45); `z3d`/`h3d` para recortes de vãos |
@@ -1343,8 +1343,9 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
 - **Closet** (2,30 × 2,50, sem janela; revisado a pedido do cliente: antes a porta da suíte batia no roupeiro leste e
   sobrava um canto vazio): roupeiros fechados até o teto em L nas **paredes sul (1,70, frente p/ norte) e leste inteiras
   (1,90, frente p/ oeste)**, com **módulo de canto de porta em L** (abre o canto todo; no 3D é a caixa cheia do canto).
-  ~5 m de armário (antes 3,56). **Espelho de corpo inteiro numa porta do roupeiro leste** (pedido do cliente: no próprio
-  armário). **Banco estofado com sapateira aberta embaixo** na parede norte, a oeste da porta (`bancoSapateira`, 0,83 × 0,45,
+  ~5 m de armário (antes 3,56). **Portas de correr do rodapé ao teto**, 2 folhas grandes (~0,85–0,95) por parede em 2 trilhos
+  (`acab3d: '… correr'`; pedido do cliente). **A folha sul do roupeiro leste é inteira de espelho** (~0,92 × 2,5; pedido do cliente: no
+  próprio armário, e grande). **Banco estofado com sapateira aberta embaixo** na parede norte, a oeste da porta (`bancoSapateira`, 0,83 × 0,45,
   assento a 0,46; pedido do cliente: sentar para calçar). **A porta da suíte abre para a suíte.** Parede oeste livre (porta do
   banho) e 1,40 livres no meio.
 - **Banho da suíte** (2,65 × 2,50) — mesmas regras do banho de baixo (tudo pode molhar; só pedra, louça, vidro e metal), mas
