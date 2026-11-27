@@ -34,7 +34,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 |---|---|---|
 | Suíte | 🔶 em revisão | Cama king na parede sul (longe do cinema), criados-mudos, cortinas blackout nas 2 janelas, poltrona com puff (apoio do pé para unhas e creme) e mesa lateral com abajur junto da janela leste (2026-11-27) |
 | Closet | ✅ revisado | Roupeiros fechados até o teto em L (sul inteira + leste), espelho de corpo inteiro numa porta do roupeiro, luz neutra no teto (2026-11-27) |
-| Banho da suíte | ✅ revisado | Tudo pode molhar, estilo neutro: porcelanato off-white até o teto, metais de cobre fosco; box até o teto de parede a parede com 2 janelas dentro (uma de cada lado do pilar, contra a umidade), vaso reto, bancada e espelho de parede a parede com 2 cubas e uma luz neutra por cuba, toalheiro sobre o vaso (2026-11-27) |
+| Banho da suíte | ✅ revisado | Tudo pode molhar, estilo neutro: porcelanato off-white até o teto, metais de cobre fosco; box até o teto na metade oeste (1,30 × 1,00) e vaso reto na metade leste, uma janela sobre cada um (contra a umidade), bancada e espelho de parede a parede com 2 cubas e uma luz neutra por cuba, toalheiro sobre o vaso (2026-11-27) |
 | Estar (cinema / video game) | 🔶 esboço | TV na parede cega da junta, sofá, tapete, poltrona junto da janela sul |
 | Escritório | 🔶 esboço | Mesa sob a janela sul, cadeira, armário fechado |
 | Quarto 1 | 🔶 esboço | Cama, criados-mudos, guarda-roupa na parede leste |
