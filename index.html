@@ -1865,7 +1865,10 @@
     const LATAO = () => ({ metalness: 0.85, roughness: 0.32 });
     const CROMO = '#d7dbde', CROMO_M = () => ({ metalness: 0.95, roughness: 0.12 });   // metais do banho (retrô, decisão do cliente)
     // Spots redondos de embutir sob os aéreos (luz da bancada; o cliente não gosta de fita de LED): Ø 6,4 cm, um a cada ~0,60 m
-    const SPOT_LUZ = () => ({ emissive: col3d('#ffd9a0'), emissiveIntensity: 1.0, roughness: 0.4 });
+    // Temperatura de cor por uso (regra do cliente, todos os ambientes): teto de limpeza = forte e FRIA (6500 K);
+    // conforto do dia a dia = indireta e QUENTE (2700 K); preparo na cozinha e banheiros = NEUTRA (4000 K, cor real).
+    const LUZ = { fria: '#e4eeff', neutra: '#fff6e8', quente: '#ffd9a0' };
+    const SPOT_LUZ = () => ({ emissive: col3d(LUZ.neutra), emissiveIntensity: 1.0, roughness: 0.4 });   // spots de preparo: neutros
     function spotsSobAereo(g, ini, len, put) {
         const n = Math.max(1, Math.round(len / 0.60));
         for (let i = 0; i < n; i++) put(ini + len * (i + 0.5) / n);
@@ -3961,7 +3964,7 @@
             // puxadores (na base das portas — aéreo abre p/ cima)
             fbox(g, s.n - 0.045, s.e + s.de * 0.30, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
             fbox(g, s.n - 0.045, s.e + s.de * 0.70 - 0.03, 0.04, 0.03, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
-            if (s.acab3d === 'cozSpot') spotsSobAereo(g, s.e, s.de, n => fcyl(g, s.n + 0.12, n, 0.032, z0 - 0.006, z0, '#fff4dd', SPOT_LUZ()));   // spots ao longo de mE
+            if (s.acab3d === 'cozSpot') spotsSobAereo(g, s.e, s.de, n => fcyl(g, s.n + 0.12, n, 0.032, z0 - 0.006, z0, '#fffaf2', SPOT_LUZ()));   // spots ao longo de mE
         },
         // Coifa — canopy inox + boca de sucção escura + duto até o teto (z local 2,70)
         hood(g, s) {
@@ -3981,7 +3984,7 @@
             // puxadores (base das portas — aéreo abre p/ cima)
             fbox(g, s.n + s.dn * 0.30, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
             fbox(g, s.n + s.dn * 0.70 - 0.03, s.e - 0.045, 0.03, 0.04, z0 + 0.05, z0 + 0.11, ac ? COR_INT.latao : '#9aa0a7', ac ? LATAO() : { metalness: 0.6, roughness: 0.3 });
-            if (s.acab3d === 'cozSpot') spotsSobAereo(g, s.n, s.dn, n => fcyl(g, n, s.e + 0.12, 0.032, z0 - 0.006, z0, '#fff4dd', SPOT_LUZ()));   // spots ao longo de mN
+            if (s.acab3d === 'cozSpot') spotsSobAereo(g, s.n, s.dn, n => fcyl(g, n, s.e + 0.12, 0.032, z0 - 0.006, z0, '#fffaf2', SPOT_LUZ()));   // spots ao longo de mN
         },
         // Cadeira — assento + 4 pernas + encosto (vira p/ fora da mesa)
         // Torre quente de embutir — frente p/ SUL (costas na parede norte): forno elétrico na altura
