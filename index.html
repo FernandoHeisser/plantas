@@ -2877,13 +2877,14 @@
         // linhas retas na parede oeste; bancada de pedra off-white suspensa com 2 cubas na parede norte, de parede a parede (2,65; pedido do cliente), espelho de parede a parede e luz neutra em cima; toalheiro
         // sobre o vaso, na saída do box; a porta do closet fica ao norte do box e abre para dentro do banho sem bater em nada.
         {
-            const PED = '#ece7de', RV = o(sArm, { color: '#c8bfb2', weight: 0.4, m3d: 'revest' });
+            const PED = '#ece7de', RV = o(sArm, { color: '#c8bfb2', weight: 0.4, h3d: CEIL3D - 0.01, m3d: 'revest' });   // do piso ao teto (sem h3d o rect valia 0,45)
             p(rect(2.15, 25.40, 1.00, 2.65, '#eff6ff', o(sLou, { h3d: CEIL3D, m3d: 'boxSuite', acab3d: 'cobre parede inv' })));         // box de parede a parede (folha de correr a oeste, do lado do toalheiro)
             p(rect(3.415, 25.40, 0.37, 0.67, LOU, o(sLou, { h3d: 0.40, m3d: 'toilet', acab3d: 'reto cobre', rot3d: 180 })));            // vaso
             p(rect(4.20, 25.40, 0.45, 2.65, PED, o(sLou, { h3d: 0.90, m3d: 'lavatory', acab3d: 'pedra duas offwhite cobre', rot3d: 90 })));   // bancada de parede a parede (pedra recortada em volta do pilar P5)
             [[4.60, 25.41, 1.28], [4.60, 26.86, 1.18]].forEach(([n, e, de]) => p(rect(n, e, 0.05, de, '#cbd5e1', o(sLou, { z3d: 1.25, h3d: 0.70, m3d: 'espelho', acab3d: 'bisote', rot3d: 90 }))));   // 2 espelhos, cada um ocupando todo o trecho de parede de um lado do pilar P5 (pilar aparente, decisão do cliente)
             [[25.60, 0.90], [26.97, 0.90]].forEach(([e, de]) => p(rect(4.575, e, 0.075, de, '#fff3d6', o(sLou, { z3d: 2.00, h3d: 0.05, m3d: 'luzEspelho', acab3d: 'cobre', rot3d: 90 }))));  // luz sobre cada cuba
-            p(rect(3.35, 25.40, 0.50, 0.08, '#cbd5e1', o(sLou, { z3d: 1.45, h3d: 0.04, m3d: 'toalheiro', acab3d: 'cobre' })));   // toalheiro sobre o vaso (parede oeste), na saída do box
+            p(rect(3.35, 25.40, 0.50, 0.08, '#cbd5e1', o(sLou, { z3d: 1.45, h3d: 0.04, m3d: 'toalheiro', acab3d: 'cobre' })));
+            p(rect(3.88, 25.40, 0.14, 0.10, '#cbd5e1', o(sLou, { z3d: 0.60, h3d: 0.12, m3d: 'acessVaso', acab3d: 'cobre' })));   // porta-papel e ducha higiênica, ao norte do vaso   // toalheiro sobre o vaso (parede oeste), na saída do box
             // Porcelanato até o teto nas 4 paredes (recortes da janela sul e da porta do closet)
             p(rect(2.15, 25.40, 0.008, 0.05, PED, RV));
             p(rect(2.15, 25.45, 0.008, 1.20, PED, o(RV, { h3d: 1.40 })));
@@ -2894,6 +2895,9 @@
             p(rect(2.158, 28.042, 1.092, 0.008, PED, RV));
             p(rect(3.25, 28.042, 0.70, 0.008, PED, o(RV, { z3d: 2.10, h3d: CEIL3D - 0.01 - 2.10 })));
             p(rect(3.95, 28.042, 0.692, 0.008, PED, RV));
+            // Pilares P5 (parede norte) e P6 (dentro do box) aparentes: revestidos com o mesmo porcelanato nas 3 faces
+            p(rect(4.542, 26.70, 0.008, 0.15, PED, RV)); p(rect(4.55, 26.692, 0.092, 0.008, PED, RV)); p(rect(4.55, 26.85, 0.092, 0.008, PED, RV));
+            p(rect(2.25, 26.70, 0.008, 0.15, PED, RV)); p(rect(2.158, 26.692, 0.092, 0.008, PED, RV)); p(rect(2.158, 26.85, 0.092, 0.008, PED, RV));
         }
         // Estar (cinema / video game): TV na parede cega da junta, no braço norte; sofá de costas
         // p/ a parede da suíte; poltrona junto da janela sul
@@ -3285,9 +3289,16 @@
     // Porcelanato off-white fosco 60 × 120 (banho da suíte): 1 peça por repetição, rejunte fino quase da mesma cor
     function texPorcelanato() {
         return TEX3D.porcelanato || (TEX3D.porcelanato = canvasTex((ctx, w) => {
-            ctx.fillStyle = '#efebe3'; ctx.fillRect(0, 0, w, w);
-            noise2d(ctx, w, 0, 0, 0, 3);
-            ctx.strokeStyle = 'rgba(200,192,180,0.8)'; ctx.lineWidth = 2; ctx.strokeRect(0, 0, w, w);
+            ctx.fillStyle = '#ebe5dc'; ctx.fillRect(0, 0, w, w);
+            let sd = 17; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+            for (let k = 0; k < 60; k++) {                                   // manchas suaves de pedra (porcelanato acetinado)
+                const x = rnd() * w, y = rnd() * w, r = w * (0.05 + rnd() * 0.15);
+                const gr = ctx.createRadialGradient(x, y, 0, x, y, r);
+                gr.addColorStop(0, `rgba(${200 + rnd() * 20 | 0},${192 + rnd() * 18 | 0},${180 + rnd() * 16 | 0},0.22)`); gr.addColorStop(1, 'rgba(200,192,180,0)');
+                ctx.fillStyle = gr; ctx.fillRect(0, 0, w, w);
+            }
+            noise2d(ctx, w, 0, 0, 0, 6);
+            ctx.strokeStyle = '#b3a998'; ctx.lineWidth = 3; ctx.strokeRect(1.5, 1.5, w - 3, w - 3);   // rejunte visível
         }, 256));
     }
     // Pastilha de vidro azul e branca (banho retrô, referência do cliente): peças de 2,5 cm misturadas ao acaso em
@@ -3636,13 +3647,30 @@
             const pu = inv ? meio - 0.06 : meio + 0.04;
             fbox(g, F - 0.07, pu, 0.015, 0.015, 0.95, 1.25, MC, MM);                                                    // puxador
             fcyl(g, s.n + s.dn / 2, s.e + s.de / 2, 0.11, H - 0.02, H, MC, MM);                                         // ducha de teto
+            // Parede oeste do box (dentro): misturador, ducha de mão com barra deslizante e nicho embutido (xampu, sabonete)
+            const W0 = s.e + 0.01, nm = s.n + s.dn / 2;
+            fcyl(g, nm, W0 + 0.01, 0.045, 1.05, 1.07, MC, MM).rotation.z = Math.PI / 2;                                  // espelho do misturador
+            fbox(g, nm - 0.01, W0, 0.02, 0.07, 1.05, 1.07, MC, MM);                                                     // alavanca
+            fbox(g, nm + 0.20, W0, 0.02, 0.025, 1.10, 1.90, MC, MM);                                                    // barra deslizante
+            fbox(g, nm + 0.19, W0 + 0.02, 0.04, 0.08, 1.70, 1.74, MC, MM);                                              // ducha de mão
+            fbox(g, s.n + 0.20, W0 - 0.008, 0.60, 0.004, 1.20, 1.50, '#d8d0c4', { roughness: 0.6 });                   // fundo do nicho
+            fbox(g, s.n + 0.20, W0 - 0.008, 0.60, 0.06, 1.33, 1.345, '#ece7de', { roughness: 0.4 });                  // prateleira de pedra do nicho
         },
-        // Revestimento de parede (porcelanato off-white fosco 60 × 120, rejunte fino): painel fino de 8 mm do rect (s.z → s.z + s.h).
+        // Porta-papel + ducha higiênica de parede (costas na parede OESTE), no metal do banho (acab3d)
+        acessVaso(g, s) {
+            const [MC, MM] = metalBanho(s), z = s.z || 0.60, W = s.e + 0.01;
+            fbox(g, s.n, W, 0.02, 0.10, z, z + 0.02, MC, MM);                                                          // haste do porta-papel
+            fcyl(g, s.n + 0.06, W + 0.07, 0.06, z - 0.06, z + 0.06, '#f4f1ea', { roughness: 0.9 }).rotation.x = Math.PI / 2;   // rolo
+            fcyl(g, s.n + 0.12, W + 0.01, 0.02, z + 0.12, z + 0.16, MC, MM);                                           // registro da ducha higiênica
+            fbox(g, s.n + 0.10, W + 0.01, 0.04, 0.05, z + 0.06, z + 0.11, MC, MM);                                     // gatilho
+        },
+        // Revestimento de parede (porcelanato off-white fosco 60 × 30 deitado, rejunte aparente): painel fino de 8 mm do rect (s.z → s.z + s.h).
         revest(g, s) {
             const z0 = s.z || 0, z1 = z0 + (s.h || CEIL3D - 0.01);
-            const mat = new THREE.MeshStandardMaterial({ map: texPorcelanato(), roughness: 0.55, metalness: 0, envMapIntensity: 0.4 });
+            const mat = new THREE.MeshStandardMaterial({ map: texPorcelanato(), roughness: 0.55, metalness: 0, envMapIntensity: 0.4,
+                polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -4 });   // revestimento sempre vence a parede coplanar
             const m = box3d(s.n, s.e, s.dn, s.de, z0, z1, mat), L = Math.max(s.dn, s.de), uv = m.geometry.attributes.uv;
-            for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * L / 0.60, uv.getY(i) * (z1 - z0) / 1.20);   // peças em tamanho real
+            for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * L / 0.60, uv.getY(i) * (z1 - z0) / 0.30);   // peças em tamanho real (60 × 30, deitadas)
             m.castShadow = false; g.add(m);
         },
         // Painel ripado da TV — chapa de madeira + ripas verticais (4 cm, vão de 2 cm), do piso ao teto; face p/ LESTE
