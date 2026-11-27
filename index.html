@@ -3226,6 +3226,32 @@
             noise2d(ctx, w, 0, 0, 0, 6);
         }, 256));
     }
+    // Mármore branco com veios dourados (porcelanato/sinterizado tipo Calacatta Gold): bancada de pedra do banho
+    function texCalacatta() {
+        return TEX3D.calacatta || (TEX3D.calacatta = canvasTex((ctx, w) => {
+            ctx.fillStyle = '#f1ede6'; ctx.fillRect(0, 0, w, w);
+            let sd = 11; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+            for (let k = 0; k < 40; k++) {                                   // nuvens cinza-claras de fundo
+                const x = rnd() * w, y = rnd() * w, r = w * (0.08 + rnd() * 0.2);
+                const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+                g.addColorStop(0, 'rgba(205,198,188,0.18)'); g.addColorStop(1, 'rgba(205,198,188,0)');
+                ctx.fillStyle = g; ctx.fillRect(0, 0, w, w);
+            }
+            const veio = (x, y, larg, cor, passos, prof = 0) => {                      // veio que serpenteia em diagonal
+                ctx.strokeStyle = cor; ctx.lineCap = 'round';
+                let a = 0.6 + rnd() * 0.5;
+                for (let i = 0; i < passos; i++) {
+                    const nx = x + Math.cos(a) * w * 0.035, ny = y + Math.sin(a) * w * 0.035;
+                    ctx.lineWidth = larg * (0.5 + rnd()); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(nx, ny); ctx.stroke();
+                    x = nx; y = ny; a += (rnd() - 0.5) * 0.7;
+                    if (prof < 1 && rnd() < 0.12) veio(x, y, larg * 0.5, cor, 6 + (rnd() * 10 | 0), prof + 1);   // ramificação fina (um nível só)
+                }
+            };
+            for (let k = 0; k < 4; k++) veio(rnd() * w * 0.6, rnd() * w * 0.3, 2.4, 'rgba(184,140,78,0.75)', 30);
+            for (let k = 0; k < 5; k++) veio(rnd() * w, rnd() * w, 1.2, 'rgba(150,140,128,0.35)', 18);
+            noise2d(ctx, w, 0, 0, 0, 4);
+        }, 512));
+    }
     // Rattan / palha trançada (plafon da cozinha): trama em xadrez de fios claros e escuros, com frestas
     function texRattan() {
         return TEX3D.rattan || (TEX3D.rattan = (() => {
@@ -3917,18 +3943,28 @@
         // Lavatório — gabinete + cuba + torneira
         lavatory(g, s) {
             if (s.acab3d === 'pedra') {
-                // Bancada de pedra suspensa, costas na parede LESTE (frente p/ oeste), sem gabinete: nada que estrague
-                // com água, piso livre embaixo para lavar com mangueira. Cuba esculpida na própria pedra (sem emenda),
-                // torneira de parede e sifão aparente em latão. Topo em s.h.
-                const H = s.h || 0.90, W = s.e + s.de, PED = COR_INT.quartzo, L = LATAO();
-                fbox(g, s.n, s.e, s.dn, s.de, H - 0.04, H, PED, { roughness: 0.3 });                                   // tampo
-                fbox(g, s.n, s.e - 0.02, s.dn, 0.02, H - 0.14, H, PED, { roughness: 0.3 });                             // saia frontal
-                fbox(g, s.n + 0.16, s.e + 0.06, s.dn - 0.32, s.de - 0.16, H - 0.12, H - 0.04, PED, { roughness: 0.3 }); // corpo da cuba esculpida
-                fbox(g, s.n + 0.18, s.e + 0.08, s.dn - 0.36, s.de - 0.20, H - 0.035, H + 0.001, '#cfc4ae', { roughness: 0.35 });  // fundo rebaixado (lê como cavidade)
-                fbox(g, s.n + s.dn / 2 - 0.015, W - 0.16, 0.03, 0.16, H + 0.20, H + 0.225, COR_INT.latao, L);          // bica da torneira de parede
-                fcyl(g, s.n + s.dn / 2 + 0.09, W - 0.03, 0.02, H + 0.19, H + 0.25, COR_INT.latao, L);                  // registro
-                fcyl(g, s.n + s.dn / 2, s.e + s.de / 2, 0.02, H - 0.40, H - 0.12, COR_INT.latao, L);                   // sifão
-                fbox(g, s.n + s.dn / 2 - 0.02, s.e + s.de / 2, 0.04, W - s.e - s.de / 2, H - 0.42, H - 0.38, COR_INT.latao, L);   // saída na parede
+                // Bancada monolítica de pedra (mármore branco com veios dourados, referência do cliente), suspensa,
+                // costas na parede LESTE (frente p/ oeste), sem gabinete: tudo pode molhar e o piso embaixo fica livre.
+                // Bloco de 0,20 de altura, rodabanca, cuba esculpida deslocada p/ o sul (apoio ao norte), torneira de
+                // parede com 2 registros redondos em latão e prateleira de pedra solta embaixo (toalhas). Topo em s.h.
+                const H = s.h || 0.90, W = s.e + s.de, L = LATAO();
+                const mar = new THREE.MeshStandardMaterial({ map: texCalacatta(), roughness: 0.22, metalness: 0, envMapIntensity: 0.6 });   // fora do fmat (mapa)
+                const pedra = (n, e, dn, de, z0, z1) => fbox(g, n, e, dn, de, z0, z1, mar);
+                const cN0 = s.n + 0.10, cN1 = cN0 + 0.46, cE0 = s.e + 0.07, cE1 = W - 0.07;   // cuba 0,46 × 0,31
+                pedra(s.n, s.e, s.dn, s.de, H - 0.20, H - 0.12);                                   // fundo do bloco
+                pedra(s.n, s.e, cN0 - s.n, s.de, H - 0.12, H);                                     // lado sul da cuba
+                pedra(cN1, s.e, s.n + s.dn - cN1, s.de, H - 0.12, H);                              // apoio ao norte
+                pedra(cN0, s.e, cN1 - cN0, cE0 - s.e, H - 0.12, H);                                // frente da cuba
+                pedra(cN0, cE1, cN1 - cN0, W - cE1, H - 0.12, H);                                  // fundo da cuba (lado da parede)
+                fbox(g, cN0, cE0, cN1 - cN0, cE1 - cE0, H - 0.125, H - 0.12, '#e2dcd2', { roughness: 0.3 });   // piso da cuba
+                pedra(s.n, W - 0.02, s.dn, 0.02, H, H + 0.08);                                     // rodabanca
+                pedra(s.n, s.e + 0.02, s.dn, s.de - 0.02, 0.26, 0.32);                             // prateleira de baixo
+                const cc = (cN0 + cN1) / 2, zt = H + 0.24;                                         // torneira de parede
+                fbox(g, cc - 0.012, W - 0.15, 0.024, 0.15, zt - 0.012, zt + 0.012, COR_INT.latao, L);   // bica
+                fbox(g, cc - 0.012, W - 0.15, 0.024, 0.024, zt - 0.07, zt, COR_INT.latao, L);           // ponta curvada p/ baixo
+                [cc - 0.16, cc + 0.16].forEach(n => fcyl(g, n, W - 0.02, 0.032, zt - 0.02, zt + 0.02, COR_INT.latao, L));   // registros
+                fbox(g, cN1 + 0.04, s.e + 0.09, 0.28, 0.30, 0.32, 0.42, '#d6d0c6', { roughness: 0.95 });        // toalhas dobradas
+                fbox(g, s.n + 0.06, s.e + 0.09, 0.30, 0.30, 0.32, 0.38, '#e8e4dc', { roughness: 0.95 });
                 return;
             }
             fbox(g, s.n, s.e, s.dn, s.de, 0, s.h - 0.06, '#e8e4da');
