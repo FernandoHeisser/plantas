@@ -2199,7 +2199,7 @@
             GEO.push({ k: 'solid', shape: 'circ', n, e, r,
                        h: (opts && opts.h3d != null) ? opts.h3d : 0.45,
                        z: (opts && opts.z3d) || 0, color: fill,
-                       m3d: opts && opts.m3d, ext3d: !!(opts && opts.ext3d),
+                       m3d: opts && opts.m3d, rot3d: opts && opts.rot3d, acab3d: opts && opts.acab3d, ext3d: !!(opts && opts.ext3d),
                        extZ3d: (opts && opts.extZ3d != null) ? opts.extZ3d : undefined });
         const pts = [];
         for (let i = 0; i < 32; i++) {
