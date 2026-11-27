@@ -2815,7 +2815,10 @@
         p(rect(4.81, 25.90, 2.03, 1.93, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 180 })));
         p(rect(4.85, 25.42, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
         p(rect(4.85, 27.86, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
-        p(rect(6.30, 29.40, 0.80, 0.80, '#9a3412', o(sMad, { h3d: 0.45 })));
+        // Canto do descanso junto da janela leste: chaise longue (sentar com os pés para cima, pedido do cliente), encosto ao
+        // sul e vista para a janela norte; mesa lateral com abajur ao lado do encosto (fora do giro da porta do closet)
+        p(rect(5.75, 29.55, 1.60, 0.70, '#7a7448', o(sMad, { h3d: 0.85, m3d: 'chaise' })));
+        p(circ(5.45, 30.05, 0.22, COR_INT.madeira, o(sMad, { h3d: 0.55, m3d: 'mesaLateral' })));
         // Cortinas blackout com face de linho areia, do forro ao piso, nas 2 janelas da suíte (norte grande + leste, sol da
         // manhã), abertas em maços nas pontas, num trilho embutido no forro. As do leste giram 90° (plano ao longo de mN).
         {
@@ -3627,6 +3630,34 @@
             [s.n + 0.02, s.n + s.dn - 0.04].forEach(n => fbox(g, n, E, 0.02, 0.07, z - 0.02, z + 0.02, CROMO, M));   // suportes
             fbox(g, s.n, E + 0.055, s.dn, 0.016, z - 0.008, z + 0.008, CROMO, M);                                   // barra
             fbox(g, s.n + 0.10, E + 0.045, s.dn - 0.20, 0.035, z - 0.50, z + 0.01, '#9fc3dc', { roughness: 0.95 });   // toalha azul-clara
+        },
+        // Chaise longue (sentar com os pés para cima): base baixa sobre pés, assento estofado ao longo de mN, encosto
+        // inclinado na ponta SUL (s.n) e almofada de cabeça; quem senta olha para o norte. Cor em s.color.
+        chaise(g, s) {
+            const C = s.color || '#7a7448', esc = '#5a4a36', A = { roughness: 0.9 };
+            [[0.06, 0.06], [0.06, s.de - 0.08], [s.dn - 0.08, 0.06], [s.dn - 0.08, s.de - 0.08]]
+                .forEach(([dn, de]) => fcyl(g, s.n + dn, s.e + de, 0.018, 0, 0.12, esc));                   // pés
+            fbox(g, s.n, s.e, s.dn, s.de, 0.12, 0.30, C, A);                                                 // base
+            fbox(g, s.n + 0.02, s.e + 0.02, s.dn - 0.04, s.de - 0.04, 0.30, 0.42, C, A);                     // assento
+            const enc = new THREE.Mesh(new THREE.BoxGeometry(s.de - 0.04, 0.52, 0.12), fmat(C, A));             // encosto inclinado ~31°
+            enc.position.set(s.e + s.de / 2, 0.63, -(s.n + 0.20)); enc.rotation.x = 0.54;
+            enc.castShadow = true; enc.receiveShadow = true; g.add(enc);
+            fbox(g, s.n + 0.20, s.e + 0.12, 0.10, s.de - 0.24, 0.66, 0.80, '#e3d5bd', A);                    // almofada de cabeça (areia)
+            fbox(g, s.n + s.dn - 0.55, s.e - 0.01, 0.40, s.de + 0.02, 0.42, 0.44, '#e3d5bd', A);             // manta dobrada nos pés
+        },
+        // Mesa lateral redonda com abajur (usar com circ: centro, r = raio do tampo): pé central, tampo de madeira,
+        // abajur de cúpula de linho com luz quente para leitura.
+        mesaLateral(g, s) {
+            const H = s.h || 0.55, mad = fmat(COR_INT.madeira, { roughness: 0.55 });
+            fcyl(g, s.n, s.e, s.r * 0.55, 0, 0.02, mad);                                                     // base
+            fcyl(g, s.n, s.e, 0.025, 0.02, H - 0.025, mad);                                                  // pé
+            fcyl(g, s.n, s.e, s.r, H - 0.025, H, mad);                                                       // tampo
+            fcyl(g, s.n, s.e, 0.06, H, H + 0.03, '#d8cfc2', { roughness: 0.5 });                             // base do abajur
+            fcyl(g, s.n, s.e, 0.008, H + 0.03, H + 0.30, COR_INT.latao, LATAO());                            // haste
+            const linho = new THREE.MeshStandardMaterial({ color: col3d('#efe3cb'), roughness: 0.95, side: THREE.DoubleSide,
+                emissive: col3d('#ffd9a0'), emissiveIntensity: 0.35 });
+            const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.13, 0.18, 32, 1, true), linho);
+            cup.position.set(s.e, H + 0.30, -s.n); cup.castShadow = true; g.add(cup);
         },
         // Geladeira — corpo inox, fenda do freezer + 2 puxadores. Porta p/ sul quando mais larga em mE; senão p/ oeste.
         fridge(g, s) {
