@@ -393,7 +393,8 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `espelho` | Espelho de corpo inteiro, costas na parede **leste** (face p/ oeste): moldura fina de latão + vidro espelhado. `z3d` = base (0,30), `h3d` = altura (1,70). `acab3d: 'bisote'` = colado sobre o azulejo, sem moldura, borda bisotada (banho) |
 | `portaChaves` | Porta-chaves de parede, costas na parede **oeste** (face p/ leste): plaquinha de madeira mel, 4 ganchinhos de latão e prateleirinha de 6 cm no topo. `z3d` = base |
 | `toalheiro` | Toalheiro de barra cromado com toalha pendurada, costas na parede **oeste** (face p/ leste), sobre o azulejo. `z3d` = altura da barra |
-| `chaise` | Chaise longue ao longo de mN: pés, base, assento, encosto inclinado ~31° na ponta **sul** (`s.n`), almofada de cabeça e manta nos pés. Cor em `s.color` |
+| `poltrona` | Poltrona de braços estofada sobre pés de madeira, encosto na ponta **sul** (`s.n`, olha p/ o norte), almofada de apoio. Cor em `s.color` |
+| `puff` | Puff de apoio dos pés: bloco estofado sobre pés baixos. `h3d` = altura (0,42). Cor em `s.color` |
 | `mesaLateral` | Mesa lateral redonda com abajur de linho (usar com `circ`: `r` = raio do tampo, `h3d` = altura do tampo) |
 | `rack` | Rack baixo + pés + ranhura |
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
@@ -1317,8 +1318,9 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
 - **Suíte (em revisão):** cama **king** 1,93 × 2,03 (a maior possível, pedido do cliente) com a cabeceira na parede sul (lado do
   banho e do closet, longe do barulho do cinema); o pé para em mN 6,84, fora do giro da porta. **Cortinas blackout** com face de
   linho areia, do forro ao piso, nas 2 janelas (norte e leste), abertas em maços nas pontas (`cortina`; as do leste com `rot3d: 90`).
-  **Canto do descanso** junto da janela leste: chaise longue verde-oliva (`chaise`, 0,70 × 1,60; sentar com os pés para cima,
-  pedido do cliente), encosto ao sul e vista para a janela norte, e mesa lateral com abajur (`mesaLateral`) fora do giro da porta do closet.
+  **Canto do cuidado** junto da janela leste: **poltrona de braços verde-oliva + puff** na frente para apoiar o pé (cortar as unhas,
+  passar creme; pedido do cliente, que preferiu isso à chaise), olhando para o norte com a luz da manhã de lado, ao norte da área de
+  acesso à porta do closet; mesa lateral com abajur (`mesaLateral`) a oeste da poltrona.
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 

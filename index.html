@@ -2815,10 +2815,12 @@
         p(rect(4.81, 25.90, 2.03, 1.93, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 180 })));
         p(rect(4.85, 25.42, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
         p(rect(4.85, 27.86, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
-        // Canto do descanso junto da janela leste: chaise longue (sentar com os pés para cima, pedido do cliente), encosto ao
-        // sul e vista para a janela norte; mesa lateral com abajur ao lado do encosto (fora do giro da porta do closet)
-        p(rect(5.75, 29.55, 1.60, 0.70, '#7a7448', o(sMad, { h3d: 0.85, m3d: 'chaise' })));
-        p(circ(5.45, 30.05, 0.22, COR_INT.madeira, o(sMad, { h3d: 0.55, m3d: 'mesaLateral' })));
+        // Canto do cuidado junto da janela leste: poltrona de braços + puff na frente para apoiar o pé (cortar as unhas,
+        // passar creme; pedido do cliente). Quem senta olha para o norte com a luz da manhã de lado. Fica ao norte da
+        // área de acesso à porta do closet; a mesa lateral com abajur fica a oeste da poltrona.
+        p(rect(5.70, 29.45, 0.78, 0.80, '#7a7448', o(sMad, { h3d: 0.88, m3d: 'poltrona' })));
+        p(rect(6.60, 29.62, 0.45, 0.46, '#7a7448', o(sMad, { h3d: 0.42, m3d: 'puff' })));
+        p(circ(6.05, 29.17, 0.20, COR_INT.madeira, o(sMad, { h3d: 0.55, m3d: 'mesaLateral' })));
         // Cortinas blackout com face de linho areia, do forro ao piso, nas 2 janelas da suíte (norte grande + leste, sol da
         // manhã), abertas em maços nas pontas, num trilho embutido no forro. As do leste giram 90° (plano ao longo de mN).
         {
@@ -3631,19 +3633,24 @@
             fbox(g, s.n, E + 0.055, s.dn, 0.016, z - 0.008, z + 0.008, CROMO, M);                                   // barra
             fbox(g, s.n + 0.10, E + 0.045, s.dn - 0.20, 0.035, z - 0.50, z + 0.01, '#9fc3dc', { roughness: 0.95 });   // toalha azul-clara
         },
-        // Chaise longue (sentar com os pés para cima): base baixa sobre pés, assento estofado ao longo de mN, encosto
-        // inclinado na ponta SUL (s.n) e almofada de cabeça; quem senta olha para o norte. Cor em s.color.
-        chaise(g, s) {
-            const C = s.color || '#7a7448', esc = '#5a4a36', A = { roughness: 0.9 };
+        // Poltrona de braços estofada, encosto na ponta SUL (s.n), quem senta olha para o norte. Cor em s.color.
+        poltrona(g, s) {
+            const C = s.color || '#7a7448', A = { roughness: 0.9 }, esc = '#5a4a36', B = 0.12;
             [[0.06, 0.06], [0.06, s.de - 0.08], [s.dn - 0.08, 0.06], [s.dn - 0.08, s.de - 0.08]]
-                .forEach(([dn, de]) => fcyl(g, s.n + dn, s.e + de, 0.018, 0, 0.12, esc));                   // pés
-            fbox(g, s.n, s.e, s.dn, s.de, 0.12, 0.30, C, A);                                                 // base
-            fbox(g, s.n + 0.02, s.e + 0.02, s.dn - 0.04, s.de - 0.04, 0.30, 0.42, C, A);                     // assento
-            const enc = new THREE.Mesh(new THREE.BoxGeometry(s.de - 0.04, 0.52, 0.12), fmat(C, A));             // encosto inclinado ~31°
-            enc.position.set(s.e + s.de / 2, 0.63, -(s.n + 0.20)); enc.rotation.x = 0.54;
-            enc.castShadow = true; enc.receiveShadow = true; g.add(enc);
-            fbox(g, s.n + 0.20, s.e + 0.12, 0.10, s.de - 0.24, 0.66, 0.80, '#e3d5bd', A);                    // almofada de cabeça (areia)
-            fbox(g, s.n + s.dn - 0.55, s.e - 0.01, 0.40, s.de + 0.02, 0.42, 0.44, '#e3d5bd', A);             // manta dobrada nos pés
+                .forEach(([dn, de]) => fcyl(g, s.n + dn, s.e + de, 0.018, 0, 0.14, esc));                   // pés de madeira
+            fbox(g, s.n, s.e, s.dn, s.de, 0.14, 0.30, C, A);                                                 // base
+            fbox(g, s.n + 0.16, s.e + B, s.dn - 0.18, s.de - 2 * B, 0.30, 0.44, C, A);                       // almofada do assento
+            fbox(g, s.n, s.e, 0.16, s.de, 0.30, 0.88, C, A);                                                 // encosto
+            [s.e, s.e + s.de - B].forEach(e => fbox(g, s.n, e, s.dn, B, 0.30, 0.62, C, A));                  // braços
+            fbox(g, s.n + 0.16, s.e + 0.22, 0.10, s.de - 0.44, 0.50, 0.70, '#e3d5bd', A);                    // almofada de apoio (areia)
+        },
+        // Puff (apoio dos pés): bloco estofado sobre pés baixos, tampo levemente abaulado. Cor em s.color.
+        puff(g, s) {
+            const C = s.color || '#7a7448', A = { roughness: 0.9 };
+            [[0.05, 0.05], [0.05, s.de - 0.07], [s.dn - 0.07, 0.05], [s.dn - 0.07, s.de - 0.07]]
+                .forEach(([dn, de]) => fcyl(g, s.n + dn, s.e + de, 0.015, 0, 0.08, '#5a4a36'));
+            fbox(g, s.n, s.e, s.dn, s.de, 0.08, (s.h || 0.42) - 0.03, C, A);
+            fbox(g, s.n + 0.02, s.e + 0.02, s.dn - 0.04, s.de - 0.04, (s.h || 0.42) - 0.03, s.h || 0.42, C, A);
         },
         // Mesa lateral redonda com abajur (usar com circ: centro, r = raio do tampo): pé central, tampo de madeira,
         // abajur de cúpula de linho com luz quente para leitura.

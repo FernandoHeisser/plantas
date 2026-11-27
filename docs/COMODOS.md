@@ -32,7 +32,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 
 | Cômodo | Situação | O que já tem |
 |---|---|---|
-| Suíte | 🔶 em revisão | Cama king na parede sul (longe do cinema), criados-mudos, cortinas blackout nas 2 janelas, chaise longue com mesa lateral e abajur junto da janela leste (2026-11-27) |
+| Suíte | 🔶 em revisão | Cama king na parede sul (longe do cinema), criados-mudos, cortinas blackout nas 2 janelas, poltrona com puff (apoio do pé para unhas e creme) e mesa lateral com abajur junto da janela leste (2026-11-27) |
 | Closet | 🔶 esboço | Armário na parede sul, gaveteiro na leste |
 | Banho da suíte | 🔶 esboço | Box, vaso e lavatório |
 | Estar (cinema / video game) | 🔶 esboço | TV na parede cega da junta, sofá, tapete, poltrona junto da janela sul |
