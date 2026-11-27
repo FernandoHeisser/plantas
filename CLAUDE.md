@@ -377,7 +377,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `z3d: n` | Base acima do piso em metros (padrão 0) |
 | `no3d: true` | Não gerar volume 3D |
 | `m3d: 'tipo'` | Usa builder dedicado em `FURN3D` |
-| `rot3d: graus` | Gira o modelo 3D do móvel (anti-horário visto de cima; 180 = cabeceira ao sul). Hoje só o 2º piso (`f2Moveis`) aplica. |
+| `rot3d: graus` | Gira o modelo 3D do móvel (anti-horário visto de cima; 180 = cabeceira ao sul). Hoje só o 2º piso (`f2Moveis`) aplica. `rect` e `circ` repassam `rot3d` e `acab3d` ao GEO |
 
 ### Tipos de móveis (`FURN3D`)
 
@@ -385,7 +385,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 |---|---|
 | `rug` | Tapete plano fosco (respeita `z3d`); `acab3d: 'la'` = lã de trama grossa (`texLa`) com borda |
 | `monitores` | 2 monitores de 27" num pedestal duplo, tela p/ **norte**, + teclado e mouse. Rect = área sobre a mesa (`s.n` = fundo), base em `z3d` (tampo 0,76) |
-| `cadeiraEscr` | Cadeira de escritório (usar com `circ`): base estrela de 5 rodízios, coluna a gás, assento, encosto no lado **norte** (olha p/ o sul) e braços. Cor em `s.color` |
+| `cadeiraEscr` | Cadeira de escritório (usar com `circ`): base estrela de 5 rodízios, coluna a gás, assento, encosto no lado **norte** (olha p/ o sul) e braços. Cor em `s.color`; `rot3d` gira (270 = olha p/ oeste) |
 | `tv` | TV fina, tela desligada com reflexo. Altura 16:9 a partir da largura (`dn`), base em `z3d` (padrão 0,80). Sala: 55" (1,23 m) |
 | `cortina` | Cortina de linho aberta (maço franzido): plano ondulado do piso a `h3d`, ondas ao longo de mE, trilho embutido no forro. Marcada `foto: 'tecido'` |
 | `arandela` | Arandela (usar com `circ`: centro da cúpula, `r`, `z3d`, `h3d`): espelho e braço de latão saindo da parede + cúpula de linho com difusor quente. `acab3d` = lado da parede: `'O'` (padrão), `'L'`, `'S'`, `'N'` |
@@ -1371,6 +1371,11 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   sofá 2,10 encostado na parede oeste olhando p/ leste (`sofa` com `rot3d: 180`), TV de 65" na parede leste sobre rack de
   palhinha, a ≈2,2 m; armário fechado até o teto na parede norte (console, controles, papelada); **cortina blackout** na janela
   oeste (o sol da tarde refletiria na TV), maços atrás das pontas do sofá.
+- **Quarto 1** (garagem, noroeste; uso genérico, ainda sem finalidade: filho, hóspede ou escritório extra): cama de casal com a
+  cabeceira na parede sul, criados e arandelas; **guarda-roupa de correr até o teto na parede leste inteira** depois do giro da porta
+  (2,65 × 0,60, `roupeiro` `'O correr'`; antes portas de abrir com só 0,67 livre na frente), com ≈1,0 m livre até a cama;
+  escrivaninha 1,12 × 0,55 no canto noroeste olhando p/ oeste (luz da janela norte de lado); blackout nas 2 janelas (oeste num maço só,
+  ao sul, para não ficar atrás da escrivaninha).
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 

@@ -36,8 +36,8 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 | Closet | ✅ revisado | Roupeiros fechados até o teto em L nas paredes sul e leste inteiras com canto de porta em L (~5 m), portas de correr até o teto, uma folha inteira de espelho, banco estofado com sapateira aberta, porta da suíte abrindo para a suíte, luz neutra no teto (2026-11-27) |
 | Banho da suíte | ✅ revisado | Tudo pode molhar, estilo neutro: porcelanato off-white até o teto, metais de cobre fosco; box até o teto na metade oeste (1,30 × 1,00) e vaso reto na metade leste, uma janela sobre cada um (contra a umidade), bancada e espelho de parede a parede com 2 cubas e uma luz neutra por cuba, toalheiro sobre o vaso (2026-11-27) |
 | Estar (cinema / video game) | ✅ revisado | TV 75" na parede da suíte sobre painel ripado, sofá modular em L encostado na junta (vira "ninho"), 2 poltronas juntas no leste para puxar, tapete de lã; pilar solto fora da visão (2026-11-27) |
-| Escritório | ✅ revisado | Trabalho e jogo: mesa com 2 monitores sob a janela sul, sofá na parede oeste de frente para a TV de 65" na leste, armário fechado até o teto na norte, blackout na janela oeste |
-| Quarto 1 | 🔶 esboço | Cama, criados-mudos, guarda-roupa na parede leste |
+| Escritório | ✅ revisado | Trabalho e jogo: mesa com 2 monitores sob a janela sul, sofá na parede oeste de frente para a TV de 65" na leste, armário fechado até o teto na norte, blackout na janela oeste (2026-11-27) |
+| Quarto 1 | ✅ revisado | Genérico (sem finalidade definida): cama de casal com a cabeceira ao sul, criados e arandelas, guarda-roupa de correr até o teto na parede leste inteira (2,65 m), escrivaninha no canto noroeste, blackout nas 2 janelas (2026-11-27) |
 | Quarto 2 | 🔶 esboço | Cama sob a janela norte, guarda-roupa na parede sul do braço |
 | Banheiro | 🔶 esboço | Box, vaso e lavatório |
 | Rouparia | 🔶 esboço | Um armário fechado |

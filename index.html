@@ -2839,7 +2839,7 @@
         {
             const AR = (lado, z) => o(sMad, { color: '#8a6a3e', dashArray: '2 2', z3d: z, h3d: 0.17, m3d: 'arandela', acab3d: lado });
             [25.645, 28.085].forEach(e => p(circ(5.01, e, 0.09, '#ead9b8', AR('S', 1.15))));       // suíte: leitura, sobre os criados
-            [14.325, 16.455].forEach(e => p(circ(7.16, e, 0.09, '#ead9b8', AR('S', 1.15))));       // quarto 1: sobre os criados
+            [13.975, 16.105].forEach(e => p(circ(7.16, e, 0.09, '#ead9b8', AR('S', 1.15))));       // quarto 1: sobre os criados
             [8.19, 10.20].forEach(n => p(circ(n, 17.76, 0.09, '#ead9b8', AR('O', 1.15))));        // quarto 2: cabeceira a oeste
             [4.95, 6.55].forEach(n => p(circ(n, 22.86, 0.09, '#ead9b8', AR('O', 1.42))));         // estar: sobre as pontas do sofá (parede da junta)
             p(circ(3.00, 13.91, 0.09, '#ead9b8', AR('O', 1.60)));                                   // escritório: parede oeste
@@ -2944,11 +2944,21 @@
         p(rect(3.40, 16.70, 0.55, 0.45, LOU, o(sLou, { h3d: 0.85, m3d: 'lavatory', rot3d: 180 })));
         // Rouparia: armário fechado na parede sul (antes das duas portas)
         p(rect(4.50, 16.70, 0.60, 1.55, ARM, o(sArm, { h3d: 2.20, m3d: 'movel', acab3d: 'N' })));
-        // Quarto 1: cama com cabeceira ao sul, criados, guarda-roupa na parede leste
-        p(rect(6.97, 14.60, 2.10, 1.58, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 180 })));
-        p(rect(7.00, 14.10, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
-        p(rect(7.00, 16.23, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
-        p(rect(8.10, 16.85, 1.80, 0.60, '#9a7b46', o(sMad, { h3d: 2.20, m3d: 'wardrobe' })));
+        // Quarto 1 (genérico: filho, hóspede ou escritório extra): cama de casal com a cabeceira ao sul, 0,35 a oeste para
+        // abrir ≈1,0 m até o guarda-roupa; guarda-roupa de correr até o teto na parede leste inteira depois do giro da porta
+        // (2,65 × 0,60); escrivaninha pequena no canto noroeste (luz da janela norte de lado); blackout nas 2 janelas.
+        p(rect(6.97, 14.25, 2.10, 1.58, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 180 })));
+        p(rect(7.00, 13.75, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        p(rect(7.00, 15.88, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        p(rect(7.75, 16.85, 2.65, 0.60, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'O correr' })));
+        p(rect(9.12, 13.60, 1.12, 0.55, MAD, o(sMad, { m3d: 'table' })));                                      // escrivaninha 1,12 × 0,55
+        p(circ(9.68, 14.50, 0.26, '#d8cfc0', o(sMad, { m3d: 'cadeiraEscr', rot3d: 270 })));                     // cadeira (olha p/ oeste)
+        {
+            const sC = o(sArm, { color: '#8a7a62', h3d: CEIL3D - 0.02, m3d: 'cortina' });
+            p(rect(10.26, 13.72, 0.12, 0.30, '#cdbb9c', sC));                                                       // norte, maço oeste
+            p(rect(10.16, 16.42, 0.12, 0.42, '#cdbb9c', sC));                                                       // norte, maço leste (frente do pilar)
+            p(rect(7.40, 13.62, 0.45, 0.12, '#cdbb9c', o(sC, { rot3d: 90 })));                                      // oeste, maço único ao sul
+        }
         // Quarto 2 (em L): cama com a cabeceira a oeste, sob a janela norte; guarda-roupa na
         // parede sul do braço (a que ficou livre com a porta no extremo oeste)
         p(rect(8.45, 17.60, 1.58, 2.10, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 90 })));
