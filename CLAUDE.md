@@ -965,6 +965,9 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   referência do cliente: bloco de 0,20 em mármore branco com veios dourados (porcelanato/sinterizado, `texCalacatta`), sem
   gabinete; **cuba esculpida** (0,46 × 0,31) deslocada para o sul, apoio ao norte, rodabanca de 8 cm; **torneira de parede**
   com 2 registros redondos em latão; **prateleira de pedra** de 6 cm embaixo (topo 0,32) para toalhas, com o piso livre embaixo.
+- **Revestimento retrô** (referência do cliente): azulejo **branco brilhante** de 30 cm até o forro em todas as paredes
+  (`texAzulejo`) e a **parede do fundo do box** (sul, com a janela) em **pastilha de vidro azul e branca** de 2,5 cm
+  (`texPastilha`, 4 tons de azul + branco ao acaso), até o forro. Tudo lavável.
 
 ### Lavanderia e despensa
 - **V1/V2:** lavanderia com tanque e máquina; dormitório mobiliado (cama, guarda-roupa).

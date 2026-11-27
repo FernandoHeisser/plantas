@@ -3198,11 +3198,27 @@
     }
     function texAzulejo() {
         return TEX3D.azulejo || (TEX3D.azulejo = canvasTex((ctx, w) => {
-            ctx.fillStyle = '#e4ecef'; ctx.fillRect(0, 0, w, w);   // azulejo claro (1 peça por repetição)
-            noise2d(ctx, w, 0, 0, 0, 5);
-            ctx.strokeStyle = 'rgba(110,125,135,0.6)'; ctx.lineWidth = 5;
+            ctx.fillStyle = '#f6f6f3'; ctx.fillRect(0, 0, w, w);   // azulejo branco brilhante (1 peça por repetição)
+            noise2d(ctx, w, 0, 0, 0, 3);
+            ctx.strokeStyle = 'rgba(170,178,182,0.7)'; ctx.lineWidth = 3;
             ctx.strokeRect(0, 0, w, w);
         }, 128));
+    }
+    // Pastilha de vidro azul e branca (banho retrô, referência do cliente): peças de 2,5 cm misturadas ao acaso em
+    // 4 tons de azul + branco, rejunte branco. 12 × 12 peças por repetição (0,30 m).
+    function texPastilha() {
+        return TEX3D.pastilha || (TEX3D.pastilha = canvasTex((ctx, w) => {
+            ctx.fillStyle = '#eef1f2'; ctx.fillRect(0, 0, w, w);   // rejunte
+            const n = 12, t = w / n, cores = ['#1d4f7a', '#2b6a9c', '#4b8fc0', '#86b9dc', '#f4f6f7', '#f4f6f7'];
+            let sd = 5; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+            for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+                const x = i * t + 1.5, y = j * t + 1.5, a = t - 3;
+                ctx.fillStyle = cores[(rnd() * cores.length) | 0]; ctx.fillRect(x, y, a, a);
+                const rg = ctx.createLinearGradient(x, y, x + a, y + a);   // brilho do vidro
+                rg.addColorStop(0, 'rgba(255,255,255,0.22)'); rg.addColorStop(0.5, 'rgba(255,255,255,0)');
+                ctx.fillStyle = rg; ctx.fillRect(x, y, a, a);
+            }
+        }, 384));
     }
     // Azulejo artesanal verde-sálvia (Gouache Mer, Portobello): 4×4 peças de 10 cm por repetição (0,40 m),
     // cada uma com tom e brilho levemente diferentes e borda ondulada, como a peça feita à mão.
@@ -4468,28 +4484,30 @@
         // ── Azulejo do banho até o forro (Memorial): painéis finos nas 4 paredes ──
         {
             const T = 0.008, TILE = 0.30, H = CEIL3D;
-            const matAz = new THREE.MeshStandardMaterial({ map: texAzulejo(), roughness: 0.35, metalness: 0, envMapIntensity: 0.5 });
+            const matAz = new THREE.MeshStandardMaterial({ map: texAzulejo(), roughness: 0.2, metalness: 0, envMapIntensity: 0.6 });
+            const matPas = new THREE.MeshStandardMaterial({ map: texPastilha(), roughness: 0.15, metalness: 0, envMapIntensity: 0.7 });   // parede do fundo do box
             const nS = EIXO.S + ESP.ext / 2, nN = EIXO.LONG - ESP.int / 2;
             const eO = EIXO.HALL + ESP.int / 2 + OE, eL = EIXO.BANHO - ESP.int / 2 + OE;
-            const painel = (emE, pos, lado, a0, a1, z0, z1) => {
+            const painel = (emE, pos, lado, a0, a1, z0, z1, mat = matAz) => {
                 if (a1 - a0 < 0.005 || z1 - z0 < 0.005) return;
                 const p0 = lado > 0 ? pos : pos - T;
-                const m = emE ? box3d(p0, a0, T, a1 - a0, CPA + z0, CPA + z1, matAz)
-                              : box3d(a0, p0, a1 - a0, T, CPA + z0, CPA + z1, matAz);
+                const m = emE ? box3d(p0, a0, T, a1 - a0, CPA + z0, CPA + z1, mat)
+                              : box3d(a0, p0, a1 - a0, T, CPA + z0, CPA + z1, mat);
                 const uv = m.geometry.attributes.uv;     // peças em tamanho real, sem esticar a textura
                 for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * (a1 - a0) / TILE, uv.getY(i) * (z1 - z0) / TILE);
                 m.castShadow = false;
                 g.add(m);
             };
-            const parede = (emE, pos, lado, a0, a1, f) => {
-                if (!f) return painel(emE, pos, lado, a0, a1, 0, H);
-                painel(emE, pos, lado, a0, f.s, 0, H);
-                painel(emE, pos, lado, f.s, f.e, 0, f.z0);
-                painel(emE, pos, lado, f.s, f.e, f.z1, H);
-                painel(emE, pos, lado, f.e, a1, 0, H);
+            const parede = (emE, pos, lado, a0, a1, f, mat) => {
+                if (!f) return painel(emE, pos, lado, a0, a1, 0, H, mat);
+                painel(emE, pos, lado, a0, f.s, 0, H, mat);
+                painel(emE, pos, lado, f.s, f.e, 0, f.z0, mat);
+                painel(emE, pos, lado, f.s, f.e, f.z1, H, mat);
+                painel(emE, pos, lado, f.e, a1, 0, H, mat);
             };
             const j = JANELAS.find(x => x.id === 'banho'), p = VAOS.banho;
-            parede(true,  nS, +1, eO, eL, { s: j.ini + OE, e: j.ini + OE + j.larg, z0: j.opts.sill, z1: j.opts.head });
+            // Parede do fundo do box (sul, com a janela) em pastilha azul e branca; o resto em azulejo branco até o forro
+            parede(true,  nS, +1, eO, eL, { s: j.ini + OE, e: j.ini + OE + j.larg, z0: j.opts.sill, z1: j.opts.head }, matPas);
             parede(true,  nN, -1, eO, eL);
             parede(false, eO, +1, nS, nN, { s: p.ini, e: p.ini + p.larg, z0: 0, z1: 2.1 });
             parede(false, eL, -1, nS, nN);
@@ -5719,7 +5737,7 @@
         if (!root) return;
         const keepMat = new Set();
         if (satGroundMat) keepMat.add(satGroundMat);
-        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.gouache, TEX3D.rattan, TEX3D.palhinha, TEX3D.la].filter(Boolean));
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.pastilha, TEX3D.calacatta, TEX3D.gouache, TEX3D.rattan, TEX3D.palhinha, TEX3D.la].filter(Boolean));
         if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
         if (_fotoTexMap) Object.values(_fotoTexMap).forEach(t => keepTex.add(t));
         root.traverse(obj => {

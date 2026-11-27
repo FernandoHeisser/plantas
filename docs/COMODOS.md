@@ -17,7 +17,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 | Sala de estar | ✅ revisado | TV 55" no painel ripado, rack de palhinha, sofá caramelo com manta, tapete de lã, cortinas de linho, arandelas, balcão de refeições atrás do sofá |
 | Despensa (dormitório no V1/V2) | ✅ revisado | Despenseiro ao norte, freezer no canto sudoeste, forno e micro-ondas sob a janela sul, aéreo de panelas, coluna de limpeza, armário baixo a leste |
 | Lavanderia | ✅ revisado | Em C (lavadora, secadora, cuba), armários fechados, aéreo na parede oeste, varal de teto, tábua de passar rebatível |
-| Banho | 🔶 em revisão | Box até o teto com porta de correr; bancada de mármore suspensa (bloco com cuba esculpida, torneira de parede, prateleira de pedra embaixo), pela foto de referência do cliente. Regra do cliente: tudo pode molhar (nada de madeira/MDF). Falta vaso, espelho, toalheiro e revestimento |
+| Banho | 🔶 em revisão | Box até o teto com porta de correr; bancada de mármore suspensa (bloco com cuba esculpida, torneira de parede, prateleira de pedra embaixo), pela foto de referência do cliente; azulejo branco até o forro e pastilha azul e branca no fundo do box (estilo retrô). Regra do cliente: tudo pode molhar (nada de madeira/MDF). Falta vaso, espelho e toalheiro |
 | Hall de entrada | ✅ revisado | Armário de entrada no canto sul (sapateira aberta, gavetas, casacos abertos em ganchos, maleiro), espelho de corpo inteiro na parede leste, plafon de rattan Ø 30, porta-chaves junto da fechadura; guarda-chuva fica na garagem. Falta definir o interfone e o quadro de luz |
 
 ## Térreo — garagem
