@@ -2881,7 +2881,7 @@
             p(rect(2.15, 25.40, 1.00, 2.65, '#eff6ff', o(sLou, { h3d: CEIL3D, m3d: 'boxSuite', acab3d: 'cobre parede inv' })));         // box de parede a parede (folha de correr a oeste, do lado do toalheiro)
             p(rect(3.415, 25.40, 0.37, 0.67, LOU, o(sLou, { h3d: 0.40, m3d: 'toilet', acab3d: 'reto cobre', rot3d: 180 })));            // vaso
             p(rect(4.20, 25.40, 0.45, 2.65, PED, o(sLou, { h3d: 0.90, m3d: 'lavatory', acab3d: 'pedra duas offwhite cobre', rot3d: 90 })));   // bancada de parede a parede (pedra recortada em volta do pilar P5)
-            [[4.60, 25.41, 1.28], [4.60, 26.86, 1.18], [4.50, 26.70, 0.15]].forEach(([n, e, de]) => p(rect(n, e, 0.05, de, '#cbd5e1', o(sLou, { z3d: 1.25, h3d: 0.70, m3d: 'espelho', acab3d: 'bisote', rot3d: 90 }))));   // espelho de parede a parede (3 peças: dos dois lados e na frente do pilar P5)
+            [[4.60, 25.41, 1.28], [4.60, 26.86, 1.18]].forEach(([n, e, de]) => p(rect(n, e, 0.05, de, '#cbd5e1', o(sLou, { z3d: 1.25, h3d: 0.70, m3d: 'espelho', acab3d: 'bisote', rot3d: 90 }))));   // 2 espelhos, cada um ocupando todo o trecho de parede de um lado do pilar P5 (pilar aparente, decisão do cliente)
             [[25.60, 0.90], [26.97, 0.90]].forEach(([e, de]) => p(rect(4.575, e, 0.075, de, '#fff3d6', o(sLou, { z3d: 2.00, h3d: 0.05, m3d: 'luzEspelho', acab3d: 'cobre', rot3d: 90 }))));  // luz sobre cada cuba
             p(rect(3.35, 25.40, 0.50, 0.08, '#cbd5e1', o(sLou, { z3d: 1.45, h3d: 0.04, m3d: 'toalheiro', acab3d: 'cobre' })));   // toalheiro sobre o vaso (parede oeste), na saída do box
             // Porcelanato até o teto nas 4 paredes (recortes da janela sul e da porta do closet)

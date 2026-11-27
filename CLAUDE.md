@@ -1349,8 +1349,9 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   Por causa dele a **porta do closet subiu para mN 3,25–3,95** (antes 2,85–3,55, caía dentro do box). **Vaso de linhas retas** na parede oeste
   (`toilet` `'reto cobre'`, `rot3d: 180`). **Bancada de pedra off-white suspensa com 2 cubas** na parede norte, **de parede a parede**
   (2,65 × 0,45, pedido do cliente; a pedra é recortada em volta do pilar P5; `lavatory` `'pedra duas offwhite cobre'`, `rot3d: 90`),
-  **espelho bisotado de parede a parede** (0,70 de altura, em 3 peças: dos dois lados e na frente do pilar P5) e uma barra de luz
-  neutra sobre cada cuba. **Toalheiro** de cobre sobre o vaso (parede oeste, barra a 1,45), na saída do box. Os pilares P5/P6/P7 avançam 0,10 da parede: nada encosta neles.
+  **2 espelhos bisotados**, cada um ocupando todo o trecho de parede de um lado do pilar P5 (1,28 e 1,18 × 0,70; o pilar fica
+  aparente entre eles, decisão do cliente) e uma barra de luz
+  neutra sobre cada cuba. **Toalheiro** de cobre sobre o vaso (parede oeste, barra a 1,45), na saída do box. Os pilares P5/P6 avançam 0,10 da parede porque a parede de baixo (lavanderia × despensa) não sobe; ficam aparentes (decisão do cliente).
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 
