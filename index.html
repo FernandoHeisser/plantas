@@ -2804,7 +2804,7 @@
         // Casa
         { axis:'NS', pos:EIXO.BANHO, a0:6.85, a1:7.65, leaves:[{hn:7.65, he:EIXO.BANHO, dn:-0.80, de:0, sw:+1}] },   // suíte, na ponta norte (cama na parede sul)
         { axis:'EW', pos:EIXO.LONG,  a0:29.00, a1:29.80, leaves:[{hn:EIXO.LONG, he:29.80, dn:0, de:-0.80, sw:+1}] }, // suíte → closet
-        { axis:'NS', pos:28.10, a0:2.85, a1:3.55, leaves:[{hn:3.55, he:28.10, dn:-0.70, de:0, sw:-1}] },              // closet → banho da suíte
+        { axis:'NS', pos:28.10, a0:3.25, a1:3.95, leaves:[{hn:3.95, he:28.10, dn:-0.70, de:0, sw:-1}] },              // closet → banho da suíte (ao norte do box, que vai de parede a parede)
     ];
 
     // Janelas do 2º piso da casa — compartilhado 2D (win) + 3D (winWall: peitoril/verga/vidro).
@@ -2873,17 +2873,17 @@
         p(rect(3.36, 29.84, 1.28, 0.60, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'O e1' })));
         // Banho da suíte (2,65 × 2,50): mesmas regras do banho de baixo (tudo pode molhar; só pedra, louça, vidro e metal), mas
         // neutro: porcelanato off-white fosco até o teto e metais de cobre escovado fosco (pedido do cliente: nada dourado nem
-        // brilhante). Box até o teto no canto sudoeste (1,30 × 1,00, até o pilar P6), com a janela dentro (exaustão do vapor); vaso de
-        // linhas retas na parede oeste; bancada de pedra off-white suspensa com 2 cubas na parede norte, de parede a parede (2,65; pedido do cliente), espelho e luz neutra em cima; toalheiro na
-        // parede leste, ao lado da porta do closet (que abre para dentro do banho, sem bater em nada).
+        // brilhante). Box até o teto de parede a parede na parede sul (2,65 × 1,00), com a janela dentro (exaustão do vapor); vaso de
+        // linhas retas na parede oeste; bancada de pedra off-white suspensa com 2 cubas na parede norte, de parede a parede (2,65; pedido do cliente), espelho de parede a parede e luz neutra em cima; toalheiro
+        // sobre o vaso, na saída do box; a porta do closet fica ao norte do box e abre para dentro do banho sem bater em nada.
         {
             const PED = '#ece7de', RV = o(sArm, { color: '#c8bfb2', weight: 0.4, m3d: 'revest' });
-            p(rect(2.15, 25.40, 1.00, 1.30, '#eff6ff', o(sLou, { h3d: CEIL3D, m3d: 'boxSuite', acab3d: 'cobre' })));                    // box (lateral no pilar P6)
+            p(rect(2.15, 25.40, 1.00, 2.65, '#eff6ff', o(sLou, { h3d: CEIL3D, m3d: 'boxSuite', acab3d: 'cobre parede inv' })));         // box de parede a parede (folha de correr a oeste, do lado do toalheiro)
             p(rect(3.415, 25.40, 0.37, 0.67, LOU, o(sLou, { h3d: 0.40, m3d: 'toilet', acab3d: 'reto cobre', rot3d: 180 })));            // vaso
             p(rect(4.20, 25.40, 0.45, 2.65, PED, o(sLou, { h3d: 0.90, m3d: 'lavatory', acab3d: 'pedra duas offwhite cobre', rot3d: 90 })));   // bancada de parede a parede (pedra recortada em volta do pilar P5)
-            [25.84, 27.06].forEach(e => p(rect(4.60, e, 0.05, 0.55, '#cbd5e1', o(sLou, { z3d: 1.25, h3d: 0.70, m3d: 'espelho', acab3d: 'bisote', rot3d: 90 }))));   // um espelho por cuba, um de cada lado do pilar
-            [25.89, 27.11].forEach(e => p(rect(4.575, e, 0.075, 0.45, '#fff3d6', o(sLou, { z3d: 2.00, h3d: 0.05, m3d: 'luzEspelho', acab3d: 'cobre', rot3d: 90 }))));  // luz de cada espelho
-            p(rect(3.62, 27.97, 0.50, 0.08, '#cbd5e1', o(sLou, { z3d: 1.20, h3d: 0.04, m3d: 'toalheiro', acab3d: 'cobre', rot3d: 180 })));   // toalheiro
+            [[4.60, 25.41, 1.28], [4.60, 26.86, 1.18], [4.50, 26.70, 0.15]].forEach(([n, e, de]) => p(rect(n, e, 0.05, de, '#cbd5e1', o(sLou, { z3d: 1.25, h3d: 0.70, m3d: 'espelho', acab3d: 'bisote', rot3d: 90 }))));   // espelho de parede a parede (3 peças: dos dois lados e na frente do pilar P5)
+            [[25.60, 0.90], [26.97, 0.90]].forEach(([e, de]) => p(rect(4.575, e, 0.075, de, '#fff3d6', o(sLou, { z3d: 2.00, h3d: 0.05, m3d: 'luzEspelho', acab3d: 'cobre', rot3d: 90 }))));  // luz sobre cada cuba
+            p(rect(3.35, 25.40, 0.50, 0.08, '#cbd5e1', o(sLou, { z3d: 1.45, h3d: 0.04, m3d: 'toalheiro', acab3d: 'cobre' })));   // toalheiro sobre o vaso (parede oeste), na saída do box
             // Porcelanato até o teto nas 4 paredes (recortes da janela sul e da porta do closet)
             p(rect(2.15, 25.40, 0.008, 0.05, PED, RV));
             p(rect(2.15, 25.45, 0.008, 1.20, PED, o(RV, { h3d: 1.40 })));
@@ -2891,9 +2891,9 @@
             p(rect(2.15, 26.65, 0.008, 1.40, PED, RV));
             p(rect(4.642, 25.40, 0.008, 2.65, PED, RV));
             p(rect(2.158, 25.40, 2.484, 0.008, PED, RV));
-            p(rect(2.158, 28.042, 0.692, 0.008, PED, RV));
-            p(rect(2.85, 28.042, 0.70, 0.008, PED, o(RV, { z3d: 2.10, h3d: CEIL3D - 0.01 - 2.10 })));
-            p(rect(3.55, 28.042, 1.092, 0.008, PED, RV));
+            p(rect(2.158, 28.042, 1.092, 0.008, PED, RV));
+            p(rect(3.25, 28.042, 0.70, 0.008, PED, o(RV, { z3d: 2.10, h3d: CEIL3D - 0.01 - 2.10 })));
+            p(rect(3.95, 28.042, 0.692, 0.008, PED, RV));
         }
         // Estar (cinema / video game): TV na parede cega da junta, no braço norte; sofá de costas
         // p/ a parede da suíte; poltrona junto da janela sul
@@ -3619,16 +3619,22 @@
         boxSuite(g, s) {
             const glass = fmat('#cfe3ee', { transparent: true, opacity: 0.22, roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
             glass.userData.foto = 'vidro';
+            // acab3d: + 'parede' = de parede a parede (sem lateral); + 'inv' = folha de correr a oeste e fixo a leste
             const H = CEIL3D - 0.01, F = s.n + s.dn, E = s.e + s.de, meio = s.e + s.de / 2, [MC, MM] = metalBanho(s);
+            const parede = /parede/.test(s.acab3d || ''), inv = /inv/.test(s.acab3d || '');
+            const [f0, f1] = inv ? [meio - 0.05, E] : [s.e, meio + 0.05], [c0, c1] = inv ? [s.e, meio + 0.03] : [meio - 0.03, E];
             fbox(g, s.n, s.e, s.dn, s.de, 0, 0.05, '#e9e4da', { roughness: 0.5 });                                     // base
-            fbox(g, F - 0.02, s.e, 0.01, s.de / 2 + 0.05, 0.05, H - 0.03, glass).castShadow = false;                   // fixo (oeste)
-            fbox(g, F - 0.05, meio - 0.03, 0.01, s.de / 2 + 0.01, 0.06, H - 0.03, glass).castShadow = false;           // folha de correr (leste)
-            fbox(g, s.n, E - 0.01, s.dn - 0.06, 0.01, 0.05, H - 0.03, glass).castShadow = false;                       // lateral fixa (leste)
+            fbox(g, F - 0.02, f0, 0.01, f1 - f0, 0.05, H - 0.03, glass).castShadow = false;                            // fixo
+            fbox(g, F - 0.05, c0, 0.01, c1 - c0, 0.06, H - 0.03, glass).castShadow = false;                            // folha de correr
+            if (!parede) {
+                fbox(g, s.n, E - 0.01, s.dn - 0.06, 0.01, 0.05, H - 0.03, glass).castShadow = false;                   // lateral fixa (leste)
+                fbox(g, s.n, E - 0.015, s.dn, 0.015, H - 0.03, H, MC, MM);                                              // perfil de teto da lateral
+            }
             fbox(g, F - 0.06, s.e, 0.06, s.de, H - 0.03, H, MC, MM);                                                    // trilho no teto
             fbox(g, F - 0.06, s.e, 0.06, s.de, 0.05, 0.065, MC, MM);                                                    // guia no piso
-            fbox(g, s.n, E - 0.015, s.dn, 0.015, H - 0.03, H, MC, MM);                                                  // perfil de teto da lateral
             [s.e, E - 0.015].forEach(e => fbox(g, F - 0.06, e, 0.06, 0.015, 0.05, H, MC, MM));                         // montantes
-            fbox(g, F - 0.07, meio + 0.04, 0.015, 0.015, 0.95, 1.25, MC, MM);                                           // puxador
+            const pu = inv ? meio - 0.06 : meio + 0.04;
+            fbox(g, F - 0.07, pu, 0.015, 0.015, 0.95, 1.25, MC, MM);                                                    // puxador
             fcyl(g, s.n + s.dn / 2, s.e + s.de / 2, 0.11, H - 0.02, H, MC, MM);                                         // ducha de teto
         },
         // Revestimento de parede (porcelanato off-white fosco 60 × 120, rejunte fino): painel fino de 8 mm do rect (s.z → s.z + s.h).

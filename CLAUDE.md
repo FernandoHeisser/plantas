@@ -398,7 +398,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `puff` | Puff de apoio dos pés: bloco estofado sobre pés baixos. `h3d` = altura (0,42). Cor em `s.color` |
 | `mesaLateral` | Mesa lateral redonda com abajur de linho (usar com `circ`: `r` = raio do tampo, `h3d` = altura do tampo) |
 | `roupeiro` | Roupeiro de closet até o teto: portas de giro de ~0,50 (rodapé → 2,18) + maleiro (2,20 → teto), puxadores verticais de latão. `acab3d` = lado da frente (`'N'`/`'S'`/`'O'`/`'L'`) + opcional `e<i>` = porta i com espelho de corpo inteiro (ex.: `'O e1'`) |
-| `boxSuite` | Box até o teto encostado nas paredes sul e oeste: frente norte (fixo a oeste + folha de correr a leste) + lateral fixa a leste, perfis e ducha no metal do banho (`acab3d: 'cobre'`) |
+| `boxSuite` | Box até o teto encostado na parede sul: frente norte (fixo a oeste + folha de correr a leste) + lateral fixa a leste, perfis e ducha no metal do banho (`acab3d: 'cobre'`). `parede` = de parede a parede (sem lateral); `inv` = folha de correr a oeste |
 | `revest` | Revestimento de parede: painel de 8 mm em porcelanato off-white fosco 60 × 120 (`texPorcelanato`), UV em tamanho real; `z3d`/`h3d` para recortes de vãos |
 | `rack` | Rack baixo + pés + ranhura |
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
@@ -1344,12 +1344,13 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   armário, para ganhar espaço). Livres: o giro da porta da suíte e o acesso ao banho da suíte (parede oeste).
 - **Banho da suíte** (2,65 × 2,50) — mesmas regras do banho de baixo (tudo pode molhar; só pedra, louça, vidro e metal), mas
   **neutro**: porcelanato off-white fosco 60 × 120 até o teto nas 4 paredes (`revest`) e **metais de cobre escovado fosco**
-  (`COBRE`/`COBRE_M`, `metalBanho`; pedido do cliente: nada dourado nem brilhante). **Box até o teto** no canto sudoeste
-  (`boxSuite`, 1,30 × 1,00, até o pilar P6) com a janela dentro (exaustão do vapor). **Vaso de linhas retas** na parede oeste
+  (`COBRE`/`COBRE_M`, `metalBanho`; pedido do cliente: nada dourado nem brilhante). **Box até o teto de parede a parede** na parede sul
+  (`boxSuite` `'cobre parede inv'`, 2,65 × 1,00, pedido do cliente) com a janela dentro (exaustão do vapor); folha de correr a oeste.
+  Por causa dele a **porta do closet subiu para mN 3,25–3,95** (antes 2,85–3,55, caía dentro do box). **Vaso de linhas retas** na parede oeste
   (`toilet` `'reto cobre'`, `rot3d: 180`). **Bancada de pedra off-white suspensa com 2 cubas** na parede norte, **de parede a parede**
   (2,65 × 0,45, pedido do cliente; a pedra é recortada em volta do pilar P5; `lavatory` `'pedra duas offwhite cobre'`, `rot3d: 90`),
-  **um espelho bisotado por cuba** (0,55 × 0,70, um de cada lado do pilar) e uma barra de luz neutra sobre cada espelho.
-  **Toalheiro** de cobre na parede leste, ao lado da porta do closet. Os pilares P5/P6/P7 avançam 0,10 da parede: nada encosta neles.
+  **espelho bisotado de parede a parede** (0,70 de altura, em 3 peças: dos dois lados e na frente do pilar P5) e uma barra de luz
+  neutra sobre cada cuba. **Toalheiro** de cobre sobre o vaso (parede oeste, barra a 1,45), na saída do box. Os pilares P5/P6/P7 avançam 0,10 da parede: nada encosta neles.
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 
