@@ -32,7 +32,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 
 | Cômodo | Situação | O que já tem |
 |---|---|---|
-| Suíte | 🔶 esboço | Cama na parede sul, criados-mudos, poltrona junto da janela leste |
+| Suíte | 🔶 em revisão | Cama king na parede sul (longe do cinema), criados-mudos, cortinas blackout nas 2 janelas (2026-11-27); poltrona junto da janela leste ainda em esboço |
 | Closet | 🔶 esboço | Armário na parede sul, gaveteiro na leste |
 | Banho da suíte | 🔶 esboço | Box, vaso e lavatório |
 | Estar (cinema / video game) | 🔶 esboço | TV na parede cega da junta, sofá, tapete, poltrona junto da janela sul |

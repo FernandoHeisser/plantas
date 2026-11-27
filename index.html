@@ -2809,12 +2809,23 @@
         const MAD = '#8a5a33', ARM = '#efece6', CAMA = '#c8b99a', LOU = '#ffffff';
         const sMad = { color: '#451a03', weight: 0.5 }, sArm = { color: '#78716c', weight: 0.6 }, sLou = { color: '#475569', weight: 0.6 };
         const o = (base, extra) => Object.assign({}, base, extra);
-        // Suíte: cama queen com a cabeceira na parede sul (porta na ponta norte da parede oeste),
-        // criados-mudos, poltrona junto da janela leste. A porta do closet fica livre a leste da cama.
-        p(rect(4.85, 26.10, 2.10, 1.58, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 180 })));
-        p(rect(4.85, 25.55, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
-        p(rect(4.85, 27.73, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
-        p(rect(6.30, 29.55, 0.80, 0.80, '#9a3412', o(sMad, { h3d: 0.45 })));
+        // Suíte: cama KING (1,93 × 2,03, a maior possível, pedido do cliente) com a cabeceira na parede sul (lado do banho
+        // e do closet, longe do barulho do cinema); o pé para em 6,84, fora do giro da porta (ponta norte da parede oeste).
+        // Criados-mudos dos dois lados, poltrona junto da janela leste. A porta do closet fica livre a leste.
+        p(rect(4.81, 25.90, 2.03, 1.93, CAMA, o(sMad, { h3d: 0.95, m3d: 'bed', rot3d: 180 })));
+        p(rect(4.85, 25.42, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        p(rect(4.85, 27.86, 0.40, 0.45, MAD, o(sMad, { h3d: 0.55 })));
+        p(rect(6.30, 29.40, 0.80, 0.80, '#9a3412', o(sMad, { h3d: 0.45 })));
+        // Cortinas blackout com face de linho areia, do forro ao piso, nas 2 janelas da suíte (norte grande + leste, sol da
+        // manhã), abertas em maços nas pontas, num trilho embutido no forro. As do leste giram 90° (plano ao longo de mN).
+        {
+            const BLK = '#cdbb9c', sC = o(sArm, { color: '#8a7a62', h3d: CEIL3D - 0.02, m3d: 'cortina' });
+            const fN = F2_LINHA.N - F2_T_CASA / 2, fL = F2_LINHA.L - F2_T_CASA / 2;   // faces internas norte e leste
+            p(rect(fN - 0.14, 26.85, 0.12, 0.45, BLK, sC));                              // norte, maço oeste
+            p(rect(fN - 0.14, 29.83, 0.12, 0.45, BLK, sC));                              // norte, maço leste
+            p(rect(7.06, fL - 0.14, 0.40, 0.12, BLK, o(sC, { rot3d: 90 })));             // leste, maço norte
+            p(rect(4.95, fL - 0.14, 0.45, 0.12, BLK, o(sC, { rot3d: 90 })));             // leste, maço sul
+        }
         // Closet: armário na parede sul + gaveteiro baixo na leste
         p(rect(2.15, 28.20, 0.60, 2.30, ARM, o(sArm, { h3d: 2.30 })));
         p(rect(2.85, 29.95, 1.10, 0.55, ARM, o(sArm, { h3d: 0.90 })));

@@ -1312,6 +1312,9 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   só o banho da suíte fica em 1,20 (entre os pilares P8 e P6). Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
   **Estilo padrão** = grade de caixilho (`winGrid` no `winWall`), cor `matFrame`, igual ao térreo.
 - **Móveis** em `f2Moveis()` (fonte única 2D + 3D, base no piso do 2º; `rot3d` gira o modelo).
+- **Suíte (em revisão):** cama **king** 1,93 × 2,03 (a maior possível, pedido do cliente) com a cabeceira na parede sul (lado do
+  banho e do closet, longe do barulho do cinema); o pé para em mN 6,84, fora do giro da porta. **Cortinas blackout** com face de
+  linho areia, do forro ao piso, nas 2 janelas (norte e leste), abertas em maços nas pontas (`cortina`; as do leste com `rot3d: 90`).
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 
