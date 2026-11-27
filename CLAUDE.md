@@ -397,6 +397,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `poltrona` | Poltrona de braços estofada sobre pés de madeira, encosto na ponta **sul** (`s.n`, olha p/ o norte), almofada de apoio. Cor em `s.color` |
 | `puff` | Puff de apoio dos pés: bloco estofado sobre pés baixos. `h3d` = altura (0,42). Cor em `s.color` |
 | `mesaLateral` | Mesa lateral redonda com abajur de linho (usar com `circ`: `r` = raio do tampo, `h3d` = altura do tampo) |
+| `roupeiro` | Roupeiro de closet até o teto: portas de giro de ~0,50 (rodapé → 2,18) + maleiro (2,20 → teto), puxadores verticais de latão. `acab3d` = lado da frente (`'N'`/`'S'`/`'O'`/`'L'`) + opcional `e<i>` = porta i com espelho de corpo inteiro (ex.: `'O e1'`) |
 | `rack` | Rack baixo + pés + ranhura |
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
 | `fornoBancada` | Forno elétrico de bancada solto, frente p/ **norte**: corpo grafite, porta de vidro escuro com puxador, botões à direita. Base em `z3d` (tampo) |
@@ -1335,6 +1336,10 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   **Canto do cuidado** junto da janela leste: **poltrona de braços verde-oliva + puff** na frente para apoiar o pé (cortar as unhas,
   passar creme; pedido do cliente, que preferiu isso à chaise), olhando para o norte com a luz da manhã de lado, ao norte da área de
   acesso à porta do closet; mesa lateral com abajur (`mesaLateral`) a oeste da poltrona.
+- **Closet** (2,30 × 2,50, sem janela): roupeiros fechados até o teto em L (`roupeiro`): parede sul inteira (2,28, frente p/ norte)
+  e parede leste de mN 3,36 à parede norte (1,28, frente p/ oeste). Os 0,60 diante do canto ficam livres para as portas do sul
+  abrirem (sem canto morto). **Espelho de corpo inteiro na porta do meio do roupeiro leste** (pedido do cliente: no próprio
+  armário, para ganhar espaço). Livres: o giro da porta da suíte e o acesso ao banho da suíte (parede oeste).
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 

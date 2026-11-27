@@ -2862,9 +2862,12 @@
             p(rect(7.06, fL - 0.14, 0.40, 0.12, BLK, o(sC, { rot3d: 90 })));             // leste, maço norte
             p(rect(4.95, fL - 0.14, 0.45, 0.12, BLK, o(sC, { rot3d: 90 })));             // leste, maço sul
         }
-        // Closet: armário na parede sul + gaveteiro baixo na leste
-        p(rect(2.15, 28.20, 0.60, 2.30, ARM, o(sArm, { h3d: 2.30 })));
-        p(rect(2.85, 29.95, 1.10, 0.55, ARM, o(sArm, { h3d: 0.90 })));
+        // Closet (2,30 × 2,50, sem janela): roupeiros fechados até o teto em L. Parede sul inteira (2,30, frente p/ norte) e
+        // parede leste de 3,35 até a parede norte (1,30, frente p/ oeste), deixando 0,60 livres diante do canto para as portas
+        // do sul abrirem (o cliente não quer canto morto). Espelho de corpo inteiro numa porta do roupeiro leste (pedido do
+        // cliente: no próprio armário, para ganhar espaço). Livres: o giro da porta da suíte e o acesso ao banho (parede oeste).
+        p(rect(2.16, 28.16, 0.60, 2.28, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'N' })));
+        p(rect(3.36, 29.84, 1.28, 0.60, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'O e1' })));
         // Banho da suíte: box no canto noroeste, vaso na parede sul, lavatório na norte
         p(rect(3.60, 25.45, 1.00, 1.05, '#eff6ff', o(sLou, { h3d: 1.90, m3d: 'shower' })));
         p(rect(2.15, 26.80, 0.70, 0.40, LOU, o(sLou, { h3d: 0.40, m3d: 'toilet', rot3d: 270 })));
@@ -3678,6 +3681,33 @@
             [s.n + 0.02, s.n + s.dn - 0.04].forEach(n => fbox(g, n, E, 0.02, 0.07, z - 0.02, z + 0.02, CROMO, M));   // suportes
             fbox(g, s.n, E + 0.055, s.dn, 0.016, z - 0.008, z + 0.008, CROMO, M);                                   // barra
             fbox(g, s.n + 0.10, E + 0.045, s.dn - 0.20, 0.035, z - 0.50, z + 0.01, '#9fc3dc', { roughness: 0.95 });   // toalha azul-clara
+        },
+        // Roupeiro de closet até o teto: portas de giro de ~0,50 do rodapé a 2,18 + maleiro em cima (2,20 → teto), puxadores
+        // verticais longos de latão. acab3d = '<lado da frente>' ('N', 'S', 'O', 'L') + opcional 'e<i>' = a porta i (0 = a
+        // primeira no sentido crescente de mN/mE) é de espelho de corpo inteiro (ex.: 'O e1').
+        roupeiro(g, s) {
+            const cod = s.acab3d || 'S', f = cod[0], m = /e(\d+)/.exec(cod), iEsp = m ? +m[1] : -1;
+            const H = CEIL3D - 0.01, R = 0.08, ZP = 2.18, ZM = 2.20, NS = f === 'N' || f === 'S', T = 0.018, G = 0.003;
+            const A0 = NS ? s.e : s.n, W = NS ? s.de : s.dn;
+            const face = f === 'S' ? s.n : f === 'N' ? s.n + s.dn : f === 'O' ? s.e : s.e + s.de, sai = (f === 'S' || f === 'O') ? -1 : 1;
+            const peca = (a0, a1, z1, z2, d0, d1, cor, x) => {
+                const p0 = face + sai * d0, p1 = face + sai * d1, lo = Math.min(p0, p1), dd = Math.abs(p1 - p0);
+                return NS ? fbox(g, lo, a0, dd, a1 - a0, z1, z2, cor, x) : fbox(g, a0, lo, a1 - a0, dd, z1, z2, cor, x);
+            };
+            const CORPO = '#e4ddd0', PORTA = COR_INT.aereo, esp = new THREE.MeshStandardMaterial({ color: 0xe9eef0, metalness: 1, roughness: 0.04, envMapIntensity: 1.2 });
+            fbox(g, s.n, s.e, s.dn, s.de, R, H, CORPO);                                                      // caixa
+            peca(A0 + 0.01, A0 + W - 0.01, 0, R, -0.05, -0.03, '#4b4842');                                  // rodapé recuado
+            const nP = Math.max(1, Math.round(W / 0.50)), L = W / nP;
+            for (let i = 0; i < nP; i++) {
+                const a0 = A0 + i * L + G, a1 = A0 + (i + 1) * L - G, abre = i % 2 === 0 ? a1 - 0.05 : a0 + 0.03;
+                if (i === iEsp) {
+                    peca(a0, a1, R + 0.01, ZP, 0, 0.018, PORTA, { roughness: 0.5 });
+                    const mm = peca(a0 + 0.02, a1 - 0.02, R + 0.06, ZP - 0.04, 0.018, 0.022, esp); mm.userData.quina = false;   // espelho na porta
+                } else peca(a0, a1, R + 0.01, ZP, 0, T, PORTA, { roughness: 0.5 });                         // porta alta
+                peca(a0, a1, ZM, H - 0.005, 0, T, PORTA, { roughness: 0.5 });                                // porta do maleiro
+                peca(abre, abre + 0.02, 0.85, 1.45, T, T + 0.025, COR_INT.latao, LATAO());                   // puxador vertical
+                peca(abre, abre + 0.02, ZM + 0.04, ZM + 0.16, T, T + 0.025, COR_INT.latao, LATAO());         // puxador do maleiro
+            }
         },
         // Poltrona de braços estofada, encosto na ponta SUL (s.n), quem senta olha para o norte. Cor em s.color.
         poltrona(g, s) {
