@@ -386,7 +386,8 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `rug` | Tapete plano fosco (respeita `z3d`); `acab3d: 'la'` = lã de trama grossa (`texLa`) com borda |
 | `tv` | TV fina, tela desligada com reflexo. Altura 16:9 a partir da largura (`dn`), base em `z3d` (padrão 0,80). Sala: 55" (1,23 m) |
 | `cortina` | Cortina de linho aberta (maço franzido): plano ondulado do piso a `h3d`, ondas ao longo de mE, trilho embutido no forro. Marcada `foto: 'tecido'` |
-| `arandela` | Arandela (usar com `circ`: centro da cúpula, `r`, `z3d`, `h3d`): espelho e braço de latão saindo da parede **oeste** + cúpula de linho com difusor quente |
+| `arandela` | Arandela (usar com `circ`: centro da cúpula, `r`, `z3d`, `h3d`): espelho e braço de latão saindo da parede + cúpula de linho com difusor quente. `acab3d` = lado da parede: `'O'` (padrão), `'L'`, `'S'`, `'N'` |
+| `luzEspelho` | Barra de luz neutra cromada sobre o espelho do banho, costas na parede **leste** (sobre o azulejo). `z3d` = base |
 | `painelTV` | Painel ripado de madeira mel do piso ao teto (ripas de 4 cm, vão de 2 cm, chapa escura atrás), face p/ leste |
 | `rackTV` | Rack de madeira mel sobre 4 pés, 3 portas de palhinha (`texPalhinha`) com puxador de latão, frente p/ leste |
 | `armEntrada` | Armário de entrada do hall, costas na parede sul, frente p/ **norte**, madeira mel até o teto: sapateira **aberta** ripada (0→0,60, o sapato respira), 4 gavetas (0,60→1,00), nicho **aberto** de casacos (1,00→2,10) com 5 ganchos de latão a 1,75, maleiro fechado (2,10→teto). Puxadores redondos de latão |
@@ -956,7 +957,11 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 - **Dia a dia:** luz **indireta e quente** (2700 K, `LUZ.quente`): arandelas, abajures, luminárias de chão. Sem fita de LED.
 - **Exceções, luz neutra** (4000 K, `LUZ.neutra`, cor real): spots de preparo sob os aéreos da cozinha (`SPOT_LUZ`), teto e
   espelho dos banheiros, e o closet (ver a cor da roupa).
-- Áreas de serviço (lavanderia, despensa, rouparia, corredor) só têm a luz de teto.
+- **Luzes quentes já postas:** arandelas da sala (TV), do hall (parede leste, entre o armário e o espelho), da suíte e do
+  quarto 1 (sobre os criados), do quarto 2 (cabeceira a oeste), do estar do 2º (dos dois lados da TV) e do escritório; abajur
+  da mesa lateral da suíte. **Neutra:** barra sobre o espelho do banho do térreo (`luzEspelho`).
+- Áreas de serviço (lavanderia, despensa, rouparia, corredor) só têm a luz de teto. Os banheiros do 2º piso ganham a luz do
+  espelho quando forem revisados.
 
 ### Hall de entrada (V1/V2/V3)
 - **Armário de entrada** (`armEntrada`, 1,14 × 0,40, até o teto) no canto sul, atrás da porta aberta (a folha para em mN 2,97;

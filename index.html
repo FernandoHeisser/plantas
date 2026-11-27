@@ -2418,6 +2418,8 @@
             lys.push(BAN.rect(1.675, 0.925, 0.9, 0.45, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'lavatory', acab3d: 'pedra' }));   // bancada de pedra suspensa, cuba esculpida
             // Toalheiro de barra cromado 0,60 na parede oeste, na saída do box e de frente para a pia (mãos e banho)
             lys.push(BAN.rect(1.00, 0.075, 0.60, 0.08, '#cbd5e1', { color: '#94a3b8', weight: 1, z3d: 1.20, h3d: 0.04, m3d: 'toalheiro' }));
+            // Luz do espelho (neutra, 4000 K): barra cromada sobre o espelho, para barbear e maquiar
+            lys.push(BAN.rect(1.775, 1.30, 0.70, 0.075, '#fff3d6', { color: '#94a3b8', weight: 0.8, z3d: 2.00, h3d: 0.05, m3d: 'luzEspelho' }));
             // Espelho bisotado 0,80 × 0,70 sobre a bancada (colado no azulejo, sem moldura: retrô anos 90/2000)
             lys.push(BAN.rect(1.725, 1.367, 0.80, 0.008, '#cbd5e1', { color: '#94a3b8', weight: 1.2, z3d: 1.25, h3d: 0.70, m3d: 'espelho', acab3d: 'bisote' }));
             lys.push(BAN.rect(1.945, 1.005, 0.36, 0.25, '#dbeafe', { color: '#475569', weight: 0.4, no3d: true }));
@@ -2578,6 +2580,8 @@
             lys.push(HAL.circ(1.55, 0.65, 0.15, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));   // luz de limpeza fria no teto
             // Porta-chaves na parede oeste, ao norte da porta (lado da fechadura): pega a chave ao abrir
             lys.push(HAL.rect(2.05, 0.081, 0.30, 0.06, '#c9a46a', { color: '#5a4422', weight: 0.6, z3d: 1.40, h3d: 0.18, m3d: 'portaChaves' }));
+            // Luz quente do dia a dia (indireta): arandela de latão e linho na parede leste, entre o armário e o espelho
+            lys.push(HAL.circ(0.78, 1.02, 0.08, '#ead9b8', { color: '#8a6a3e', weight: 0.6, dashArray: '2 2', z3d: 1.75, h3d: 0.15, m3d: 'arandela', acab3d: 'L' }));
             // capacho
             lys.push(HAL.rect(0.925, 0.195, 0.8, 0.9, '#fde68a', { color: '#a16207', weight: 0.6, fillOpacity: 0.55, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
 
@@ -2826,6 +2830,15 @@
                 .forEach(([n, e, r]) => p(circ(n, e, r, '#e0ecff', LT)));                          // suíte, estar (3), escritório, rouparia, corredor, quartos
             [[3.45, 29.30, 0.15], [3.45, 26.70, 0.13], [3.20, 17.90, 0.13]]
                 .forEach(([n, e, r]) => p(circ(n, e, r, '#fff3d6', LN)));                          // closet, banho da suíte, banheiro
+        }
+        // Luz quente do dia a dia (indireta): arandelas de latão e linho (lado = parede em que ficam presas)
+        {
+            const AR = (lado, z) => o(sMad, { color: '#8a6a3e', dashArray: '2 2', z3d: z, h3d: 0.17, m3d: 'arandela', acab3d: lado });
+            [25.645, 28.085].forEach(e => p(circ(5.01, e, 0.09, '#ead9b8', AR('S', 1.15))));       // suíte: leitura, sobre os criados
+            [14.325, 16.455].forEach(e => p(circ(7.16, e, 0.09, '#ead9b8', AR('S', 1.15))));       // quarto 1: sobre os criados
+            [8.19, 10.20].forEach(n => p(circ(n, 17.76, 0.09, '#ead9b8', AR('O', 1.15))));        // quarto 2: cabeceira a oeste
+            [4.90, 6.70].forEach(n => p(circ(n, 22.86, 0.09, '#ead9b8', AR('O', 1.42))));         // estar: dos dois lados da TV
+            p(circ(3.00, 13.91, 0.09, '#ead9b8', AR('O', 1.60)));                                   // escritório: parede oeste
         }
         // Suíte: cama KING (1,93 × 2,03, a maior possível, pedido do cliente) com a cabeceira na parede sul (lado do banho
         // e do closet, longe do barulho do cinema); o pé para em 6,84, fora do giro da porta (ponta norte da parede oeste).
@@ -3543,14 +3556,29 @@
         // Arandela (usar com circ: centro da cúpula em n,e; r = raio): espelho e braço de latão saindo da parede OESTE
         // (mE = e − r − 0,12) + cúpula de linho com difusor quente — luz p/ cima e p/ baixo, sem ofuscar
         arandela(g, s) {
-            const z0 = s.z || 1.42, h = s.h || 0.17, r = s.r, zc = z0 + h / 2, eP = s.e - r - 0.12;
-            fbox(g, s.n - 0.04, eP, 0.08, 0.012, zc - 0.07, zc + 0.03, COR_INT.latao, LATAO());           // espelho
-            fbox(g, s.n - 0.007, eP, 0.014, s.e - eP, zc - 0.03, zc - 0.016, COR_INT.latao, LATAO());     // braço
+            // s.acab3d = lado da parede em que ela fica presa: 'O' (padrão), 'L', 'S' ou 'N'; o braço sai da parede até a cúpula
+            const z0 = s.z || 1.42, h = s.h || 0.17, r = s.r, zc = z0 + h / 2, D = r + 0.12, lado = s.acab3d || 'O', L = LATAO();
+            if (lado === 'O' || lado === 'L') {
+                const eP = lado === 'O' ? s.e - D : s.e + D - 0.012, a0 = Math.min(eP, s.e), a1 = Math.max(eP + 0.012, s.e);
+                fbox(g, s.n - 0.04, eP, 0.08, 0.012, zc - 0.07, zc + 0.03, COR_INT.latao, L);                // espelho
+                fbox(g, s.n - 0.007, a0, 0.014, a1 - a0, zc - 0.03, zc - 0.016, COR_INT.latao, L);           // braço
+            } else {
+                const nP = lado === 'S' ? s.n - D : s.n + D - 0.012, a0 = Math.min(nP, s.n), a1 = Math.max(nP + 0.012, s.n);
+                fbox(g, nP, s.e - 0.04, 0.012, 0.08, zc - 0.07, zc + 0.03, COR_INT.latao, L);
+                fbox(g, a0, s.e - 0.007, a1 - a0, 0.014, zc - 0.03, zc - 0.016, COR_INT.latao, L);
+            }
             const linho = new THREE.MeshStandardMaterial({ color: col3d('#efe3cb'), roughness: 0.95, side: THREE.DoubleSide,
-                emissive: col3d('#ffd9a0'), emissiveIntensity: 0.35 });
+                emissive: col3d(LUZ.quente), emissiveIntensity: 0.35 });
             const cup = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.85, r, h, 32, 1, true), linho);
             cup.position.set(s.e, zc, -s.n); cup.castShadow = true; g.add(cup);
-            fcyl(g, s.n, s.e, 0.006, zc - 0.03, zc, COR_INT.latao, LATAO());                              // haste do soquete
+            fcyl(g, s.n, s.e, 0.006, zc - 0.03, zc, COR_INT.latao, L);                                       // haste do soquete
+        },
+        // Luz do espelho do banho (neutra, 4000 K): barra fina de luz sobre o espelho, costas na parede LESTE (sobre o azulejo)
+        luzEspelho(g, s) {
+            const W = s.e + s.de - 0.009, z0 = s.z || 2.00;
+            fbox(g, s.n, W - 0.05, s.dn, 0.05, z0, z0 + 0.05, CROMO, CROMO_M());                                // corpo cromado
+            fbox(g, s.n + 0.01, W - 0.052, s.dn - 0.02, 0.004, z0 + 0.008, z0 + 0.042, LUZ.neutra,
+                 { emissive: col3d(LUZ.neutra), emissiveIntensity: 0.9, roughness: 0.5 });                    // difusor
         },
         // Painel ripado da TV — chapa de madeira + ripas verticais (4 cm, vão de 2 cm), do piso ao teto; face p/ LESTE
         painelTV(g, s) {
@@ -6776,7 +6804,7 @@
             `Fotografia realista de arquitetura de interiores de uma casa contemporânea no sul do Brasil (Charqueadas, RS). Ambiente: ${amb}${nivel ? ' (2º pavimento)' : ''}.`,
             'Mantenha EXATAMENTE a geometria da imagem de referência: posição e tamanho das paredes, portas, janelas, vigas, pilares e móveis. Não acrescente, não remova e não mova móveis nem aberturas.',
             `Iluminação: ${luz}. Sombras suaves e coerentes com a direção da luz.`,
-            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, cafeteira e air fryer pretas na ponta da bancada, plafon redondo de rattan no teto e spots redondos de luz quente sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
+            'Materiais: piso de porcelanato claro acetinado; paredes internas da sala e cozinha em pintura fosca bege-areia (Suvinil Areia do Deserto); cozinha com armários inferiores em MDF verde-menta acinzentado (Duratex Mint), aéreos em off-white, faixa de azulejo artesanal verde-sálvia brilhante (Portobello Gouache Mer) entre bancada e aéreos, bancada em quartzo creme, península e balcão de refeições em madeira mel, torneira gourmet e puxadores redondos em latão escovado, cafeteira e air fryer pretas na ponta da bancada, luz de embutir no teto e spots redondos de luz neutra sob os aéreos; sofá em tecido caramelo/conhaque com almofadas verde-oliva e manta waffle areia; tapete de lã de trama grossa areia; pendentes de vidro lapidado com latão; cortinas de linho cru do teto ao piso; esquadrias de alumínio branco com vidro incolor. Paleta quente e terrosa: areia, sálvia, madeira mel, oliva, mostarda e caramelo.',
             `Câmera ${olho}, lente equivalente a ${lente} mm, linhas verticais retas, alta resolução, sem pessoas, sem texto.`,
         ].join('\n\n');
     }

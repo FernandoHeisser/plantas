@@ -66,4 +66,5 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 - Canto é ruim de tirar e pôr coisas: evitar armário de canto.
 - Sul frio e úmido: nada sensível (comida) nas paredes sul.
 - Banheiros: tudo pode molhar e ser lavado com água (só pedra, louça, vidro e metal).
+- Iluminação: teto forte e fria para limpeza + luz quente indireta (arandelas, abajures) para o dia a dia; neutra (4000 K) no preparo da cozinha, nos banheiros e no closet.
 - Portas de 0,70 a 0,80 m são confortáveis; janelas com no mínimo 1,50 m de largura.
