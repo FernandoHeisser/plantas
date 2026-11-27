@@ -2413,6 +2413,8 @@
             lys.push(BAN.rect(1.125, 0.745, 0.29, 0.42, '#f8fafc', { color: '#475569', weight: 0.5, no3d: true })); // tampa retangular
             // Lavatório: canto nordeste, encostado na parede leste
             lys.push(BAN.rect(1.675, 0.925, 0.9, 0.45, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'lavatory', acab3d: 'pedra' }));   // bancada de pedra suspensa, cuba esculpida
+            // Toalheiro de barra cromado 0,60 na parede oeste, na saída do box e de frente para a pia (mãos e banho)
+            lys.push(BAN.rect(1.00, 0.075, 0.60, 0.08, '#cbd5e1', { color: '#94a3b8', weight: 1, z3d: 1.20, h3d: 0.04, m3d: 'toalheiro' }));
             // Espelho bisotado 0,80 × 0,70 sobre a bancada (colado no azulejo, sem moldura: retrô anos 90/2000)
             lys.push(BAN.rect(1.725, 1.367, 0.80, 0.008, '#cbd5e1', { color: '#94a3b8', weight: 1.2, z3d: 1.25, h3d: 0.70, m3d: 'espelho', acab3d: 'bisote' }));
             lys.push(BAN.rect(1.945, 1.005, 0.36, 0.25, '#dbeafe', { color: '#475569', weight: 0.4, no3d: true }));
@@ -3607,6 +3609,13 @@
                 fbox(g, n - 0.004, s.e + 0.018, 0.008, 0.035, z0 + 0.04, z0 + 0.05, COR_INT.latao, LATAO());   // haste
                 fbox(g, n - 0.004, s.e + 0.045, 0.008, 0.008, z0 + 0.04, z0 + 0.07, COR_INT.latao, LATAO());   // ponta
             }
+        },
+        // Toalheiro de barra cromado, costas na parede OESTE (face p/ leste), com uma toalha pendurada. s.z = altura da barra.
+        toalheiro(g, s) {
+            const z = s.z || 1.20, E = s.e + 0.008, M = CROMO_M();   // 8 mm de azulejo na parede
+            [s.n + 0.02, s.n + s.dn - 0.04].forEach(n => fbox(g, n, E, 0.02, 0.07, z - 0.02, z + 0.02, CROMO, M));   // suportes
+            fbox(g, s.n, E + 0.055, s.dn, 0.016, z - 0.008, z + 0.008, CROMO, M);                                   // barra
+            fbox(g, s.n + 0.10, E + 0.045, s.dn - 0.20, 0.035, z - 0.50, z + 0.01, '#9fc3dc', { roughness: 0.95 });   // toalha azul-clara
         },
         // Geladeira — corpo inox, fenda do freezer + 2 puxadores. Porta p/ sul quando mais larga em mE; senão p/ oeste.
         fridge(g, s) {

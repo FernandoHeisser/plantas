@@ -392,6 +392,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `armEntrada` | Armário de entrada do hall, costas na parede sul, frente p/ **norte**, madeira mel até o teto: sapateira **aberta** ripada (0→0,60, o sapato respira), 4 gavetas (0,60→1,00), nicho **aberto** de casacos (1,00→2,10) com 5 ganchos de latão a 1,75, maleiro fechado (2,10→teto). Puxadores redondos de latão |
 | `espelho` | Espelho de corpo inteiro, costas na parede **leste** (face p/ oeste): moldura fina de latão + vidro espelhado. `z3d` = base (0,30), `h3d` = altura (1,70). `acab3d: 'bisote'` = colado sobre o azulejo, sem moldura, borda bisotada (banho) |
 | `portaChaves` | Porta-chaves de parede, costas na parede **oeste** (face p/ leste): plaquinha de madeira mel, 4 ganchinhos de latão e prateleirinha de 6 cm no topo. `z3d` = base |
+| `toalheiro` | Toalheiro de barra cromado com toalha pendurada, costas na parede **oeste** (face p/ leste), sobre o azulejo. `z3d` = altura da barra |
 | `rack` | Rack baixo + pés + ranhura |
 | `movel` | Móvel planejado genérico (despensa, lavanderia): caixa + portas de ~0,45 + puxadores de inox. `acab3d` = lado da frente (`'N'`, `'S'`, `'O'`, `'L'`). Alto (> 1,5 m) = 2 fileiras de portas; baixo no piso = rodapé + tampo de pedra; aéreo (`z3d` > 1) = puxador embaixo |
 | `fornoBancada` | Forno elétrico de bancada solto, frente p/ **norte**: corpo grafite, porta de vidro escuro com puxador, botões à direita. Base em `z3d` (tampo) |
@@ -955,7 +956,7 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 - **Porta-chaves** (`portaChaves`, 0,30 × 0,18, base 1,40) na parede oeste, logo ao norte da porta (lado da fechadura).
 - Guarda-chuva fica na garagem (decisão do cliente).
 
-### Banho do térreo (V1/V2/V3) — em revisão
+### Banho do térreo (V1/V2/V3) — revisado (banho social, pouco usado para tomar banho)
 - **Box até o teto** (`shower` com `acab3d: 'teto'`, pedido do cliente: o vapor não passa para o resto do banho), de parede a
   parede, 0,80 de fundo. Frente: fixo a leste (lado do vaso) + folha de correr a oeste (entrada pelo lado livre). A janela
   (peitoril 1,50) fica dentro do box e faz a exaustão do vapor.
@@ -972,6 +973,8 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   (`texPastilha`, 4 tons de azul + branco ao acaso), até o forro. Tudo lavável.
 - **Vaso de linhas retas** (`toilet` com `acab3d: 'reto'`): base fechada até o piso, sem curvas para juntar sujeira, caixa
   acoplada retangular. O cliente **não quer vaso suspenso**.
+- **Toalheiro de barra cromado simples** (`toalheiro`, 0,60, a 1,20) na parede oeste, na saída do box e de frente para a pia.
+  Sem aquecimento: o banho é mais social (decisão do cliente).
 - **Espelho bisotado** (`espelho` com `acab3d: 'bisote'`, 0,80 × 0,70, de 1,25 a 1,95) colado no azulejo sobre a bancada, sem moldura.
 
 ### Lavanderia e despensa
