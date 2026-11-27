@@ -411,7 +411,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `dishwasher` | Lava-louças de embutir sob a bancada, frente p/ **sul**: corpo + porta inox + faixa de comando + puxador + tampo contínuo. |
 | `counter` | Bancada segmentada: abre vãos p/ `stove`, `sink` e `dishwasher` via `model`. **Recebe `model` como 3º arg.** Recortes são **clampados ao próprio vão** (ignora fogão/pia fora do range da bancada — necessário p/ a península não vazar segmentos). |
 | `lavatory` | Lavatório + cuba + torneira. `acab3d: 'pedra'` = bloco monolítico de mármore branco com veios dourados (`texCalacatta`), suspenso, sem gabinete: cuba esculpida deslocada p/ o sul, rodabanca, torneira de parede com 2 registros cromados e prateleira de pedra embaixo (toalhas); costas na parede **leste** (banho do térreo) |
-| `shower` | Box: base + 2 vidros sem sombra + ducha. `acab3d: 'teto'` = box de parede a parede **até o teto** (2,69): painel fixo a leste + folha de correr a oeste, perfis de latão, ducha de teto, metais cromados (banho do térreo) |
+| `shower` | Box: base + 2 vidros sem sombra + ducha. `acab3d: 'teto'` = box de parede a parede **até o teto** (2,69): painel fixo a leste + folha de correr a oeste, perfis e ducha de teto cromados (banho do térreo) |
 | `toilet` | Vaso: bacia + assento + caixa acoplada |
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
