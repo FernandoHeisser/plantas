@@ -2409,8 +2409,8 @@
             lys.push(BAN.circ(0.475, 0.725, 0.025, '#475569', { color: '#1e293b', weight: 0.3, no3d: true }));
             // Vaso: parede leste, virado para oeste
             lys.push(BAN.rect(1.035, 1.215, 0.47, 0.16, '#e5e7eb', { color: '#475569', weight: 0.6, h3d: 0.85, no3d: true })); // caixa
-            lys.push(BAN.rect(1.085, 0.705, 0.37, 0.67, '#ffffff', { color: '#475569', weight: 0.8, h3d: 0.40, m3d: 'toilet' })); // bacia
-            lys.push(BAN.circ(1.27, 0.955, 0.12, '#f8fafc', { color: '#475569', weight: 0.5, no3d: true })); // tampa
+            lys.push(BAN.rect(1.085, 0.705, 0.37, 0.67, '#ffffff', { color: '#475569', weight: 0.8, h3d: 0.40, m3d: 'toilet', acab3d: 'reto' })); // vaso de linhas retas, base fechada
+            lys.push(BAN.rect(1.125, 0.745, 0.29, 0.42, '#f8fafc', { color: '#475569', weight: 0.5, no3d: true })); // tampa retangular
             // Lavatório: canto nordeste, encostado na parede leste
             lys.push(BAN.rect(1.675, 0.925, 0.9, 0.45, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'lavatory', acab3d: 'pedra' }));   // bancada de pedra suspensa, cuba esculpida
             // Espelho bisotado 0,80 × 0,70 sobre a bancada (colado no azulejo, sem moldura: retrô anos 90/2000)
@@ -3739,6 +3739,17 @@
         },
         // Vaso sanitário — bacia + assento + caixa acoplada (atrás, leste)
         toilet(g, s) {
+            if (s.acab3d === 'reto') {
+                // Vaso de linhas retas com base fechada (sifão escondido, sem curvas para juntar sujeira) e caixa acoplada
+                // retangular; frente p/ OESTE, costas na parede leste. Tampa fechada fina, botão duplo cromado.
+                const LOU = '#fbfbfa', LS = { roughness: 0.25 }, F = s.e, C = s.e + s.de;
+                fbox(g, s.n + 0.01, F + 0.02, s.dn - 0.02, s.de - 0.20, 0, 0.385, LOU, LS);        // base/bacia (bloco liso até o piso)
+                fbox(g, s.n, F, s.dn, s.de - 0.18, 0.385, 0.41, '#ffffff', LS);                     // assento retangular
+                fbox(g, s.n + 0.005, F + 0.01, s.dn - 0.01, s.de - 0.20, 0.41, 0.43, '#ffffff', LS);   // tampa
+                fbox(g, s.n, C - 0.18, s.dn, 0.18, 0, 0.80, LOU, LS);                               // caixa acoplada (até o piso)
+                fbox(g, s.n + s.dn / 2 - 0.05, C - 0.12, 0.10, 0.06, 0.80, 0.805, CROMO, CROMO_M());   // botão duplo
+                return;
+            }
             fbox(g, s.n + 0.03, s.e, s.dn - 0.06, s.de - 0.08, 0, 0.40, '#fafafa', { roughness: 0.3 });
             fbox(g, s.n + 0.01, s.e + 0.01, s.dn - 0.02, s.de - 0.12, 0.40, 0.44, '#ffffff', { roughness: 0.3 });
             fbox(g, s.n + 0.04, s.e + s.de - 0.04, s.dn - 0.08, 0.16, 0.40, 0.92, '#f2f2f2', { roughness: 0.3 });

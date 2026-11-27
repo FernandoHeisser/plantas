@@ -412,7 +412,7 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `counter` | Bancada segmentada: abre vãos p/ `stove`, `sink` e `dishwasher` via `model`. **Recebe `model` como 3º arg.** Recortes são **clampados ao próprio vão** (ignora fogão/pia fora do range da bancada — necessário p/ a península não vazar segmentos). |
 | `lavatory` | Lavatório + cuba + torneira. `acab3d: 'pedra'` = bloco monolítico de granito branco salpicado (`texGranito`), suspenso, sem gabinete: cuba esculpida deslocada p/ o sul, rodabanca, torneira de parede com 2 registros cromados e prateleira de pedra embaixo (toalhas); costas na parede **leste** (banho do térreo) |
 | `shower` | Box: base + 2 vidros sem sombra + ducha. `acab3d: 'teto'` = box de parede a parede **até o teto** (2,69): painel fixo a leste + folha de correr a oeste, perfis e ducha de teto cromados (banho do térreo) |
-| `toilet` | Vaso: bacia + assento + caixa acoplada |
+| `toilet` | Vaso: bacia + assento + caixa acoplada. `acab3d: 'reto'` = linhas retas, base fechada até o piso (sifão escondido), caixa acoplada retangular e botão duplo cromado; frente p/ oeste (banho do térreo) |
 | `table` | Mesa de jantar + 4 pernas |
 | `chair` | Cadeira: assento cilíndrico + pernas + encosto voltado para fora da mesa |
 | `stool` | Banqueta alta de balcão: assento de madeira estofado + 4 pés metálicos abertos + apoio de pés. Usar com `circ` (`r` = raio do assento, `h3d` = altura do assento, padrão 0,70). |
@@ -970,6 +970,8 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 - **Revestimento retrô** (referência do cliente): azulejo **branco brilhante** de 30 cm até o forro em todas as paredes
   (`texAzulejo`) e a **parede do fundo do box** (sul, com a janela) em **pastilha de vidro azul e branca** de 2,5 cm
   (`texPastilha`, 4 tons de azul + branco ao acaso), até o forro. Tudo lavável.
+- **Vaso de linhas retas** (`toilet` com `acab3d: 'reto'`): base fechada até o piso, sem curvas para juntar sujeira, caixa
+  acoplada retangular. O cliente **não quer vaso suspenso**.
 - **Espelho bisotado** (`espelho` com `acab3d: 'bisote'`, 0,80 × 0,70, de 1,25 a 1,95) colado no azulejo sobre a bancada, sem moldura.
 
 ### Lavanderia e despensa
