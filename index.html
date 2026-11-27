@@ -1863,6 +1863,7 @@
     // Acabamento por peça (opts.acab3d): 'coz' = base mint + pedra creme; 'pen' = base mint + tampo de madeira
     const acabCoz = s => s.acab3d === 'coz' || s.acab3d === 'pen' || s.acab3d === 'cozSpot';   // cozSpot = coz + spots sob o aéreo
     const LATAO = () => ({ metalness: 0.85, roughness: 0.32 });
+    const CROMO = '#d7dbde', CROMO_M = () => ({ metalness: 0.95, roughness: 0.12 });   // metais do banho (retrô, decisão do cliente)
     // Spots redondos de embutir sob os aéreos (luz da bancada; o cliente não gosta de fita de LED): Ø 6,4 cm, um a cada ~0,60 m
     const SPOT_LUZ = () => ({ emissive: col3d('#ffd9a0'), emissiveIntensity: 1.0, roughness: 0.4 });
     function spotsSobAereo(g, ini, len, put) {
@@ -3962,8 +3963,8 @@
                 // Bancada monolítica de pedra (mármore branco com veios dourados, referência do cliente), suspensa,
                 // costas na parede LESTE (frente p/ oeste), sem gabinete: tudo pode molhar e o piso embaixo fica livre.
                 // Bloco de 0,20 de altura, rodabanca, cuba esculpida deslocada p/ o sul (apoio ao norte), torneira de
-                // parede com 2 registros redondos em latão e prateleira de pedra solta embaixo (toalhas). Topo em s.h.
-                const H = s.h || 0.90, W = s.e + s.de, L = LATAO();
+                // parede com 2 registros redondos em metal cromado e prateleira de pedra solta embaixo (toalhas). Topo em s.h.
+                const H = s.h || 0.90, W = s.e + s.de, L = CROMO_M();
                 const mar = new THREE.MeshStandardMaterial({ map: texCalacatta(), roughness: 0.22, metalness: 0, envMapIntensity: 0.6 });   // fora do fmat (mapa)
                 const pedra = (n, e, dn, de, z0, z1) => fbox(g, n, e, dn, de, z0, z1, mar);
                 const cN0 = s.n + 0.10, cN1 = cN0 + 0.46, cE0 = s.e + 0.07, cE1 = W - 0.07;   // cuba 0,46 × 0,31
@@ -3976,9 +3977,9 @@
                 pedra(s.n, W - 0.02, s.dn, 0.02, H, H + 0.08);                                     // rodabanca
                 pedra(s.n, s.e + 0.02, s.dn, s.de - 0.02, 0.26, 0.32);                             // prateleira de baixo
                 const cc = (cN0 + cN1) / 2, zt = H + 0.24;                                         // torneira de parede
-                fbox(g, cc - 0.012, W - 0.15, 0.024, 0.15, zt - 0.012, zt + 0.012, COR_INT.latao, L);   // bica
-                fbox(g, cc - 0.012, W - 0.15, 0.024, 0.024, zt - 0.07, zt, COR_INT.latao, L);           // ponta curvada p/ baixo
-                [cc - 0.16, cc + 0.16].forEach(n => fcyl(g, n, W - 0.02, 0.032, zt - 0.02, zt + 0.02, COR_INT.latao, L));   // registros
+                fbox(g, cc - 0.012, W - 0.15, 0.024, 0.15, zt - 0.012, zt + 0.012, CROMO, L);   // bica
+                fbox(g, cc - 0.012, W - 0.15, 0.024, 0.024, zt - 0.07, zt, CROMO, L);           // ponta curvada p/ baixo
+                [cc - 0.16, cc + 0.16].forEach(n => fcyl(g, n, W - 0.02, 0.032, zt - 0.02, zt + 0.02, CROMO, L));   // registros
                 fbox(g, cN1 + 0.04, s.e + 0.09, 0.28, 0.30, 0.32, 0.42, '#d6d0c6', { roughness: 0.95 });        // toalhas dobradas
                 fbox(g, s.n + 0.06, s.e + 0.09, 0.30, 0.30, 0.32, 0.38, '#e8e4dc', { roughness: 0.95 });
                 return;
@@ -3997,15 +3998,15 @@
             if (s.acab3d === 'teto') {
                 // Box de parede a parede, fechado até o teto (o vapor não sai para o resto do banho; a janela fica
                 // dentro do box e faz a exaustão). Frente norte: painel fixo a leste (lado do vaso) + folha de correr
-                // a oeste, 3 cm para dentro; perfis finos de latão no piso, no teto e nas pontas.
-                const H = 2.69, F = s.n + s.dn, meio = s.e + s.de / 2, L = LATAO();
+                // a oeste, 3 cm para dentro; perfis finos de metal cromado no piso, no teto e nas pontas.
+                const H = 2.69, F = s.n + s.dn, meio = s.e + s.de / 2, L = CROMO_M();
                 fbox(g, F - 0.02, meio - 0.05, 0.01, s.e + s.de - meio + 0.05, 0.05, H - 0.03, glass).castShadow = false;   // fixo (leste)
                 fbox(g, F - 0.05, s.e + 0.02, 0.01, s.de / 2 + 0.03, 0.06, H - 0.03, glass).castShadow = false;            // folha de correr (oeste)
-                fbox(g, F - 0.06, s.e, 0.06, s.de, H - 0.03, H, COR_INT.latao, L);                                          // trilho no teto
-                fbox(g, F - 0.06, s.e, 0.06, s.de, 0.05, 0.065, COR_INT.latao, L);                                          // guia no piso
-                [s.e, s.e + s.de - 0.015].forEach(e => fbox(g, F - 0.06, e, 0.06, 0.015, 0.05, H, COR_INT.latao, L));      // perfis nas paredes
-                fbox(g, F - 0.07, s.e + s.de / 2 - 0.03, 0.015, 0.015, 0.95, 1.25, COR_INT.latao, L);                       // puxador da folha
-                fcyl(g, s.n + s.dn / 2, s.e + s.de / 2, 0.11, H - 0.02, H, '#c7a36a', L);                                   // ducha de teto
+                fbox(g, F - 0.06, s.e, 0.06, s.de, H - 0.03, H, CROMO, L);                                          // trilho no teto
+                fbox(g, F - 0.06, s.e, 0.06, s.de, 0.05, 0.065, CROMO, L);                                          // guia no piso
+                [s.e, s.e + s.de - 0.015].forEach(e => fbox(g, F - 0.06, e, 0.06, 0.015, 0.05, H, CROMO, L));      // perfis nas paredes
+                fbox(g, F - 0.07, s.e + s.de / 2 - 0.03, 0.015, 0.015, 0.95, 1.25, CROMO, L);                       // puxador da folha
+                fcyl(g, s.n + s.dn / 2, s.e + s.de / 2, 0.11, H - 0.02, H, CROMO, L);                                   // ducha de teto
                 return;
             }
             fbox(g, s.n + s.dn - 0.02, s.e, 0.02, s.de, 0.05, s.h, glass).castShadow = false;  // vidro norte
