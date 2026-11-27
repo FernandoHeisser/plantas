@@ -1330,7 +1330,7 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   drywall de 0,10 no resto; parede entre os quartos = drywall acústico (sem viga embaixo).
 - **Janelas** (`F2_WINDOWS`/`F2G_WINDOWS`): grandes ao norte (peitoril 0,40 → 2,25) e na suíte a leste;
   **mínimo 1,50 m de largura** (pedido do cliente), médias com peitoril 0,90 → 2,20, banheiros 1,40 → 2,20;
-  só o banho da suíte fica em 1,20 (entre os pilares P8 e P6). Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
+  só o banho da suíte fica abaixo: 2 janelas no box, 1,20 (entre P8 e P6) e 1,10 (entre P6 e a parede do closet). Os pilares G8/G11/G10 dividem ou deslocam janelas (quarto 2 norte em 2 panos).
   **Estilo padrão** = grade de caixilho (`winGrid` no `winWall`), cor `matFrame`, igual ao térreo.
 - **Móveis** em `f2Moveis()` (fonte única 2D + 3D, base no piso do 2º; `rot3d` gira o modelo).
 - **Suíte (em revisão):** cama **king** 1,93 × 2,03 (a maior possível, pedido do cliente) com a cabeceira na parede sul (lado do
@@ -1346,7 +1346,7 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
 - **Banho da suíte** (2,65 × 2,50) — mesmas regras do banho de baixo (tudo pode molhar; só pedra, louça, vidro e metal), mas
   **neutro**: porcelanato off-white fosco 60 × 30 deitado até o teto nas 4 paredes e nos pilares aparentes (`revest`) e **metais de cobre escovado fosco**
   (`COBRE`/`COBRE_M`, `metalBanho`; pedido do cliente: nada dourado nem brilhante). **Box até o teto de parede a parede** na parede sul
-  (`boxSuite` `'cobre parede inv'`, 2,65 × 1,00, pedido do cliente) com a janela dentro (exaustão do vapor); folha de correr a oeste.
+  (`boxSuite` `'cobre parede inv'`, 2,65 × 1,00, pedido do cliente) com **2 janelas dentro, uma de cada lado do pilar P6** (1,20 e 1,10, peitoril 1,40 → 2,20; exaustão do vapor e ventilação contra a umidade, pedido do cliente); folha de correr a oeste.
   Por causa dele a **porta do closet subiu para mN 3,25–3,95** (antes 2,85–3,55, caía dentro do box). **Vaso de linhas retas** na parede oeste
   (`toilet` `'reto cobre'`, `rot3d: 180`). **Bancada de pedra off-white suspensa com 2 cubas** na parede norte, **de parede a parede**
   (2,65 × 0,45, pedido do cliente; a pedra é recortada em volta do pilar P5; `lavatory` `'pedra duas offwhite cobre'`, `rot3d: 90`),

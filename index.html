@@ -2810,12 +2810,13 @@
     // Janelas do 2º piso da casa — compartilhado 2D (win) + 3D (winWall: peitoril/verga/vidro).
     // side = parede (S/N/L); vão [s,e] ao longo dela; sill/head relativos ao piso do 2º.
     // Mínimo 1,50 m de largura (pedido do cliente). Grandes: peitoril 0,40 → 2,25 (sob a viga);
-    // médias 0,90 → 2,20; banheiros 1,40 → 2,20. O banho da suíte fica em 1,20 (pilares P8 e P6).
+    // médias 0,90 → 2,20; banheiros 1,40 → 2,20. O banho da suíte tem 2 janelas no box, uma de cada lado do P6 (1,20 e 1,10).
     const F2_WINDOWS = [
         { side:'N', s:22.90, e:24.90, sill:0.40, head:2.25 },               // estar — norte
         { side:'N', s:27.05, e:30.25, sill:0.40, head:2.25 },               // suíte — norte (entre P4 e P1)
         { side:'L', s:5.40,  e:7.20,  sill:0.40, head:2.25 },               // suíte — leste
-        { side:'S', s:25.45, e:26.65, sill:1.40, head:2.20, vpanes:true },  // banho da suíte (máx. entre P8 e P6)
+        { side:'S', s:25.45, e:26.65, sill:1.40, head:2.20, vpanes:true },  // banho da suíte, oeste do P6 (máx. entre P8 e P6)
+        { side:'S', s:26.90, e:28.00, sill:1.40, head:2.20, vpanes:true },  // banho da suíte, leste do P6: 2ª janela no box (ventilação cruzada contra a umidade, pedido do cliente)
     ];
     // Móveis do 2º piso do V3 (referência de escala) — fonte única: 2D (buildFloor2Layers) e
     // 3D (grupo floor2, base no piso do 2º). Coordenadas de código (sem OE). rot3d gira o
@@ -2873,7 +2874,7 @@
         p(rect(3.36, 29.84, 1.28, 0.60, ARM, o(sArm, { h3d: CEIL3D, m3d: 'roupeiro', acab3d: 'O e1' })));
         // Banho da suíte (2,65 × 2,50): mesmas regras do banho de baixo (tudo pode molhar; só pedra, louça, vidro e metal), mas
         // neutro: porcelanato off-white fosco até o teto e metais de cobre escovado fosco (pedido do cliente: nada dourado nem
-        // brilhante). Box até o teto de parede a parede na parede sul (2,65 × 1,00), com a janela dentro (exaustão do vapor); vaso de
+        // brilhante). Box até o teto de parede a parede na parede sul (2,65 × 1,00), com 2 janelas dentro, uma de cada lado do pilar P6 (exaustão do vapor e ventilação cruzada); vaso de
         // linhas retas na parede oeste; bancada de pedra off-white suspensa com 2 cubas na parede norte, de parede a parede (2,65; pedido do cliente), espelho de parede a parede e luz neutra em cima; toalheiro
         // sobre o vaso, na saída do box; a porta do closet fica ao norte do box e abre para dentro do banho sem bater em nada.
         {
@@ -2885,11 +2886,14 @@
             [[25.60, 0.90], [26.97, 0.90]].forEach(([e, de]) => p(rect(4.575, e, 0.075, de, '#fff3d6', o(sLou, { z3d: 2.00, h3d: 0.05, m3d: 'luzEspelho', acab3d: 'cobre', rot3d: 90 }))));  // luz sobre cada cuba
             p(rect(3.35, 25.40, 0.50, 0.08, '#cbd5e1', o(sLou, { z3d: 1.45, h3d: 0.04, m3d: 'toalheiro', acab3d: 'cobre' })));
             p(rect(3.88, 25.40, 0.14, 0.10, '#cbd5e1', o(sLou, { z3d: 0.60, h3d: 0.12, m3d: 'acessVaso', acab3d: 'cobre' })));   // porta-papel e ducha higiênica, ao norte do vaso   // toalheiro sobre o vaso (parede oeste), na saída do box
-            // Porcelanato até o teto nas 4 paredes (recortes da janela sul e da porta do closet)
+            // Porcelanato até o teto nas 4 paredes (recortes das 2 janelas sul e da porta do closet)
             p(rect(2.15, 25.40, 0.008, 0.05, PED, RV));
             p(rect(2.15, 25.45, 0.008, 1.20, PED, o(RV, { h3d: 1.40 })));
             p(rect(2.15, 25.45, 0.008, 1.20, PED, o(RV, { z3d: 2.20, h3d: CEIL3D - 0.01 - 2.20 })));
-            p(rect(2.15, 26.65, 0.008, 1.40, PED, RV));
+            p(rect(2.15, 26.65, 0.008, 0.25, PED, RV));
+            p(rect(2.15, 26.90, 0.008, 1.10, PED, o(RV, { h3d: 1.40 })));
+            p(rect(2.15, 26.90, 0.008, 1.10, PED, o(RV, { z3d: 2.20, h3d: CEIL3D - 0.01 - 2.20 })));
+            p(rect(2.15, 28.00, 0.008, 0.05, PED, RV));
             p(rect(4.642, 25.40, 0.008, 2.65, PED, RV));
             p(rect(2.158, 25.40, 2.484, 0.008, PED, RV));
             p(rect(2.158, 28.042, 1.092, 0.008, PED, RV));
