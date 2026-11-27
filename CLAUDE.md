@@ -384,6 +384,8 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | Tipo | Móvel |
 |---|---|
 | `rug` | Tapete plano fosco (respeita `z3d`); `acab3d: 'la'` = lã de trama grossa (`texLa`) com borda |
+| `monitores` | 2 monitores de 27" num pedestal duplo, tela p/ **norte**, + teclado e mouse. Rect = área sobre a mesa (`s.n` = fundo), base em `z3d` (tampo 0,76) |
+| `cadeiraEscr` | Cadeira de escritório (usar com `circ`): base estrela de 5 rodízios, coluna a gás, assento, encosto no lado **norte** (olha p/ o sul) e braços. Cor em `s.color` |
 | `tv` | TV fina, tela desligada com reflexo. Altura 16:9 a partir da largura (`dn`), base em `z3d` (padrão 0,80). Sala: 55" (1,23 m) |
 | `cortina` | Cortina de linho aberta (maço franzido): plano ondulado do piso a `h3d`, ondas ao longo de mE, trilho embutido no forro. Marcada `foto: 'tecido'` |
 | `arandela` | Arandela (usar com `circ`: centro da cúpula, `r`, `z3d`, `h3d`): espelho e braço de latão saindo da parede + cúpula de linho com difusor quente. `acab3d` = lado da parede: `'O'` (padrão), `'L'`, `'S'`, `'N'` |
@@ -1364,6 +1366,11 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   **2 espelhos bisotados**, cada um ocupando todo o trecho de parede de um lado do pilar P5 (1,28 e 1,18 × 0,70; o pilar fica
   aparente entre eles, decisão do cliente) e uma barra de luz
   neutra sobre cada cuba. **Toalheiro** de cobre na parede oeste, na saída do box (barra a 1,20); porta-papel e ducha higiênica na parede leste, ao lado do vaso (`acessVaso`, `rot3d: 180`). Dentro do box: misturador, ducha de mão em barra, nicho embutido e **prateleiras de pedra no canto do pilar P6** (0,19 × 0,09, a 1,10 e 1,40; pedido do cliente). Os pilares P5/P6 avançam 0,10 da parede porque a parede de baixo (lavanderia × despensa) não sobe; ficam aparentes (decisão do cliente).
+- **Escritório de trabalho e de jogo** (garagem, sudoeste, layout E2, escolha do cliente): mesa 1,95 × 0,70 com 2 monitores
+  (`monitores`) e cadeira de escritório (`cadeiraEscr`) sob a janela sul (luz difusa, de frente para o rosto na videochamada);
+  sofá 2,10 encostado na parede oeste olhando p/ leste (`sofa` com `rot3d: 180`), TV de 65" na parede leste sobre rack de
+  palhinha, a ≈2,2 m; armário fechado até o teto na parede norte (console, controles, papelada); **cortina blackout** na janela
+  oeste (o sol da tarde refletiria na TV), maços atrás das pontas do sofá.
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 

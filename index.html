@@ -2922,10 +2922,22 @@
             .forEach(([n, e, dn, de, enc]) => p(rect(n, e, dn, de, COR_INT.sofa, o(sMad, { h3d: 0.78, m3d: 'moduloSofa', acab3d: enc }))));   // módulos (encosto nos lados indicados)
         [23.55, 24.40].forEach(e => p(rect(2.30, e, 0.78, 0.80, '#7a7448', o(sMad, { h3d: 0.88, m3d: 'poltrona' }))));   // 2 poltronas juntas (olham p/ o norte)
         p(circ(2.58, 23.22, 0.20, COR_INT.madeira, o(sMad, { h3d: 0.55, m3d: 'mesaLateral' })));
-        // Escritório: mesa sob a janela sul + cadeira; armário fechado na parede norte
-        p(rect(2.25, 14.20, 0.60, 1.60, MAD, o(sMad, { m3d: 'table' })));
-        p(circ(3.15, 15.00, 0.24, '#334155', o(sMad, { m3d: 'chair' })));
-        p(rect(6.30, 13.75, 0.45, 1.80, ARM, o(sArm, { h3d: 2.00, m3d: 'movel', acab3d: 'S' })));
+        // Escritório de trabalho e de jogo (layout E2, escolha do cliente): mesa com 2 monitores sob a janela sul (melhor luz,
+        // difusa, de frente para o rosto na videochamada); sofá encostado na parede oeste, de frente para a TV de 65" na parede
+        // leste (≈2,2 m), sobre rack de palhinha; armário fechado até o teto na parede norte (console, controles, papelada).
+        // Cortina blackout na janela oeste (sol da tarde reflete na TV; jogar no escuro), maços atrás das pontas do sofá.
+        p(rect(2.20, 14.60, 0.70, 1.95, MAD, o(sMad, { m3d: 'table' })));                                        // mesa 1,95 × 0,70
+        p(rect(2.22, 14.95, 0.55, 1.25, '#1f2937', o(sMad, { z3d: 0.76, m3d: 'monitores' })));                  // 2 monitores 27" + teclado
+        p(circ(3.30, 15.575, 0.30, '#2b2f36', o(sMad, { m3d: 'cadeiraEscr' })));                                   // cadeira de escritório
+        p(rect(3.30, 13.76, 2.10, 0.90, COR_INT.sofa, o(sMad, { h3d: 0.78, m3d: 'sofa', rot3d: 180 })));          // sofá 2,10 (olha p/ leste)
+        p(rect(3.55, 16.11, 1.60, 0.40, '#b08a55', o(sMad, { h3d: 0.55, m3d: 'rackTV', rot3d: 180 })));            // rack
+        p(rect(3.625, 16.47, 1.45, 0.04, '#0a0e1a', o(sMad, { z3d: 0.72, m3d: 'tv', rot3d: 180 })));              // TV 65"
+        p(rect(6.30, 13.65, 0.45, 2.00, ARM, o(sArm, { h3d: CEIL3D, m3d: 'movel', acab3d: 'S' })));               // armário fechado até o teto
+        {
+            const sC = o(sArm, { color: '#8a7a62', h3d: CEIL3D - 0.02, m3d: 'cortina', rot3d: 90 });
+            p(rect(3.20, 13.62, 0.42, 0.12, '#cdbb9c', sC));                                                       // blackout, maço sul
+            p(rect(5.18, 13.62, 0.42, 0.12, '#cdbb9c', sC));                                                       // blackout, maço norte
+        }
         // Banheiro dos quartos: box no canto sudeste, vaso e lavatório na parede oeste
         p(rect(2.20, 18.15, 1.00, 1.05, '#eff6ff', o(sLou, { h3d: 1.90, m3d: 'shower' })));
         p(rect(2.40, 16.70, 0.40, 0.70, LOU, o(sLou, { h3d: 0.40, m3d: 'toilet', rot3d: 180 })));
@@ -3594,6 +3606,38 @@
         },
         // TV — painel fino na parede oeste (de=profundidade leste, dn=largura N-S)
         // Altura 16:9 a partir da largura (dn); base em z3d (padrão 0,80). 55" = 1,23 m de largura.
+        // 2 monitores de 27" lado a lado num pedestal duplo, tela p/ NORTE (quem senta fica ao norte da mesa), + teclado e
+        // mouse. Rect = área sobre a mesa: s.n = fundo (sul), s.de = largura total, base em z3d (tampo).
+        monitores(g, s) {
+            const z = s.z || 0.76, cx = s.e + s.de / 2, w = (s.de - 0.02) / 2, P = '#1c1d21', M = { roughness: 0.5, metalness: 0.3 };
+            fbox(g, s.n + 0.04, cx - 0.13, 0.22, 0.26, z, z + 0.012, P, M);                                       // base do pedestal
+            fbox(g, s.n + 0.07, cx - 0.025, 0.04, 0.05, z, z + 0.32, P, M);                                       // haste
+            fbox(g, s.n + 0.09, cx - w + 0.05, 0.03, 2 * w - 0.10, z + 0.27, z + 0.31, P, M);                      // barra dos 2 braços
+            [s.e, s.e + w + 0.02].forEach(e0 => {
+                fbox(g, s.n + 0.12, e0, 0.03, w, z + 0.12, z + 0.48, P, M);                                       // corpo
+                fbox(g, s.n + 0.15, e0 + 0.01, 0.003, w - 0.02, z + 0.13, z + 0.47, '#0e1116', { roughness: 0.12, metalness: 0.4 });   // tela
+            });
+            fbox(g, s.n + 0.36, cx - 0.22, 0.14, 0.44, z, z + 0.02, '#2f3136', { roughness: 0.6 });               // teclado
+            fbox(g, s.n + 0.38, cx + 0.32, 0.10, 0.06, z, z + 0.03, '#2f3136', { roughness: 0.6 });               // mouse
+        },
+        // Cadeira de escritório (usar com circ): base estrela de 5 rodízios, coluna a gás, assento e encosto estofados no lado
+        // NORTE (quem senta olha p/ o sul, para a mesa). Cor em s.color.
+        cadeiraEscr(g, s) {
+            const R = s.r, P = '#1f2023', C = s.color || '#2b2f36', T = { roughness: 0.85 };
+            for (let i = 0; i < 5; i++) {
+                const a = i * 2 * Math.PI / 5, dn = Math.sin(a) * R * 0.9, de = Math.cos(a) * R * 0.9;
+                fcyl(g, s.n + dn, s.e + de, 0.025, 0, 0.05, P);                                                    // rodízio
+                fbox(g, s.n + Math.min(0, dn) - 0.015, s.e + Math.min(0, de) - 0.015, Math.abs(dn) + 0.03, Math.abs(de) + 0.03, 0.05, 0.08, P);   // pé (aprox.)
+            }
+            fcyl(g, s.n, s.e, 0.025, 0.08, 0.44, '#9ca3af', { roughness: 0.3, metalness: 0.7 });                  // coluna a gás
+            fbox(g, s.n - 0.24, s.e - 0.24, 0.48, 0.48, 0.44, 0.52, C, T);                                        // assento
+            fbox(g, s.n + 0.20, s.e - 0.23, 0.06, 0.46, 0.58, 1.08, C, T);                                        // encosto
+            fbox(g, s.n + 0.22, s.e - 0.03, 0.03, 0.06, 0.44, 0.60, P);                                           // apoio do encosto
+            [-0.25, 0.22].forEach(d => {
+                fbox(g, s.n - 0.02, s.e + d, 0.04, 0.03, 0.52, 0.70, P);                                           // braço
+                fbox(g, s.n - 0.14, s.e + d - 0.01, 0.26, 0.05, 0.70, 0.73, P);                                    // apoio do braço
+            });
+        },
         tv(g, s) {
             const z0 = s.z || 0.80, h = s.dn * 0.575, B = 0.012, f = s.e + 0.02 + 0.035;
             fbox(g, s.n, s.e + 0.02, s.dn, 0.035, z0, z0 + h, '#0b0b0d', { roughness: 0.4, metalness: 0.3 });
