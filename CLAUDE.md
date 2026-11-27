@@ -1352,7 +1352,7 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   (2,65 × 0,45, pedido do cliente; a pedra é recortada em volta do pilar P5; `lavatory` `'pedra duas offwhite cobre'`, `rot3d: 90`),
   **2 espelhos bisotados**, cada um ocupando todo o trecho de parede de um lado do pilar P5 (1,28 e 1,18 × 0,70; o pilar fica
   aparente entre eles, decisão do cliente) e uma barra de luz
-  neutra sobre cada cuba. **Toalheiro** de cobre sobre o vaso (parede oeste, barra a 1,45), na saída do box; porta-papel e ducha higiênica ao lado do vaso (`acessVaso`). Dentro do box: misturador, ducha de mão em barra e nicho embutido. Os pilares P5/P6 avançam 0,10 da parede porque a parede de baixo (lavanderia × despensa) não sobe; ficam aparentes (decisão do cliente).
+  neutra sobre cada cuba. **Toalheiro** de cobre sobre o vaso (parede oeste, barra a 1,45), na saída do box; porta-papel e ducha higiênica ao lado do vaso (`acessVaso`). Dentro do box: misturador, ducha de mão em barra, nicho embutido e **prateleiras de pedra nos cantos do pilar P6** (0,20 × 0,09, dos dois lados, a 1,10 e 1,40; pedido do cliente). Os pilares P5/P6 avançam 0,10 da parede porque a parede de baixo (lavanderia × despensa) não sobe; ficam aparentes (decisão do cliente).
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 
