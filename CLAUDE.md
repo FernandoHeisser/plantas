@@ -425,7 +425,8 @@ O 3D **não é modelado à mão** — é extrudado automaticamente do mesmo `bui
 | `tank` | Tanque: pé + cuba |
 | `shelf` | Estante vazada divisória: montantes + 5 prateleiras + livros coloridos + folhagens |
 | `benchcorner` | Canto alemão: banco em **L** (assento 0→0,45 + encosto 0,45→0,85). Driver = **bbox do L** (rect transparente no 2D); encostos na face **N + L** (mN/mE altos). Bancos visíveis no 2D são `rect{no3d:true}` separados. |
-| `plafon` | Plafon de rattan rente ao teto (usar com `circ`: `r`, `z3d` = base, `h3d` = altura): tambor trançado + difusor quente + canopla de latão |
+| `plafon` | Plafon de rattan rente ao teto (usar com `circ`: `r`, `z3d` = base, `h3d` = altura): tambor trançado + difusor quente + canopla de latão. **Hoje sem uso** (saiu pela regra de iluminação) |
+| `luzTeto` | Luz de teto de embutir (usar com `circ`: `r`): aro branco rente ao forro + difusor. `acab3d` = `'fria'` (limpeza, padrão) ou `'neutra'` (banheiros e closet); cores em `LUZ` |
 | `wallcab` | Armário **aéreo**, frente p/ **SUL** (costas na parede norte). Carcaça + porta + fenda central + puxadores na base. Usa `z3d` (base) + `h3d`. |
 | `wallcabW` | Armário **aéreo**, frente p/ **OESTE** (costas na parede leste, mE=s.e+s.de). `wallcab` espelhado — usado na coluna da geladeira. |
 | `wardrobeE` | Guarda-roupa com portas voltadas p/ **LESTE** (costas na parede oeste). Espelho do `wardrobe` — usado no quarto (parede oeste mE=28,5). |
@@ -930,8 +931,8 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   base **MDF Mint** (Duratex), aéreos claros (`COR_INT.aereo`), bancada em **quartzo creme**, **península com tampo
   único de madeira mel** (cobre o balanço; o `balcao` do balanço usa `acab3d: 'semTampo'`), puxadores redondos e
   **torneira gourmet de latão**. Peças sem `acab3d` (lavanderia, despensa, 2º piso) mantêm as cores neutras.
-- **Luz caseira na cozinha** (o cliente achou o trilho com spots "cara de estúdio"): **plafon de rattan** Ø 45
-  (`plafon`, `texRattan`) no centro do teto da cozinha + **spots redondos de embutir sob os aéreos** (Ø 6,4 cm, um a cada ~0,60 m, `acab3d: 'cozSpot'` no `wallcab`/`wallcabW`,
+- **Luz na cozinha** (o cliente achou o trilho com spots "cara de estúdio"): **luz de limpeza fria de embutir** no centro do teto
+  (`luzTeto`; antes um plafon de rattan, trocado pela regra de iluminação) + **spots redondos de embutir sob os aéreos** em luz neutra (Ø 6,4 cm, um a cada ~0,60 m, `acab3d: 'cozSpot'` no `wallcab`/`wallcabW`,
   helper `spotsSobAereo`) sobre a bancada norte e o balcão leste; sobre a geladeira, não. **Sem fita de LED** em lugar nenhum:
   o cliente acha que deixa a casa com cara de shopping ou consultório.
 - **Sofá caramelo/conhaque** em tecido impermeável (`COR_INT.sofa`; o cliente não quer sofá claro por causa de
@@ -949,13 +950,21 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
   em 3 maços: oeste da porta, entre a porta e a janela, leste da janela. A luminária de tripé saiu (o canto noroeste é da cortina).
 - Fora por decisão do cliente: prateleira aberta com potes e estante de livros (juntam poeira).
 
+### Iluminação — regra do cliente (todos os ambientes, V1/V2/V3)
+- **Limpeza:** luz de teto **direta, forte e fria** (6500 K, `LUZ.fria`), uma luminária lisa de embutir no forro por ambiente
+  (`luzTeto`). Substituiu os plafons de rattan da cozinha e do hall.
+- **Dia a dia:** luz **indireta e quente** (2700 K, `LUZ.quente`): arandelas, abajures, luminárias de chão. Sem fita de LED.
+- **Exceções, luz neutra** (4000 K, `LUZ.neutra`, cor real): spots de preparo sob os aéreos da cozinha (`SPOT_LUZ`), teto e
+  espelho dos banheiros, e o closet (ver a cor da roupa).
+- Áreas de serviço (lavanderia, despensa, rouparia, corredor) só têm a luz de teto.
+
 ### Hall de entrada (V1/V2/V3)
 - **Armário de entrada** (`armEntrada`, 1,14 × 0,40, até o teto) no canto sul, atrás da porta aberta (a folha para em mN 2,97;
   sobram 0,42 até a frente do armário). Sapateira aberta embaixo (pedido do cliente: uso diário e o sapato precisa respirar),
   gavetas no meio, casacos à vista em ganchos de latão (também aberto, pedido do cliente; 0,40 de fundo não comporta cabide)
   e maleiro fechado no topo. Capacho na frente da porta.
 - **Espelho de corpo inteiro** (`espelho`, 0,50 × 1,70, base 0,30) na parede leste, de frente para a porta de entrada.
-- **Luz própria:** plafon de rattan Ø 30 (`plafon`, base 2,60) no centro do hall, mesma família do da cozinha.
+- **Luz própria:** luz de limpeza fria de embutir no centro do teto (`luzTeto`; antes era um plafon de rattan).
 - **Porta-chaves** (`portaChaves`, 0,30 × 0,18, base 1,40) na parede oeste, logo ao norte da porta (lado da fechadura).
 - Guarda-chuva fica na garagem (decisão do cliente).
 

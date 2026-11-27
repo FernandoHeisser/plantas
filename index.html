@@ -2548,7 +2548,7 @@
             lys.push(COZ.rect(2.525, 0.175, 0.35, 3.5, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcab', acab3d: 'cozSpot' })); // até o teto (2,69, sob o forro): menos poeira em cima; norte, do pilar até a parede leste (0,35 de profundidade), com spots embaixo
             lys.push(COZ.rect(1.055, 3.325, 0.7, 0.35, '#e5e7eb', { color: '#6b7280', weight: 0.7, dashArray: '4 3', fillOpacity: 0.35, z3d: 1.65, h3d: 1.04, m3d: 'wallcabW', acab3d: 'coz' })); // leste, sobre a geladeira: 0,35 de 1,65 até o teto, igual aos demais aéreos
             // Luz caseira: plafon de rattan Ø 45 no centro do teto da cozinha (sem fita de LED: o cliente não gosta)
-            lys.push(COZ.circ(1.90, 2.05, 0.225, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.58, h3d: 0.12, m3d: 'plafon' }));
+            lys.push(COZ.circ(1.90, 2.05, 0.20, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));   // luz de limpeza fria no teto (regra do cliente)
             // Planejados: canto entre bancada e península com armário de canto (sem armário sobre a porta dos fundos).
             lys.push(L.polyline([COZ.rot(2.275, 0.175), COZ.rot(2.875, 0.875)], { color: '#6b7280', weight: 0.8, dashArray: '3 2', interactive: false })); // canto bancada × península: armário de canto (giratório)
             
@@ -2575,11 +2575,17 @@
             // Espelho de corpo inteiro 0,50 × 1,70 na parede leste (do banho), de frente para a porta de entrada
             lys.push(HAL.rect(1.10, 1.199, 0.50, 0.02, '#cbd5e1', { color: '#b89458', weight: 1.2, z3d: 0.30, h3d: 1.70, m3d: 'espelho' }));
             // Luz própria: plafon de rattan Ø 30 no centro do hall (mesma família do plafon da cozinha)
-            lys.push(HAL.circ(1.55, 0.65, 0.15, '#c9a26b', { color: '#8a6a3e', weight: 0.8, dashArray: '2 3', fillOpacity: 0.5, z3d: 2.60, h3d: 0.09, m3d: 'plafon' }));
+            lys.push(HAL.circ(1.55, 0.65, 0.15, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));   // luz de limpeza fria no teto
             // Porta-chaves na parede oeste, ao norte da porta (lado da fechadura): pega a chave ao abrir
             lys.push(HAL.rect(2.05, 0.081, 0.30, 0.06, '#c9a46a', { color: '#5a4422', weight: 0.6, z3d: 1.40, h3d: 0.18, m3d: 'portaChaves' }));
             // capacho
             lys.push(HAL.rect(0.925, 0.195, 0.8, 0.9, '#fde68a', { color: '#a16207', weight: 0.6, fillOpacity: 0.55, dashArray: '4 2', h3d: 0.02, m3d: 'rug' }));
+
+            // ─── LUZ DE LIMPEZA NO TETO (regra do cliente): forte e fria; banho em neutra (4000 K) ───
+            lys.push(SAL.circ(1.45, 1.70, 0.20, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));
+            lys.push(QUA.circ(1.325, 1.875, 0.18, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));
+            lys.push(SER.circ(2.25, 0.90, 0.13, '#e0ecff', { color: '#93c5fd', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto' }));
+            lys.push(BAN.circ(1.60, 0.70, 0.13, '#fff3d6', { color: '#fcd34d', weight: 0.8, dashArray: '2 3', fillOpacity: 0.35, m3d: 'luzTeto', acab3d: 'neutra' }));
 
             // ─── LABELS DOS CÔMODOS ──────────────────────────────────────────
             lys.push(BAN.rotulo(1.35, 0.85, 'Banho', '1,30 × 2,50 m', '3,25 m²'));
@@ -2812,6 +2818,15 @@
         const MAD = '#8a5a33', ARM = '#efece6', CAMA = '#c8b99a', LOU = '#ffffff';
         const sMad = { color: '#451a03', weight: 0.5 }, sArm = { color: '#78716c', weight: 0.6 }, sLou = { color: '#475569', weight: 0.6 };
         const o = (base, extra) => Object.assign({}, base, extra);
+        // Luz de limpeza no teto de cada ambiente (regra do cliente): forte e fria; banheiros e closet em neutra (4000 K)
+        {
+            const LT = o(sArm, { color: '#93c5fd', fillOpacity: 0.35, dashArray: '2 3', m3d: 'luzTeto' }), LN = o(LT, { color: '#fcd34d', acab3d: 'neutra' });
+            [[6.20, 27.90, 0.20], [3.40, 20.80, 0.18], [3.40, 23.90, 0.18], [6.20, 23.90, 0.18], [4.40, 15.05, 0.18],
+             [5.10, 17.90, 0.12], [6.30, 18.00, 0.12], [8.70, 15.50, 0.20], [9.10, 19.60, 0.20]]
+                .forEach(([n, e, r]) => p(circ(n, e, r, '#e0ecff', LT)));                          // suíte, estar (3), escritório, rouparia, corredor, quartos
+            [[3.45, 29.30, 0.15], [3.45, 26.70, 0.13], [3.20, 17.90, 0.13]]
+                .forEach(([n, e, r]) => p(circ(n, e, r, '#fff3d6', LN)));                          // closet, banho da suíte, banheiro
+        }
         // Suíte: cama KING (1,93 × 2,03, a maior possível, pedido do cliente) com a cabeceira na parede sul (lado do banho
         // e do closet, longe do barulho do cinema); o pé para em 6,84, fora do giro da porta (ponta norte da parede oeste).
         // Criados-mudos dos dois lados, poltrona junto da janela leste. A porta do closet fica livre a leste.
@@ -3881,6 +3896,13 @@
             fcyl(g, s.n, s.e, r * 0.94, z + h * 0.35, z + h * 0.35 + 0.006, '#fff3dc',
                  { emissive: col3d('#ffe2b4'), emissiveIntensity: 0.55, roughness: 0.9 });          // difusor
             fcyl(g, s.n, s.e, r * 0.25, CEIL3D - 0.02, CEIL3D, '#b89458', LATAO());                  // canopla
+        },
+        // Luz de teto de embutir (usar com circ: centro, r = raio): aro branco rente ao forro + difusor liso. acab3d = 'fria'
+        // (limpeza, 6500 K, padrão) ou 'neutra' (banheiros e closet, 4000 K). Base no forro (2,69 acima do piso).
+        luzTeto(g, s) {
+            const F = CEIL3D - 0.01, cor = LUZ[s.acab3d || 'fria'] || LUZ.fria;
+            fcyl(g, s.n, s.e, s.r, F - 0.008, F, '#f4f4f2', { roughness: 0.5 });                                  // aro
+            fcyl(g, s.n, s.e, s.r * 0.86, F - 0.012, F - 0.008, cor, { emissive: col3d(cor), emissiveIntensity: 0.9, roughness: 0.6 });   // difusor
         },
         // Lava-louças de embutir sob a bancada (frente p/ SUL): porta inox + faixa de comando + puxador; tampo contínuo
         dishwasher(g, s) {
