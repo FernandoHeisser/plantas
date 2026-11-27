@@ -966,7 +966,7 @@ Referência: fotos de interiores enviadas pelo cliente (paleta quente e terrosa)
 - **Exceções, luz neutra** (4000 K, `LUZ.neutra`, cor real): spots de preparo sob os aéreos da cozinha (`SPOT_LUZ`), teto e
   espelho dos banheiros, e o closet (ver a cor da roupa).
 - **Luzes quentes já postas:** arandelas da sala (TV), do hall (parede leste, entre o armário e o espelho), da suíte e do
-  quarto 1 (sobre os criados), do quarto 2 (cabeceira a oeste), do estar do 2º (parede da junta, sobre as pontas do sofá) e do escritório; abajur
+  quarto 1 e do quarto 2 (sobre os criados), do estar do 2º (parede da junta, sobre as pontas do sofá) e do escritório; abajur
   da mesa lateral da suíte. **Neutra:** barra sobre o espelho do banho do térreo (`luzEspelho`).
 - Áreas de serviço (lavanderia, despensa, rouparia, corredor) só têm a luz de teto. Os banheiros do 2º piso ganham a luz do
   espelho quando forem revisados.
@@ -1376,6 +1376,10 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   (2,65 × 0,60, `roupeiro` `'O correr'`; antes portas de abrir com só 0,67 livre na frente), com ≈1,0 m livre até a cama;
   escrivaninha 1,12 × 0,55 no canto noroeste olhando p/ oeste (luz da janela norte de lado); blackout nas 2 janelas (oeste num maço só,
   ao sul, para não ficar atrás da escrivaninha).
+- **Quarto 2** (garagem, nordeste, em L; também genérico): **guarda-roupa de correr até o teto na parede oeste** (a de drywall com
+  o quarto 1: a roupa ajuda a isolar o som entre os quartos), 2,15 × 0,60, parando antes da janela norte; cama de casal com a
+  **cabeceira na parede sul do braço** (alvenaria sobre a viga), criados dos dois lados e arandelas; escrivaninha 1,20 × 0,55 sob a
+  janela norte oeste com cadeira; cômoda baixa no recanto da entrada; blackout nas 3 janelas (o pano oeste do norte num maço só, a oeste).
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
 

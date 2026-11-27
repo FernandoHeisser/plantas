@@ -38,7 +38,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 | Estar (cinema / video game) | ✅ revisado | TV 75" na parede da suíte sobre painel ripado, sofá modular em L encostado na junta (vira "ninho"), 2 poltronas juntas no leste para puxar, tapete de lã; pilar solto fora da visão (2026-11-27) |
 | Escritório | ✅ revisado | Trabalho e jogo: mesa com 2 monitores sob a janela sul, sofá na parede oeste de frente para a TV de 65" na leste, armário fechado até o teto na norte, blackout na janela oeste (2026-11-27) |
 | Quarto 1 | ✅ revisado | Genérico (sem finalidade definida): cama de casal com a cabeceira ao sul, criados e arandelas, guarda-roupa de correr até o teto na parede leste inteira (2,65 m), escrivaninha no canto noroeste, blackout nas 2 janelas (2026-11-27) |
-| Quarto 2 | 🔶 esboço | Cama sob a janela norte, guarda-roupa na parede sul do braço |
+| Quarto 2 | ✅ revisado | Genérico (em L): guarda-roupa de correr até o teto na parede oeste (isola o som do quarto 1), cama de casal com a cabeceira na parede sul do braço, criados e arandelas, escrivaninha sob a janela norte, cômoda no recanto da entrada, blackout nas 3 janelas (2026-11-27) |
 | Banheiro | 🔶 esboço | Box, vaso e lavatório |
 | Rouparia | 🔶 esboço | Um armário fechado |
 | Corredor | — | Só passagem (guarda-corpo do vão da escada) |
