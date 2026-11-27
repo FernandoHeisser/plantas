@@ -1346,8 +1346,9 @@ artifact "Segundo piso do sobrado"). Coordenadas de código:
   **neutro**: porcelanato off-white fosco 60 × 120 até o teto nas 4 paredes (`revest`) e **metais de cobre escovado fosco**
   (`COBRE`/`COBRE_M`, `metalBanho`; pedido do cliente: nada dourado nem brilhante). **Box até o teto** no canto sudoeste
   (`boxSuite`, 1,30 × 1,00, até o pilar P6) com a janela dentro (exaustão do vapor). **Vaso de linhas retas** na parede oeste
-  (`toilet` `'reto cobre'`, `rot3d: 180`). **Bancada de pedra off-white suspensa com 2 cubas** na parede norte, a leste do pilar
-  P5 (1,18 × 0,45; `lavatory` `'pedra duas offwhite cobre'`, `rot3d: 90`), espelho bisotado e barra de luz neutra em cima.
+  (`toilet` `'reto cobre'`, `rot3d: 180`). **Bancada de pedra off-white suspensa com 2 cubas** na parede norte, **de parede a parede**
+  (2,65 × 0,45, pedido do cliente; a pedra é recortada em volta do pilar P5; `lavatory` `'pedra duas offwhite cobre'`, `rot3d: 90`),
+  **um espelho bisotado por cuba** (0,55 × 0,70, um de cada lado do pilar) e uma barra de luz neutra sobre cada espelho.
   **Toalheiro** de cobre na parede leste, ao lado da porta do closet. Os pilares P5/P6/P7 avançam 0,10 da parede: nada encosta neles.
 - Rebaixos: banheiro dos quartos (aparece no teto da garagem) e banho da suíte. Vão para o engenheiro
   junto com a estrutura nova da garagem.
