@@ -1863,6 +1863,7 @@
     // Acabamento por peça (opts.acab3d): 'coz' = base mint + pedra creme; 'pen' = base mint + tampo de madeira
     const acabCoz = s => s.acab3d === 'coz' || s.acab3d === 'pen' || s.acab3d === 'cozSpot';   // cozSpot = coz + spots sob o aéreo
     const LATAO = () => ({ metalness: 0.85, roughness: 0.32 });
+    const CROMO = '#d7dbde', CROMO_M = () => ({ metalness: 0.95, roughness: 0.12 });   // metais do banho (retrô, decisão do cliente)
     // Spots redondos de embutir sob os aéreos (luz da bancada; o cliente não gosta de fita de LED): Ø 6,4 cm, um a cada ~0,60 m
     const SPOT_LUZ = () => ({ emissive: col3d('#ffd9a0'), emissiveIntensity: 1.0, roughness: 0.4 });
     function spotsSobAereo(g, ini, len, put) {
@@ -2403,15 +2404,19 @@
 
             // ─── BANHO 1,30 × 2,50 m (A01) ───
             // Box: limite norte provisório, na linha fina da prancha (M5, a confirmar com a arquiteta)
-            lys.push(BAN.rect(0.075, 0.075, 0.8, 1.3, '#eff6ff', { color: '#3b82f6', weight: 1, dashArray: '3 2', h3d: 1.90, m3d: 'shower' }));
+            lys.push(BAN.rect(0.075, 0.075, 0.8, 1.3, '#eff6ff', { color: '#3b82f6', weight: 1, dashArray: '3 2', h3d: 2.69, m3d: 'shower', acab3d: 'teto' }));   // box até o teto
             lys.push(BAN.circ(0.475, 0.725, 0.07, '#cbd5e1', { color: '#475569', weight: 0.5, no3d: true }));
             lys.push(BAN.circ(0.475, 0.725, 0.025, '#475569', { color: '#1e293b', weight: 0.3, no3d: true }));
             // Vaso: parede leste, virado para oeste
             lys.push(BAN.rect(1.035, 1.215, 0.47, 0.16, '#e5e7eb', { color: '#475569', weight: 0.6, h3d: 0.85, no3d: true })); // caixa
-            lys.push(BAN.rect(1.085, 0.705, 0.37, 0.67, '#ffffff', { color: '#475569', weight: 0.8, h3d: 0.40, m3d: 'toilet' })); // bacia
-            lys.push(BAN.circ(1.27, 0.955, 0.12, '#f8fafc', { color: '#475569', weight: 0.5, no3d: true })); // tampa
+            lys.push(BAN.rect(1.085, 0.705, 0.37, 0.67, '#ffffff', { color: '#475569', weight: 0.8, h3d: 0.40, m3d: 'toilet', acab3d: 'reto' })); // vaso de linhas retas, base fechada
+            lys.push(BAN.rect(1.125, 0.745, 0.29, 0.42, '#f8fafc', { color: '#475569', weight: 0.5, no3d: true })); // tampa retangular
             // Lavatório: canto nordeste, encostado na parede leste
-            lys.push(BAN.rect(1.675, 0.925, 0.9, 0.45, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.85, m3d: 'lavatory' }));
+            lys.push(BAN.rect(1.675, 0.925, 0.9, 0.45, '#ffffff', { color: '#475569', weight: 0.7, h3d: 0.90, m3d: 'lavatory', acab3d: 'pedra' }));   // bancada de pedra suspensa, cuba esculpida
+            // Toalheiro de barra cromado 0,60 na parede oeste, na saída do box e de frente para a pia (mãos e banho)
+            lys.push(BAN.rect(1.00, 0.075, 0.60, 0.08, '#cbd5e1', { color: '#94a3b8', weight: 1, z3d: 1.20, h3d: 0.04, m3d: 'toalheiro' }));
+            // Espelho bisotado 0,80 × 0,70 sobre a bancada (colado no azulejo, sem moldura: retrô anos 90/2000)
+            lys.push(BAN.rect(1.725, 1.367, 0.80, 0.008, '#cbd5e1', { color: '#94a3b8', weight: 1.2, z3d: 1.25, h3d: 0.70, m3d: 'espelho', acab3d: 'bisote' }));
             lys.push(BAN.rect(1.945, 1.005, 0.36, 0.25, '#dbeafe', { color: '#475569', weight: 0.4, no3d: true }));
 
             if (!V3) {
@@ -3198,11 +3203,27 @@
     }
     function texAzulejo() {
         return TEX3D.azulejo || (TEX3D.azulejo = canvasTex((ctx, w) => {
-            ctx.fillStyle = '#e4ecef'; ctx.fillRect(0, 0, w, w);   // azulejo claro (1 peça por repetição)
-            noise2d(ctx, w, 0, 0, 0, 5);
-            ctx.strokeStyle = 'rgba(110,125,135,0.6)'; ctx.lineWidth = 5;
+            ctx.fillStyle = '#f6f6f3'; ctx.fillRect(0, 0, w, w);   // azulejo branco brilhante (1 peça por repetição)
+            noise2d(ctx, w, 0, 0, 0, 3);
+            ctx.strokeStyle = 'rgba(170,178,182,0.7)'; ctx.lineWidth = 3;
             ctx.strokeRect(0, 0, w, w);
         }, 128));
+    }
+    // Pastilha de vidro azul e branca (banho retrô, referência do cliente): peças de 2,5 cm misturadas ao acaso em
+    // 4 tons de azul + branco, rejunte branco. 12 × 12 peças por repetição (0,30 m).
+    function texPastilha() {
+        return TEX3D.pastilha || (TEX3D.pastilha = canvasTex((ctx, w) => {
+            ctx.fillStyle = '#eef1f2'; ctx.fillRect(0, 0, w, w);   // rejunte
+            const n = 12, t = w / n, cores = ['#1d4f7a', '#2b6a9c', '#4b8fc0', '#86b9dc', '#f4f6f7', '#f4f6f7'];
+            let sd = 5; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+            for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+                const x = i * t + 1.5, y = j * t + 1.5, a = t - 3;
+                ctx.fillStyle = cores[(rnd() * cores.length) | 0]; ctx.fillRect(x, y, a, a);
+                const rg = ctx.createLinearGradient(x, y, x + a, y + a);   // brilho do vidro
+                rg.addColorStop(0, 'rgba(255,255,255,0.22)'); rg.addColorStop(0.5, 'rgba(255,255,255,0)');
+                ctx.fillStyle = rg; ctx.fillRect(x, y, a, a);
+            }
+        }, 384));
     }
     // Azulejo artesanal verde-sálvia (Gouache Mer, Portobello): 4×4 peças de 10 cm por repetição (0,40 m),
     // cada uma com tom e brilho levemente diferentes e borda ondulada, como a peça feita à mão.
@@ -3225,6 +3246,25 @@
             }
             noise2d(ctx, w, 0, 0, 0, 6);
         }, 256));
+    }
+    // Granito branco salpicado (tipo Branco Dallas / Itaúnas), polido: a pedra de banheiro dos anos 90/2000, pedido do
+    // cliente para o banho retrô. Fundo branco-acinzentado com pintas pretas, cinza e bege de 1 a 4 mm.
+    function texGranito() {
+        return TEX3D.granito || (TEX3D.granito = canvasTex((ctx, w) => {
+            ctx.fillStyle = '#e8e6e1'; ctx.fillRect(0, 0, w, w);
+            let sd = 13; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+            const pinta = (n, cores, r0, r1) => {
+                for (let k = 0; k < n; k++) {
+                    ctx.fillStyle = cores[(rnd() * cores.length) | 0];
+                    const x = rnd() * w, y = rnd() * w, r = r0 + rnd() * (r1 - r0);
+                    ctx.beginPath(); ctx.ellipse(x, y, r, r * (0.5 + rnd() * 0.5), rnd() * 3.14, 0, 6.29); ctx.fill();
+                }
+            };
+            pinta(900, ['rgba(205,198,186,0.7)', 'rgba(190,184,176,0.6)'], 1.5, 4);   // grãos bege e cinza claros
+            pinta(500, ['#3a3a3c', '#55565a', '#2a2a2c'], 0.6, 2.2);                  // pintas pretas
+            pinta(150, ['#8b6f55', '#7a6a5e'], 0.6, 1.6);                             // pintas castanhas
+            noise2d(ctx, w, 0, 0, 0, 4);
+        }, 512));
     }
     // Rattan / palha trançada (plafon da cozinha): trama em xadrez de fios claros e escuros, com frestas
     function texRattan() {
@@ -3544,6 +3584,14 @@
         // s.z = base (padrão 0,30), s.h = altura (padrão 1,70); s.dn = largura ao longo da parede.
         espelho(g, s) {
             const z0 = s.z || 0.30, z1 = z0 + (s.h || 1.70), W = s.e + s.de, M = 0.015;
+            if (s.acab3d === 'bisote') {   // espelho colado, sem moldura, com borda bisotada (banho retrô anos 90/2000)
+                const esp = new THREE.MeshStandardMaterial({ color: 0xe9eef0, metalness: 1, roughness: 0.04, envMapIntensity: 1.2 });
+                const bis = new THREE.MeshStandardMaterial({ color: 0xcfd8dc, metalness: 0.9, roughness: 0.15, envMapIntensity: 1.0 });
+                const A = W - 0.009;   // sobre o azulejo (8 mm) da parede
+                g.add(box3d(s.n, A - 0.006, s.dn, 0.006, z0, z1, bis));                                    // borda bisotada
+                g.add(box3d(s.n + 0.02, A - 0.008, s.dn - 0.04, 0.002, z0 + 0.02, z1 - 0.02, esp));        // face espelhada
+                return;
+            }
             fbox(g, s.n, W - 0.02, s.dn, 0.02, z0, z1, COR_INT.latao, LATAO());                                   // moldura
             const vidro = box3d(s.n + M, W - 0.024, s.dn - 2 * M, 0.006, z0 + M, z1 - M,
                 new THREE.MeshStandardMaterial({ color: 0xe9eef0, metalness: 1, roughness: 0.04, envMapIntensity: 1.2 }));
@@ -3561,6 +3609,13 @@
                 fbox(g, n - 0.004, s.e + 0.018, 0.008, 0.035, z0 + 0.04, z0 + 0.05, COR_INT.latao, LATAO());   // haste
                 fbox(g, n - 0.004, s.e + 0.045, 0.008, 0.008, z0 + 0.04, z0 + 0.07, COR_INT.latao, LATAO());   // ponta
             }
+        },
+        // Toalheiro de barra cromado, costas na parede OESTE (face p/ leste), com uma toalha pendurada. s.z = altura da barra.
+        toalheiro(g, s) {
+            const z = s.z || 1.20, E = s.e + 0.008, M = CROMO_M();   // 8 mm de azulejo na parede
+            [s.n + 0.02, s.n + s.dn - 0.04].forEach(n => fbox(g, n, E, 0.02, 0.07, z - 0.02, z + 0.02, CROMO, M));   // suportes
+            fbox(g, s.n, E + 0.055, s.dn, 0.016, z - 0.008, z + 0.008, CROMO, M);                                   // barra
+            fbox(g, s.n + 0.10, E + 0.045, s.dn - 0.20, 0.035, z - 0.50, z + 0.01, '#9fc3dc', { roughness: 0.95 });   // toalha azul-clara
         },
         // Geladeira — corpo inox, fenda do freezer + 2 puxadores. Porta p/ sul quando mais larga em mE; senão p/ oeste.
         fridge(g, s) {
@@ -3693,6 +3748,17 @@
         },
         // Vaso sanitário — bacia + assento + caixa acoplada (atrás, leste)
         toilet(g, s) {
+            if (s.acab3d === 'reto') {
+                // Vaso de linhas retas com base fechada (sifão escondido, sem curvas para juntar sujeira) e caixa acoplada
+                // retangular; frente p/ OESTE, costas na parede leste. Tampa fechada fina, botão duplo cromado.
+                const LOU = '#fbfbfa', LS = { roughness: 0.25 }, F = s.e, C = s.e + s.de;
+                fbox(g, s.n + 0.01, F + 0.02, s.dn - 0.02, s.de - 0.20, 0, 0.385, LOU, LS);        // base/bacia (bloco liso até o piso)
+                fbox(g, s.n, F, s.dn, s.de - 0.18, 0.385, 0.41, '#ffffff', LS);                     // assento retangular
+                fbox(g, s.n + 0.005, F + 0.01, s.dn - 0.01, s.de - 0.20, 0.41, 0.43, '#ffffff', LS);   // tampa
+                fbox(g, s.n, C - 0.18, s.dn, 0.18, 0, 0.80, LOU, LS);                               // caixa acoplada (até o piso)
+                fbox(g, s.n + s.dn / 2 - 0.05, C - 0.12, 0.10, 0.06, 0.80, 0.805, CROMO, CROMO_M());   // botão duplo
+                return;
+            }
             fbox(g, s.n + 0.03, s.e, s.dn - 0.06, s.de - 0.08, 0, 0.40, '#fafafa', { roughness: 0.3 });
             fbox(g, s.n + 0.01, s.e + 0.01, s.dn - 0.02, s.de - 0.12, 0.40, 0.44, '#ffffff', { roughness: 0.3 });
             fbox(g, s.n + 0.04, s.e + s.de - 0.04, s.dn - 0.08, 0.16, 0.40, 0.92, '#f2f2f2', { roughness: 0.3 });
@@ -3916,6 +3982,31 @@
         },
         // Lavatório — gabinete + cuba + torneira
         lavatory(g, s) {
+            if (s.acab3d === 'pedra') {
+                // Bancada monolítica de pedra (granito branco salpicado, retrô anos 90/2000, pedido do cliente), suspensa,
+                // costas na parede LESTE (frente p/ oeste), sem gabinete: tudo pode molhar e o piso embaixo fica livre.
+                // Bloco de 0,20 de altura, rodabanca, cuba esculpida deslocada p/ o sul (apoio ao norte), torneira de
+                // parede com 2 registros redondos em metal cromado e prateleira de pedra solta embaixo (toalhas). Topo em s.h.
+                const H = s.h || 0.90, W = s.e + s.de, L = CROMO_M();
+                const mar = new THREE.MeshStandardMaterial({ map: texGranito(), roughness: 0.18, metalness: 0, envMapIntensity: 0.6 });   // fora do fmat (mapa)
+                const pedra = (n, e, dn, de, z0, z1) => fbox(g, n, e, dn, de, z0, z1, mar);
+                const cN0 = s.n + 0.10, cN1 = cN0 + 0.46, cE0 = s.e + 0.07, cE1 = W - 0.07;   // cuba 0,46 × 0,31
+                pedra(s.n, s.e, s.dn, s.de, H - 0.20, H - 0.12);                                   // fundo do bloco
+                pedra(s.n, s.e, cN0 - s.n, s.de, H - 0.12, H);                                     // lado sul da cuba
+                pedra(cN1, s.e, s.n + s.dn - cN1, s.de, H - 0.12, H);                              // apoio ao norte
+                pedra(cN0, s.e, cN1 - cN0, cE0 - s.e, H - 0.12, H);                                // frente da cuba
+                pedra(cN0, cE1, cN1 - cN0, W - cE1, H - 0.12, H);                                  // fundo da cuba (lado da parede)
+                fbox(g, cN0, cE0, cN1 - cN0, cE1 - cE0, H - 0.125, H - 0.12, '#e2dcd2', { roughness: 0.3 });   // piso da cuba
+                pedra(s.n, W - 0.02, s.dn, 0.02, H, H + 0.08);                                     // rodabanca
+                pedra(s.n, s.e + 0.02, s.dn, s.de - 0.02, 0.26, 0.32);                             // prateleira de baixo
+                const cc = (cN0 + cN1) / 2, zt = H + 0.24;                                         // torneira de parede
+                fbox(g, cc - 0.012, W - 0.15, 0.024, 0.15, zt - 0.012, zt + 0.012, CROMO, L);   // bica
+                fbox(g, cc - 0.012, W - 0.15, 0.024, 0.024, zt - 0.07, zt, CROMO, L);           // ponta curvada p/ baixo
+                [cc - 0.16, cc + 0.16].forEach(n => fcyl(g, n, W - 0.02, 0.032, zt - 0.02, zt + 0.02, CROMO, L));   // registros
+                fbox(g, cN1 + 0.04, s.e + 0.09, 0.28, 0.30, 0.32, 0.42, '#d6d0c6', { roughness: 0.95 });        // toalhas dobradas
+                fbox(g, s.n + 0.06, s.e + 0.09, 0.30, 0.30, 0.32, 0.38, '#e8e4dc', { roughness: 0.95 });
+                return;
+            }
             fbox(g, s.n, s.e, s.dn, s.de, 0, s.h - 0.06, '#e8e4da');
             fbox(g, s.n - 0.02, s.e - 0.02, s.dn + 0.04, s.de + 0.04, s.h - 0.06, s.h, '#ffffff', { roughness: 0.3 });
             fbox(g, s.n + 0.05, s.e + 0.06, s.dn - 0.10, s.de - 0.14, s.h - 0.05, s.h, '#dfe7ee', { roughness: 0.2 });
@@ -3927,6 +4018,20 @@
             const glass = fmat('#cfe3ee', { transparent: true, opacity: 0.22, roughness: 0.05, metalness: 0, envMapIntensity: 1.2 });
             glass.userData.foto = 'vidro';
             fbox(g, s.n, s.e, s.dn, s.de, 0, 0.05, '#cfd6da', { roughness: 0.4 });   // base
+            if (s.acab3d === 'teto') {
+                // Box de parede a parede, fechado até o teto (o vapor não sai para o resto do banho; a janela fica
+                // dentro do box e faz a exaustão). Frente norte: painel fixo a leste (lado do vaso) + folha de correr
+                // a oeste, 3 cm para dentro; perfis finos de metal cromado no piso, no teto e nas pontas.
+                const H = 2.69, F = s.n + s.dn, meio = s.e + s.de / 2, L = CROMO_M();
+                fbox(g, F - 0.02, meio - 0.05, 0.01, s.e + s.de - meio + 0.05, 0.05, H - 0.03, glass).castShadow = false;   // fixo (leste)
+                fbox(g, F - 0.05, s.e + 0.02, 0.01, s.de / 2 + 0.03, 0.06, H - 0.03, glass).castShadow = false;            // folha de correr (oeste)
+                fbox(g, F - 0.06, s.e, 0.06, s.de, H - 0.03, H, CROMO, L);                                          // trilho no teto
+                fbox(g, F - 0.06, s.e, 0.06, s.de, 0.05, 0.065, CROMO, L);                                          // guia no piso
+                [s.e, s.e + s.de - 0.015].forEach(e => fbox(g, F - 0.06, e, 0.06, 0.015, 0.05, H, CROMO, L));      // perfis nas paredes
+                fbox(g, F - 0.07, s.e + s.de / 2 - 0.03, 0.015, 0.015, 0.95, 1.25, CROMO, L);                       // puxador da folha
+                fcyl(g, s.n + s.dn / 2, s.e + s.de / 2, 0.11, H - 0.02, H, CROMO, L);                                   // ducha de teto
+                return;
+            }
             fbox(g, s.n + s.dn - 0.02, s.e, 0.02, s.de, 0.05, s.h, glass).castShadow = false;  // vidro norte
             fbox(g, s.n, s.e, s.dn, 0.02, 0.05, s.h, glass).castShadow = false;                // vidro oeste
             fbox(g, s.n + s.dn - 0.18, s.e + 0.10, 0.16, 0.16, s.h - 0.05, s.h - 0.02, '#cccfd3', { metalness: 0.6 }); // ducha
@@ -4403,28 +4508,30 @@
         // ── Azulejo do banho até o forro (Memorial): painéis finos nas 4 paredes ──
         {
             const T = 0.008, TILE = 0.30, H = CEIL3D;
-            const matAz = new THREE.MeshStandardMaterial({ map: texAzulejo(), roughness: 0.35, metalness: 0, envMapIntensity: 0.5 });
+            const matAz = new THREE.MeshStandardMaterial({ map: texAzulejo(), roughness: 0.2, metalness: 0, envMapIntensity: 0.6 });
+            const matPas = new THREE.MeshStandardMaterial({ map: texPastilha(), roughness: 0.15, metalness: 0, envMapIntensity: 0.7 });   // parede do fundo do box
             const nS = EIXO.S + ESP.ext / 2, nN = EIXO.LONG - ESP.int / 2;
             const eO = EIXO.HALL + ESP.int / 2 + OE, eL = EIXO.BANHO - ESP.int / 2 + OE;
-            const painel = (emE, pos, lado, a0, a1, z0, z1) => {
+            const painel = (emE, pos, lado, a0, a1, z0, z1, mat = matAz) => {
                 if (a1 - a0 < 0.005 || z1 - z0 < 0.005) return;
                 const p0 = lado > 0 ? pos : pos - T;
-                const m = emE ? box3d(p0, a0, T, a1 - a0, CPA + z0, CPA + z1, matAz)
-                              : box3d(a0, p0, a1 - a0, T, CPA + z0, CPA + z1, matAz);
+                const m = emE ? box3d(p0, a0, T, a1 - a0, CPA + z0, CPA + z1, mat)
+                              : box3d(a0, p0, a1 - a0, T, CPA + z0, CPA + z1, mat);
                 const uv = m.geometry.attributes.uv;     // peças em tamanho real, sem esticar a textura
                 for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * (a1 - a0) / TILE, uv.getY(i) * (z1 - z0) / TILE);
                 m.castShadow = false;
                 g.add(m);
             };
-            const parede = (emE, pos, lado, a0, a1, f) => {
-                if (!f) return painel(emE, pos, lado, a0, a1, 0, H);
-                painel(emE, pos, lado, a0, f.s, 0, H);
-                painel(emE, pos, lado, f.s, f.e, 0, f.z0);
-                painel(emE, pos, lado, f.s, f.e, f.z1, H);
-                painel(emE, pos, lado, f.e, a1, 0, H);
+            const parede = (emE, pos, lado, a0, a1, f, mat) => {
+                if (!f) return painel(emE, pos, lado, a0, a1, 0, H, mat);
+                painel(emE, pos, lado, a0, f.s, 0, H, mat);
+                painel(emE, pos, lado, f.s, f.e, 0, f.z0, mat);
+                painel(emE, pos, lado, f.s, f.e, f.z1, H, mat);
+                painel(emE, pos, lado, f.e, a1, 0, H, mat);
             };
             const j = JANELAS.find(x => x.id === 'banho'), p = VAOS.banho;
-            parede(true,  nS, +1, eO, eL, { s: j.ini + OE, e: j.ini + OE + j.larg, z0: j.opts.sill, z1: j.opts.head });
+            // Parede do fundo do box (sul, com a janela) em pastilha azul e branca; o resto em azulejo branco até o forro
+            parede(true,  nS, +1, eO, eL, { s: j.ini + OE, e: j.ini + OE + j.larg, z0: j.opts.sill, z1: j.opts.head }, matPas);
             parede(true,  nN, -1, eO, eL);
             parede(false, eO, +1, nS, nN, { s: p.ini, e: p.ini + p.larg, z0: 0, z1: 2.1 });
             parede(false, eL, -1, nS, nN);
@@ -5654,7 +5761,7 @@
         if (!root) return;
         const keepMat = new Set();
         if (satGroundMat) keepMat.add(satGroundMat);
-        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.gouache, TEX3D.rattan, TEX3D.palhinha, TEX3D.la].filter(Boolean));
+        const keepTex = new Set([TEX3D.grass, TEX3D.floor, TEX3D.wall, TEX3D.telha, TEX3D.azulejo, TEX3D.pastilha, TEX3D.granito, TEX3D.gouache, TEX3D.rattan, TEX3D.palhinha, TEX3D.la].filter(Boolean));
         if (satGroundMat && satGroundMat.map) keepTex.add(satGroundMat.map);
         if (_fotoTexMap) Object.values(_fotoTexMap).forEach(t => keepTex.add(t));
         root.traverse(obj => {

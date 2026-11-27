@@ -17,7 +17,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 | Sala de estar | ✅ revisado | TV 55" no painel ripado, rack de palhinha, sofá caramelo com manta, tapete de lã, cortinas de linho, arandelas, balcão de refeições atrás do sofá |
 | Despensa (dormitório no V1/V2) | ✅ revisado | Despenseiro ao norte, freezer no canto sudoeste, forno e micro-ondas sob a janela sul, aéreo de panelas, coluna de limpeza, armário baixo a leste |
 | Lavanderia | ✅ revisado | Em C (lavadora, secadora, cuba), armários fechados, aéreo na parede oeste, varal de teto, tábua de passar rebatível |
-| Banho | ⏳ pendente | Azulejo, box, vaso e pia padrão; nunca organizado |
+| Banho | ✅ revisado | Banho social, retrô anos 90/2000: box até o teto com porta de correr, pastilha azul e branca no fundo do box e azulejo branco até o forro, bancada de granito branco salpicado suspensa (cuba esculpida, torneira de parede, prateleira de pedra), espelho bisotado, vaso de linhas retas com base fechada, toalheiro de barra simples, metais cromados. Regra do cliente: tudo pode molhar |
 | Hall de entrada | ✅ revisado | Armário de entrada no canto sul (sapateira aberta, gavetas, casacos abertos em ganchos, maleiro), espelho de corpo inteiro na parede leste, plafon de rattan Ø 30, porta-chaves junto da fechadura; guarda-chuva fica na garagem. Falta definir o interfone e o quadro de luz |
 
 ## Térreo — garagem
@@ -52,7 +52,7 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 
 ## Ordem sugerida
 
-1. Banho e hall de entrada do térreo (uso diário desde o V1).
+1. ~~Banho e hall de entrada do térreo~~ (feitos em 2026-11-27).
 2. Suíte + closet + banho da suíte.
 3. Estar (cinema) e escritório.
 4. Quartos 1 e 2, banheiro e rouparia.
@@ -65,4 +65,5 @@ Ao revisar um ambiente, mover para "Revisado" com as decisões principais e atua
 - Sem fita de LED: luz caseira (plafon, arandela, spots pontuais).
 - Canto é ruim de tirar e pôr coisas: evitar armário de canto.
 - Sul frio e úmido: nada sensível (comida) nas paredes sul.
+- Banheiros: tudo pode molhar e ser lavado com água (só pedra, louça, vidro e metal).
 - Portas de 0,70 a 0,80 m são confortáveis; janelas com no mínimo 1,50 m de largura.
